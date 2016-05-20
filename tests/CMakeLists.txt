@@ -2,7 +2,7 @@ set(target tests)
 
 file(GLOB core_sources "*.cpp")
 
-find_package(GTest)
+find_package(GTest REQUIRED)
 
 include_directories(
 	${GTEST_INCLUDE_DIRS}
