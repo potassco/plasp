@@ -289,12 +289,19 @@ void Description::parseVariablesSection(std::istream &istream)
 		const auto numberOfValues = parse<size_t>(istream);
 		variable.values.resize(numberOfValues);
 
-		istream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-		for (size_t j = 0; j < numberOfValues; j++)
+		try
 		{
-			auto &value = variable.values[j];
-			std::getline(istream, value.name);
+			istream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+			for (size_t j = 0; j < numberOfValues; j++)
+			{
+				auto &value = variable.values[j];
+				std::getline(istream, value.name);
+			}
+		}
+		catch (const std::exception &e)
+		{
+			throw ParserException("Could not parse variable " + variable.name + " (" + e.what() + ")");
 		}
 
 		parseSectionIdentifier(istream, "end_variable");
