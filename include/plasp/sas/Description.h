@@ -29,8 +29,6 @@ class Description
 		static Description fromFile(const boost::filesystem::path &path);
 
 	public:
-		Description();
-
 		bool usesActionCosts() const;
 		const std::vector<Variable> &variables() const;
 		const std::vector<MutexGroup> &mutexGroups() const;
@@ -42,6 +40,8 @@ class Description
 		void print(std::ostream &ostream) const;
 
 	private:
+		Description();
+
 		void parseSectionIdentifier(std::istream &istream, const std::string &expectedSectionIdentifier) const;
 
 		template<class T>
