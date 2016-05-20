@@ -254,8 +254,6 @@ void Description::parseVersionSection(std::istream &istream) const
 	if (formatVersion != 3)
 		throw ParserException("Unsupported SAS format version (" + std::to_string(formatVersion) + ")");
 
-	std::cout << "SAS format version: " << formatVersion << std::endl;
-
 	parseSectionIdentifier(istream, "end_version");
 }
 
@@ -434,8 +432,6 @@ void Description::parseAxiomSection(std::istream &istream)
 {
 	const auto numberOfAxiomRules = parse<size_t>(istream);
 	m_axiomRules.reserve(numberOfAxiomRules);
-
-	std::cout << "Axiom rules: " << numberOfAxiomRules << std::endl;
 
 	for (size_t i = 0; i < numberOfAxiomRules; i++)
 	{
