@@ -31,6 +31,13 @@ class Description
 	public:
 		Description();
 
+		const std::vector<Variable> &variables() const;
+		const std::vector<MutexGroup> &mutexGroups() const;
+		const std::vector<AssignedVariable> &initialStateFacts() const;
+		const std::vector<AssignedVariable> &goalFacts() const;
+		const std::vector<Operator> &operators() const;
+		const std::vector<AxiomRule> &axiomRules() const;
+
 		void print(std::ostream &ostream) const;
 
 	private:
