@@ -1,6 +1,7 @@
 #ifndef __SAS__DESCRIPTION_H
 #define __SAS__DESCRIPTION_H
 
+#include <iosfwd>
 #include <vector>
 
 #include <boost/filesystem/path.hpp>
@@ -24,6 +25,7 @@ namespace sas
 class Description
 {
 	public:
+		static Description fromStream(std::istream &istream);
 		static Description fromFile(const boost::filesystem::path &path);
 
 	public:

@@ -24,31 +24,36 @@ Description::Description()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Description Description::fromFile(const boost::filesystem::path &path)
+Description Description::fromStream(std::istream &istream)
 {
 	Description description;
 
 	setlocale(LC_NUMERIC, "C");
 
-	if (!boost::filesystem::is_regular_file(path))
-	{
-		std::cerr << "Error: File does not exist: " << path.string() << std::endl;
-		return description;
-	}
+	istream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
-	std::ifstream fileStream(path.string(), std::ios::in);
-	fileStream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-
-	description.parseVersionSection(fileStream);
-	description.parseMetricSection(fileStream);
-	description.parseVariablesSection(fileStream);
-	description.parseMutexSection(fileStream);
-	description.parseInitialStateSection(fileStream);
-	description.parseGoalSection(fileStream);
-	description.parseOperatorSection(fileStream);
-	description.parseAxiomSection(fileStream);
+	description.parseVersionSection(istream);
+	description.parseMetricSection(istream);
+	description.parseVariablesSection(istream);
+	description.parseMutexSection(istream);
+	description.parseInitialStateSection(istream);
+	description.parseGoalSection(istream);
+	description.parseOperatorSection(istream);
+	description.parseAxiomSection(istream);
 
 	return description;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Description Description::fromFile(const boost::filesystem::path &path)
+{
+	if (!boost::filesystem::is_regular_file(path))
+		throw std::runtime_error("File does not exist: \"" + path.string() + "\"");
+
+	std::ifstream fileStream(path.string(), std::ios::in);
+
+	return Description::fromStream(fileStream);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
