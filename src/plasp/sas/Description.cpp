@@ -189,7 +189,7 @@ size_t Description::parseNumber(std::istream &istream) const
 	}
 	catch (const std::exception &e)
 	{
-		throw ParserException("Could not parse number");
+		throw ParserException(std::string("Could not parse number (") + e.what() + ")");
 	}
 
 	if (number == std::numeric_limits<size_t>::max())
