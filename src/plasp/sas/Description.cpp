@@ -182,7 +182,15 @@ void Description::parseSectionIdentifier(std::istream &istream, const std::strin
 size_t Description::parseNumber(std::istream &istream) const
 {
 	auto number = std::numeric_limits<size_t>::max();
-	istream >> number;
+
+	try
+	{
+		istream >> number;
+	}
+	catch (const std::exception &e)
+	{
+		throw ParserException("Could not parse number");
+	}
 
 	if (number == std::numeric_limits<size_t>::max())
 		throw ParserException("Invalid number");
