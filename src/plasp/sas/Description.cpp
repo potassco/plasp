@@ -169,7 +169,7 @@ void Description::print(std::ostream &ostream) const
 
 void Description::parseSectionIdentifier(std::istream &istream, const std::string &expectedSectionIdentifier) const
 {
-	const auto sectionIdentifier = parseValue<std::string>(istream);
+	const auto sectionIdentifier = parse<std::string>(istream);
 
 	if (sectionIdentifier != expectedSectionIdentifier)
 		throw ParserException("Invalid format, expected " + expectedSectionIdentifier + ", got " + sectionIdentifier);
@@ -178,7 +178,7 @@ void Description::parseSectionIdentifier(std::istream &istream, const std::strin
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-T Description::parseValue(std::istream &istream) const
+T Description::parse(std::istream &istream) const
 {
 	T value;
 
@@ -198,7 +198,7 @@ T Description::parseValue(std::istream &istream) const
 
 const Variable &Description::parseVariable(std::istream &istream) const
 {
-	const auto variableID = parseValue<size_t>(istream);
+	const auto variableID = parse<size_t>(istream);
 
 	if (variableID >= m_variables.size())
 		throw ParserException("Variable index out of range (index " + std::to_string(variableID) + ")");
@@ -208,9 +208,9 @@ const Variable &Description::parseVariable(std::istream &istream) const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const Value &Description::parseVariableValue(std::istream &istream, const Variable &variable) const
+const Value &Description::parseValue(std::istream &istream, const Variable &variable) const
 {
-	const auto valueID = parseValue<int>(istream);
+	const auto valueID = parse<int>(istream);
 
 	if (valueID == -1)
 		return Value::Any;
@@ -226,7 +226,7 @@ const Value &Description::parseVariableValue(std::istream &istream, const Variab
 AssignedVariable Description::parseAssignedVariable(std::istream &istream) const
 {
 	const auto &variable = parseVariable(istream);
-	const auto &value = parseVariableValue(istream, variable);
+	const auto &value = parseValue(istream, variable);
 
 	return {variable, value};
 }
@@ -236,8 +236,8 @@ AssignedVariable Description::parseAssignedVariable(std::istream &istream) const
 VariableTransition Description::parseVariableTransition(std::istream &istream) const
 {
 	const auto &variable = parseVariable(istream);
-	const auto &valueBefore = parseVariableValue(istream, variable);
-	const auto &valueAfter = parseVariableValue(istream, variable);
+	const auto &valueBefore = parseValue(istream, variable);
+	const auto &valueAfter = parseValue(istream, variable);
 
 	return {variable, valueBefore, valueAfter};
 }
@@ -249,7 +249,7 @@ void Description::parseVersionSection(std::istream &istream) const
 	// Version section
 	parseSectionIdentifier(istream, "begin_version");
 
-	const auto formatVersion = parseValue<size_t>(istream);
+	const auto formatVersion = parse<size_t>(istream);
 
 	if (formatVersion != 3)
 		throw ParserException("Unsupported SAS format version (" + std::to_string(formatVersion) + ")");
@@ -274,7 +274,7 @@ void Description::parseMetricSection(std::istream &istream)
 
 void Description::parseVariablesSection(std::istream &istream)
 {
-	const auto numberOfVariables = parseValue<size_t>(istream);
+	const auto numberOfVariables = parse<size_t>(istream);
 	m_variables.resize(numberOfVariables);
 
 	for (size_t i = 0; i < numberOfVariables; i++)
@@ -283,10 +283,10 @@ void Description::parseVariablesSection(std::istream &istream)
 
 		parseSectionIdentifier(istream, "begin_variable");
 
-		variable.name = parseValue<std::string>(istream);
-		variable.axiomLayer = parseValue<int>(istream);
+		variable.name = parse<std::string>(istream);
+		variable.axiomLayer = parse<int>(istream);
 
-		const auto numberOfValues = parseValue<size_t>(istream);
+		const auto numberOfValues = parse<size_t>(istream);
 		variable.values.resize(numberOfValues);
 
 		istream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -305,7 +305,7 @@ void Description::parseVariablesSection(std::istream &istream)
 
 void Description::parseMutexSection(std::istream &istream)
 {
-	const auto numberOfMutexGroups = parseValue<size_t>(istream);
+	const auto numberOfMutexGroups = parse<size_t>(istream);
 	m_mutexGroups.resize(numberOfMutexGroups);
 
 	for (size_t i = 0; i < numberOfMutexGroups; i++)
@@ -314,7 +314,7 @@ void Description::parseMutexSection(std::istream &istream)
 
 		auto &mutexGroup = m_mutexGroups[i];
 
-		const auto numberOfFacts = parseValue<size_t>(istream);
+		const auto numberOfFacts = parse<size_t>(istream);
 		mutexGroup.facts.reserve(numberOfFacts);
 
 		for (size_t j = 0; j < numberOfFacts; j++)
@@ -338,7 +338,7 @@ void Description::parseInitialStateSection(std::istream &istream)
 	for (size_t i = 0; i < m_variables.size(); i++)
 	{
 		const auto &variable = m_variables[i];
-		const auto &value = parseVariableValue(istream, variable);
+		const auto &value = parseValue(istream, variable);
 
 		m_initialStateFacts.push_back({variable, value});
 	}
@@ -352,7 +352,7 @@ void Description::parseGoalSection(std::istream &istream)
 {
 	parseSectionIdentifier(istream, "begin_goal");
 
-	const auto numberOfGoalFacts = parseValue<size_t>(istream);
+	const auto numberOfGoalFacts = parse<size_t>(istream);
 	m_goalFacts.reserve(numberOfGoalFacts);
 
 	for (size_t i = 0; i < numberOfGoalFacts; i++)
@@ -368,7 +368,7 @@ void Description::parseGoalSection(std::istream &istream)
 
 void Description::parseOperatorSection(std::istream &istream)
 {
-	const auto numberOfOperators = parseValue<size_t>(istream);
+	const auto numberOfOperators = parse<size_t>(istream);
 	m_operators.resize(numberOfOperators);
 
 	for (size_t i = 0; i < numberOfOperators; i++)
@@ -380,7 +380,7 @@ void Description::parseOperatorSection(std::istream &istream)
 		auto &operator_ = m_operators[i];
 		std::getline(istream, operator_.name);
 
-		const auto numberOfPrevailConditions = parseValue<size_t>(istream);
+		const auto numberOfPrevailConditions = parse<size_t>(istream);
 		operator_.preconditions.reserve(numberOfPrevailConditions);
 
 		for (size_t j = 0; j < numberOfPrevailConditions; j++)
@@ -389,14 +389,14 @@ void Description::parseOperatorSection(std::istream &istream)
 			operator_.preconditions.push_back(std::move(precondition));
 		}
 
-		const auto numberOfEffects = parseValue<size_t>(istream);
+		const auto numberOfEffects = parse<size_t>(istream);
 		operator_.effects.reserve(numberOfEffects);
 
 		for (size_t j = 0; j < numberOfEffects; j++)
 		{
 			Effect::Conditions conditions;
 
-			const auto numberOfEffectConditions = parseValue<size_t>(istream);
+			const auto numberOfEffectConditions = parse<size_t>(istream);
 			conditions.reserve(numberOfEffectConditions);
 
 			for (size_t k = 0; k < numberOfEffectConditions; k++)
@@ -415,7 +415,7 @@ void Description::parseOperatorSection(std::istream &istream)
 			operator_.effects.push_back(std::move(effect));
 		}
 
-		operator_.costs = parseValue<size_t>(istream);
+		operator_.costs = parse<size_t>(istream);
 
 		parseSectionIdentifier(istream, "end_operator");
 	}
@@ -425,7 +425,7 @@ void Description::parseOperatorSection(std::istream &istream)
 
 void Description::parseAxiomSection(std::istream &istream)
 {
-	const auto numberOfAxiomRules = parseValue<size_t>(istream);
+	const auto numberOfAxiomRules = parse<size_t>(istream);
 	m_axiomRules.reserve(numberOfAxiomRules);
 
 	std::cout << "Axiom rules: " << numberOfAxiomRules << std::endl;
@@ -434,7 +434,7 @@ void Description::parseAxiomSection(std::istream &istream)
 	{
 		parseSectionIdentifier(istream, "begin_rule");
 
-		const auto numberOfConditions = parseValue<size_t>(istream);
+		const auto numberOfConditions = parse<size_t>(istream);
 
 		AxiomRule::Conditions conditions;
 		conditions.reserve(numberOfConditions);
