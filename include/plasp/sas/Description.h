@@ -31,6 +31,7 @@ class Description
 	public:
 		Description();
 
+		bool usesActionCosts() const;
 		const std::vector<Variable> &variables() const;
 		const std::vector<MutexGroup> &mutexGroups() const;
 		const std::vector<AssignedVariable> &initialStateFacts() const;
