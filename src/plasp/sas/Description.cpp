@@ -188,7 +188,7 @@ T Description::parse(std::istream &istream) const
 	}
 	catch (const std::exception &e)
 	{
-		throw ParserException(std::string("Could not parse value of type ") + typeid(T).name() + "(" + e.what() + ")");
+		throw ParserException(std::string("Could not parse value of type ") + typeid(T).name() + " (" + e.what() + ")");
 	}
 
 	return value;
