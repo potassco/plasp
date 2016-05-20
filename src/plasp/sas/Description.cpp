@@ -265,7 +265,7 @@ void Description::parseMetricSection(std::istream &istream)
 {
 	parseSectionIdentifier(istream, "begin_metric");
 
-	istream >> m_usesActionCosts;
+	m_usesActionCosts = parse<bool>(istream);
 
 	parseSectionIdentifier(istream, "end_metric");
 }
