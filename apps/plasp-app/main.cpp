@@ -37,8 +37,15 @@ int main(int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 
-	const auto sasDescription = plasp::sas::Description::fromFile(variablesMap["input"].as<std::string>());
-	sasDescription.print(std::cout);
+	try
+	{
+		const auto sasDescription = plasp::sas::Description::fromFile(variablesMap["input"].as<std::string>());
+		sasDescription.print(std::cout);
+	}
+	catch (const std::exception &e)
+	{
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
 
 	return EXIT_SUCCESS;
 }

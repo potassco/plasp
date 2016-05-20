@@ -36,25 +36,17 @@ Description Description::fromFile(const boost::filesystem::path &path)
 		return description;
 	}
 
-	try
-	{
-		std::ifstream fileStream(path.string(), std::ios::in);
-		fileStream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+	std::ifstream fileStream(path.string(), std::ios::in);
+	fileStream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
-		description.parseVersionSection(fileStream);
-		description.parseMetricSection(fileStream);
-		description.parseVariablesSection(fileStream);
-		description.parseMutexSection(fileStream);
-		description.parseInitialStateSection(fileStream);
-		description.parseGoalSection(fileStream);
-		description.parseOperatorSection(fileStream);
-		description.parseAxiomSection(fileStream);
-	}
-	catch (std::exception &exception)
-	{
-		std::cerr << "Error: " << exception.what() << std::endl;
-		return description;
-	}
+	description.parseVersionSection(fileStream);
+	description.parseMetricSection(fileStream);
+	description.parseVariablesSection(fileStream);
+	description.parseMutexSection(fileStream);
+	description.parseInitialStateSection(fileStream);
+	description.parseGoalSection(fileStream);
+	description.parseOperatorSection(fileStream);
+	description.parseAxiomSection(fileStream);
 
 	return description;
 }
