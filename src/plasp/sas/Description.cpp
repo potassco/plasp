@@ -64,7 +64,7 @@ void Description::print(std::ostream &ostream) const
 	std::for_each(m_variables.cbegin(), m_variables.cend(),
 		[&](const auto &variable)
 		{
-			ostream << "\t" << variable.name << std::endl;
+			ostream << "\t" << variable.name << ":" << std::endl;
 			ostream << "\t\tvalues: " << variable.values.size() << std::endl;
 
 			std::for_each(variable.values.cbegin(), variable.values.cend(),
@@ -115,7 +115,7 @@ void Description::print(std::ostream &ostream) const
 	std::for_each(m_operators.cbegin(), m_operators.cend(),
 		[&](const auto &operator_)
 		{
-			ostream << "\t" << operator_.name << std::endl;
+			ostream << "\t" << operator_.name << ":" << std::endl;
 			ostream << "\t\tpreconditions: " << operator_.preconditions.size() << std::endl;
 
 			std::for_each(operator_.preconditions.cbegin(), operator_.preconditions.cend(),
