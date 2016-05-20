@@ -33,7 +33,9 @@ class Description
 
 	private:
 		void parseSectionIdentifier(std::istream &istream, const std::string &expectedSectionIdentifier) const;
-		size_t parseNumber(std::istream &istream) const;
+
+		template<class T>
+		T parseValue(std::istream &istream) const;
 		const Variable &parseVariable(std::istream &istream) const;
 		const Value &parseVariableValue(std::istream &istream, const Variable &variable) const;
 		AssignedVariable parseAssignedVariable(std::istream &istream) const;
