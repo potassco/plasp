@@ -1,6 +1,7 @@
 #include <plasp/sas/Description.h>
 
 #include <iostream>
+#include <fstream>
 
 #include <boost/filesystem.hpp>
 
