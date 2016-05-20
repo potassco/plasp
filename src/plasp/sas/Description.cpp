@@ -125,7 +125,7 @@ void Description::print(std::ostream &ostream) const
 			std::for_each(variable.values.cbegin(), variable.values.cend(),
 				[&](const auto &value)
 			    {
-					ostream << "\t\t\t" << value.name << std::endl;
+					ostream << "\t\t\t" << value << std::endl;
 				});
 
 			ostream << "\t\taxiom layer: " << variable.axiomLayer << std::endl;
@@ -142,7 +142,7 @@ void Description::print(std::ostream &ostream) const
 			std::for_each(mutexGroup.facts.cbegin(), mutexGroup.facts.cend(),
 				[&](const auto &fact)
 				{
-					ostream << "\t\t" << fact.variable.name << " = " << fact.value.name << std::endl;
+					ostream << "\t\t" << fact.variable.name << " = " << fact.value << std::endl;
 				});
 		});
 
@@ -152,7 +152,7 @@ void Description::print(std::ostream &ostream) const
 	std::for_each(m_initialStateFacts.cbegin(), m_initialStateFacts.cend(),
 		[&](const auto &initialStateFact)
 		{
-			ostream << "\t" << initialStateFact.variable.name << " = " << initialStateFact.value.name << std::endl;
+			ostream << "\t" << initialStateFact.variable.name << " = " << initialStateFact.value << std::endl;
 		});
 
 	// Goal section
@@ -161,7 +161,7 @@ void Description::print(std::ostream &ostream) const
 	std::for_each(m_goalFacts.cbegin(), m_goalFacts.cend(),
 		[&](const auto &goalFact)
 		{
-			ostream << "\t" << goalFact.variable.name << " = " << goalFact.value.name << std::endl;
+			ostream << "\t" << goalFact.variable.name << " = " << goalFact.value << std::endl;
 		});
 
 	// Operator section
@@ -176,7 +176,7 @@ void Description::print(std::ostream &ostream) const
 			std::for_each(operator_.preconditions.cbegin(), operator_.preconditions.cend(),
 				[&](const auto &precondition)
 				{
-					std::cout << "\t\t\t" << precondition.variable.name << " = " << precondition.value.name << std::endl;
+					std::cout << "\t\t\t" << precondition.variable.name << " = " << precondition.value << std::endl;
 				});
 
 			ostream << "\t\teffects: " << operator_.effects.size() << std::endl;
@@ -190,11 +190,11 @@ void Description::print(std::ostream &ostream) const
 					std::for_each(effect.conditions.cbegin(), effect.conditions.cend(),
 						[&](const auto &condition)
 						{
-							ostream << "\t\t\t\t\t" << condition.variable.name << " = " << condition.value.name << std::endl;
+							ostream << "\t\t\t\t\t" << condition.variable.name << " = " << condition.value << std::endl;
 						});
 
 					ostream << "\t\t\t\tpostcondition:" << std::endl;
-					ostream << "\t\t\t\t\t" << effect.postcondition.variable.name << " = " << effect.postcondition.value.name << std::endl;
+					ostream << "\t\t\t\t\t" << effect.postcondition.variable.name << " = " << effect.postcondition.value << std::endl;
 				});
 
 			ostream << "\t\tcosts: " << operator_.costs << std::endl;
@@ -212,11 +212,11 @@ void Description::print(std::ostream &ostream) const
 			std::for_each(axiomRule.conditions.cbegin(), axiomRule.conditions.cend(),
 				[&](const auto &condition)
 				{
-					ostream << "\t\t\t" << condition.variable.name << " = " << condition.value.name << std::endl;
+					ostream << "\t\t\t" << condition.variable.name << " = " << condition.value << std::endl;
 				});
 
 			ostream << "\t\tpostcondition:" << std::endl;
-			ostream << "\t\t\t" << axiomRule.postcondition.variable.name << " = " << axiomRule.postcondition.value.name << std::endl;
+			ostream << "\t\t\t" << axiomRule.postcondition.variable.name << " = " << axiomRule.postcondition.value << std::endl;
 		});
 }
 
@@ -344,11 +344,21 @@ void Description::parseVariablesSection(std::istream &istream)
 
 		try
 		{
-			istream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
 			for (size_t j = 0; j < numberOfValues; j++)
 			{
 				auto &value = variable.values[j];
+
+				const auto sasSign = parse<std::string>(istream);
+
+				if (sasSign == "Atom")
+					value.sign = Value::Sign::Positive;
+				else if (sasSign == "NegatedAtom")
+					value.sign = Value::Sign::Negative;
+				else
+					throw ParserException("Invalid value sign \"" + sasSign + "\"");
+
+				istream.ignore(1);
+
 				std::getline(istream, value.name);
 			}
 		}

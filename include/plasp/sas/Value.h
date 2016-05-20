@@ -1,6 +1,7 @@
 #ifndef __SAS__VALUE_H
 #define __SAS__VALUE_H
 
+#include <iosfwd>
 #include <string>
 
 namespace plasp
@@ -16,10 +17,21 @@ namespace sas
 
 struct Value
 {
+	enum class Sign
+	{
+		Positive,
+		Negative
+	};
+
 	static const Value Any;
 
+	Sign sign;
 	std::string name;
 };
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+std::ostream &operator <<(std::ostream &ostream, const Value &value);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
