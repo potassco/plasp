@@ -4,7 +4,7 @@ file(GLOB core_sources "*.cpp")
 
 find_package(GTest)
 
-INCLUDE_DIRECTORIES(
+include_directories(
 	${GTEST_INCLUDE_DIRS}
 	${Boost_INCLUDE_DIRS}
 	${PROJECT_SOURCE_DIR}/include
