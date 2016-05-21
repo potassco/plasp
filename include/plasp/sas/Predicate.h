@@ -1,12 +1,9 @@
-#ifndef __SAS__OPERATOR_H
-#define __SAS__OPERATOR_H
+#ifndef __SAS__PREDICATE_H
+#define __SAS__PREDICATE_H
 
+#include <iosfwd>
 #include <string>
 #include <vector>
-
-#include <plasp/sas/Effect.h>
-#include <plasp/sas/Predicate.h>
-#include <plasp/sas/Variable.h>
 
 namespace plasp
 {
@@ -15,21 +12,19 @@ namespace sas
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// Operator
+// Predicate
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct Operator
+struct Predicate
 {
-	using Condition = AssignedVariable;
-	using Conditions = std::vector<Condition>;
-	using Effects = std::vector<Effect>;
-
-	Predicate predicate;
-	Conditions preconditions;
-	Effects effects;
-	size_t costs;
+	std::string name;
+	std::vector<std::string> arguments;
 };
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+std::ostream &operator <<(std::ostream &ostream, const Predicate &predicate);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

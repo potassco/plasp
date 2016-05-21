@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 #include <boost/filesystem.hpp>
 
@@ -29,7 +30,7 @@ Description Description::fromStream(std::istream &istream)
 {
 	Description description;
 
-	setlocale(LC_NUMERIC, "C");
+	std::setlocale(LC_NUMERIC, "C");
 
 	istream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
@@ -170,7 +171,7 @@ void Description::print(std::ostream &ostream) const
 	std::for_each(m_operators.cbegin(), m_operators.cend(),
 		[&](const auto &operator_)
 		{
-			ostream << "\t" << operator_.name << ":" << std::endl;
+			ostream << "\t" << operator_.predicate << ":" << std::endl;
 			ostream << "\t\tpreconditions: " << operator_.preconditions.size() << std::endl;
 
 			std::for_each(operator_.preconditions.cbegin(), operator_.preconditions.cend(),
@@ -445,10 +446,30 @@ void Description::parseOperatorSection(std::istream &istream)
 	{
 		parseSectionIdentifier(istream, "begin_operator");
 
-		istream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
 		auto &operator_ = m_operators[i];
-		std::getline(istream, operator_.name);
+
+		try
+		{
+			istream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+			// TODO: Inefficient, reimplement in one pass
+			std::string line;
+			std::getline(istream, line);
+
+			std::stringstream lineStream(line);
+
+			operator_.predicate.name = parse<std::string>(lineStream);
+
+			while (lineStream.peek() == ' ')
+				lineStream.ignore(1);
+
+			for (std::string argument; std::getline(lineStream, argument, ' ');)
+				operator_.predicate.arguments.push_back(std::move(argument));
+		}
+		catch (const std::exception &e)
+		{
+			throw ParserException("Could not parse operator predicate");
+		}
 
 		const auto numberOfPrevailConditions = parse<size_t>(istream);
 		operator_.preconditions.reserve(numberOfPrevailConditions);
