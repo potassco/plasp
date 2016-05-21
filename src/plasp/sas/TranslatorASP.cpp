@@ -98,7 +98,7 @@ void TranslatorASP::translate(std::ostream &ostream) const
 		[&](const auto &initialStateFact)
 		{
 			ostream << "init(";
-			initialStateFact.value.printAsASP(ostream);
+			initialStateFact.value().printAsASP(ostream);
 			ostream << ")." << std::endl;
 		});
 
@@ -111,7 +111,7 @@ void TranslatorASP::translate(std::ostream &ostream) const
 		[&](const auto &goalFact)
 		{
 			ostream << "goal(";
-			goalFact.value.printAsASP(ostream);
+			goalFact.value().printAsASP(ostream);
 			ostream << ")." << std::endl;
 		});
 
@@ -129,8 +129,8 @@ void TranslatorASP::translate(std::ostream &ostream) const
 				[&](const auto &precondition)
 			    {
 					ostream << "precondition(" << operator_.predicate
-						<< ", " << precondition.value.name()
-						<< ", " << (precondition.value.sign() == Value::Sign::Positive ? "true" : "false")
+						<< ", " << precondition.value().name()
+						<< ", " << (precondition.value().sign() == Value::Sign::Positive ? "true" : "false")
 						<< ")." << std::endl;
 				});
 
@@ -138,8 +138,8 @@ void TranslatorASP::translate(std::ostream &ostream) const
 				[&](const auto &effect)
 				{
 					ostream << "postcondition(" << operator_.predicate
-						<< ", " << effect.postcondition.value.name()
-						<< ", " << (effect.postcondition.value.sign() == Value::Sign::Positive ? "true" : "false")
+						<< ", " << effect.postcondition.value().name()
+						<< ", " << (effect.postcondition.value().sign() == Value::Sign::Positive ? "true" : "false")
 						<< ")." << std::endl;
 				});
 		});
@@ -154,11 +154,11 @@ void TranslatorASP::translate(std::ostream &ostream) const
 		{
 			ostream << ":- time(T)";
 
-			std::for_each(mutexGroup.facts.cbegin(), mutexGroup.facts.cend(),
+			std::for_each(mutexGroup.facts().cbegin(), mutexGroup.facts().cend(),
 				[&](const auto &fact)
 				{
 					ostream << ", holds(";
-					fact.value.printAsASP(ostream);
+					fact.value().printAsASP(ostream);
 					ostream << ", T)";
 				});
 

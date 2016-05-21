@@ -42,11 +42,6 @@ class Description
 	private:
 		Description();
 
-		const Variable &parseVariable(std::istream &istream) const;
-		const Value &parseValue(std::istream &istream, const Variable &variable) const;
-		AssignedVariable parseAssignedVariable(std::istream &istream) const;
-		VariableTransition parseVariableTransition(std::istream &istream) const;
-
 		void parseVersionSection(std::istream &istream) const;
 		void parseMetricSection(std::istream &istream);
 		void parseVariablesSection(std::istream &istream);

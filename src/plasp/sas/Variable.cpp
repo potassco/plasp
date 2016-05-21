@@ -44,6 +44,18 @@ Variable Variable::fromSAS(std::istream &istream)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+const Variable &Variable::referenceFromSAS(std::istream &istream, const std::vector<Variable> &variables)
+{
+	const auto variableID = utils::parse<size_t>(istream);
+
+	if (variableID >= variables.size())
+		throw utils::ParserException("Variable index out of range (index " + std::to_string(variableID) + ")");
+
+	return variables[variableID];
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 const std::string &Variable::name() const
 {
 	return m_name;

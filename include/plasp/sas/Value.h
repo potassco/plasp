@@ -10,6 +10,9 @@ namespace plasp
 namespace sas
 {
 
+// Forward declarations
+class Variable;
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Value
@@ -28,6 +31,7 @@ struct Value
 		static const Value Any;
 
 		static Value fromSAS(std::istream &istream);
+		static const Value &referenceFromSAS(std::istream &istream, const Variable &variable);
 
 	public:
 		void printAsSAS(std::ostream &ostream) const;

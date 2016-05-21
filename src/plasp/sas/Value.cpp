@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#include <plasp/sas/Variable.h>
 #include <plasp/utils/Parsing.h>
 
 namespace plasp
@@ -69,6 +70,21 @@ Value Value::fromSAS(std::istream &istream)
 	}
 
 	return value;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const Value &Value::referenceFromSAS(std::istream &istream, const Variable &variable)
+{
+	const auto valueID = utils::parse<int>(istream);
+
+	if (valueID == -1)
+		return Value::Any;
+
+	if (valueID < 0 || static_cast<size_t>(valueID) >= variable.values().size())
+		throw utils::ParserException("Value index out of range (variable " + variable.name() + ", index " + std::to_string(valueID) + ")");
+
+	return variable.values()[valueID];
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

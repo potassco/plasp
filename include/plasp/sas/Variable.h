@@ -22,6 +22,7 @@ class Variable
 {
 	public:
 		static Variable fromSAS(std::istream &istream);
+		static const Variable &referenceFromSAS(std::istream &istream, const std::vector<Variable> &variables);
 
 	public:
 		const std::string &name() const;
@@ -34,23 +35,6 @@ class Variable
 		std::string m_name;
 		int m_axiomLayer;
 		Values m_values;
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-struct AssignedVariable
-{
-	const Variable &variable;
-	const Value &value;
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-struct VariableTransition
-{
-	const Variable &variable;
-	const Value &valueBefore;
-	const Value &valueAfter;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

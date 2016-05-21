@@ -8,6 +8,7 @@
 
 #include <plasp/utils/ParserException.h>
 #include <plasp/utils/Parsing.h>
+#include <plasp/sas/VariableTransition.h>
 
 namespace plasp
 {
@@ -145,11 +146,11 @@ void Description::print(std::ostream &ostream) const
 		{
 			ostream << "\tmutex group:" << std::endl;
 
-			std::for_each(mutexGroup.facts.cbegin(), mutexGroup.facts.cend(),
+			std::for_each(mutexGroup.facts().cbegin(), mutexGroup.facts().cend(),
 				[&](const auto &fact)
 				{
-					ostream << "\t\t" << fact.variable.name() << " = ";
-					fact.value.printAsSAS(ostream);
+					ostream << "\t\t" << fact.variable().name() << " = ";
+					fact.value().printAsSAS(ostream);
 					ostream << std::endl;
 				});
 		});
@@ -160,8 +161,8 @@ void Description::print(std::ostream &ostream) const
 	std::for_each(m_initialStateFacts.cbegin(), m_initialStateFacts.cend(),
 		[&](const auto &initialStateFact)
 		{
-			ostream << "\t" << initialStateFact.variable.name() << " = ";
-			initialStateFact.value.printAsSAS(ostream);
+			ostream << "\t" << initialStateFact.variable().name() << " = ";
+			initialStateFact.value().printAsSAS(ostream);
 			ostream << std::endl;
 		});
 
@@ -171,8 +172,8 @@ void Description::print(std::ostream &ostream) const
 	std::for_each(m_goalFacts.cbegin(), m_goalFacts.cend(),
 		[&](const auto &goalFact)
 		{
-			ostream << "\t" << goalFact.variable.name() << " = ";
-			goalFact.value.printAsSAS(ostream);
+			ostream << "\t" << goalFact.variable().name() << " = ";
+			goalFact.value().printAsSAS(ostream);
 			ostream << std::endl;
 		});
 
@@ -188,8 +189,8 @@ void Description::print(std::ostream &ostream) const
 			std::for_each(operator_.preconditions.cbegin(), operator_.preconditions.cend(),
 				[&](const auto &precondition)
 				{
-					std::cout << "\t\t\t" << precondition.variable.name() << " = ";
-					precondition.value.printAsSAS(ostream);
+					std::cout << "\t\t\t" << precondition.variable().name() << " = ";
+					precondition.value().printAsSAS(ostream);
 					ostream << std::endl;
 				});
 
@@ -204,14 +205,14 @@ void Description::print(std::ostream &ostream) const
 					std::for_each(effect.conditions.cbegin(), effect.conditions.cend(),
 						[&](const auto &condition)
 						{
-							ostream << "\t\t\t\t\t" << condition.variable.name() << " = ";
-							condition.value.printAsSAS(ostream);
+							ostream << "\t\t\t\t\t" << condition.variable().name() << " = ";
+							condition.value().printAsSAS(ostream);
 							ostream << std::endl;
 						});
 
 					ostream << "\t\t\t\tpostcondition:" << std::endl;
-					ostream << "\t\t\t\t\t" << effect.postcondition.variable.name() << " = ";
-					effect.postcondition.value.printAsSAS(ostream);
+					ostream << "\t\t\t\t\t" << effect.postcondition.variable().name() << " = ";
+					effect.postcondition.value().printAsSAS(ostream);
 					ostream << std::endl;
 				});
 
@@ -230,64 +231,16 @@ void Description::print(std::ostream &ostream) const
 			std::for_each(axiomRule.conditions.cbegin(), axiomRule.conditions.cend(),
 				[&](const auto &condition)
 				{
-					ostream << "\t\t\t" << condition.variable.name() << " = ";
-					condition.value.printAsSAS(ostream);
+					ostream << "\t\t\t" << condition.variable().name() << " = ";
+					condition.value().printAsSAS(ostream);
 					ostream << std::endl;
 				});
 
 			ostream << "\t\tpostcondition:" << std::endl;
-			ostream << "\t\t\t" << axiomRule.postcondition.variable.name() << " = ";
-			axiomRule.postcondition.value.printAsSAS(ostream);
+			ostream << "\t\t\t" << axiomRule.postcondition.variable().name() << " = ";
+			axiomRule.postcondition.value().printAsSAS(ostream);
 			ostream << std::endl;
 		});
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-const Variable &Description::parseVariable(std::istream &istream) const
-{
-	const auto variableID = utils::parse<size_t>(istream);
-
-	if (variableID >= m_variables.size())
-		throw utils::ParserException("Variable index out of range (index " + std::to_string(variableID) + ")");
-
-	return m_variables[variableID];
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-const Value &Description::parseValue(std::istream &istream, const Variable &variable) const
-{
-	const auto valueID = utils::parse<int>(istream);
-
-	if (valueID == -1)
-		return Value::Any;
-
-	if (valueID < 0 || static_cast<size_t>(valueID) >= variable.values().size())
-		throw utils::ParserException("Value index out of range (variable " + variable.name() + ", index " + std::to_string(valueID) + ")");
-
-	return variable.values()[valueID];
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-AssignedVariable Description::parseAssignedVariable(std::istream &istream) const
-{
-	const auto &variable = parseVariable(istream);
-	const auto &value = parseValue(istream, variable);
-
-	return {variable, value};
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-VariableTransition Description::parseVariableTransition(std::istream &istream) const
-{
-	const auto &variable = parseVariable(istream);
-	const auto &valueBefore = parseValue(istream, variable);
-	const auto &valueAfter = parseValue(istream, variable);
-
-	return {variable, valueBefore, valueAfter};
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -332,25 +285,10 @@ void Description::parseVariablesSection(std::istream &istream)
 void Description::parseMutexSection(std::istream &istream)
 {
 	const auto numberOfMutexGroups = utils::parse<size_t>(istream);
-	m_mutexGroups.resize(numberOfMutexGroups);
+	m_mutexGroups.reserve(numberOfMutexGroups);
 
 	for (size_t i = 0; i < numberOfMutexGroups; i++)
-	{
-		utils::parseExpected<std::string>(istream, "begin_mutex_group");
-
-		auto &mutexGroup = m_mutexGroups[i];
-
-		const auto numberOfFacts = utils::parse<size_t>(istream);
-		mutexGroup.facts.reserve(numberOfFacts);
-
-		for (size_t j = 0; j < numberOfFacts; j++)
-		{
-			const auto fact = parseAssignedVariable(istream);
-			mutexGroup.facts.push_back(std::move(fact));
-		}
-
-		utils::parseExpected<std::string>(istream, "end_mutex_group");
-	}
+		m_mutexGroups.emplace_back(MutexGroup::fromSAS(istream, m_variables));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -362,12 +300,7 @@ void Description::parseInitialStateSection(std::istream &istream)
 	m_initialStateFacts.reserve(m_variables.size());
 
 	for (size_t i = 0; i < m_variables.size(); i++)
-	{
-		const auto &variable = m_variables[i];
-		const auto &value = parseValue(istream, variable);
-
-		m_initialStateFacts.push_back({variable, value});
-	}
+		m_initialStateFacts.emplace_back(AssignedVariable::fromSAS(istream, m_variables[i]));
 
 	utils::parseExpected<std::string>(istream, "end_state");
 }
@@ -382,10 +315,7 @@ void Description::parseGoalSection(std::istream &istream)
 	m_goalFacts.reserve(numberOfGoalFacts);
 
 	for (size_t i = 0; i < numberOfGoalFacts; i++)
-	{
-		const auto goalFact = parseAssignedVariable(istream);
-		m_goalFacts.push_back(std::move(goalFact));
-	}
+		m_goalFacts.emplace_back(AssignedVariable::fromSAS(istream, m_variables));
 
 	utils::parseExpected<std::string>(istream, "end_goal");
 }
@@ -430,10 +360,7 @@ void Description::parseOperatorSection(std::istream &istream)
 		operator_.preconditions.reserve(numberOfPrevailConditions);
 
 		for (size_t j = 0; j < numberOfPrevailConditions; j++)
-		{
-			const auto precondition = parseAssignedVariable(istream);
-			operator_.preconditions.push_back(std::move(precondition));
-		}
+			operator_.preconditions.emplace_back(AssignedVariable::fromSAS(istream, m_variables));
 
 		const auto numberOfEffects = utils::parse<size_t>(istream);
 		operator_.effects.reserve(numberOfEffects);
@@ -446,17 +373,14 @@ void Description::parseOperatorSection(std::istream &istream)
 			conditions.reserve(numberOfEffectConditions);
 
 			for (size_t k = 0; k < numberOfEffectConditions; k++)
-			{
-				const auto condition = parseAssignedVariable(istream);
-				conditions.push_back(std::move(condition));
-			}
+				conditions.emplace_back(AssignedVariable::fromSAS(istream, m_variables));
 
-			const auto variableTransition = parseVariableTransition(istream);
+			const auto variableTransition = VariableTransition::fromSAS(istream, m_variables);
 
-			if (&variableTransition.valueBefore != &Value::Any)
-				operator_.preconditions.push_back({variableTransition.variable, variableTransition.valueBefore});
+			if (&variableTransition.valueBefore() != &Value::Any)
+				operator_.preconditions.emplace_back(AssignedVariable(variableTransition.variable(), variableTransition.valueBefore()));
 
-			const Effect::Condition postcondition = {variableTransition.variable, variableTransition.valueAfter};
+			const Effect::Condition postcondition = {variableTransition.variable(), variableTransition.valueAfter()};
 			const Effect effect = {std::move(conditions), std::move(postcondition)};
 			operator_.effects.push_back(std::move(effect));
 		}
@@ -484,17 +408,14 @@ void Description::parseAxiomSection(std::istream &istream)
 		conditions.reserve(numberOfConditions);
 
 		for (size_t j = 0; j < numberOfConditions; j++)
-		{
-			const auto condition = parseAssignedVariable(istream);
-			conditions.push_back(std::move(condition));
-		}
+			conditions.emplace_back(AssignedVariable::fromSAS(istream, m_variables));
 
-		const auto variableTransition = parseVariableTransition(istream);
+		const auto variableTransition = VariableTransition::fromSAS(istream, m_variables);
 
-		if (&variableTransition.valueBefore != &Value::Any)
-			conditions.push_back({variableTransition.variable, variableTransition.valueBefore});
+		if (&variableTransition.valueBefore() != &Value::Any)
+			conditions.emplace_back(AssignedVariable(variableTransition.variable(), variableTransition.valueBefore()));
 
-		const AxiomRule::Condition postcondition = {variableTransition.variable, variableTransition.valueAfter};
+		const AxiomRule::Condition postcondition = {variableTransition.variable(), variableTransition.valueAfter()};
 		const AxiomRule axiomRule = {std::move(conditions), std::move(postcondition)};
 		m_axiomRules.push_back(std::move(axiomRule));
 
