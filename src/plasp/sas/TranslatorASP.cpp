@@ -54,17 +54,29 @@ void TranslatorASP::translate(std::ostream &ostream) const
 {
 	checkSupport();
 
-	std::vector<const Value *> fluents;
+	std::vector<const std::string *> fluents;
 
 	const auto &variables = m_description.variables();
 
 	std::for_each(variables.cbegin(), variables.cend(),
 		[&](const auto &variable)
 		{
-			std::for_each(variable.values.cbegin(), variable.values.cend(),
+			const auto &values = variable.values;
+
+			std::for_each(values.cbegin(), values.cend(),
 				[&](const auto &value)
 				{
-					fluents.push_back(&value);
+					const auto match = std::find_if(fluents.cbegin(), fluents.cend(),
+						[&](const auto &fluent)
+						{
+							return value.name == *fluent;
+						});
+
+					// Don’t add fluents if their negated form has already been added
+					if (match != fluents.cend())
+						return;
+
+					fluents.push_back(&value.name);
 				});
 		});
 
@@ -73,9 +85,6 @@ void TranslatorASP::translate(std::ostream &ostream) const
 	std::for_each(fluents.cbegin(), fluents.cend(),
 		[&](const auto *fluent)
 		{
-			if (fluent->sign == Value::Sign::Negative)
-				return;
-
 			ostream << "fluent(" << *fluent << ")." << std::endl;
 		});
 
