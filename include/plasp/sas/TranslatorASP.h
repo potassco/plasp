@@ -1,0 +1,37 @@
+#ifndef __SAS__TRANSLATOR_ASP_H
+#define __SAS__TRANSLATOR_ASP_H
+
+#include <plasp/sas/Description.h>
+
+#include <iosfwd>
+
+namespace plasp
+{
+namespace sas
+{
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// TranslatorASP
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class TranslatorASP
+{
+	public:
+		explicit TranslatorASP(const Description &description);
+
+		void translate(std::ostream &ostream) const;
+
+	private:
+		void checkSupport() const;
+
+		const Description &m_description;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+}
+}
+
+#endif

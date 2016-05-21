@@ -3,6 +3,7 @@
 #include <boost/program_options.hpp>
 
 #include <plasp/sas/Description.h>
+#include <plasp/sas/TranslatorASP.h>
 
 int main(int argc, char **argv)
 {
@@ -40,7 +41,8 @@ int main(int argc, char **argv)
 	try
 	{
 		const auto sasDescription = plasp::sas::Description::fromFile(variablesMap["input"].as<std::string>());
-		sasDescription.print(std::cout);
+		const auto sasTranslator = plasp::sas::TranslatorASP(sasDescription);
+		sasTranslator.translate(std::cout);
 	}
 	catch (const std::exception &e)
 	{
