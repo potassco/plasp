@@ -15,6 +15,9 @@ namespace sas
 
 std::ostream &operator <<(std::ostream &ostream, const Predicate &predicate)
 {
+	if (predicate.arguments.empty())
+		return (ostream << predicate.name);
+
 	ostream << predicate.name << "(";
 
 	for (size_t i = 0; i < predicate.arguments.size(); i++)
