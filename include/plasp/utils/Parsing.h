@@ -3,6 +3,7 @@
 
 #include <exception>
 #include <iosfwd>
+#include <sstream>
 #include <string>
 #include <typeinfo>
 
@@ -34,6 +35,23 @@ T parse(std::istream &istream)
 	}
 
 	return value;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class T>
+void parseExpected(std::istream &istream, const T &expectedValue)
+{
+	const auto value = parse<T>(istream);
+
+	if (value == expectedValue)
+		return;
+
+	std::stringstream errorStream;
+
+	errorStream << "Invalid format, expected " << expectedValue << ", got " + value;
+
+	throw utils::ParserException(errorStream.str());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

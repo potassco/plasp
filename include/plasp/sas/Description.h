@@ -42,8 +42,6 @@ class Description
 	private:
 		Description();
 
-		void parseSectionIdentifier(std::istream &istream, const std::string &expectedSectionIdentifier) const;
-
 		const Variable &parseVariable(std::istream &istream) const;
 		const Value &parseValue(std::istream &istream, const Variable &variable) const;
 		AssignedVariable parseAssignedVariable(std::istream &istream) const;

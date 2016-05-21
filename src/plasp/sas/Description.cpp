@@ -224,16 +224,6 @@ void Description::print(std::ostream &ostream) const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Description::parseSectionIdentifier(std::istream &istream, const std::string &expectedSectionIdentifier) const
-{
-	const auto sectionIdentifier = utils::parse<std::string>(istream);
-
-	if (sectionIdentifier != expectedSectionIdentifier)
-		throw utils::ParserException("Invalid format, expected " + expectedSectionIdentifier + ", got " + sectionIdentifier);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 const Variable &Description::parseVariable(std::istream &istream) const
 {
 	const auto variableID = utils::parse<size_t>(istream);
@@ -285,25 +275,25 @@ VariableTransition Description::parseVariableTransition(std::istream &istream) c
 void Description::parseVersionSection(std::istream &istream) const
 {
 	// Version section
-	parseSectionIdentifier(istream, "begin_version");
+	utils::parseExpected<std::string>(istream, "begin_version");
 
 	const auto formatVersion = utils::parse<size_t>(istream);
 
 	if (formatVersion != 3)
 		throw utils::ParserException("Unsupported SAS format version (" + std::to_string(formatVersion) + ")");
 
-	parseSectionIdentifier(istream, "end_version");
+	utils::parseExpected<std::string>(istream, "end_version");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Description::parseMetricSection(std::istream &istream)
 {
-	parseSectionIdentifier(istream, "begin_metric");
+	utils::parseExpected<std::string>(istream, "begin_metric");
 
 	m_usesActionCosts = utils::parse<bool>(istream);
 
-	parseSectionIdentifier(istream, "end_metric");
+	utils::parseExpected<std::string>(istream, "end_metric");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -317,7 +307,7 @@ void Description::parseVariablesSection(std::istream &istream)
 	{
 		auto &variable = m_variables[i];
 
-		parseSectionIdentifier(istream, "begin_variable");
+		utils::parseExpected<std::string>(istream, "begin_variable");
 
 		variable.name = utils::parse<std::string>(istream);
 		variable.axiomLayer = utils::parse<int>(istream);
@@ -350,7 +340,7 @@ void Description::parseVariablesSection(std::istream &istream)
 			throw utils::ParserException("Could not parse variable " + variable.name + " (" + e.what() + ")");
 		}
 
-		parseSectionIdentifier(istream, "end_variable");
+		utils::parseExpected<std::string>(istream, "end_variable");
 	}
 }
 
@@ -363,7 +353,7 @@ void Description::parseMutexSection(std::istream &istream)
 
 	for (size_t i = 0; i < numberOfMutexGroups; i++)
 	{
-		parseSectionIdentifier(istream, "begin_mutex_group");
+		utils::parseExpected<std::string>(istream, "begin_mutex_group");
 
 		auto &mutexGroup = m_mutexGroups[i];
 
@@ -376,7 +366,7 @@ void Description::parseMutexSection(std::istream &istream)
 			mutexGroup.facts.push_back(std::move(fact));
 		}
 
-		parseSectionIdentifier(istream, "end_mutex_group");
+		utils::parseExpected<std::string>(istream, "end_mutex_group");
 	}
 }
 
@@ -384,7 +374,7 @@ void Description::parseMutexSection(std::istream &istream)
 
 void Description::parseInitialStateSection(std::istream &istream)
 {
-	parseSectionIdentifier(istream, "begin_state");
+	utils::parseExpected<std::string>(istream, "begin_state");
 
 	m_initialStateFacts.reserve(m_variables.size());
 
@@ -396,14 +386,14 @@ void Description::parseInitialStateSection(std::istream &istream)
 		m_initialStateFacts.push_back({variable, value});
 	}
 
-	parseSectionIdentifier(istream, "end_state");
+	utils::parseExpected<std::string>(istream, "end_state");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Description::parseGoalSection(std::istream &istream)
 {
-	parseSectionIdentifier(istream, "begin_goal");
+	utils::parseExpected<std::string>(istream, "begin_goal");
 
 	const auto numberOfGoalFacts = utils::parse<size_t>(istream);
 	m_goalFacts.reserve(numberOfGoalFacts);
@@ -414,7 +404,7 @@ void Description::parseGoalSection(std::istream &istream)
 		m_goalFacts.push_back(std::move(goalFact));
 	}
 
-	parseSectionIdentifier(istream, "end_goal");
+	utils::parseExpected<std::string>(istream, "end_goal");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -426,7 +416,7 @@ void Description::parseOperatorSection(std::istream &istream)
 
 	for (size_t i = 0; i < numberOfOperators; i++)
 	{
-		parseSectionIdentifier(istream, "begin_operator");
+		utils::parseExpected<std::string>(istream, "begin_operator");
 
 		auto &operator_ = m_operators[i];
 
@@ -490,7 +480,7 @@ void Description::parseOperatorSection(std::istream &istream)
 
 		operator_.costs = utils::parse<size_t>(istream);
 
-		parseSectionIdentifier(istream, "end_operator");
+		utils::parseExpected<std::string>(istream, "end_operator");
 	}
 }
 
@@ -503,7 +493,7 @@ void Description::parseAxiomSection(std::istream &istream)
 
 	for (size_t i = 0; i < numberOfAxiomRules; i++)
 	{
-		parseSectionIdentifier(istream, "begin_rule");
+		utils::parseExpected<std::string>(istream, "begin_rule");
 
 		const auto numberOfConditions = utils::parse<size_t>(istream);
 
@@ -525,7 +515,7 @@ void Description::parseAxiomSection(std::istream &istream)
 		const AxiomRule axiomRule = {std::move(conditions), std::move(postcondition)};
 		m_axiomRules.push_back(std::move(axiomRule));
 
-		parseSectionIdentifier(istream, "end_rule");
+		utils::parseExpected<std::string>(istream, "end_rule");
 	}
 }
 
