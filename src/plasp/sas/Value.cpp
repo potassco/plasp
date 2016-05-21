@@ -31,7 +31,8 @@ const Value Value::Any = Value::any();
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 Value::Value()
-:	m_sign(Sign::Positive)
+:	m_sign{Sign::Positive},
+	m_hasArguments{true}
 {
 }
 
@@ -54,6 +55,13 @@ Value Value::fromSAS(std::istream &istream)
 	{
 		istream.ignore(1);
 		std::getline(istream, value.m_name);
+
+		// Remove trailing ()
+		if (value.m_name.find("()") != std::string::npos)
+		{
+			value.m_hasArguments = false;
+			value.m_name.resize(value.m_name.size() - 2);
+		}
 	}
 	catch (const std::exception &e)
 	{
@@ -97,6 +105,9 @@ void Value::printAsSAS(std::ostream &ostream) const
 		ostream << "NegatedAtom ";
 
 	ostream << m_name;
+
+	if (!m_hasArguments)
+		ostream << "()";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
