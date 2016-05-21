@@ -121,16 +121,18 @@ void Description::print(std::ostream &ostream) const
 	std::for_each(m_variables.cbegin(), m_variables.cend(),
 		[&](const auto &variable)
 		{
-			ostream << "\t" << variable.name << ":" << std::endl;
-			ostream << "\t\tvalues: " << variable.values.size() << std::endl;
+			const auto &values = variable.values();
 
-			std::for_each(variable.values.cbegin(), variable.values.cend(),
+			ostream << "\t" << variable.name() << ":" << std::endl;
+			ostream << "\t\tvalues: " << values.size() << std::endl;
+
+			std::for_each(values.cbegin(), values.cend(),
 				[&](const auto &value)
 			    {
 					ostream << "\t\t\t" << value << std::endl;
 				});
 
-			ostream << "\t\taxiom layer: " << variable.axiomLayer << std::endl;
+			ostream << "\t\taxiom layer: " << variable.axiomLayer() << std::endl;
 		});
 
 	// Mutex section
@@ -144,7 +146,7 @@ void Description::print(std::ostream &ostream) const
 			std::for_each(mutexGroup.facts.cbegin(), mutexGroup.facts.cend(),
 				[&](const auto &fact)
 				{
-					ostream << "\t\t" << fact.variable.name << " = " << fact.value << std::endl;
+					ostream << "\t\t" << fact.variable.name() << " = " << fact.value << std::endl;
 				});
 		});
 
@@ -154,7 +156,7 @@ void Description::print(std::ostream &ostream) const
 	std::for_each(m_initialStateFacts.cbegin(), m_initialStateFacts.cend(),
 		[&](const auto &initialStateFact)
 		{
-			ostream << "\t" << initialStateFact.variable.name << " = " << initialStateFact.value << std::endl;
+			ostream << "\t" << initialStateFact.variable.name() << " = " << initialStateFact.value << std::endl;
 		});
 
 	// Goal section
@@ -163,7 +165,7 @@ void Description::print(std::ostream &ostream) const
 	std::for_each(m_goalFacts.cbegin(), m_goalFacts.cend(),
 		[&](const auto &goalFact)
 		{
-			ostream << "\t" << goalFact.variable.name << " = " << goalFact.value << std::endl;
+			ostream << "\t" << goalFact.variable.name() << " = " << goalFact.value << std::endl;
 		});
 
 	// Operator section
@@ -178,7 +180,7 @@ void Description::print(std::ostream &ostream) const
 			std::for_each(operator_.preconditions.cbegin(), operator_.preconditions.cend(),
 				[&](const auto &precondition)
 				{
-					std::cout << "\t\t\t" << precondition.variable.name << " = " << precondition.value << std::endl;
+					std::cout << "\t\t\t" << precondition.variable.name() << " = " << precondition.value << std::endl;
 				});
 
 			ostream << "\t\teffects: " << operator_.effects.size() << std::endl;
@@ -192,11 +194,11 @@ void Description::print(std::ostream &ostream) const
 					std::for_each(effect.conditions.cbegin(), effect.conditions.cend(),
 						[&](const auto &condition)
 						{
-							ostream << "\t\t\t\t\t" << condition.variable.name << " = " << condition.value << std::endl;
+							ostream << "\t\t\t\t\t" << condition.variable.name() << " = " << condition.value << std::endl;
 						});
 
 					ostream << "\t\t\t\tpostcondition:" << std::endl;
-					ostream << "\t\t\t\t\t" << effect.postcondition.variable.name << " = " << effect.postcondition.value << std::endl;
+					ostream << "\t\t\t\t\t" << effect.postcondition.variable.name() << " = " << effect.postcondition.value << std::endl;
 				});
 
 			ostream << "\t\tcosts: " << operator_.costs << std::endl;
@@ -214,11 +216,11 @@ void Description::print(std::ostream &ostream) const
 			std::for_each(axiomRule.conditions.cbegin(), axiomRule.conditions.cend(),
 				[&](const auto &condition)
 				{
-					ostream << "\t\t\t" << condition.variable.name << " = " << condition.value << std::endl;
+					ostream << "\t\t\t" << condition.variable.name() << " = " << condition.value << std::endl;
 				});
 
 			ostream << "\t\tpostcondition:" << std::endl;
-			ostream << "\t\t\t" << axiomRule.postcondition.variable.name << " = " << axiomRule.postcondition.value << std::endl;
+			ostream << "\t\t\t" << axiomRule.postcondition.variable.name() << " = " << axiomRule.postcondition.value << std::endl;
 		});
 }
 
@@ -243,10 +245,10 @@ const Value &Description::parseValue(std::istream &istream, const Variable &vari
 	if (valueID == -1)
 		return Value::Any;
 
-	if (valueID < 0 || static_cast<size_t>(valueID) >= variable.values.size())
-		throw utils::ParserException("Value index out of range (variable " + variable.name + ", index " + std::to_string(valueID) + ")");
+	if (valueID < 0 || static_cast<size_t>(valueID) >= variable.values().size())
+		throw utils::ParserException("Value index out of range (variable " + variable.name() + ", index " + std::to_string(valueID) + ")");
 
-	return variable.values[valueID];
+	return variable.values()[valueID];
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -301,10 +303,10 @@ void Description::parseMetricSection(std::istream &istream)
 void Description::parseVariablesSection(std::istream &istream)
 {
 	const auto numberOfVariables = utils::parse<size_t>(istream);
-	m_variables.resize(numberOfVariables);
+	m_variables.reserve(numberOfVariables);
 
 	for (size_t i = 0; i < numberOfVariables; i++)
-		m_variables[i] = Variable::fromSAS(istream);
+		m_variables.emplace_back(Variable::fromSAS(istream));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

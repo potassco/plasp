@@ -27,7 +27,7 @@ void TranslatorASP::checkSupport() const
 	std::for_each(variables.cbegin(), variables.cend(),
 		[&](const auto &variable)
 		{
-			if (variable.axiomLayer != -1)
+			if (variable.axiomLayer() != -1)
 				throw TranslatorException("Axiom layers are currently unsupported");
 		});
 
@@ -61,7 +61,7 @@ void TranslatorASP::translate(std::ostream &ostream) const
 	std::for_each(variables.cbegin(), variables.cend(),
 		[&](const auto &variable)
 		{
-			const auto &values = variable.values;
+			const auto &values = variable.values();
 
 			std::for_each(values.cbegin(), values.cend(),
 				[&](const auto &value)

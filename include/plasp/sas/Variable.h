@@ -18,15 +18,22 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct Variable
+class Variable
 {
-	static Variable fromSAS(std::istream &istream);
+	public:
+		static Variable fromSAS(std::istream &istream);
 
-	using Values = std::vector<Value>;
+	public:
+		const std::string &name() const;
+		int axiomLayer() const;
+		const Values &values() const;
 
-	std::string name;
-	int axiomLayer;
-	Values values;
+	private:
+		Variable();
+
+		std::string m_name;
+		int m_axiomLayer;
+		Values m_values;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

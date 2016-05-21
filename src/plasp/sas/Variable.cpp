@@ -15,23 +15,30 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+Variable::Variable()
+:	m_axiomLayer(-1)
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 Variable Variable::fromSAS(std::istream &istream)
 {
 	Variable variable;
 
 	utils::parseExpected<std::string>(istream, "begin_variable");
 
-	variable.name = utils::parse<std::string>(istream);
-	variable.axiomLayer = utils::parse<int>(istream);
+	variable.m_name = utils::parse<std::string>(istream);
+	variable.m_axiomLayer = utils::parse<int>(istream);
 
 	const auto numberOfValues = utils::parse<size_t>(istream);
-	variable.values.resize(numberOfValues);
+	variable.m_values.resize(numberOfValues);
 
 	try
 	{
 		for (size_t j = 0; j < numberOfValues; j++)
 		{
-			auto &value = variable.values[j];
+			auto &value = variable.m_values[j];
 
 			const auto sasSign = utils::parse<std::string>(istream);
 
@@ -49,12 +56,33 @@ Variable Variable::fromSAS(std::istream &istream)
 	}
 	catch (const std::exception &e)
 	{
-		throw utils::ParserException("Could not parse variable " + variable.name + " (" + e.what() + ")");
+		throw utils::ParserException("Could not parse variable " + variable.m_name + " (" + e.what() + ")");
 	}
 
 	utils::parseExpected<std::string>(istream, "end_variable");
 
 	return variable;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const std::string &Variable::name() const
+{
+	return m_name;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int Variable::axiomLayer() const
+{
+	return m_axiomLayer;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const Values &Variable::values() const
+{
+	return m_values;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
