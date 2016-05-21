@@ -129,7 +129,9 @@ void Description::print(std::ostream &ostream) const
 			std::for_each(values.cbegin(), values.cend(),
 				[&](const auto &value)
 			    {
-					ostream << "\t\t\t" << value << std::endl;
+					ostream << "\t\t\t";
+					value.printAsSAS(ostream);
+					ostream << std::endl;
 				});
 
 			ostream << "\t\taxiom layer: " << variable.axiomLayer() << std::endl;
@@ -146,7 +148,9 @@ void Description::print(std::ostream &ostream) const
 			std::for_each(mutexGroup.facts.cbegin(), mutexGroup.facts.cend(),
 				[&](const auto &fact)
 				{
-					ostream << "\t\t" << fact.variable.name() << " = " << fact.value << std::endl;
+					ostream << "\t\t" << fact.variable.name() << " = ";
+					fact.value.printAsSAS(ostream);
+					ostream << std::endl;
 				});
 		});
 
@@ -156,7 +160,9 @@ void Description::print(std::ostream &ostream) const
 	std::for_each(m_initialStateFacts.cbegin(), m_initialStateFacts.cend(),
 		[&](const auto &initialStateFact)
 		{
-			ostream << "\t" << initialStateFact.variable.name() << " = " << initialStateFact.value << std::endl;
+			ostream << "\t" << initialStateFact.variable.name() << " = ";
+			initialStateFact.value.printAsSAS(ostream);
+			ostream << std::endl;
 		});
 
 	// Goal section
@@ -165,7 +171,9 @@ void Description::print(std::ostream &ostream) const
 	std::for_each(m_goalFacts.cbegin(), m_goalFacts.cend(),
 		[&](const auto &goalFact)
 		{
-			ostream << "\t" << goalFact.variable.name() << " = " << goalFact.value << std::endl;
+			ostream << "\t" << goalFact.variable.name() << " = ";
+			goalFact.value.printAsSAS(ostream);
+			ostream << std::endl;
 		});
 
 	// Operator section
@@ -180,7 +188,9 @@ void Description::print(std::ostream &ostream) const
 			std::for_each(operator_.preconditions.cbegin(), operator_.preconditions.cend(),
 				[&](const auto &precondition)
 				{
-					std::cout << "\t\t\t" << precondition.variable.name() << " = " << precondition.value << std::endl;
+					std::cout << "\t\t\t" << precondition.variable.name() << " = ";
+					precondition.value.printAsSAS(ostream);
+					ostream << std::endl;
 				});
 
 			ostream << "\t\teffects: " << operator_.effects.size() << std::endl;
@@ -194,11 +204,15 @@ void Description::print(std::ostream &ostream) const
 					std::for_each(effect.conditions.cbegin(), effect.conditions.cend(),
 						[&](const auto &condition)
 						{
-							ostream << "\t\t\t\t\t" << condition.variable.name() << " = " << condition.value << std::endl;
+							ostream << "\t\t\t\t\t" << condition.variable.name() << " = ";
+							condition.value.printAsSAS(ostream);
+							ostream << std::endl;
 						});
 
 					ostream << "\t\t\t\tpostcondition:" << std::endl;
-					ostream << "\t\t\t\t\t" << effect.postcondition.variable.name() << " = " << effect.postcondition.value << std::endl;
+					ostream << "\t\t\t\t\t" << effect.postcondition.variable.name() << " = ";
+					effect.postcondition.value.printAsSAS(ostream);
+					ostream << std::endl;
 				});
 
 			ostream << "\t\tcosts: " << operator_.costs << std::endl;
@@ -216,11 +230,15 @@ void Description::print(std::ostream &ostream) const
 			std::for_each(axiomRule.conditions.cbegin(), axiomRule.conditions.cend(),
 				[&](const auto &condition)
 				{
-					ostream << "\t\t\t" << condition.variable.name() << " = " << condition.value << std::endl;
+					ostream << "\t\t\t" << condition.variable.name() << " = ";
+					condition.value.printAsSAS(ostream);
+					ostream << std::endl;
 				});
 
 			ostream << "\t\tpostcondition:" << std::endl;
-			ostream << "\t\t\t" << axiomRule.postcondition.variable.name() << " = " << axiomRule.postcondition.value << std::endl;
+			ostream << "\t\t\t" << axiomRule.postcondition.variable.name() << " = ";
+			axiomRule.postcondition.value.printAsSAS(ostream);
+			ostream << std::endl;
 		});
 }
 

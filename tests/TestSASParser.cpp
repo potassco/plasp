@@ -46,11 +46,11 @@ TEST_F(SASParserTests, ParseValidSASFile)
 
 		ASSERT_EQ(description.variables().size(), 37);
 		ASSERT_EQ(description.variables()[0].axiomLayer(), -1);
-		ASSERT_EQ(description.variables()[0].values()[0].sign, plasp::sas::Value::Sign::Positive);
-		ASSERT_EQ(description.variables()[0].values()[0].name, "activate(philosopher-0, forks--pid-rfork)");
+		ASSERT_EQ(description.variables()[0].values()[0].sign(), plasp::sas::Value::Sign::Positive);
+		ASSERT_EQ(description.variables()[0].values()[0].name(), "activate(philosopher-0, forks--pid-rfork)");
 		ASSERT_EQ(description.variables()[36].axiomLayer(), -1);
-		ASSERT_EQ(description.variables()[36].values()[1].sign, plasp::sas::Value::Sign::Negative);
-		ASSERT_EQ(description.variables()[36].values()[1].name, "queue-tail-msg(forks-1-, fork)");
+		ASSERT_EQ(description.variables()[36].values()[1].sign(), plasp::sas::Value::Sign::Negative);
+		ASSERT_EQ(description.variables()[36].values()[1].name(), "queue-tail-msg(forks-1-, fork)");
 
 		ASSERT_EQ(description.mutexGroups().size(), 8);
 		ASSERT_EQ(description.mutexGroups()[0].facts.size(), 9);

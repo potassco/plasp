@@ -32,32 +32,10 @@ Variable Variable::fromSAS(std::istream &istream)
 	variable.m_axiomLayer = utils::parse<int>(istream);
 
 	const auto numberOfValues = utils::parse<size_t>(istream);
-	variable.m_values.resize(numberOfValues);
+	variable.m_values.reserve(numberOfValues);
 
-	try
-	{
-		for (size_t j = 0; j < numberOfValues; j++)
-		{
-			auto &value = variable.m_values[j];
-
-			const auto sasSign = utils::parse<std::string>(istream);
-
-			if (sasSign == "Atom")
-				value.sign = Value::Sign::Positive;
-			else if (sasSign == "NegatedAtom")
-				value.sign = Value::Sign::Negative;
-			else
-				throw utils::ParserException("Invalid value sign \"" + sasSign + "\"");
-
-			istream.ignore(1);
-
-			std::getline(istream, value.name);
-		}
-	}
-	catch (const std::exception &e)
-	{
-		throw utils::ParserException("Could not parse variable " + variable.m_name + " (" + e.what() + ")");
-	}
+	for (size_t j = 0; j < numberOfValues; j++)
+		variable.m_values.emplace_back(Value::fromSAS(istream));
 
 	utils::parseExpected<std::string>(istream, "end_variable");
 

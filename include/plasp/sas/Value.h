@@ -18,25 +18,37 @@ namespace sas
 
 struct Value
 {
-	enum class Sign
-	{
-		Positive,
-		Negative
-	};
+	public:
+		enum class Sign
+		{
+			Positive,
+			Negative
+		};
 
-	static const Value Any;
+		static const Value Any;
 
-	Sign sign;
-	std::string name;
+		static Value fromSAS(std::istream &istream);
+
+	public:
+		void printAsSAS(std::ostream &ostream) const;
+		void printAsASP(std::ostream &ostream) const;
+
+		Sign sign() const;
+		const std::string &name() const;
+
+	private:
+		static const Value any();
+
+	private:
+		Value();
+
+		Sign m_sign;
+		std::string m_name;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using Values = std::vector<Value>;
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-std::ostream &operator <<(std::ostream &ostream, const Value &value);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

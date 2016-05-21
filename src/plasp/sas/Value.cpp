@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include <plasp/utils/Parsing.h>
+
 namespace plasp
 {
 namespace sas
@@ -13,16 +15,88 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const Value Value::Any = {Value::Sign::Positive, "(any)"};
+const Value Value::any()
+{
+	Value any;
+
+	any.m_name = "(any)";
+
+	return any;
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::ostream &operator <<(std::ostream &ostream, const Value &value)
+const Value Value::Any = Value::any();
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Value::Value()
+:	m_sign(Sign::Positive)
 {
-	if (value.sign == Value::Sign::Negative)
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Value Value::fromSAS(std::istream &istream)
+{
+	Value value;
+
+	const auto sasSign = utils::parse<std::string>(istream);
+
+	if (sasSign == "Atom")
+		value.m_sign = Value::Sign::Positive;
+	else if (sasSign == "NegatedAtom")
+		value.m_sign = Value::Sign::Negative;
+	else
+		throw utils::ParserException("Invalid value sign \"" + sasSign + "\"");
+
+	try
+	{
+		istream.ignore(1);
+		std::getline(istream, value.m_name);
+	}
+	catch (const std::exception &e)
+	{
+		throw utils::ParserException(std::string("Could not parse variable value (") + e.what() + ")");
+	}
+
+	return value;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Value::Sign Value::sign() const
+{
+	return m_sign;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const std::string &Value::name() const
+{
+	return m_name;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Value::printAsASP(std::ostream &ostream) const
+{
+	if (m_sign == Value::Sign::Negative)
 		ostream << "not ";
 
-	return (ostream << value.name);
+	ostream << m_name;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Value::printAsSAS(std::ostream &ostream) const
+{
+	if (m_sign == Value::Sign::Positive)
+		ostream << "Atom ";
+	else
+		ostream << "NegatedAtom ";
+
+	ostream << m_name;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
