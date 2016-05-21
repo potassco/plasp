@@ -1,12 +1,12 @@
-#ifndef __SAS__PARSER_EXCEPTION_H
-#define __SAS__PARSER_EXCEPTION_H
+#ifndef __UTILS__PARSER_EXCEPTION_H
+#define __UTILS__PARSER_EXCEPTION_H
 
 #include <exception>
 #include <string>
 
 namespace plasp
 {
-namespace sas
+namespace utils
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
