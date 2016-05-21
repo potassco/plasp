@@ -67,6 +67,10 @@ TEST_F(SASParserTests, ParseValidSASFile)
 		ASSERT_EQ(&description.goalFacts()[1].value, &description.variables()[7].values[0]);
 
 		ASSERT_EQ(description.operators().size(), 34);
+		ASSERT_EQ(description.operators()[0].predicate.name, "activate-trans");
+		ASSERT_EQ(description.operators()[0].predicate.arguments.size(), 5);
+		ASSERT_EQ(description.operators()[0].predicate.arguments[0], "philosopher-0");
+		ASSERT_EQ(description.operators()[0].predicate.arguments[4], "state-3");
 		ASSERT_EQ(description.operators()[0].preconditions.size(), 3);
 		ASSERT_EQ(&description.operators()[0].preconditions[0].value, &description.variables()[4].values[4]);
 		ASSERT_EQ(&description.operators()[0].preconditions[1].value, &description.variables()[16].values[1]);
@@ -74,6 +78,10 @@ TEST_F(SASParserTests, ParseValidSASFile)
 		ASSERT_EQ(description.operators()[0].effects.size(), 1);
 		ASSERT_EQ(description.operators()[0].effects[0].conditions.size(), 0);
 		ASSERT_EQ(&description.operators()[0].effects[0].postcondition.value, &description.variables()[0].values[0]);
+		ASSERT_EQ(description.operators()[33].predicate.name, "queue-write");
+		ASSERT_EQ(description.operators()[33].predicate.arguments.size(), 4);
+		ASSERT_EQ(description.operators()[33].predicate.arguments[0], "philosopher-1");
+		ASSERT_EQ(description.operators()[33].predicate.arguments[3], "fork");
 		ASSERT_EQ(description.operators()[33].preconditions.size(), 2);
 		ASSERT_EQ(&description.operators()[33].preconditions[0].value, &description.variables()[1].values[3]);
 		ASSERT_EQ(&description.operators()[33].preconditions[1].value, &description.variables()[2].values[2]);
