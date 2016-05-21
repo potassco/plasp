@@ -6,6 +6,8 @@
 #include <string>
 #include <typeinfo>
 
+#include <plasp/utils/ParserException.h>
+
 namespace plasp
 {
 namespace utils
