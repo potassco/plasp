@@ -1,6 +1,7 @@
 #ifndef __SAS__VARIABLE_H
 #define __SAS__VARIABLE_H
 
+#include <iosfwd>
 #include <string>
 #include <vector>
 
@@ -19,6 +20,8 @@ namespace sas
 
 struct Variable
 {
+	static Variable fromSAS(std::istream &istream);
+
 	using Values = std::vector<Value>;
 
 	std::string name;
