@@ -93,7 +93,6 @@ void TranslatorASP::translate(std::ostream &ostream) const
 	std::for_each(fluents.cbegin(), fluents.cend(),
 		[&](const auto *fluent)
 		{
-			// TODO: Handle 0-ary predicates
 			ostream << "fluent(" << *fluent << ")." << std::endl;
 		});
 
