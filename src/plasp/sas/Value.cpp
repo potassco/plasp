@@ -113,9 +113,19 @@ void Value::printAsASP(std::ostream &ostream) const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Value::printAsASPCommaSeparated(std::ostream &ostream) const
+void Value::printAsASPPredicateBody(std::ostream &ostream) const
 {
 	ostream << utils::escapeASP(m_name) << ", " << (m_sign == Sign::Positive ? "true" : "false");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Value::printAsASPHoldsPredicate(std::ostream &ostream) const
+{
+	if (m_sign == Value::Sign::Negative)
+		ostream << "not ";
+
+	ostream << "holds(" << utils::escapeASP(m_name) << ", t)";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

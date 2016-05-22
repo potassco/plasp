@@ -112,11 +112,11 @@ void TranslatorASP::translate(std::ostream &ostream) const
 
 			std::for_each(preconditions.cbegin(), preconditions.cend(),
 				[&](const auto &precondition)
-			    {
+				{
 					ostream << "precondition(";
 					operator_.predicate().printAsASP(ostream);
 					ostream << ", ";
-					precondition.value().printAsASPCommaSeparated(ostream);
+					precondition.value().printAsASPPredicateBody(ostream);
 					ostream << ")." << std::endl;
 				});
 
@@ -128,7 +128,7 @@ void TranslatorASP::translate(std::ostream &ostream) const
 					ostream << "postcondition(";
 					operator_.predicate().printAsASP(ostream);
 					ostream << ", ";
-					effect.postcondition().value().printAsASPCommaSeparated(ostream);
+					effect.postcondition().value().printAsASPPredicateBody(ostream);
 					ostream << ")." << std::endl;
 				});
 
@@ -142,8 +142,11 @@ void TranslatorASP::translate(std::ostream &ostream) const
 	std::for_each(initialStateFacts.cbegin(), initialStateFacts.cend(),
 		[&](const auto &fact)
 		{
-			ostream << "init(";
-			fact.value().printAsASPCommaSeparated(ostream);
+			if (fact.value().sign() == Value::Sign::Negative)
+				return;
+
+			ostream << "initialState(";
+			fact.value().printAsASP(ostream);
 			ostream << ")." << std::endl;
 		});
 
@@ -156,7 +159,7 @@ void TranslatorASP::translate(std::ostream &ostream) const
 		[&](const auto &fact)
 		{
 			ostream << "goal(";
-			fact.value().printAsASPCommaSeparated(ostream);
+			fact.value().printAsASPPredicateBody(ostream);
 			ostream << ")." << std::endl;
 		});
 
@@ -175,14 +178,14 @@ void TranslatorASP::translate(std::ostream &ostream) const
 			for (auto i = values.cbegin(); i != values.cend(); i++)
 				for (auto j = i + 1; j != values.cend(); j++)
 				{
-		     		const auto &value1 = *i;
-		     		const auto &value2 = *j;
+					const auto &value1 = *i;
+					const auto &value2 = *j;
 
-		     		ostream << ":- time(T), holds(";
-		     		value1.printAsASPCommaSeparated(ostream);
-		     		ostream << ", T), holds(";
-		     		value2.printAsASPCommaSeparated(ostream);
-		     		ostream << ", T)." << std::endl;
+					ostream << ":- ";
+					value1.printAsASPHoldsPredicate(ostream);
+					ostream << ", ";
+					value2.printAsASPHoldsPredicate(ostream);
+					ostream << "." << std::endl;
 				}
 		});
 
@@ -199,14 +202,14 @@ void TranslatorASP::translate(std::ostream &ostream) const
 			for (auto i = facts.cbegin(); i != facts.cend(); i++)
 				for (auto j = i + 1; j != facts.cend(); j++)
 				{
-		     		const auto &value1 = i->value();
-		     		const auto &value2 = j->value();
+					const auto &value1 = i->value();
+					const auto &value2 = j->value();
 
-		     		ostream << ":- time(T), holds(";
-		     		value1.printAsASPCommaSeparated(ostream);
-		     		ostream << ", T), holds(";
-		     		value2.printAsASPCommaSeparated(ostream);
-		     		ostream << ", T)." << std::endl;
+					ostream << ":- ";
+					value1.printAsASPHoldsPredicate(ostream);
+					ostream << ", ";
+					value2.printAsASPHoldsPredicate(ostream);
+					ostream << "." << std::endl;
 				}
 		});
 }
