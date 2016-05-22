@@ -125,15 +125,18 @@ void TranslatorASP::translate(std::ostream &ostream) const
 	std::for_each(operators.cbegin(), operators.cend(),
 		[&](const auto &operator_)
 		{
-			ostream << "action(" << operator_.predicate() << ")." << std::endl;
+			ostream << "action(";
+			operator_.predicate().printAsASP(ostream);
+			ostream << ")." << std::endl;
 
 			const auto &preconditions = operator_.preconditions();
 
 			std::for_each(preconditions.cbegin(), preconditions.cend(),
 				[&](const auto &precondition)
 			    {
-					ostream << "precondition(" << operator_.predicate()
-						<< ", " << precondition.value().name()
+					ostream << "precondition(";
+					operator_.predicate().printAsASP(ostream);
+					ostream << ", " << precondition.value().name()
 						<< ", " << (precondition.value().sign() == Value::Sign::Positive ? "true" : "false")
 						<< ")." << std::endl;
 				});
@@ -143,8 +146,9 @@ void TranslatorASP::translate(std::ostream &ostream) const
 			std::for_each(effects.cbegin(), effects.cend(),
 				[&](const auto &effect)
 				{
-					ostream << "postcondition(" << operator_.predicate()
-						<< ", " << effect.postcondition().value().name()
+					ostream << "postcondition(";
+					operator_.predicate().printAsASP(ostream);
+					ostream << ", " << effect.postcondition().value().name()
 						<< ", " << (effect.postcondition().value().sign() == Value::Sign::Positive ? "true" : "false")
 						<< ")." << std::endl;
 				});

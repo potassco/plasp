@@ -23,28 +23,7 @@ Operator Operator::fromSAS(std::istream &istream, const Variables &variables)
 
 	utils::parseExpected<std::string>(istream, "begin_operator");
 
-	try
-	{
-		istream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-		// TODO: Inefficient, reimplement in one pass
-		std::string line;
-		std::getline(istream, line);
-
-		std::stringstream lineStream(line);
-
-		operator_.m_predicate.name = utils::parse<std::string>(lineStream);
-
-		while (lineStream.peek() == ' ')
-			lineStream.ignore(1);
-
-		for (std::string argument; std::getline(lineStream, argument, ' ');)
-			operator_.m_predicate.arguments.push_back(std::move(argument));
-	}
-	catch (const std::exception &e)
-	{
-		throw utils::ParserException("Could not parse operator predicate");
-	}
+	operator_.m_predicate = Predicate::fromSAS(istream);
 
 	const auto numberOfPrevailConditions = utils::parse<size_t>(istream);
 	operator_.m_preconditions.reserve(numberOfPrevailConditions);

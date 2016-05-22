@@ -95,7 +95,9 @@ std::ostream &operator >>(std::ostream &ostream, const Description &description)
 	std::for_each(operators.cbegin(), operators.cend(),
 		[&](const auto &operator_)
 		{
-			ostream << "\t" << operator_.predicate() << ":" << std::endl;
+			ostream << "\t";
+			operator_.predicate().printAsSAS(ostream);
+			ostream << ":" << std::endl;
 
 			const auto &preconditions = operator_.preconditions();
 
