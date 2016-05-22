@@ -40,8 +40,6 @@ class Description
 		const Operators &operators() const;
 		const AxiomRules &axiomRules() const;
 
-		void print(std::ostream &ostream) const;
-
 	private:
 		Description();
 
