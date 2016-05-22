@@ -76,8 +76,8 @@ TEST_F(SASParserTests, ParseValidSASFile)
 		ASSERT_EQ(&description.operators()[0].preconditions()[1].value(), &description.variables()[16].values()[1]);
 		ASSERT_EQ(&description.operators()[0].preconditions()[2].value(), &description.variables()[0].values()[8]);
 		ASSERT_EQ(description.operators()[0].effects().size(), 1);
-		ASSERT_EQ(description.operators()[0].effects()[0].conditions.size(), 0);
-		ASSERT_EQ(&description.operators()[0].effects()[0].postcondition.value(), &description.variables()[0].values()[0]);
+		ASSERT_EQ(description.operators()[0].effects()[0].conditions().size(), 0);
+		ASSERT_EQ(&description.operators()[0].effects()[0].postcondition().value(), &description.variables()[0].values()[0]);
 		ASSERT_EQ(description.operators()[33].predicate().name, "queue-write");
 		ASSERT_EQ(description.operators()[33].predicate().arguments.size(), 4);
 		ASSERT_EQ(description.operators()[33].predicate().arguments[0], "philosopher-1");
@@ -86,9 +86,9 @@ TEST_F(SASParserTests, ParseValidSASFile)
 		ASSERT_EQ(&description.operators()[33].preconditions()[0].value(), &description.variables()[1].values()[3]);
 		ASSERT_EQ(&description.operators()[33].preconditions()[1].value(), &description.variables()[2].values()[2]);
 		ASSERT_EQ(description.operators()[33].effects().size(), 3);
-		ASSERT_EQ(description.operators()[33].effects()[0].conditions.size(), 0);
-		ASSERT_EQ(&description.operators()[33].effects()[0].postcondition.value(), &description.variables()[1].values()[7]);
-		ASSERT_EQ(&description.operators()[33].effects()[2].postcondition.value(), &description.variables()[35].values()[0]);
+		ASSERT_EQ(description.operators()[33].effects()[0].conditions().size(), 0);
+		ASSERT_EQ(&description.operators()[33].effects()[0].postcondition().value(), &description.variables()[1].values()[7]);
+		ASSERT_EQ(&description.operators()[33].effects()[2].postcondition().value(), &description.variables()[35].values()[0]);
 
 		ASSERT_EQ(description.axiomRules().size(), 33);
 		ASSERT_EQ(description.axiomRules()[0].conditions().size(), 4);

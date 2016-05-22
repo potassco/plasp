@@ -17,18 +17,29 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct Effect;
+class Effect;
 using Effects = std::vector<Effect>;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct Effect
+class Effect
 {
-	using Condition = AssignedVariable;
-	using Conditions = AssignedVariables;
+	public:
+		using Condition = AssignedVariable;
+		using Conditions = AssignedVariables;
 
-	Conditions conditions;
-	Condition postcondition;
+		static Effect fromSAS(std::istream &istream, const Variables &variables, Conditions &preconditions);
+
+	public:
+		const Conditions &conditions() const;
+		const Condition &postcondition() const;
+
+	private:
+		Effect() = default;
+		explicit Effect(Conditions conditions, Condition postcondition);
+
+		Conditions m_conditions;
+		Condition m_postcondition;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

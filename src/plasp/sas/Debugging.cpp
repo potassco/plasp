@@ -117,9 +117,12 @@ std::ostream &operator >>(std::ostream &ostream, const Description &description)
 				[&](const auto &effect)
 				{
 					ostream << "\t\t\teffect:" << std::endl;
-					ostream << "\t\t\t\tconditions: " << effect.conditions.size() << std::endl;
 
-					std::for_each(effect.conditions.cbegin(), effect.conditions.cend(),
+					const auto &conditions = effect.conditions();
+
+					ostream << "\t\t\t\tconditions: " << conditions.size() << std::endl;
+
+					std::for_each(conditions.cbegin(), conditions.cend(),
 						[&](const auto &condition)
 						{
 							ostream << "\t\t\t\t\t" << condition.variable().name() << " = ";
@@ -128,8 +131,8 @@ std::ostream &operator >>(std::ostream &ostream, const Description &description)
 						});
 
 					ostream << "\t\t\t\tpostcondition:" << std::endl;
-					ostream << "\t\t\t\t\t" << effect.postcondition.variable().name() << " = ";
-					effect.postcondition.value().printAsSAS(ostream);
+					ostream << "\t\t\t\t\t" << effect.postcondition().variable().name() << " = ";
+					effect.postcondition().value().printAsSAS(ostream);
 					ostream << std::endl;
 				});
 

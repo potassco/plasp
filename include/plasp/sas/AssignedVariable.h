@@ -30,7 +30,7 @@ class AssignedVariable
 		static AssignedVariable fromSAS(std::istream &istream, const Variable &variable);
 
 	public:
-		AssignedVariable(const Variable &variable, const Value &value);
+		explicit AssignedVariable(const Variable &variable, const Value &value);
 
 		const Variable &variable() const;
 		const Value &value() const;

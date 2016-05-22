@@ -36,7 +36,7 @@ class AxiomRule
 
 	private:
 		AxiomRule() = default;
-		AxiomRule(Conditions conditions, Condition postcondition);
+		explicit AxiomRule(Conditions conditions, Condition postcondition);
 
 		Conditions m_conditions;
 		Condition m_postcondition;

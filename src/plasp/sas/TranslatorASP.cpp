@@ -36,10 +36,12 @@ void TranslatorASP::checkSupport() const
 	std::for_each(operators.cbegin(), operators.cend(),
 		[&](const auto &operator_)
 		{
-			std::for_each(operator_.effects().cbegin(), operator_.effects().cend(),
+			const auto &effects = operator_.effects();
+
+			std::for_each(effects.cbegin(), effects.cend(),
 				[&](const auto &effect)
 				{
-					if (!effect.conditions.empty())
+					if (!effect.conditions().empty())
 						throw TranslatorException("Conditional effects are currently unsupported");
 				});
 		});
@@ -142,8 +144,8 @@ void TranslatorASP::translate(std::ostream &ostream) const
 				[&](const auto &effect)
 				{
 					ostream << "postcondition(" << operator_.predicate()
-						<< ", " << effect.postcondition.value().name()
-						<< ", " << (effect.postcondition.value().sign() == Value::Sign::Positive ? "true" : "false")
+						<< ", " << effect.postcondition().value().name()
+						<< ", " << (effect.postcondition().value().sign() == Value::Sign::Positive ? "true" : "false")
 						<< ")." << std::endl;
 				});
 		});

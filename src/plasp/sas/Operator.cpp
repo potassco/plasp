@@ -50,30 +50,13 @@ Operator Operator::fromSAS(std::istream &istream, const Variables &variables)
 	operator_.m_preconditions.reserve(numberOfPrevailConditions);
 
 	for (size_t j = 0; j < numberOfPrevailConditions; j++)
-		operator_.m_preconditions.emplace_back(AssignedVariable::fromSAS(istream, variables));
+		operator_.m_preconditions.emplace_back(Condition::fromSAS(istream, variables));
 
 	const auto numberOfEffects = utils::parse<size_t>(istream);
 	operator_.m_effects.reserve(numberOfEffects);
 
 	for (size_t j = 0; j < numberOfEffects; j++)
-	{
-		Effect::Conditions conditions;
-
-		const auto numberOfEffectConditions = utils::parse<size_t>(istream);
-		conditions.reserve(numberOfEffectConditions);
-
-		for (size_t k = 0; k < numberOfEffectConditions; k++)
-			conditions.emplace_back(AssignedVariable::fromSAS(istream, variables));
-
-		const auto variableTransition = VariableTransition::fromSAS(istream, variables);
-
-		if (&variableTransition.valueBefore() != &Value::Any)
-			operator_.m_preconditions.emplace_back(AssignedVariable(variableTransition.variable(), variableTransition.valueBefore()));
-
-		const Effect::Condition postcondition = {variableTransition.variable(), variableTransition.valueAfter()};
-		const Effect effect = {std::move(conditions), std::move(postcondition)};
-		operator_.m_effects.push_back(std::move(effect));
-	}
+		operator_.m_effects.emplace_back(Effect::fromSAS(istream, variables, operator_.m_preconditions));
 
 	operator_.m_costs = utils::parse<size_t>(istream);
 
