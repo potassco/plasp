@@ -105,7 +105,7 @@ void TranslatorASP::translate(std::ostream &ostream) const
 		[&](const auto &fact)
 		{
 			ostream << "init(";
-			fact.value().printAsASP(ostream);
+			fact.value().printAsASPCommaSeparated(ostream);
 			ostream << ")." << std::endl;
 		});
 
@@ -118,7 +118,7 @@ void TranslatorASP::translate(std::ostream &ostream) const
 		[&](const auto &fact)
 		{
 			ostream << "goal(";
-			fact.value().printAsASP(ostream);
+			fact.value().printAsASPCommaSeparated(ostream);
 			ostream << ")." << std::endl;
 		});
 
@@ -141,9 +141,9 @@ void TranslatorASP::translate(std::ostream &ostream) const
 			    {
 					ostream << "precondition(";
 					operator_.predicate().printAsASP(ostream);
-					ostream << ", " << precondition.value().name()
-						<< ", " << (precondition.value().sign() == Value::Sign::Positive ? "true" : "false")
-						<< ")." << std::endl;
+					ostream << ", ";
+					precondition.value().printAsASPCommaSeparated(ostream);
+					ostream << ")." << std::endl;
 				});
 
 			const auto &effects = operator_.effects();
@@ -153,31 +153,60 @@ void TranslatorASP::translate(std::ostream &ostream) const
 				{
 					ostream << "postcondition(";
 					operator_.predicate().printAsASP(ostream);
-					ostream << ", " << effect.postcondition().value().name()
-						<< ", " << (effect.postcondition().value().sign() == Value::Sign::Positive ? "true" : "false")
-						<< ")." << std::endl;
+					ostream << ", ";
+					effect.postcondition().value().printAsASPCommaSeparated(ostream);
+					ostream << ")." << std::endl;
 				});
 		});
 
 	ostream << std::endl;
-	ostream << "% mutex groups" << std::endl;
+	ostream << "% constraints derived from SAS variables" << std::endl;
+
+	std::for_each(variables.cbegin(), variables.cend(),
+		[&](const auto &variable)
+		{
+			const auto &values = variable.values();
+
+			// Skip trivial constraints of the form :- x, not x.
+			if (values.size() == 2 && values[0].name() == values[1].name())
+				return;
+
+			for (auto i = values.cbegin(); i != values.cend(); i++)
+				for (auto j = i + 1; j != values.cend(); j++)
+				{
+		     		const auto &value1 = *i;
+		     		const auto &value2 = *j;
+
+		     		ostream << ":- time(T), holds(";
+		     		value1.printAsASPCommaSeparated(ostream);
+		     		ostream << ", T), holds(";
+		     		value2.printAsASPCommaSeparated(ostream);
+		     		ostream << ", T)." << std::endl;
+				}
+		});
+
+	ostream << std::endl;
+	ostream << "% constraints derived from SAS mutex groups" << std::endl;
 
 	const auto &mutexGroups = m_description.mutexGroups();
 
 	std::for_each(mutexGroups.cbegin(), mutexGroups.cend(),
 		[&](const auto &mutexGroup)
 		{
-			ostream << ":- time(T)";
+			const auto &facts = mutexGroup.facts();
 
-			std::for_each(mutexGroup.facts().cbegin(), mutexGroup.facts().cend(),
-				[&](const auto &fact)
+			for (auto i = facts.cbegin(); i != facts.cend(); i++)
+				for (auto j = i + 1; j != facts.cend(); j++)
 				{
-					ostream << ", holds(";
-					fact.value().printAsASP(ostream);
-					ostream << ", T)";
-				});
+		     		const auto &value1 = i->value();
+		     		const auto &value2 = j->value();
 
-			ostream << "." << std::endl;
+		     		ostream << ":- time(T), holds(";
+		     		value1.printAsASPCommaSeparated(ostream);
+		     		ostream << ", T), holds(";
+		     		value2.printAsASPCommaSeparated(ostream);
+		     		ostream << ", T)." << std::endl;
+				}
 		});
 }
 

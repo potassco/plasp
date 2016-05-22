@@ -113,6 +113,13 @@ void Value::printAsASP(std::ostream &ostream) const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void Value::printAsASPCommaSeparated(std::ostream &ostream) const
+{
+	ostream << m_name << ", " << (m_sign == Sign::Positive ? "true" : "false");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void Value::printAsSAS(std::ostream &ostream) const
 {
 	if (m_sign == Value::Sign::Positive)
