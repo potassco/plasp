@@ -34,12 +34,12 @@ AxiomRule AxiomRule::fromSAS(std::istream &istream, const Variables &variables)
 	conditions.reserve(numberOfConditions);
 
 	for (size_t j = 0; j < numberOfConditions; j++)
-		conditions.emplace_back(AssignedVariable::fromSAS(istream, variables));
+		conditions.emplace_back(Condition::fromSAS(istream, variables));
 
 	const auto variableTransition = VariableTransition::fromSAS(istream, variables);
 
 	if (&variableTransition.valueBefore() != &Value::Any)
-		conditions.emplace_back(AssignedVariable(variableTransition.variable(), variableTransition.valueBefore()));
+		conditions.emplace_back(Condition(variableTransition.variable(), variableTransition.valueBefore()));
 
 	utils::parseExpected<std::string>(istream, "end_rule");
 

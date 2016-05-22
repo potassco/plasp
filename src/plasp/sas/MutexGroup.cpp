@@ -26,7 +26,7 @@ MutexGroup MutexGroup::fromSAS(std::istream &istream, const Variables &variables
 
 	for (size_t j = 0; j < numberOfFacts; j++)
 	{
-		mutexGroup.m_facts.emplace_back(AssignedVariable::fromSAS(istream, variables));
+		mutexGroup.m_facts.emplace_back(Fact::fromSAS(istream, variables));
 	}
 
 	utils::parseExpected<std::string>(istream, "end_mutex_group");

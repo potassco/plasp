@@ -25,7 +25,7 @@ Goal Goal::fromSAS(std::istream &istream, const Variables &variables)
 	goal.m_facts.reserve(numberOfGoalFacts);
 
 	for (size_t i = 0; i < numberOfGoalFacts; i++)
-		goal.m_facts.emplace_back(AssignedVariable::fromSAS(istream, variables));
+		goal.m_facts.emplace_back(Fact::fromSAS(istream, variables));
 
 	utils::parseExpected<std::string>(istream, "end_goal");
 

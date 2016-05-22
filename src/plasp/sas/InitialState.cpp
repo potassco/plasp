@@ -24,7 +24,7 @@ InitialState InitialState::fromSAS(std::istream &istream, const Variables &varia
 	initialState.m_facts.reserve(variables.size());
 
 	for (size_t i = 0; i < variables.size(); i++)
-		initialState.m_facts.emplace_back(AssignedVariable::fromSAS(istream, variables[i]));
+		initialState.m_facts.emplace_back(Fact::fromSAS(istream, variables[i]));
 
 	utils::parseExpected<std::string>(istream, "end_state");
 
