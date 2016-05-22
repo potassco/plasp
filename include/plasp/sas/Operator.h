@@ -28,10 +28,10 @@ using Operators = std::vector<Operator>;
 class Operator
 {
 	public:
-		static Operator fromSAS(std::istream &istream, const Variables &variables);
-
 		using Condition = AssignedVariable;
 		using Conditions = AssignedVariables;
+
+		static Operator fromSAS(std::istream &istream, const Variables &variables);
 
 	public:
 		const Predicate &predicate() const;
