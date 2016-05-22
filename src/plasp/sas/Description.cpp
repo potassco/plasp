@@ -113,7 +113,6 @@ const AxiomRules &Description::axiomRules() const
 
 void Description::parseVersionSection(std::istream &istream) const
 {
-	// Version section
 	utils::parseExpected<std::string>(istream, "begin_version");
 
 	const auto formatVersion = utils::parse<size_t>(istream);
