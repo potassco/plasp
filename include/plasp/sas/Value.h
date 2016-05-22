@@ -34,6 +34,7 @@ struct Value
 		};
 
 		static const Value Any;
+		static const Value None;
 
 		static Value fromSAS(std::istream &istream);
 		static const Value &referenceFromSAS(std::istream &istream, const Variable &variable);
@@ -49,7 +50,7 @@ struct Value
 		const std::string &name() const;
 
 	private:
-		static const Value any();
+		static const Value reserved(const std::string &name);
 
 	private:
 		Value();
@@ -58,6 +59,10 @@ struct Value
 		std::string m_name;
 		bool m_hasArguments;
 };
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool operator ==(const Value &value1, const Value &value2);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -14,6 +14,7 @@ class SASParserTests : public ::testing::Test
 	protected:
 		SASParserTests()
 		:	m_blocksworldTestFile(readFile("data/blocksworld.sas")),
+			m_freecellTestFile(readFile("data/freecell.sas")),
 			m_philosophersTestFile(readFile("data/philosophers.sas"))
 		{
 		}
@@ -33,6 +34,7 @@ class SASParserTests : public ::testing::Test
 		}
 
 		std::stringstream m_blocksworldTestFile;
+		std::stringstream m_freecellTestFile;
 		std::stringstream m_philosophersTestFile;
 };
 
@@ -119,6 +121,24 @@ TEST_F(SASParserTests, RemoveTrailingParentheses)
 
 		ASSERT_EQ(description.variables()[4].values()[0].name(), "handempty");
 		ASSERT_EQ(description.variables()[5].values()[0].name(), "holding(a)");
+	}
+	catch (const std::exception &e)
+	{
+		FAIL () << e.what();
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TEST_F(SASParserTests, ParseNoneValue)
+{
+	try
+	{
+		const auto description = plasp::sas::Description::fromStream(m_freecellTestFile);
+
+		// TODO: compare by identity, not value
+		ASSERT_EQ(description.variables()[0].values()[3], plasp::sas::Value::None);
+		ASSERT_EQ(description.variables()[5].values()[6], plasp::sas::Value::None);
 	}
 	catch (const std::exception &e)
 	{

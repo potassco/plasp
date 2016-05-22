@@ -16,18 +16,19 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const Value Value::any()
+const Value Value::reserved(const std::string &name)
 {
 	Value any;
 
-	any.m_name = "(any)";
+	any.m_name = name;
 
 	return any;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const Value Value::Any = Value::any();
+const Value Value::Any = Value::reserved("(any)");
+const Value Value::None = Value::reserved("(none)");
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -54,9 +55,18 @@ Value Value::negated() const
 
 Value Value::fromSAS(std::istream &istream)
 {
-	Value value;
-
 	const auto sasSign = utils::parse<std::string>(istream);
+
+	if (sasSign == "<none")
+	{
+		utils::parseExpected<std::string>(istream, "of");
+		utils::parseExpected<std::string>(istream, "those>");
+
+		// TODO: do not return a copy of Value::None
+		return Value::None;
+	}
+
+	Value value;
 
 	if (sasSign == "Atom")
 		value.m_sign = Value::Sign::Positive;
@@ -144,6 +154,19 @@ void Value::printAsSAS(std::ostream &ostream) const
 
 	if (!m_hasArguments)
 		ostream << "()";
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool operator ==(const Value &value1, const Value &value2)
+{
+	if (value1.sign() != value2.sign())
+		return false;
+
+	if (value1.name() != value2.name())
+		return false;
+
+	return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
