@@ -85,18 +85,18 @@ void Predicate::printAsASP(std::ostream &ostream) const
 {
 	if (m_arguments.empty())
 	{
-		ostream << m_name;
+		ostream << utils::escapeASP(m_name);
 		return;
 	}
 
-	ostream << m_name << "(";
+	ostream << utils::escapeASP(m_name) << "(";
 
 	for (size_t i = 0; i < m_arguments.size(); i++)
 	{
 		if (i > 0)
 			ostream << ", ";
 
-		ostream << m_arguments[i];
+		ostream << utils::escapeASP(m_arguments[i]);
 	}
 
 	ostream << ")";

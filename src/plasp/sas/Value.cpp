@@ -108,14 +108,14 @@ void Value::printAsASP(std::ostream &ostream) const
 	if (m_sign == Value::Sign::Negative)
 		ostream << "not ";
 
-	ostream << m_name;
+	ostream << utils::escapeASP(m_name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Value::printAsASPCommaSeparated(std::ostream &ostream) const
 {
-	ostream << m_name << ", " << (m_sign == Sign::Positive ? "true" : "false");
+	ostream << utils::escapeASP(m_name) << ", " << (m_sign == Sign::Positive ? "true" : "false");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
