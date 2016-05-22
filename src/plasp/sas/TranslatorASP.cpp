@@ -131,9 +131,10 @@ void TranslatorASP::translate(std::ostream &ostream) const
 					effect.postcondition().value().printAsASPCommaSeparated(ostream);
 					ostream << ")." << std::endl;
 				});
+
+			ostream << std::endl;
 		});
 
-	ostream << std::endl;
 	ostream << "% initial state" << std::endl;
 
 	const auto &initialStateFacts = m_description.initialState().facts();
