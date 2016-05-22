@@ -181,11 +181,11 @@ void TranslatorASP::translate(std::ostream &ostream) const
 					const auto &value1 = *i;
 					const auto &value2 = *j;
 
-					ostream << ":- ";
-					value1.printAsASPHoldsPredicate(ostream);
+					ostream << "mutex(";
+					value1.printAsASPPredicateBody(ostream);
 					ostream << ", ";
-					value2.printAsASPHoldsPredicate(ostream);
-					ostream << "." << std::endl;
+					value2.printAsASPPredicateBody(ostream);
+					ostream << ")." << std::endl;
 				}
 		});
 
@@ -205,11 +205,11 @@ void TranslatorASP::translate(std::ostream &ostream) const
 					const auto &value1 = i->value();
 					const auto &value2 = j->value();
 
-					ostream << ":- ";
-					value1.printAsASPHoldsPredicate(ostream);
+					ostream << "mutex(";
+					value1.printAsASPPredicateBody(ostream);
 					ostream << ", ";
-					value2.printAsASPHoldsPredicate(ostream);
-					ostream << "." << std::endl;
+					value2.printAsASPPredicateBody(ostream);
+					ostream << ")." << std::endl;
 				}
 		});
 }

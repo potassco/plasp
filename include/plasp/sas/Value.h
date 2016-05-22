@@ -42,7 +42,6 @@ struct Value
 		void printAsSAS(std::ostream &ostream) const;
 		void printAsASP(std::ostream &ostream) const;
 		void printAsASPPredicateBody(std::ostream &ostream) const;
-		void printAsASPHoldsPredicate(std::ostream &ostream) const;
 
 		Sign sign() const;
 		const std::string &name() const;

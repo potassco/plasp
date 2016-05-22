@@ -120,16 +120,6 @@ void Value::printAsASPPredicateBody(std::ostream &ostream) const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Value::printAsASPHoldsPredicate(std::ostream &ostream) const
-{
-	if (m_sign == Value::Sign::Negative)
-		ostream << "not ";
-
-	ostream << "holds(" << utils::escapeASP(m_name) << ", t)";
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 void Value::printAsSAS(std::ostream &ostream) const
 {
 	if (m_sign == Value::Sign::Positive)
