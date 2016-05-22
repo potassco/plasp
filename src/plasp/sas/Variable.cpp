@@ -35,7 +35,13 @@ Variable Variable::fromSAS(std::istream &istream)
 	variable.m_values.reserve(numberOfValues);
 
 	for (size_t j = 0; j < numberOfValues; j++)
+	{
 		variable.m_values.emplace_back(Value::fromSAS(istream));
+
+		// <none of those> values are only allowed at the end
+		if (j < numberOfValues - 1 && variable.m_values[j] == Value::None)
+			throw utils::ParserException("<none of those> value must be the last value of a variable");
+	}
 
 	utils::parseExpected<std::string>(istream, "end_variable");
 

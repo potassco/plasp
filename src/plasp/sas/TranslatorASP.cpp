@@ -76,6 +76,9 @@ void TranslatorASP::translate(std::ostream &ostream) const
 			std::for_each(values.cbegin(), values.cend(),
 				[&](const auto &value)
 				{
+					if (value == Value::None)
+						return;
+
 					const auto match = std::find_if(fluents.cbegin(), fluents.cend(),
 						[&](const auto &fluent)
 						{
@@ -97,7 +100,7 @@ void TranslatorASP::translate(std::ostream &ostream) const
 	std::for_each(initialStateFacts.cbegin(), initialStateFacts.cend(),
 		[&](const auto &fact)
 		{
-			if (fact.value().sign() == Value::Sign::Negative)
+			if (fact.value() == Value::None || fact.value().sign() == Value::Sign::Negative)
 				return;
 
 			ostream << "initialState(";
@@ -113,6 +116,9 @@ void TranslatorASP::translate(std::ostream &ostream) const
 	std::for_each(goalFacts.cbegin(), goalFacts.cend(),
 		[&](const auto &fact)
 		{
+			if (fact.value() == Value::None)
+				return;
+
 			ostream << "goal(";
 			fact.value().printAsASPPredicateBody(ostream);
 			ostream << ")." << std::endl;
@@ -144,6 +150,9 @@ void TranslatorASP::translate(std::ostream &ostream) const
 			std::for_each(preconditions.cbegin(), preconditions.cend(),
 				[&](const auto &precondition)
 				{
+					if (precondition.value() == Value::None)
+						return;
+
 					ostream << "precondition(";
 					operator_.predicate().printAsASP(ostream);
 					ostream << ", ";
@@ -156,6 +165,9 @@ void TranslatorASP::translate(std::ostream &ostream) const
 			std::for_each(effects.cbegin(), effects.cend(),
 				[&](const auto &effect)
 				{
+					if (effect.postcondition().value() == Value::None)
+						return;
+
 					ostream << "postcondition(";
 					operator_.predicate().printAsASP(ostream);
 					ostream << ", ";
@@ -175,15 +187,25 @@ void TranslatorASP::translate(std::ostream &ostream) const
 		{
 			const auto &values = variable.values();
 
+			BOOST_ASSERT(!values.empty());
+
 			// Skip trivial constraints of the form :- x, not x.
 			if (values.size() == 2 && values[0].name() == values[1].name())
 				return;
 
 			for (auto i = values.cbegin(); i != values.cend(); i++)
+			{
+				const auto &value1 = *i;
+
+				if (value1 == Value::None)
+					continue;
+
 				for (auto j = i + 1; j != values.cend(); j++)
 				{
-					const auto &value1 = *i;
 					const auto &value2 = *j;
+
+					if (value2 == Value::None)
+						continue;
 
 					ostream << "mutex(";
 					value1.printAsASPPredicateBody(ostream);
@@ -191,6 +213,11 @@ void TranslatorASP::translate(std::ostream &ostream) const
 					value2.printAsASPPredicateBody(ostream);
 					ostream << ")." << std::endl;
 				}
+			}
+
+			// No further constraint with <none of those> values (the variable need not be assigned at all)
+			if (values.back() == Value::None)
+				return;
 
 			ostream << ":- ";
 

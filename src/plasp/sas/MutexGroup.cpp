@@ -27,6 +27,9 @@ MutexGroup MutexGroup::fromSAS(std::istream &istream, const Variables &variables
 	for (size_t j = 0; j < numberOfFacts; j++)
 	{
 		mutexGroup.m_facts.emplace_back(Fact::fromSAS(istream, variables));
+
+		if (mutexGroup.m_facts[j].value() == Value::None)
+			throw utils::ParserException("Mutex groups must not contain <none of those> values");
 	}
 
 	utils::parseExpected<std::string>(istream, "end_mutex_group");
