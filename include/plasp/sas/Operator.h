@@ -40,6 +40,8 @@ class Operator
 		size_t costs() const;
 
 	private:
+		Operator() = default;
+
 		Predicate m_predicate;
 		Conditions m_preconditions;
 		Effects m_effects;
