@@ -2,14 +2,16 @@
 #define __SAS__DESCRIPTION_H
 
 #include <iosfwd>
+#include <memory>
 #include <vector>
 
 #include <boost/filesystem/path.hpp>
 
+#include <plasp/sas/AxiomRule.h>
+#include <plasp/sas/InitialState.h>
 #include <plasp/sas/MutexGroup.h>
 #include <plasp/sas/Operator.h>
 #include <plasp/sas/Variable.h>
-#include <plasp/sas/AxiomRule.h>
 
 namespace plasp
 {
@@ -32,7 +34,7 @@ class Description
 		bool usesActionCosts() const;
 		const std::vector<Variable> &variables() const;
 		const std::vector<MutexGroup> &mutexGroups() const;
-		const std::vector<AssignedVariable> &initialStateFacts() const;
+		const InitialState &initialState() const;
 		const std::vector<AssignedVariable> &goalFacts() const;
 		const std::vector<Operator> &operators() const;
 		const std::vector<AxiomRule> &axiomRules() const;
@@ -55,7 +57,7 @@ class Description
 
 		std::vector<Variable> m_variables;
 		std::vector<MutexGroup> m_mutexGroups;
-		std::vector<AssignedVariable> m_initialStateFacts;
+		std::unique_ptr<InitialState> m_initialState;
 		std::vector<AssignedVariable> m_goalFacts;
 		std::vector<Operator> m_operators;
 		std::vector<AxiomRule> m_axiomRules;

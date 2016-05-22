@@ -1,10 +1,7 @@
-#ifndef __SAS__AXIOM_RULE_H
-#define __SAS__AXIOM_RULE_H
-
-#include <vector>
+#ifndef __SAS__INITIAL_STATE_H
+#define __SAS__INITIAL_STATE_H
 
 #include <plasp/sas/AssignedVariable.h>
-#include <plasp/sas/Variable.h>
 
 namespace plasp
 {
@@ -13,17 +10,25 @@ namespace sas
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// AxiomRule
+// InitialState
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct AxiomRule
+class InitialState
 {
-	using Condition = AssignedVariable;
-	using Conditions = std::vector<Condition>;
+	public:
+		using Fact = AssignedVariable;
+		using Facts = std::vector<Fact>;
 
-	Conditions conditions;
-	Condition postcondition;
+		static InitialState fromSAS(std::istream &istream, const std::vector<Variable> &variables);
+
+	public:
+		const Facts &facts() const;
+
+	private:
+		InitialState() = default;
+
+		Facts m_facts;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

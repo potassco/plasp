@@ -58,9 +58,9 @@ TEST_F(SASParserTests, ParseValidSASFile)
 		ASSERT_EQ(description.mutexGroups()[7].facts().size(), 2);
 		ASSERT_EQ(&description.mutexGroups()[7].facts()[1].value(), &description.variables()[34].values()[1]);
 
-		ASSERT_EQ(description.initialStateFacts().size(), 37);
-		ASSERT_EQ(&description.initialStateFacts()[0].value(), &description.variables()[0].values()[8]);
-		ASSERT_EQ(&description.initialStateFacts()[36].value(), &description.variables()[36].values()[1]);
+		ASSERT_EQ(description.initialState().facts().size(), 37);
+		ASSERT_EQ(&description.initialState().facts()[0].value(), &description.variables()[0].values()[8]);
+		ASSERT_EQ(&description.initialState().facts()[36].value(), &description.variables()[36].values()[1]);
 
 		ASSERT_EQ(description.goalFacts().size(), 2);
 		ASSERT_EQ(&description.goalFacts()[0].value(), &description.variables()[6].values()[0]);

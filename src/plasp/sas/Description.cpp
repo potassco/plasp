@@ -83,9 +83,9 @@ const std::vector<MutexGroup> &Description::mutexGroups() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::vector<AssignedVariable> &Description::initialStateFacts() const
+const InitialState &Description::initialState() const
 {
-	return m_initialStateFacts;
+	return *m_initialState;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -158,7 +158,7 @@ void Description::print(std::ostream &ostream) const
 	// Initial state section
 	ostream << "initial state:" << std::endl;
 
-	std::for_each(m_initialStateFacts.cbegin(), m_initialStateFacts.cend(),
+	std::for_each(m_initialState->facts().cbegin(), m_initialState->facts().cend(),
 		[&](const auto &initialStateFact)
 		{
 			ostream << "\t" << initialStateFact.variable().name() << " = ";
@@ -295,14 +295,7 @@ void Description::parseMutexSection(std::istream &istream)
 
 void Description::parseInitialStateSection(std::istream &istream)
 {
-	utils::parseExpected<std::string>(istream, "begin_state");
-
-	m_initialStateFacts.reserve(m_variables.size());
-
-	for (size_t i = 0; i < m_variables.size(); i++)
-		m_initialStateFacts.emplace_back(AssignedVariable::fromSAS(istream, m_variables[i]));
-
-	utils::parseExpected<std::string>(istream, "end_state");
+	m_initialState = std::make_unique<InitialState>(InitialState::fromSAS(istream, m_variables));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

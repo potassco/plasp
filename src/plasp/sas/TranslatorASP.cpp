@@ -92,7 +92,7 @@ void TranslatorASP::translate(std::ostream &ostream) const
 	ostream << std::endl;
 	ostream << "% initial state" << std::endl;
 
-	const auto &initialStateFacts = m_description.initialStateFacts();
+	const auto &initialStateFacts = m_description.initialState().facts();
 
 	std::for_each(initialStateFacts.cbegin(), initialStateFacts.cend(),
 		[&](const auto &initialStateFact)
