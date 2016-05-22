@@ -97,32 +97,6 @@ void TranslatorASP::translate(std::ostream &ostream) const
 		});
 
 	ostream << std::endl;
-	ostream << "% initial state" << std::endl;
-
-	const auto &initialStateFacts = m_description.initialState().facts();
-
-	std::for_each(initialStateFacts.cbegin(), initialStateFacts.cend(),
-		[&](const auto &fact)
-		{
-			ostream << "init(";
-			fact.value().printAsASPCommaSeparated(ostream);
-			ostream << ")." << std::endl;
-		});
-
-	ostream << std::endl;
-	ostream << "% goal" << std::endl;
-
-	const auto &goalFacts = m_description.goal().facts();
-
-	std::for_each(goalFacts.cbegin(), goalFacts.cend(),
-		[&](const auto &fact)
-		{
-			ostream << "goal(";
-			fact.value().printAsASPCommaSeparated(ostream);
-			ostream << ")." << std::endl;
-		});
-
-	ostream << std::endl;
 	ostream << "% actions" << std::endl;
 
 	const auto &operators = m_description.operators();
@@ -157,6 +131,32 @@ void TranslatorASP::translate(std::ostream &ostream) const
 					effect.postcondition().value().printAsASPCommaSeparated(ostream);
 					ostream << ")." << std::endl;
 				});
+		});
+
+	ostream << std::endl;
+	ostream << "% initial state" << std::endl;
+
+	const auto &initialStateFacts = m_description.initialState().facts();
+
+	std::for_each(initialStateFacts.cbegin(), initialStateFacts.cend(),
+		[&](const auto &fact)
+		{
+			ostream << "init(";
+			fact.value().printAsASPCommaSeparated(ostream);
+			ostream << ")." << std::endl;
+		});
+
+	ostream << std::endl;
+	ostream << "% goal" << std::endl;
+
+	const auto &goalFacts = m_description.goal().facts();
+
+	std::for_each(goalFacts.cbegin(), goalFacts.cend(),
+		[&](const auto &fact)
+		{
+			ostream << "goal(";
+			fact.value().printAsASPCommaSeparated(ostream);
+			ostream << ")." << std::endl;
 		});
 
 	ostream << std::endl;
