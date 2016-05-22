@@ -88,6 +88,35 @@ void TranslatorASP::translate(std::ostream &ostream) const
 				});
 		});
 
+	ostream << "% initial state" << std::endl;
+
+	const auto &initialStateFacts = m_description.initialState().facts();
+
+	std::for_each(initialStateFacts.cbegin(), initialStateFacts.cend(),
+		[&](const auto &fact)
+		{
+			if (fact.value().sign() == Value::Sign::Negative)
+				return;
+
+			ostream << "initialState(";
+			fact.value().printAsASP(ostream);
+			ostream << ")." << std::endl;
+		});
+
+	ostream << std::endl;
+	ostream << "% goal" << std::endl;
+
+	const auto &goalFacts = m_description.goal().facts();
+
+	std::for_each(goalFacts.cbegin(), goalFacts.cend(),
+		[&](const auto &fact)
+		{
+			ostream << "goal(";
+			fact.value().printAsASPPredicateBody(ostream);
+			ostream << ")." << std::endl;
+		});
+
+	ostream << std::endl;
 	ostream << "% fluents" << std::endl;
 
 	std::for_each(fluents.cbegin(), fluents.cend(),
@@ -135,35 +164,6 @@ void TranslatorASP::translate(std::ostream &ostream) const
 			ostream << std::endl;
 		});
 
-	ostream << "% initial state" << std::endl;
-
-	const auto &initialStateFacts = m_description.initialState().facts();
-
-	std::for_each(initialStateFacts.cbegin(), initialStateFacts.cend(),
-		[&](const auto &fact)
-		{
-			if (fact.value().sign() == Value::Sign::Negative)
-				return;
-
-			ostream << "initialState(";
-			fact.value().printAsASP(ostream);
-			ostream << ")." << std::endl;
-		});
-
-	ostream << std::endl;
-	ostream << "% goal" << std::endl;
-
-	const auto &goalFacts = m_description.goal().facts();
-
-	std::for_each(goalFacts.cbegin(), goalFacts.cend(),
-		[&](const auto &fact)
-		{
-			ostream << "goal(";
-			fact.value().printAsASPPredicateBody(ostream);
-			ostream << ")." << std::endl;
-		});
-
-	ostream << std::endl;
 	ostream << "% constraints derived from SAS variables" << std::endl;
 
 	std::for_each(variables.cbegin(), variables.cend(),
