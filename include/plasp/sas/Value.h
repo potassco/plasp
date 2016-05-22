@@ -39,6 +39,8 @@ struct Value
 		static const Value &referenceFromSAS(std::istream &istream, const Variable &variable);
 
 	public:
+		Value negated() const;
+
 		void printAsSAS(std::ostream &ostream) const;
 		void printAsASP(std::ostream &ostream) const;
 		void printAsASPPredicateBody(std::ostream &ostream) const;

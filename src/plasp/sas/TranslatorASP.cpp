@@ -62,6 +62,8 @@ void TranslatorASP::translate(std::ostream &ostream) const
 {
 	checkSupport();
 
+	ostream << "#program base." << std::endl << std::endl;
+
 	std::vector<const std::string *> fluents;
 
 	const auto &variables = m_description.variables();
@@ -164,6 +166,8 @@ void TranslatorASP::translate(std::ostream &ostream) const
 			ostream << std::endl;
 		});
 
+	ostream << "#program step(t)." << std::endl << std::endl;
+
 	ostream << "% constraints derived from SAS variables" << std::endl;
 
 	std::for_each(variables.cbegin(), variables.cend(),
@@ -187,6 +191,22 @@ void TranslatorASP::translate(std::ostream &ostream) const
 					value2.printAsASPPredicateBody(ostream);
 					ostream << ")." << std::endl;
 				}
+
+			ostream << ":- ";
+
+			for (auto i = values.cbegin(); i != values.cend(); i++)
+			{
+				const auto &value = *i;
+
+				if (i != values.cbegin())
+					ostream << ", ";
+
+				ostream << "holds(";
+				value.negated().printAsASPPredicateBody(ostream);
+				ostream << ", t)";
+			}
+
+			ostream << "." << std::endl;
 		});
 
 	ostream << std::endl;

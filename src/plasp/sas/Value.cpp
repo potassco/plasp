@@ -39,6 +39,19 @@ Value::Value()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+Value Value::negated() const
+{
+	Value negated;
+
+	negated.m_sign = (m_sign == Sign::Positive ? Sign::Negative : Sign::Positive);
+	negated.m_name = m_name;
+	negated.m_hasArguments = m_hasArguments;
+
+	return negated;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 Value Value::fromSAS(std::istream &istream)
 {
 	Value value;
