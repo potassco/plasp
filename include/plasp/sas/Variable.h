@@ -18,11 +18,16 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+class Variable;
+using Variables = std::vector<Variable>;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class Variable
 {
 	public:
 		static Variable fromSAS(std::istream &istream);
-		static const Variable &referenceFromSAS(std::istream &istream, const std::vector<Variable> &variables);
+		static const Variable &referenceFromSAS(std::istream &istream, const Variables &variables);
 
 	public:
 		const std::string &name() const;

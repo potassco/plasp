@@ -18,9 +18,9 @@ class Goal
 {
 	public:
 		using Fact = AssignedVariable;
-		using Facts = std::vector<Fact>;
+		using Facts = AssignedVariables;
 
-		static Goal fromSAS(std::istream &istream, const std::vector<Variable> &variables);
+		static Goal fromSAS(std::istream &istream, const Variables &variables);
 
 	public:
 		const Facts &facts() const;

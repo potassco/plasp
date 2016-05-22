@@ -17,10 +17,15 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+class VariableTransition;
+using VariableTransitions = std::vector<VariableTransition>;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class VariableTransition
 {
 	public:
-		static VariableTransition fromSAS(std::istream &istream, const std::vector<Variable> &variables);
+		static VariableTransition fromSAS(std::istream &istream, const Variables &variables);
 
 	public:
 		const Variable &variable() const;

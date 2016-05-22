@@ -33,7 +33,7 @@ AssignedVariable::AssignedVariable(const Variable &variable, const Value &value)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-AssignedVariable AssignedVariable::fromSAS(std::istream &istream, const std::vector<Variable> &variables)
+AssignedVariable AssignedVariable::fromSAS(std::istream &istream, const Variables &variables)
 {
 	AssignedVariable assignedVariable;
 

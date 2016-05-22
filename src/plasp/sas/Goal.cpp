@@ -15,7 +15,7 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Goal Goal::fromSAS(std::istream &istream, const std::vector<Variable> &variables)
+Goal Goal::fromSAS(std::istream &istream, const Variables &variables)
 {
 	Goal goal;
 

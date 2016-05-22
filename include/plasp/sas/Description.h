@@ -33,12 +33,12 @@ class Description
 
 	public:
 		bool usesActionCosts() const;
-		const std::vector<Variable> &variables() const;
-		const std::vector<MutexGroup> &mutexGroups() const;
+		const Variables &variables() const;
+		const MutexGroups &mutexGroups() const;
 		const InitialState &initialState() const;
 		const Goal &goal() const;
-		const std::vector<Operator> &operators() const;
-		const std::vector<AxiomRule> &axiomRules() const;
+		const Operators &operators() const;
+		const AxiomRules &axiomRules() const;
 
 		void print(std::ostream &ostream) const;
 
@@ -56,12 +56,12 @@ class Description
 
 		bool m_usesActionCosts;
 
-		std::vector<Variable> m_variables;
-		std::vector<MutexGroup> m_mutexGroups;
+		Variables m_variables;
+		MutexGroups m_mutexGroups;
 		std::unique_ptr<InitialState> m_initialState;
 		std::unique_ptr<Goal> m_goal;
-		std::vector<Operator> m_operators;
-		std::vector<AxiomRule> m_axiomRules;
+		Operators m_operators;
+		AxiomRules m_axiomRules;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include <plasp/sas/AssignedVariable.h>
 #include <plasp/sas/Effect.h>
 #include <plasp/sas/Predicate.h>
 #include <plasp/sas/Variable.h>
@@ -19,11 +20,15 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+struct Operator;
+using Operators = std::vector<Operator>;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 struct Operator
 {
 	using Condition = AssignedVariable;
-	using Conditions = std::vector<Condition>;
-	using Effects = std::vector<Effect>;
+	using Conditions = AssignedVariables;
 
 	Predicate predicate;
 	Conditions preconditions;

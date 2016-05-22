@@ -15,7 +15,7 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-InitialState InitialState::fromSAS(std::istream &istream, const std::vector<Variable> &variables)
+InitialState InitialState::fromSAS(std::istream &istream, const Variables &variables)
 {
 	InitialState initialState;
 

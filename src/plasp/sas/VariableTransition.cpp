@@ -26,7 +26,7 @@ VariableTransition::VariableTransition()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-VariableTransition VariableTransition::fromSAS(std::istream &istream, const std::vector<Variable> &variables)
+VariableTransition VariableTransition::fromSAS(std::istream &istream, const Variables &variables)
 {
 	VariableTransition variableTransition;
 

@@ -44,7 +44,7 @@ Variable Variable::fromSAS(std::istream &istream)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const Variable &Variable::referenceFromSAS(std::istream &istream, const std::vector<Variable> &variables)
+const Variable &Variable::referenceFromSAS(std::istream &istream, const Variables &variables)
 {
 	const auto variableID = utils::parse<size_t>(istream);
 

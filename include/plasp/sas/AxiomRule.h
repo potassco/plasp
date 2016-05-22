@@ -17,10 +17,15 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+struct AxiomRule;
+using AxiomRules = std::vector<AxiomRule>;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 struct AxiomRule
 {
 	using Condition = AssignedVariable;
-	using Conditions = std::vector<Condition>;
+	using Conditions = AssignedVariables;
 
 	Conditions conditions;
 	Condition postcondition;

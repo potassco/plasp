@@ -15,7 +15,7 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-MutexGroup MutexGroup::fromSAS(std::istream &istream, const std::vector<Variable> &variables)
+MutexGroup MutexGroup::fromSAS(std::istream &istream, const Variables &variables)
 {
 	MutexGroup mutexGroup;
 

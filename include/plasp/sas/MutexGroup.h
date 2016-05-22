@@ -1,6 +1,8 @@
 #ifndef __SAS__MUTEX_GROUP_H
 #define __SAS__MUTEX_GROUP_H
 
+#include <vector>
+
 #include <plasp/sas/AssignedVariable.h>
 
 namespace plasp
@@ -14,13 +16,18 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+class MutexGroup;
+using MutexGroups = std::vector<MutexGroup>;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class MutexGroup
 {
 	public:
 		using Fact = AssignedVariable;
-		using Facts = std::vector<Fact>;
+		using Facts = AssignedVariables;
 
-		static MutexGroup fromSAS(std::istream &istream, const std::vector<Variable> &variables);
+		static MutexGroup fromSAS(std::istream &istream, const Variables &variables);
 
 	public:
 		const Facts &facts() const;

@@ -3,6 +3,7 @@
 
 #include <vector>
 
+#include <plasp/sas/AssignedVariable.h>
 #include <plasp/sas/Variable.h>
 
 namespace plasp
@@ -16,10 +17,15 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+struct Effect;
+using Effects = std::vector<Effect>;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 struct Effect
 {
 	using Condition = AssignedVariable;
-	using Conditions = std::vector<Condition>;
+	using Conditions = AssignedVariables;
 
 	Conditions conditions;
 	Condition postcondition;

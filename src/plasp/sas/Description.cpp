@@ -69,14 +69,14 @@ bool Description::usesActionCosts() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::vector<Variable> &Description::variables() const
+const Variables &Description::variables() const
 {
 	return m_variables;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::vector<MutexGroup> &Description::mutexGroups() const
+const MutexGroups &Description::mutexGroups() const
 {
 	return m_mutexGroups;
 }
@@ -97,14 +97,14 @@ const Goal &Description::goal() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::vector<Operator> &Description::operators() const
+const Operators &Description::operators() const
 {
 	return m_operators;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::vector<AxiomRule> &Description::axiomRules() const
+const AxiomRules &Description::axiomRules() const
 {
 	return m_axiomRules;
 }
