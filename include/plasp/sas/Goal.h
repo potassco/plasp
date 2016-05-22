@@ -1,0 +1,39 @@
+#ifndef __SAS__GOAL_H
+#define __SAS__GOAL_H
+
+#include <plasp/sas/AssignedVariable.h>
+
+namespace plasp
+{
+namespace sas
+{
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Goal
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class Goal
+{
+	public:
+		using Fact = AssignedVariable;
+		using Facts = std::vector<Fact>;
+
+		static Goal fromSAS(std::istream &istream, const std::vector<Variable> &variables);
+
+	public:
+		const Facts &facts() const;
+
+	private:
+		Goal() = default;
+
+		Facts m_facts;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+}
+}
+
+#endif

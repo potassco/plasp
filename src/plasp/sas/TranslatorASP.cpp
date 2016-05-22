@@ -95,23 +95,23 @@ void TranslatorASP::translate(std::ostream &ostream) const
 	const auto &initialStateFacts = m_description.initialState().facts();
 
 	std::for_each(initialStateFacts.cbegin(), initialStateFacts.cend(),
-		[&](const auto &initialStateFact)
+		[&](const auto &fact)
 		{
 			ostream << "init(";
-			initialStateFact.value().printAsASP(ostream);
+			fact.value().printAsASP(ostream);
 			ostream << ")." << std::endl;
 		});
 
 	ostream << std::endl;
 	ostream << "% goal" << std::endl;
 
-	const auto &goalFacts = m_description.goalFacts();
+	const auto &goalFacts = m_description.goal().facts();
 
 	std::for_each(goalFacts.cbegin(), goalFacts.cend(),
-		[&](const auto &goalFact)
+		[&](const auto &fact)
 		{
 			ostream << "goal(";
-			goalFact.value().printAsASP(ostream);
+			fact.value().printAsASP(ostream);
 			ostream << ")." << std::endl;
 		});
 

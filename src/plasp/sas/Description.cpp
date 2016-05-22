@@ -90,9 +90,9 @@ const InitialState &Description::initialState() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::vector<AssignedVariable> &Description::goalFacts() const
+const Goal &Description::goal() const
 {
-	return m_goalFacts;
+	return *m_goal;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -159,21 +159,21 @@ void Description::print(std::ostream &ostream) const
 	ostream << "initial state:" << std::endl;
 
 	std::for_each(m_initialState->facts().cbegin(), m_initialState->facts().cend(),
-		[&](const auto &initialStateFact)
+		[&](const auto &fact)
 		{
-			ostream << "\t" << initialStateFact.variable().name() << " = ";
-			initialStateFact.value().printAsSAS(ostream);
+			ostream << "\t" << fact.variable().name() << " = ";
+			fact.value().printAsSAS(ostream);
 			ostream << std::endl;
 		});
 
 	// Goal section
 	ostream << "goal:" << std::endl;
 
-	std::for_each(m_goalFacts.cbegin(), m_goalFacts.cend(),
-		[&](const auto &goalFact)
+	std::for_each(m_goal->facts().cbegin(), m_goal->facts().cend(),
+		[&](const auto &fact)
 		{
-			ostream << "\t" << goalFact.variable().name() << " = ";
-			goalFact.value().printAsSAS(ostream);
+			ostream << "\t" << fact.variable().name() << " = ";
+			fact.value().printAsSAS(ostream);
 			ostream << std::endl;
 		});
 
@@ -302,15 +302,7 @@ void Description::parseInitialStateSection(std::istream &istream)
 
 void Description::parseGoalSection(std::istream &istream)
 {
-	utils::parseExpected<std::string>(istream, "begin_goal");
-
-	const auto numberOfGoalFacts = utils::parse<size_t>(istream);
-	m_goalFacts.reserve(numberOfGoalFacts);
-
-	for (size_t i = 0; i < numberOfGoalFacts; i++)
-		m_goalFacts.emplace_back(AssignedVariable::fromSAS(istream, m_variables));
-
-	utils::parseExpected<std::string>(istream, "end_goal");
+	m_goal = std::make_unique<Goal>(Goal::fromSAS(istream, m_variables));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

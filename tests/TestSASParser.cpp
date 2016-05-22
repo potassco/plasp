@@ -62,9 +62,9 @@ TEST_F(SASParserTests, ParseValidSASFile)
 		ASSERT_EQ(&description.initialState().facts()[0].value(), &description.variables()[0].values()[8]);
 		ASSERT_EQ(&description.initialState().facts()[36].value(), &description.variables()[36].values()[1]);
 
-		ASSERT_EQ(description.goalFacts().size(), 2);
-		ASSERT_EQ(&description.goalFacts()[0].value(), &description.variables()[6].values()[0]);
-		ASSERT_EQ(&description.goalFacts()[1].value(), &description.variables()[7].values()[0]);
+		ASSERT_EQ(description.goal().facts().size(), 2);
+		ASSERT_EQ(&description.goal().facts()[0].value(), &description.variables()[6].values()[0]);
+		ASSERT_EQ(&description.goal().facts()[1].value(), &description.variables()[7].values()[0]);
 
 		ASSERT_EQ(description.operators().size(), 34);
 		ASSERT_EQ(description.operators()[0].predicate.name, "activate-trans");
