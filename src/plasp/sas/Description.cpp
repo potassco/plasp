@@ -183,10 +183,13 @@ void Description::print(std::ostream &ostream) const
 	std::for_each(m_operators.cbegin(), m_operators.cend(),
 		[&](const auto &operator_)
 		{
-			ostream << "\t" << operator_.predicate << ":" << std::endl;
-			ostream << "\t\tpreconditions: " << operator_.preconditions.size() << std::endl;
+			ostream << "\t" << operator_.predicate() << ":" << std::endl;
 
-			std::for_each(operator_.preconditions.cbegin(), operator_.preconditions.cend(),
+			const auto &preconditions = operator_.preconditions();
+
+			ostream << "\t\tpreconditions: " << preconditions.size() << std::endl;
+
+			std::for_each(preconditions.cbegin(), preconditions.cend(),
 				[&](const auto &precondition)
 				{
 					std::cout << "\t\t\t" << precondition.variable().name() << " = ";
@@ -194,9 +197,11 @@ void Description::print(std::ostream &ostream) const
 					ostream << std::endl;
 				});
 
-			ostream << "\t\teffects: " << operator_.effects.size() << std::endl;
+			const auto &effects = operator_.effects();
 
-			std::for_each(operator_.effects.cbegin(), operator_.effects.cend(),
+			ostream << "\t\teffects: " << effects.size() << std::endl;
+
+			std::for_each(effects.cbegin(), effects.cend(),
 				[&](const auto &effect)
 				{
 					ostream << "\t\t\teffect:" << std::endl;
@@ -216,7 +221,7 @@ void Description::print(std::ostream &ostream) const
 					ostream << std::endl;
 				});
 
-			ostream << "\t\tcosts: " << operator_.costs << std::endl;
+			ostream << "\t\tcosts: " << operator_.costs() << std::endl;
 		});
 
 	// Axiom section
@@ -310,70 +315,10 @@ void Description::parseGoalSection(std::istream &istream)
 void Description::parseOperatorSection(std::istream &istream)
 {
 	const auto numberOfOperators = utils::parse<size_t>(istream);
-	m_operators.resize(numberOfOperators);
+	m_operators.reserve(numberOfOperators);
 
 	for (size_t i = 0; i < numberOfOperators; i++)
-	{
-		utils::parseExpected<std::string>(istream, "begin_operator");
-
-		auto &operator_ = m_operators[i];
-
-		try
-		{
-			istream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-			// TODO: Inefficient, reimplement in one pass
-			std::string line;
-			std::getline(istream, line);
-
-			std::stringstream lineStream(line);
-
-			operator_.predicate.name = utils::parse<std::string>(lineStream);
-
-			while (lineStream.peek() == ' ')
-				lineStream.ignore(1);
-
-			for (std::string argument; std::getline(lineStream, argument, ' ');)
-				operator_.predicate.arguments.push_back(std::move(argument));
-		}
-		catch (const std::exception &e)
-		{
-			throw utils::ParserException("Could not parse operator predicate");
-		}
-
-		const auto numberOfPrevailConditions = utils::parse<size_t>(istream);
-		operator_.preconditions.reserve(numberOfPrevailConditions);
-
-		for (size_t j = 0; j < numberOfPrevailConditions; j++)
-			operator_.preconditions.emplace_back(AssignedVariable::fromSAS(istream, m_variables));
-
-		const auto numberOfEffects = utils::parse<size_t>(istream);
-		operator_.effects.reserve(numberOfEffects);
-
-		for (size_t j = 0; j < numberOfEffects; j++)
-		{
-			Effect::Conditions conditions;
-
-			const auto numberOfEffectConditions = utils::parse<size_t>(istream);
-			conditions.reserve(numberOfEffectConditions);
-
-			for (size_t k = 0; k < numberOfEffectConditions; k++)
-				conditions.emplace_back(AssignedVariable::fromSAS(istream, m_variables));
-
-			const auto variableTransition = VariableTransition::fromSAS(istream, m_variables);
-
-			if (&variableTransition.valueBefore() != &Value::Any)
-				operator_.preconditions.emplace_back(AssignedVariable(variableTransition.variable(), variableTransition.valueBefore()));
-
-			const Effect::Condition postcondition = {variableTransition.variable(), variableTransition.valueAfter()};
-			const Effect effect = {std::move(conditions), std::move(postcondition)};
-			operator_.effects.push_back(std::move(effect));
-		}
-
-		operator_.costs = utils::parse<size_t>(istream);
-
-		utils::parseExpected<std::string>(istream, "end_operator");
-	}
+		m_operators.emplace_back(Operator::fromSAS(istream, m_variables));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

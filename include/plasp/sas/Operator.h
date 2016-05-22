@@ -20,20 +20,30 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct Operator;
+class Operator;
 using Operators = std::vector<Operator>;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct Operator
+class Operator
 {
-	using Condition = AssignedVariable;
-	using Conditions = AssignedVariables;
+	public:
+		static Operator fromSAS(std::istream &istream, const Variables &variables);
 
-	Predicate predicate;
-	Conditions preconditions;
-	Effects effects;
-	size_t costs;
+		using Condition = AssignedVariable;
+		using Conditions = AssignedVariables;
+
+	public:
+		const Predicate &predicate() const;
+		const Conditions &preconditions() const;
+		const Effects &effects() const;
+		size_t costs() const;
+
+	private:
+		Predicate m_predicate;
+		Conditions m_preconditions;
+		Effects m_effects;
+		size_t m_costs;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
