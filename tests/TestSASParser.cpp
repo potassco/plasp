@@ -91,15 +91,15 @@ TEST_F(SASParserTests, ParseValidSASFile)
 		ASSERT_EQ(&description.operators()[33].effects()[2].postcondition.value(), &description.variables()[35].values()[0]);
 
 		ASSERT_EQ(description.axiomRules().size(), 33);
-		ASSERT_EQ(description.axiomRules()[0].conditions.size(), 4);
-		ASSERT_EQ(&description.axiomRules()[0].conditions[0].value(), &description.variables()[0].values()[0]);
-		ASSERT_EQ(&description.axiomRules()[0].conditions[2].value(), &description.variables()[27].values()[0]);
-		ASSERT_EQ(&description.axiomRules()[0].conditions[3].value(), &description.variables()[8].values()[1]);
-		ASSERT_EQ(&description.axiomRules()[0].postcondition.value(), &description.variables()[8].values()[0]);
-		ASSERT_EQ(description.axiomRules()[32].conditions.size(), 2);
-		ASSERT_EQ(&description.axiomRules()[32].conditions[0].value(), &description.variables()[15].values()[0]);
-		ASSERT_EQ(&description.axiomRules()[32].conditions[1].value(), &description.variables()[25].values()[0]);
-		ASSERT_EQ(&description.axiomRules()[32].postcondition.value(), &description.variables()[25].values()[1]);
+		ASSERT_EQ(description.axiomRules()[0].conditions().size(), 4);
+		ASSERT_EQ(&description.axiomRules()[0].conditions()[0].value(), &description.variables()[0].values()[0]);
+		ASSERT_EQ(&description.axiomRules()[0].conditions()[2].value(), &description.variables()[27].values()[0]);
+		ASSERT_EQ(&description.axiomRules()[0].conditions()[3].value(), &description.variables()[8].values()[1]);
+		ASSERT_EQ(&description.axiomRules()[0].postcondition().value(), &description.variables()[8].values()[0]);
+		ASSERT_EQ(description.axiomRules()[32].conditions().size(), 2);
+		ASSERT_EQ(&description.axiomRules()[32].conditions()[0].value(), &description.variables()[15].values()[0]);
+		ASSERT_EQ(&description.axiomRules()[32].conditions()[1].value(), &description.variables()[25].values()[0]);
+		ASSERT_EQ(&description.axiomRules()[32].postcondition().value(), &description.variables()[25].values()[1]);
 	}
 	catch (const std::exception &e)
 	{

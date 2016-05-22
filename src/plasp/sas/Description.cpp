@@ -189,28 +189,7 @@ void Description::parseAxiomSection(std::istream &istream)
 	m_axiomRules.reserve(numberOfAxiomRules);
 
 	for (size_t i = 0; i < numberOfAxiomRules; i++)
-	{
-		utils::parseExpected<std::string>(istream, "begin_rule");
-
-		const auto numberOfConditions = utils::parse<size_t>(istream);
-
-		AxiomRule::Conditions conditions;
-		conditions.reserve(numberOfConditions);
-
-		for (size_t j = 0; j < numberOfConditions; j++)
-			conditions.emplace_back(AssignedVariable::fromSAS(istream, m_variables));
-
-		const auto variableTransition = VariableTransition::fromSAS(istream, m_variables);
-
-		if (&variableTransition.valueBefore() != &Value::Any)
-			conditions.emplace_back(AssignedVariable(variableTransition.variable(), variableTransition.valueBefore()));
-
-		const AxiomRule::Condition postcondition = {variableTransition.variable(), variableTransition.valueAfter()};
-		const AxiomRule axiomRule = {std::move(conditions), std::move(postcondition)};
-		m_axiomRules.push_back(std::move(axiomRule));
-
-		utils::parseExpected<std::string>(istream, "end_rule");
-	}
+		m_axiomRules.emplace_back(AxiomRule::fromSAS(istream, m_variables));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

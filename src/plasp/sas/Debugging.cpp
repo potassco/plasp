@@ -145,9 +145,12 @@ std::ostream &operator >>(std::ostream &ostream, const Description &description)
 		[&](const auto &axiomRule)
 		{
 			ostream << "\taxiom rule:" << std::endl;
-			ostream << "\t\tconditions: " << axiomRule.conditions.size() << std::endl;
 
-			std::for_each(axiomRule.conditions.cbegin(), axiomRule.conditions.cend(),
+			const auto conditions = axiomRule.conditions();
+
+			ostream << "\t\tconditions: " << conditions.size() << std::endl;
+
+			std::for_each(conditions.cbegin(), conditions.cend(),
 				[&](const auto &condition)
 				{
 					ostream << "\t\t\t" << condition.variable().name() << " = ";
@@ -156,8 +159,8 @@ std::ostream &operator >>(std::ostream &ostream, const Description &description)
 				});
 
 			ostream << "\t\tpostcondition:" << std::endl;
-			ostream << "\t\t\t" << axiomRule.postcondition.variable().name() << " = ";
-			axiomRule.postcondition.value().printAsSAS(ostream);
+			ostream << "\t\t\t" << axiomRule.postcondition().variable().name() << " = ";
+			axiomRule.postcondition().value().printAsSAS(ostream);
 			ostream << std::endl;
 		});
 

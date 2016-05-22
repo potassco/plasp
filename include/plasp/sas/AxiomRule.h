@@ -17,18 +17,29 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct AxiomRule;
+class AxiomRule;
 using AxiomRules = std::vector<AxiomRule>;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct AxiomRule
+class AxiomRule
 {
-	using Condition = AssignedVariable;
-	using Conditions = AssignedVariables;
+	public:
+		using Condition = AssignedVariable;
+		using Conditions = AssignedVariables;
 
-	Conditions conditions;
-	Condition postcondition;
+		static AxiomRule fromSAS(std::istream &istream, const Variables &variables);
+
+	public:
+		const Conditions &conditions() const;
+		const Condition &postcondition() const;
+
+	private:
+		AxiomRule() = default;
+		AxiomRule(Conditions conditions, Condition postcondition);
+
+		Conditions m_conditions;
+		Condition m_postcondition;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
