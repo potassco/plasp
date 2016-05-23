@@ -65,6 +65,7 @@ inline std::string escapeASP(const std::string &string)
 
 	boost::replace_all(escaped, "_", "__");
 	boost::replace_all(escaped, "-", "_h");
+	boost::replace_all(escaped, "@", "_a");
 
 	return escaped;
 }
@@ -75,6 +76,7 @@ inline std::string unescapeASP(const std::string &string)
 {
 	auto unescaped = string;
 
+	boost::replace_all(unescaped, "_a", "@");
 	boost::replace_all(unescaped, "_h", "-");
 	boost::replace_all(unescaped, "__", "_");
 

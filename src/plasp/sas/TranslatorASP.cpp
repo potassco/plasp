@@ -23,15 +23,6 @@ TranslatorASP::TranslatorASP(const Description &description)
 
 void TranslatorASP::checkSupport() const
 {
-	const auto &variables = m_description.variables();
-
-	std::for_each(variables.cbegin(), variables.cend(),
-		[&](const auto &variable)
-		{
-			if (variable.axiomLayer() != -1)
-				throw TranslatorException("Axiom layers are currently unsupported");
-		});
-
 	const auto &operators = m_description.operators();
 
 	std::for_each(operators.cbegin(), operators.cend(),
@@ -46,9 +37,6 @@ void TranslatorASP::checkSupport() const
 						throw TranslatorException("Conditional effects are currently unsupported");
 				});
 		});
-
-	if (!m_description.axiomRules().empty())
-		throw TranslatorException("Axiom rules are currently unsupported");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -57,10 +45,16 @@ void TranslatorASP::translate(std::ostream &ostream) const
 {
 	checkSupport();
 
+	const auto usesActionCosts = m_description.usesActionCosts();
+	const auto usesAxiomRules = m_description.usesAxiomRules();
+
 	ostream << "% feature requirements" << std::endl;
 
-	if (m_description.usesActionCosts())
+	if (usesActionCosts)
 		ostream << "requiresFeature(actionCosts)." << std::endl;
+
+	if (usesAxiomRules)
+		ostream << "requiresFeature(axiomRules)." << std::endl;
 
 	ostream << std::endl;
 	ostream << "% initial state" << std::endl;
@@ -203,6 +197,41 @@ void TranslatorASP::translate(std::ostream &ostream) const
 				fact.value().printAsASPPredicate(ostream);
 				ostream << ")." << std::endl;
 			});
+	}
+
+	if (usesAxiomRules)
+	{
+		ostream << std::endl;
+		ostream << "% axiom rules";
+
+		const auto &axiomRules = m_description.axiomRules();
+
+		for (size_t i = 0; i < axiomRules.size(); i++)
+		{
+			const auto &axiomRule = axiomRules[i];
+
+			ostream << std::endl << "axiomRule(axiomRule" << i << ")." << std::endl;
+
+			const auto &conditions = axiomRule.conditions();
+
+			std::for_each(conditions.cbegin(), conditions.cend(),
+				[&](const auto &condition)
+				{
+					ostream << "condition(axiomRule(axiomRule" << i << "), ";
+					condition.variable().printNameAsASPPredicate(ostream);
+					ostream << ", ";
+					condition.value().printAsASPPredicate(ostream);
+					ostream << ")." << std::endl;
+				});
+
+			const auto &postcondition = axiomRule.postcondition();
+
+			ostream << "postcondition(axiomRule(axiomRule" << i << "), ";
+			postcondition.variable().printNameAsASPPredicate(ostream);
+			ostream << ", ";
+			postcondition.value().printAsASPPredicate(ostream);
+			ostream << ")." << std::endl;
+		}
 	}
 }
 

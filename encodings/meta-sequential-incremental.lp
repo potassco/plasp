@@ -2,6 +2,7 @@
 
 % Check feature requirements
 :- requiresFeature(actionCosts, true).
+:- requiresFeature(axiomRules, true).
 
 #program base.
 

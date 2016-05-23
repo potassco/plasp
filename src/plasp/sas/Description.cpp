@@ -1,5 +1,6 @@
 #include <plasp/sas/Description.h>
 
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -107,6 +108,22 @@ const Operators &Description::operators() const
 const AxiomRules &Description::axiomRules() const
 {
 	return m_axiomRules;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool Description::usesAxiomRules() const
+{
+	if (!m_axiomRules.empty())
+		return true;
+
+	const auto match = std::find_if(m_variables.cbegin(), m_variables.cend(),
+		[&](const auto &variable)
+		{
+			return variable.axiomLayer() != -1;
+		});
+
+	return match != m_variables.cend();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

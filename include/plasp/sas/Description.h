@@ -40,6 +40,8 @@ class Description
 		const Operators &operators() const;
 		const AxiomRules &axiomRules() const;
 
+		bool usesAxiomRules() const;
+
 	private:
 		Description();
 
