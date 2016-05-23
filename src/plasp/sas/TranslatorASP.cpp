@@ -63,35 +63,6 @@ void TranslatorASP::translate(std::ostream &ostream) const
 {
 	checkSupport();
 
-	std::vector<const Value *> fluents;
-
-	const auto &variables = m_description.variables();
-
-	std::for_each(variables.cbegin(), variables.cend(),
-		[&](const auto &variable)
-		{
-			const auto &values = variable.values();
-
-			std::for_each(values.cbegin(), values.cend(),
-				[&](const auto &value)
-				{
-					if (value == Value::None)
-						return;
-
-					const auto match = std::find_if(fluents.cbegin(), fluents.cend(),
-						[&](const auto &fluent)
-						{
-							return value.name() == fluent->name();
-						});
-
-					// Don’t add fluents if their negated form has already been added
-					if (match != fluents.cend())
-						return;
-
-					fluents.push_back(&value);
-				});
-		});
-
 	ostream << "% initial state" << std::endl;
 
 	const auto &initialStateFacts = m_description.initialState().facts();
@@ -124,14 +95,33 @@ void TranslatorASP::translate(std::ostream &ostream) const
 		});
 
 	ostream << std::endl;
-	ostream << "% fluents" << std::endl;
+	ostream << "% variables";
 
-	std::for_each(fluents.cbegin(), fluents.cend(),
-		[&](const auto *fluent)
+	const auto &variables = m_description.variables();
+
+	std::for_each(variables.cbegin(), variables.cend(),
+		[&](const auto &variable)
 		{
-			ostream << "fluent(";
-			fluent->printAsASP(ostream);
+			const auto &values = variable.values();
+
+			BOOST_ASSERT(!values.empty());
+
+			ostream << std::endl << "variable(";
+			variable.printNameAsASP(ostream);
 			ostream << ")." << std::endl;
+
+			std::for_each(values.cbegin(), values.cend(),
+				[&](const auto &value)
+				{
+					ostream << "variableValue(";
+					variable.printNameAsASP(ostream);
+					ostream << ", ";
+					if (value == Value::None)
+						ostream << "noneValue";
+					else
+						value.printAsASPPredicateBody(ostream);
+					ostream << ")." << std::endl;
+				});
 		});
 
 	ostream << std::endl;
@@ -173,34 +163,6 @@ void TranslatorASP::translate(std::ostream &ostream) const
 					operator_.predicate().printAsASP(ostream);
 					ostream << ", ";
 					effect.postcondition().value().printAsASPPredicateBody(ostream);
-					ostream << ")." << std::endl;
-				});
-		});
-
-	ostream << std::endl;
-	ostream << "% variables";
-
-	std::for_each(variables.cbegin(), variables.cend(),
-		[&](const auto &variable)
-		{
-			const auto &values = variable.values();
-
-			BOOST_ASSERT(!values.empty());
-
-			ostream << std::endl << "variable(";
-			variable.printNameAsASP(ostream);
-			ostream << ")." << std::endl;
-
-			std::for_each(values.cbegin(), values.cend(),
-				[&](const auto &value)
-				{
-					ostream << "variableValue(";
-					variable.printNameAsASP(ostream);
-					ostream << ", ";
-					if (value == Value::None)
-						ostream << "noneValue";
-					else
-						value.printAsASPPredicateBody(ostream);
 					ostream << ")." << std::endl;
 				});
 		});
