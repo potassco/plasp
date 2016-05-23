@@ -1,6 +1,7 @@
 #include <plasp/sas/TranslatorASP.h>
 
 #include <plasp/sas/TranslatorException.h>
+#include <plasp/utils/Parsing.h>
 
 namespace plasp
 {
@@ -64,7 +65,7 @@ void TranslatorASP::translate(std::ostream &ostream) const
 
 	ostream << "#program base." << std::endl << std::endl;
 
-	std::vector<const std::string *> fluents;
+	std::vector<const Value *> fluents;
 
 	const auto &variables = m_description.variables();
 
@@ -82,14 +83,14 @@ void TranslatorASP::translate(std::ostream &ostream) const
 					const auto match = std::find_if(fluents.cbegin(), fluents.cend(),
 						[&](const auto &fluent)
 						{
-							return value.name() == *fluent;
+							return value.name() == fluent->name();
 						});
 
 					// Don’t add fluents if their negated form has already been added
 					if (match != fluents.cend())
 						return;
 
-					fluents.push_back(&value.name());
+					fluents.push_back(&value);
 				});
 		});
 
@@ -130,7 +131,9 @@ void TranslatorASP::translate(std::ostream &ostream) const
 	std::for_each(fluents.cbegin(), fluents.cend(),
 		[&](const auto *fluent)
 		{
-			ostream << "fluent(" << *fluent << ")." << std::endl;
+			ostream << "fluent(";
+			fluent->printAsASP(ostream);
+			ostream << ")." << std::endl;
 		});
 
 	ostream << std::endl;
