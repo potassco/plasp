@@ -20,6 +20,13 @@ modified(Var, t) :- caused(Var, Val, t).
 holds(Var, Val, t) :- caused(Var, Val, t).
 holds(Var, Val, t) :- holds(Var, Val, t - 1), not modified(Var, t).
 
+% Check that variables without <none of those> values are unique
+:- variable(V), Var = variable(V), not contains(Var, noneValue), not 1 {holds(Var, Val, t) : contains(Var, Val)} 1.
+:- contains(Var, noneValue), not {holds(Var, Val, t) : contains(Var, Val)} 1.
+
+% Check mutexes
+:- mutexGroup(M), not {holds(Var, Val, t) : contains(M, Var, Val)} 1.
+
 #program check(t).
 
 % Verify that goal is met
