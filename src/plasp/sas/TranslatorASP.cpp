@@ -170,9 +170,12 @@ void TranslatorASP::translate(std::ostream &ostream) const
 					ostream << ")." << std::endl;
 				});
 
-			ostream << "costs(";
-			operator_.printPredicateAsASP(ostream);
-			ostream << ", " << operator_.costs() << ")." << std::endl;
+			if (usesActionCosts)
+			{
+				ostream << "costs(";
+				operator_.printPredicateAsASP(ostream);
+				ostream << ", " << operator_.costs() << ")." << std::endl;
+			}
 		});
 
 	ostream << std::endl;
