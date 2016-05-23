@@ -21,30 +21,8 @@ TranslatorASP::TranslatorASP(const Description &description)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void TranslatorASP::checkSupport() const
-{
-	const auto &operators = m_description.operators();
-
-	std::for_each(operators.cbegin(), operators.cend(),
-		[&](const auto &operator_)
-		{
-			const auto &effects = operator_.effects();
-
-			std::for_each(effects.cbegin(), effects.cend(),
-				[&](const auto &effect)
-				{
-					if (!effect.conditions().empty())
-						throw TranslatorException("Conditional effects are currently unsupported");
-				});
-		});
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 void TranslatorASP::translate(std::ostream &ostream) const
 {
-	checkSupport();
-
 	const auto usesActionCosts = m_description.usesActionCosts();
 	const auto usesAxiomRules = m_description.usesAxiomRules();
 	const auto usesConditionalEffects = m_description.usesConditionalEffects();
@@ -118,12 +96,7 @@ void TranslatorASP::translate(std::ostream &ostream) const
 					ostream << "contains(";
 					variable.printNameAsASPPredicate(ostream);
 					ostream << ", ";
-
-					if (value == Value::None)
-						ostream << "noneValue";
-					else
-						value.printAsASPPredicate(ostream);
-
+					value.printAsASPPredicate(ostream);
 					ostream << ")." << std::endl;
 				});
 		});
@@ -133,20 +106,12 @@ void TranslatorASP::translate(std::ostream &ostream) const
 
 	const auto &operators = m_description.operators();
 
-	size_t currentActionID = 0;
-	size_t currentEffectID = 0;
-
 	std::for_each(operators.cbegin(), operators.cend(),
 		[&](const auto &operator_)
 		{
-			const auto actionID = std::to_string(currentActionID);
-			currentActionID++;
-
-			ostream << std::endl << "action(" << actionID << ")." << std::endl;
-
-			ostream << "label(action(" << actionID << "), ";
+			ostream << std::endl;
 			operator_.printPredicateAsASP(ostream);
-			ostream << ")." << std::endl;
+			ostream << "." << std::endl;
 
 			const auto &preconditions = operator_.preconditions();
 
@@ -156,7 +121,9 @@ void TranslatorASP::translate(std::ostream &ostream) const
 					if (precondition.value() == Value::None)
 						return;
 
-					ostream << "precondition(action(" << actionID << "), ";
+					ostream << "precondition(";
+					operator_.printPredicateAsASP(ostream);
+					ostream << ", ";
 					precondition.variable().printNameAsASPPredicate(ostream);
 					ostream << ", ";
 					precondition.value().printAsASPPredicate(ostream);
@@ -165,38 +132,34 @@ void TranslatorASP::translate(std::ostream &ostream) const
 
 			const auto &effects = operator_.effects();
 
+			size_t currentEffectID = 0;
+
 			std::for_each(effects.cbegin(), effects.cend(),
 				[&](const auto &effect)
 				{
-					if (effect.postcondition().value() == Value::None)
-						return;
+					const auto &conditions = effect.conditions();
 
-					const auto effectID = std::to_string(currentEffectID);
-					currentEffectID++;
+					std::for_each(conditions.cbegin(), conditions.cend(),
+						[&](const auto &condition)
+						{
+							ostream << "effectCondition(";
+							operator_.printPredicateAsASP(ostream);
+							ostream << ", effect(" << currentEffectID << "), ";
+							condition.variable().printNameAsASPPredicate(ostream);
+							ostream << ", ";
+							condition.value().printAsASPPredicate(ostream);
+							ostream << ")." << std::endl;
+						});
 
-					ostream << "effect(" << effectID << ")." << std::endl;
-					ostream << "contains(action(" << actionID << "), effect(" << effectID << "))." << std::endl;
-
-					if (usesConditionalEffects)
-					{
-						const auto &conditions = effect.conditions();
-
-						std::for_each(conditions.cbegin(), conditions.cend(),
-							[&](const auto &condition)
-							{
-								ostream << "condition(effect(" << effectID << "), ";
-								condition.variable().printNameAsASPPredicate(ostream);
-								ostream << ", ";
-								condition.value().printAsASPPredicate(ostream);
-								ostream << ")." << std::endl;
-							});
-					}
-
-					ostream << "postcondition(effect(" << effectID << "), ";
+					ostream << "postcondition(";
+					operator_.printPredicateAsASP(ostream);
+					ostream << ", effect(" << currentEffectID << "), ";
 					effect.postcondition().variable().printNameAsASPPredicate(ostream);
 					ostream << ", ";
 					effect.postcondition().value().printAsASPPredicate(ostream);
 					ostream << ")." << std::endl;
+
+					currentEffectID++;
 				});
 
 			if (usesActionCosts)

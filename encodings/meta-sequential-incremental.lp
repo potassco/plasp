@@ -19,21 +19,17 @@ holds(Var, Val, 0) :- initialState(Var, Val).
 :- occurs(A, t), precondition(A, Var, Val), not holds(Var, Val, t - 1).
 
 % Apply effects
-caused(Var, Val, t) :- occurs(A, t), contains(A, E), postcondition(E, Var, Val).
+caused(Var, Val, t) :- occurs(A, t), postcondition(A, _, Var, Val).
 modified(Var, t) :- caused(Var, Val, t).
 
 holds(Var, Val, t) :- caused(Var, Val, t).
 holds(Var, Val, t) :- holds(Var, Val, t - 1), not modified(Var, t).
 
-% Check that variables without <none of those> values are unique
-:- variable(X), Var = variable(X), not contains(Var, noneValue), not 1 {holds(Var, Val, t) : contains(Var, Val)} 1.
-:- contains(Var, noneValue), not {holds(Var, Val, t) : contains(Var, Val)} 1.
+% Check that variables have unique values
+:- variable(X), Var = variable(X), not 1 {holds(Var, Val, t) : contains(Var, Val)} 1.
 
 % Check mutexes
 :- mutexGroup(X), M = mutexGroup(X), not {holds(Var, Val, t) : contains(M, Var, Val)} 1.
-
-% Output predicate
-do(L, t) :- occurs(A, t), label(A, action(L)).
 
 #program check(t).
 
@@ -41,4 +37,4 @@ do(L, t) :- occurs(A, t), label(A, action(L)).
 :- query(t), goal(Var, Val), not holds(Var, Val, t).
 
 #show query/1.
-#show do/2.
+#show occurs/2.

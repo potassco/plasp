@@ -24,8 +24,6 @@ class TranslatorASP
 		void translate(std::ostream &ostream) const;
 
 	private:
-		void checkSupport() const;
-
 		const Description &m_description;
 };
 

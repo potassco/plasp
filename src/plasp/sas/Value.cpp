@@ -138,6 +138,13 @@ void Value::printAsASP(std::ostream &ostream) const
 
 void Value::printAsASPPredicate(std::ostream &ostream) const
 {
+	// TODO: do not compare by value
+	if (*this == Value::None)
+	{
+		ostream << "value(none)";
+		return;
+	}
+
 	ostream << "value(" << utils::escapeASP(m_name) << ", "
 		<< (m_sign == Sign::Positive ? "true" : "false") << ")";
 }
