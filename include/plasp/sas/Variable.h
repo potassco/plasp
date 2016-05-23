@@ -30,6 +30,8 @@ class Variable
 		static const Variable &referenceFromSAS(std::istream &istream, const Variables &variables);
 
 	public:
+		void printNameAsASP(std::ostream &ostream) const;
+
 		const std::string &name() const;
 		int axiomLayer() const;
 		const Values &values() const;

@@ -63,8 +63,6 @@ void TranslatorASP::translate(std::ostream &ostream) const
 {
 	checkSupport();
 
-	ostream << "#program base." << std::endl << std::endl;
-
 	std::vector<const Value *> fluents;
 
 	const auto &variables = m_description.variables();
@@ -137,14 +135,14 @@ void TranslatorASP::translate(std::ostream &ostream) const
 		});
 
 	ostream << std::endl;
-	ostream << "% actions" << std::endl;
+	ostream << "% actions";
 
 	const auto &operators = m_description.operators();
 
 	std::for_each(operators.cbegin(), operators.cend(),
 		[&](const auto &operator_)
 		{
-			ostream << "action(";
+			ostream << std::endl << "action(";
 			operator_.predicate().printAsASP(ostream);
 			ostream << ")." << std::endl;
 
@@ -177,13 +175,10 @@ void TranslatorASP::translate(std::ostream &ostream) const
 					effect.postcondition().value().printAsASPPredicateBody(ostream);
 					ostream << ")." << std::endl;
 				});
-
-			ostream << std::endl;
 		});
 
-	ostream << "#program step(t)." << std::endl << std::endl;
-
-	ostream << "% constraints derived from SAS variables" << std::endl;
+	ostream << std::endl;
+	ostream << "% variables";
 
 	std::for_each(variables.cbegin(), variables.cend(),
 		[&](const auto &variable)
@@ -192,76 +187,45 @@ void TranslatorASP::translate(std::ostream &ostream) const
 
 			BOOST_ASSERT(!values.empty());
 
-			// Skip trivial constraints of the form :- x, not x.
-			if (values.size() == 2 && values[0].name() == values[1].name())
-				return;
+			ostream << std::endl << "variable(";
+			variable.printNameAsASP(ostream);
+			ostream << ")." << std::endl;
 
-			for (auto i = values.cbegin(); i != values.cend(); i++)
-			{
-				const auto &value1 = *i;
-
-				if (value1 == Value::None)
-					continue;
-
-				for (auto j = i + 1; j != values.cend(); j++)
+			std::for_each(values.cbegin(), values.cend(),
+				[&](const auto &value)
 				{
-					const auto &value2 = *j;
-
-					if (value2 == Value::None)
-						continue;
-
-					ostream << "mutex(";
-					value1.printAsASPPredicateBody(ostream);
+					ostream << "variableValue(";
+					variable.printNameAsASP(ostream);
 					ostream << ", ";
-					value2.printAsASPPredicateBody(ostream);
+					if (value == Value::None)
+						ostream << "noneValue";
+					else
+						value.printAsASPPredicateBody(ostream);
 					ostream << ")." << std::endl;
-				}
-			}
-
-			// No further constraint with <none of those> values (the variable need not be assigned at all)
-			if (values.back() == Value::None)
-				return;
-
-			ostream << ":- ";
-
-			for (auto i = values.cbegin(); i != values.cend(); i++)
-			{
-				const auto &value = *i;
-
-				if (i != values.cbegin())
-					ostream << ", ";
-
-				ostream << "holds(";
-				value.negated().printAsASPPredicateBody(ostream);
-				ostream << ", t)";
-			}
-
-			ostream << "." << std::endl;
+				});
 		});
 
 	ostream << std::endl;
-	ostream << "% constraints derived from SAS mutex groups" << std::endl;
+	ostream << "% mutex groups";
 
 	const auto &mutexGroups = m_description.mutexGroups();
 
-	std::for_each(mutexGroups.cbegin(), mutexGroups.cend(),
-		[&](const auto &mutexGroup)
-		{
-			const auto &facts = mutexGroup.facts();
+	for (size_t i = 0; i < mutexGroups.size(); i++)
+	{
+		const auto &mutexGroup = mutexGroups[i];
 
-			for (auto i = facts.cbegin(); i != facts.cend(); i++)
-				for (auto j = i + 1; j != facts.cend(); j++)
-				{
-					const auto &value1 = i->value();
-					const auto &value2 = j->value();
+		ostream << std::endl << "mutexGroup(mutexGroup" << i << ").";
 
-					ostream << "mutex(";
-					value1.printAsASPPredicateBody(ostream);
-					ostream << ", ";
-					value2.printAsASPPredicateBody(ostream);
-					ostream << ")." << std::endl;
-				}
-		});
+		const auto &facts = mutexGroup.facts();
+
+		std::for_each(facts.cbegin(), facts.cend(),
+			[&](const auto &fact)
+			{
+				ostream << "mutexGroupFact(mutexGroup" << i << ", ";
+				fact.value().printAsASPPredicateBody(ostream);
+				ostream << ")." << std::endl;
+			});
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -50,6 +50,13 @@ Variable Variable::fromSAS(std::istream &istream)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void Variable::printNameAsASP(std::ostream &ostream) const
+{
+	ostream << utils::escapeASP(m_name);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 const Variable &Variable::referenceFromSAS(std::istream &istream, const Variables &variables)
 {
 	const auto variableID = utils::parse<size_t>(istream);
