@@ -46,6 +46,15 @@ Operator Operator::fromSAS(std::istream &istream, const Variables &variables)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void Operator::printPredicateAsASP(std::ostream &ostream) const
+{
+	ostream << "action(";
+	m_predicate.printAsASP(ostream);
+	ostream << ")";
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 const Predicate &Operator::predicate() const
 {
 	return m_predicate;

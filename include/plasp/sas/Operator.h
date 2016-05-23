@@ -34,6 +34,8 @@ class Operator
 		static Operator fromSAS(std::istream &istream, const Variables &variables);
 
 	public:
+		void printPredicateAsASP(std::ostream &ostream) const;
+
 		const Predicate &predicate() const;
 		const Conditions &preconditions() const;
 		const Effects &effects() const;

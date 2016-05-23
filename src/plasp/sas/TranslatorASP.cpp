@@ -74,9 +74,9 @@ void TranslatorASP::translate(std::ostream &ostream) const
 				return;
 
 			ostream << "initialState(";
-			fact.variable().printNameAsASP(ostream);
+			fact.variable().printNameAsASPPredicate(ostream);
 			ostream << ", ";
-			fact.value().printAsASPPredicateBody(ostream);
+			fact.value().printAsASPPredicate(ostream);
 			ostream << ")." << std::endl;
 		});
 
@@ -92,9 +92,9 @@ void TranslatorASP::translate(std::ostream &ostream) const
 				return;
 
 			ostream << "goal(";
-			fact.variable().printNameAsASP(ostream);
+			fact.variable().printNameAsASPPredicate(ostream);
 			ostream << ", ";
-			fact.value().printAsASPPredicateBody(ostream);
+			fact.value().printAsASPPredicate(ostream);
 			ostream << ")." << std::endl;
 		});
 
@@ -110,20 +110,22 @@ void TranslatorASP::translate(std::ostream &ostream) const
 
 			BOOST_ASSERT(!values.empty());
 
-			ostream << std::endl << "variable(";
-			variable.printNameAsASP(ostream);
-			ostream << ")." << std::endl;
+			ostream << std::endl;
+			variable.printNameAsASPPredicate(ostream);
+			ostream << "." << std::endl;
 
 			std::for_each(values.cbegin(), values.cend(),
 				[&](const auto &value)
 				{
-					ostream << "variableValue(";
-					variable.printNameAsASP(ostream);
+					ostream << "contains(";
+					variable.printNameAsASPPredicate(ostream);
 					ostream << ", ";
+
 					if (value == Value::None)
 						ostream << "noneValue";
 					else
-						value.printAsASPPredicateBody(ostream);
+						value.printAsASPPredicate(ostream);
+
 					ostream << ")." << std::endl;
 				});
 		});
@@ -136,9 +138,9 @@ void TranslatorASP::translate(std::ostream &ostream) const
 	std::for_each(operators.cbegin(), operators.cend(),
 		[&](const auto &operator_)
 		{
-			ostream << std::endl << "action(";
-			operator_.predicate().printAsASP(ostream);
-			ostream << ")." << std::endl;
+			ostream << std::endl;
+			operator_.printPredicateAsASP(ostream);
+			ostream << "." << std::endl;
 
 			const auto &preconditions = operator_.preconditions();
 
@@ -149,11 +151,11 @@ void TranslatorASP::translate(std::ostream &ostream) const
 						return;
 
 					ostream << "precondition(";
-					operator_.predicate().printAsASP(ostream);
+					operator_.printPredicateAsASP(ostream);
 					ostream << ", ";
-					precondition.variable().printNameAsASP(ostream);
+					precondition.variable().printNameAsASPPredicate(ostream);
 					ostream << ", ";
-					precondition.value().printAsASPPredicateBody(ostream);
+					precondition.value().printAsASPPredicate(ostream);
 					ostream << ")." << std::endl;
 				});
 
@@ -166,11 +168,11 @@ void TranslatorASP::translate(std::ostream &ostream) const
 						return;
 
 					ostream << "postcondition(";
-					operator_.predicate().printAsASP(ostream);
+					operator_.printPredicateAsASP(ostream);
 					ostream << ", ";
-					effect.postcondition().variable().printNameAsASP(ostream);
+					effect.postcondition().variable().printNameAsASPPredicate(ostream);
 					ostream << ", ";
-					effect.postcondition().value().printAsASPPredicateBody(ostream);
+					effect.postcondition().value().printAsASPPredicate(ostream);
 					ostream << ")." << std::endl;
 				});
 		});
@@ -191,10 +193,10 @@ void TranslatorASP::translate(std::ostream &ostream) const
 		std::for_each(facts.cbegin(), facts.cend(),
 			[&](const auto &fact)
 			{
-				ostream << "mutexGroupFact(mutexGroup" << i << ", ";
-				fact.variable().printNameAsASP(ostream);
+				ostream << "contains(mutexGroup(mutexGroup" << i << "), ";
+				fact.variable().printNameAsASPPredicate(ostream);
 				ostream << ", ";
-				fact.value().printAsASPPredicateBody(ostream);
+				fact.value().printAsASPPredicate(ostream);
 				ostream << ")." << std::endl;
 			});
 	}

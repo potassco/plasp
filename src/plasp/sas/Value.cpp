@@ -136,9 +136,10 @@ void Value::printAsASP(std::ostream &ostream) const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Value::printAsASPPredicateBody(std::ostream &ostream) const
+void Value::printAsASPPredicate(std::ostream &ostream) const
 {
-	ostream << utils::escapeASP(m_name) << ", " << (m_sign == Sign::Positive ? "true" : "false");
+	ostream << "value(" << utils::escapeASP(m_name) << ", "
+		<< (m_sign == Sign::Positive ? "true" : "false") << ")";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

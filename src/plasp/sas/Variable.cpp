@@ -50,9 +50,9 @@ Variable Variable::fromSAS(std::istream &istream)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Variable::printNameAsASP(std::ostream &ostream) const
+void Variable::printNameAsASPPredicate(std::ostream &ostream) const
 {
-	ostream << utils::escapeASP(m_name);
+	ostream << "variable(" << utils::escapeASP(m_name) << ")";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
