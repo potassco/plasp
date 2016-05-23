@@ -46,9 +46,6 @@ void TranslatorASP::translate(std::ostream &ostream) const
 	std::for_each(initialStateFacts.cbegin(), initialStateFacts.cend(),
 		[&](const auto &fact)
 		{
-			if (fact.value() == Value::None)
-				return;
-
 			ostream << "initialState(";
 			fact.variable().printNameAsASPPredicate(ostream);
 			ostream << ", ";
@@ -64,9 +61,6 @@ void TranslatorASP::translate(std::ostream &ostream) const
 	std::for_each(goalFacts.cbegin(), goalFacts.cend(),
 		[&](const auto &fact)
 		{
-			if (fact.value() == Value::None)
-				return;
-
 			ostream << "goal(";
 			fact.variable().printNameAsASPPredicate(ostream);
 			ostream << ", ";
@@ -118,9 +112,6 @@ void TranslatorASP::translate(std::ostream &ostream) const
 			std::for_each(preconditions.cbegin(), preconditions.cend(),
 				[&](const auto &precondition)
 				{
-					if (precondition.value() == Value::None)
-						return;
-
 					ostream << "precondition(";
 					operator_.printPredicateAsASP(ostream);
 					ostream << ", ";
