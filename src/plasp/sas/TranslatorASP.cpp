@@ -23,9 +23,6 @@ TranslatorASP::TranslatorASP(const Description &description)
 
 void TranslatorASP::checkSupport() const
 {
-	if (m_description.usesActionCosts())
-		throw TranslatorException("Action costs are currently unsupported");
-
 	const auto &variables = m_description.variables();
 
 	std::for_each(variables.cbegin(), variables.cend(),
@@ -48,9 +45,6 @@ void TranslatorASP::checkSupport() const
 					if (!effect.conditions().empty())
 						throw TranslatorException("Conditional effects are currently unsupported");
 				});
-
-			if (operator_.costs() != 1)
-				throw TranslatorException("Action costs are currently unsupported");
 		});
 
 	if (!m_description.axiomRules().empty())
@@ -63,6 +57,12 @@ void TranslatorASP::translate(std::ostream &ostream) const
 {
 	checkSupport();
 
+	ostream << "% feature requirements" << std::endl;
+
+	if (m_description.usesActionCosts())
+		ostream << "requiresFeature(actionCosts)." << std::endl;
+
+	ostream << std::endl;
 	ostream << "% initial state" << std::endl;
 
 	const auto &initialStateFacts = m_description.initialState().facts();
@@ -175,6 +175,10 @@ void TranslatorASP::translate(std::ostream &ostream) const
 					effect.postcondition().value().printAsASPPredicate(ostream);
 					ostream << ")." << std::endl;
 				});
+
+			ostream << "costs(";
+			operator_.printPredicateAsASP(ostream);
+			ostream << ", " << operator_.costs() << ")." << std::endl;
 		});
 
 	ostream << std::endl;

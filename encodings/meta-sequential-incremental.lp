@@ -1,5 +1,8 @@
 #include <incmode>.
 
+% Check feature requirements
+:- requiresFeature(actionCosts, true).
+
 #program base.
 
 % Establish initial state
