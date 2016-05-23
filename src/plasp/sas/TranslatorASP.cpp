@@ -70,11 +70,13 @@ void TranslatorASP::translate(std::ostream &ostream) const
 	std::for_each(initialStateFacts.cbegin(), initialStateFacts.cend(),
 		[&](const auto &fact)
 		{
-			if (fact.value() == Value::None || fact.value().sign() == Value::Sign::Negative)
+			if (fact.value() == Value::None)
 				return;
 
 			ostream << "initialState(";
-			fact.value().printAsASP(ostream);
+			fact.variable().printNameAsASP(ostream);
+			ostream << ", ";
+			fact.value().printAsASPPredicateBody(ostream);
 			ostream << ")." << std::endl;
 		});
 
@@ -90,6 +92,8 @@ void TranslatorASP::translate(std::ostream &ostream) const
 				return;
 
 			ostream << "goal(";
+			fact.variable().printNameAsASP(ostream);
+			ostream << ", ";
 			fact.value().printAsASPPredicateBody(ostream);
 			ostream << ")." << std::endl;
 		});
@@ -147,6 +151,8 @@ void TranslatorASP::translate(std::ostream &ostream) const
 					ostream << "precondition(";
 					operator_.predicate().printAsASP(ostream);
 					ostream << ", ";
+					precondition.variable().printNameAsASP(ostream);
+					ostream << ", ";
 					precondition.value().printAsASPPredicateBody(ostream);
 					ostream << ")." << std::endl;
 				});
@@ -161,6 +167,8 @@ void TranslatorASP::translate(std::ostream &ostream) const
 
 					ostream << "postcondition(";
 					operator_.predicate().printAsASP(ostream);
+					ostream << ", ";
+					effect.postcondition().variable().printNameAsASP(ostream);
 					ostream << ", ";
 					effect.postcondition().value().printAsASPPredicateBody(ostream);
 					ostream << ")." << std::endl;
@@ -184,6 +192,8 @@ void TranslatorASP::translate(std::ostream &ostream) const
 			[&](const auto &fact)
 			{
 				ostream << "mutexGroupFact(mutexGroup" << i << ", ";
+				fact.variable().printNameAsASP(ostream);
+				ostream << ", ";
 				fact.value().printAsASPPredicateBody(ostream);
 				ostream << ")." << std::endl;
 			});
