@@ -176,7 +176,7 @@ void TranslatorASP::translate(std::ostream &ostream) const
 	{
 		const auto &mutexGroup = mutexGroups[i];
 
-		ostream << std::endl << "mutexGroup(mutexGroup" << i << ").";
+		ostream << std::endl << "mutexGroup(mutexGroup" << i << ")." << std::endl;
 
 		const auto &facts = mutexGroup.facts();
 
