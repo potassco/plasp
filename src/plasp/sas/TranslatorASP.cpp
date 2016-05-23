@@ -47,6 +47,7 @@ void TranslatorASP::translate(std::ostream &ostream) const
 
 	const auto usesActionCosts = m_description.usesActionCosts();
 	const auto usesAxiomRules = m_description.usesAxiomRules();
+	const auto usesConditionalEffects = m_description.usesConditionalEffects();
 
 	ostream << "% feature requirements" << std::endl;
 
@@ -55,6 +56,9 @@ void TranslatorASP::translate(std::ostream &ostream) const
 
 	if (usesAxiomRules)
 		ostream << "requiresFeature(axiomRules)." << std::endl;
+
+	if (usesConditionalEffects)
+		ostream << "requiresFeature(conditionalEffects)." << std::endl;
 
 	ostream << std::endl;
 	ostream << "% initial state" << std::endl;
@@ -129,12 +133,20 @@ void TranslatorASP::translate(std::ostream &ostream) const
 
 	const auto &operators = m_description.operators();
 
+	size_t currentActionID = 0;
+	size_t currentEffectID = 0;
+
 	std::for_each(operators.cbegin(), operators.cend(),
 		[&](const auto &operator_)
 		{
-			ostream << std::endl;
+			const auto actionID = std::to_string(currentActionID);
+			currentActionID++;
+
+			ostream << std::endl << "action(" << actionID << ")." << std::endl;
+
+			ostream << "label(action(" << actionID << "), ";
 			operator_.printPredicateAsASP(ostream);
-			ostream << "." << std::endl;
+			ostream << ")." << std::endl;
 
 			const auto &preconditions = operator_.preconditions();
 
@@ -144,9 +156,7 @@ void TranslatorASP::translate(std::ostream &ostream) const
 					if (precondition.value() == Value::None)
 						return;
 
-					ostream << "precondition(";
-					operator_.printPredicateAsASP(ostream);
-					ostream << ", ";
+					ostream << "precondition(action(" << actionID << "), ";
 					precondition.variable().printNameAsASPPredicate(ostream);
 					ostream << ", ";
 					precondition.value().printAsASPPredicate(ostream);
@@ -161,9 +171,28 @@ void TranslatorASP::translate(std::ostream &ostream) const
 					if (effect.postcondition().value() == Value::None)
 						return;
 
-					ostream << "postcondition(";
-					operator_.printPredicateAsASP(ostream);
-					ostream << ", ";
+					const auto effectID = std::to_string(currentEffectID);
+					currentEffectID++;
+
+					ostream << "effect(" << effectID << ")." << std::endl;
+					ostream << "contains(action(" << actionID << "), effect(" << effectID << "))." << std::endl;
+
+					if (usesConditionalEffects)
+					{
+						const auto &conditions = effect.conditions();
+
+						std::for_each(conditions.cbegin(), conditions.cend(),
+							[&](const auto &condition)
+							{
+								ostream << "condition(effect(" << effectID << "), ";
+								condition.variable().printNameAsASPPredicate(ostream);
+								ostream << ", ";
+								condition.value().printAsASPPredicate(ostream);
+								ostream << ")." << std::endl;
+							});
+					}
+
+					ostream << "postcondition(effect(" << effectID << "), ";
 					effect.postcondition().variable().printNameAsASPPredicate(ostream);
 					ostream << ", ";
 					effect.postcondition().value().printAsASPPredicate(ostream);
@@ -183,24 +212,28 @@ void TranslatorASP::translate(std::ostream &ostream) const
 
 	const auto &mutexGroups = m_description.mutexGroups();
 
-	for (size_t i = 0; i < mutexGroups.size(); i++)
-	{
-		const auto &mutexGroup = mutexGroups[i];
+	size_t currentMutexGroupID = 0;
 
-		ostream << std::endl << "mutexGroup(mutexGroup" << i << ")." << std::endl;
+	std::for_each(mutexGroups.cbegin(), mutexGroups.cend(),
+		[&](const auto &mutexGroup)
+		{
+			const auto mutexGroupID = std::to_string(currentMutexGroupID);
+			currentMutexGroupID++;
 
-		const auto &facts = mutexGroup.facts();
+			ostream << std::endl << "mutexGroup(" << mutexGroupID << ")." << std::endl;
 
-		std::for_each(facts.cbegin(), facts.cend(),
-			[&](const auto &fact)
-			{
-				ostream << "contains(mutexGroup(mutexGroup" << i << "), ";
-				fact.variable().printNameAsASPPredicate(ostream);
-				ostream << ", ";
-				fact.value().printAsASPPredicate(ostream);
-				ostream << ")." << std::endl;
-			});
-	}
+			const auto &facts = mutexGroup.facts();
+
+			std::for_each(facts.cbegin(), facts.cend(),
+				[&](const auto &fact)
+				{
+					ostream << "contains(mutexGroup(" << mutexGroupID << "), ";
+					fact.variable().printNameAsASPPredicate(ostream);
+					ostream << ", ";
+					fact.value().printAsASPPredicate(ostream);
+					ostream << ")." << std::endl;
+				});
+		});
 
 	if (usesAxiomRules)
 	{
@@ -209,32 +242,36 @@ void TranslatorASP::translate(std::ostream &ostream) const
 
 		const auto &axiomRules = m_description.axiomRules();
 
-		for (size_t i = 0; i < axiomRules.size(); i++)
-		{
-			const auto &axiomRule = axiomRules[i];
+		size_t currentAxiomRuleID = 0;
 
-			ostream << std::endl << "axiomRule(axiomRule" << i << ")." << std::endl;
+		std::for_each(axiomRules.cbegin(), axiomRules.cend(),
+			[&](const auto &axiomRule)
+			{
+				const auto axiomRuleID = std::to_string(currentAxiomRuleID);
+				currentAxiomRuleID++;
 
-			const auto &conditions = axiomRule.conditions();
+				ostream << std::endl << "axiomRule(" << axiomRuleID << ")." << std::endl;
 
-			std::for_each(conditions.cbegin(), conditions.cend(),
-				[&](const auto &condition)
-				{
-					ostream << "condition(axiomRule(axiomRule" << i << "), ";
-					condition.variable().printNameAsASPPredicate(ostream);
-					ostream << ", ";
-					condition.value().printAsASPPredicate(ostream);
-					ostream << ")." << std::endl;
-				});
+				const auto &conditions = axiomRule.conditions();
 
-			const auto &postcondition = axiomRule.postcondition();
+				std::for_each(conditions.cbegin(), conditions.cend(),
+					[&](const auto &condition)
+					{
+						ostream << "condition(axiomRule(" << axiomRuleID << "), ";
+						condition.variable().printNameAsASPPredicate(ostream);
+						ostream << ", ";
+						condition.value().printAsASPPredicate(ostream);
+						ostream << ")." << std::endl;
+					});
 
-			ostream << "postcondition(axiomRule(axiomRule" << i << "), ";
-			postcondition.variable().printNameAsASPPredicate(ostream);
-			ostream << ", ";
-			postcondition.value().printAsASPPredicate(ostream);
-			ostream << ")." << std::endl;
-		}
+				const auto &postcondition = axiomRule.postcondition();
+
+				ostream << "postcondition(axiomRule(axiomRule" << axiomRuleID << "), ";
+				postcondition.variable().printNameAsASPPredicate(ostream);
+				ostream << ", ";
+				postcondition.value().printAsASPPredicate(ostream);
+				ostream << ")." << std::endl;
+			});
 	}
 }
 

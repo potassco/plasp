@@ -128,6 +128,27 @@ bool Description::usesAxiomRules() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+bool Description::usesConditionalEffects() const
+{
+	const auto match = std::find_if(m_operators.cbegin(), m_operators.cend(),
+		[&](const auto &operator_)
+		{
+			const auto &effects = operator_.effects();
+
+			const auto match = std::find_if(effects.cbegin(), effects.cend(),
+				[&](const auto &effect)
+				{
+					return !effect.conditions().empty();
+				});
+
+			return match != effects.cend();
+		});
+
+	return match != m_operators.cend();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void Description::parseVersionSection(std::istream &istream) const
 {
 	utils::parseExpected<std::string>(istream, "begin_version");

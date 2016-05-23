@@ -41,6 +41,7 @@ class Description
 		const AxiomRules &axiomRules() const;
 
 		bool usesAxiomRules() const;
+		bool usesConditionalEffects() const;
 
 	private:
 		Description();
