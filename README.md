@@ -16,6 +16,13 @@ To translate an SAS file into ASP facts, call:
 $ plasp file.sas
 ```
 
+For instance, the translated SAS instance can be solved incrementally with `clingo` and the meta encoding `meta-sequential-incremental.lp` as follows:
+
+```bash
+$ plasp file.sas > file.lp
+$ clingo encodings/meta-sequential-incremental.lp file.lp
+```
+
 ## Building
 
 `plasp` requires a C++14 compiler (preferrably ≥ GCC 6.1), the `boost` libraries (≥ 1.55), and CMake for building.
