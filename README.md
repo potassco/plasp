@@ -25,7 +25,7 @@ $ clingo encodings/meta-sequential-incremental.lp file.lp
 
 ## Building
 
-`plasp` requires a C++14 compiler (preferrably ≥ GCC 6.1), the `boost` libraries (≥ 1.55), and CMake for building.
+`plasp` requires a C++14 compiler (preferrably GCC ≥ 6.1), the `boost` libraries (≥ 1.55), and CMake for building.
 
 ```bash
 $ git clone https://github.com/potassco/plasp.git
