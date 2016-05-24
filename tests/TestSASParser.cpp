@@ -159,6 +159,16 @@ TEST_F(SASParserTests, ParseRequirements)
 		ASSERT_TRUE(description.usesActionCosts());
 		ASSERT_TRUE(description.usesConditionalEffects());
 		ASSERT_FALSE(description.usesAxiomRules());
+
+		ASSERT_EQ(description.operators().size(), 496);
+
+		ASSERT_EQ(description.operators()[0].costs(), 1);
+		ASSERT_EQ(description.operators()[172].costs(), 10);
+		ASSERT_EQ(description.operators()[173].costs(), 63);
+
+		ASSERT_EQ(description.operators()[172].effects().size(), 3);
+		ASSERT_EQ(description.operators()[172].effects()[1].conditions().size(), 1);
+		ASSERT_EQ(&description.operators()[172].effects()[1].conditions()[0].value(), &description.variables()[1].values()[4]);
 	}
 	catch (const std::exception &e)
 	{
