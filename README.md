@@ -48,9 +48,9 @@ The built `plasp` binary is then located at `plasp/build/release/bin/plasp`.
 
 ## Contributors
 
-* [Patrick Lühne](https://www.luehne.de) (plasp 3)
+* [Patrick Lühne](https://www.luehne.de) (`plasp` 3)
 
 ### Earlier Versions
 
-* Murat Knecht (plasp)
-* René Knaebel (plasp 2)
+* René Knaebel (`plasp` 2)
+* Murat Knecht (`plasp`)
