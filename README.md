@@ -16,6 +16,21 @@ To translate an SAS file into ASP facts, call:
 $ plasp file.sas
 ```
 
+## Building
+
+`plasp` requires a C++14 compiler (preferrably ≥ GCC 6.1), the `boost` libraries (≥ 1.55), and CMake for building.
+
+```bash
+$ git clone https://github.com/potassco/plasp.git
+$ cd plasp
+$ mkdir -p build/release
+$ cd build/release
+$ cmake ../.. -DCMAKE_BUILD_TYPE=Release
+$ make
+```
+
+The built `plasp` binary is then located at `plasp/build/release/bin/plasp`.
+
 ## Contributors
 
 * [Patrick Lühne](https://www.luehne.de) (plasp 3)
