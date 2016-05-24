@@ -10,7 +10,7 @@ Please get in touch with [Patrick Lühne](https://www.luehne.de) if you have any
 
 ## Usage
 
-To translate SAS files into ASP facts, call:
+To translate an SAS file into ASP facts, call:
 
 ```bash
 $ plasp file.sas
