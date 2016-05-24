@@ -168,13 +168,8 @@ void Value::printAsSAS(std::ostream &ostream) const
 
 bool operator ==(const Value &value1, const Value &value2)
 {
-	if (value1.sign() != value2.sign())
-		return false;
-
-	if (value1.name() != value2.name())
-		return false;
-
-	return true;
+	return value1.sign() == value2.sign()
+		&& value1.name() == value2.name();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
