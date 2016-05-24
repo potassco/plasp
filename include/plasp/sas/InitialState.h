@@ -1,5 +1,5 @@
-#ifndef __SAS__INITIAL_STATE_H
-#define __SAS__INITIAL_STATE_H
+#ifndef __PLASP__SAS__INITIAL_STATE_H
+#define __PLASP__SAS__INITIAL_STATE_H
 
 #include <plasp/sas/AssignedVariable.h>
 

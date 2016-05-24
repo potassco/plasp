@@ -1,5 +1,5 @@
-#ifndef __SAS__PREDICATE_H
-#define __SAS__PREDICATE_H
+#ifndef __PLASP__SAS__PREDICATE_H
+#define __PLASP__SAS__PREDICATE_H
 
 #include <iosfwd>
 #include <string>

@@ -1,5 +1,5 @@
-#ifndef __SAS__GOAL_H
-#define __SAS__GOAL_H
+#ifndef __PLASP__SAS__GOAL_H
+#define __PLASP__SAS__GOAL_H
 
 #include <plasp/sas/AssignedVariable.h>
 

@@ -1,5 +1,5 @@
-#ifndef __SAS__DESCRIPTION_H
-#define __SAS__DESCRIPTION_H
+#ifndef __PLASP__SAS__DESCRIPTION_H
+#define __PLASP__SAS__DESCRIPTION_H
 
 #include <iosfwd>
 #include <memory>

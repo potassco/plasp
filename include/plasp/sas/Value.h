@@ -1,5 +1,5 @@
-#ifndef __SAS__VALUE_H
-#define __SAS__VALUE_H
+#ifndef __PLASP__SAS__VALUE_H
+#define __PLASP__SAS__VALUE_H
 
 #include <iosfwd>
 #include <string>

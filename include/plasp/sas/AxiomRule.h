@@ -1,5 +1,5 @@
-#ifndef __SAS__AXIOM_RULE_H
-#define __SAS__AXIOM_RULE_H
+#ifndef __PLASP__SAS__AXIOM_RULE_H
+#define __PLASP__SAS__AXIOM_RULE_H
 
 #include <vector>
 

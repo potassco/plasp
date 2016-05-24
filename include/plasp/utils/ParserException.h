@@ -1,5 +1,5 @@
-#ifndef __UTILS__PARSER_EXCEPTION_H
-#define __UTILS__PARSER_EXCEPTION_H
+#ifndef __PLASP__UTILS__PARSER_EXCEPTION_H
+#define __PLASP__UTILS__PARSER_EXCEPTION_H
 
 #include <exception>
 #include <string>

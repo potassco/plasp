@@ -1,5 +1,5 @@
-#ifndef __SAS__ASSIGNED_VARIABLE_H
-#define __SAS__ASSIGNED_VARIABLE_H
+#ifndef __PLASP__SAS__ASSIGNED_VARIABLE_H
+#define __PLASP__SAS__ASSIGNED_VARIABLE_H
 
 #include <iosfwd>
 #include <vector>

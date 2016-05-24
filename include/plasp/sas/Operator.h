@@ -1,5 +1,5 @@
-#ifndef __SAS__OPERATOR_H
-#define __SAS__OPERATOR_H
+#ifndef __PLASP__SAS__OPERATOR_H
+#define __PLASP__SAS__OPERATOR_H
 
 #include <string>
 #include <vector>

@@ -1,5 +1,5 @@
-#ifndef __SAS__TRANSLATOR_ASP_H
-#define __SAS__TRANSLATOR_ASP_H
+#ifndef __PLASP__SAS__TRANSLATOR_ASP_H
+#define __PLASP__SAS__TRANSLATOR_ASP_H
 
 #include <plasp/sas/Description.h>
 

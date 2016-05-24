@@ -1,5 +1,5 @@
-#ifndef __SAS__EFFECT_H
-#define __SAS__EFFECT_H
+#ifndef __PLASP__SAS__EFFECT_H
+#define __PLASP__SAS__EFFECT_H
 
 #include <vector>
 

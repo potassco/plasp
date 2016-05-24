@@ -1,5 +1,5 @@
-#ifndef __SAS__TRANSLATOR_EXCEPTION_H
-#define __SAS__TRANSLATOR_EXCEPTION_H
+#ifndef __PLASP__SAS__TRANSLATOR_EXCEPTION_H
+#define __PLASP__SAS__TRANSLATOR_EXCEPTION_H
 
 #include <exception>
 #include <string>

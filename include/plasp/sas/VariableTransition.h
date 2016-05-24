@@ -1,5 +1,5 @@
-#ifndef __SAS__VARIABLE_TRANSITION_H
-#define __SAS__VARIABLE_TRANSITION_H
+#ifndef __PLASP__SAS__VARIABLE_TRANSITION_H
+#define __PLASP__SAS__VARIABLE_TRANSITION_H
 
 #include <iosfwd>
 

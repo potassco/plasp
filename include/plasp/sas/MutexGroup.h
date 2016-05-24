@@ -1,5 +1,5 @@
-#ifndef __SAS__MUTEX_GROUP_H
-#define __SAS__MUTEX_GROUP_H
+#ifndef __PLASP__SAS__MUTEX_GROUP_H
+#define __PLASP__SAS__MUTEX_GROUP_H
 
 #include <vector>
 

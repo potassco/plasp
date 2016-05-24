@@ -1,5 +1,5 @@
-#ifndef __SAS__DEBUGGING_H
-#define __SAS__DEBUGGING_H
+#ifndef __PLASP__SAS__DEBUGGING_H
+#define __PLASP__SAS__DEBUGGING_H
 
 #include <iosfwd>
 
