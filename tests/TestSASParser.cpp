@@ -14,6 +14,7 @@ class SASParserTests : public ::testing::Test
 	protected:
 		SASParserTests()
 		:	m_blocksworldTestFile(readFile("data/blocksworld.sas")),
+			m_cavedivingTestFile(readFile("data/cavediving.sas")),
 			m_freecellTestFile(readFile("data/freecell.sas")),
 			m_philosophersTestFile(readFile("data/philosophers.sas"))
 		{
@@ -34,6 +35,7 @@ class SASParserTests : public ::testing::Test
 		}
 
 		std::stringstream m_blocksworldTestFile;
+		std::stringstream m_cavedivingTestFile;
 		std::stringstream m_freecellTestFile;
 		std::stringstream m_philosophersTestFile;
 };
@@ -124,7 +126,7 @@ TEST_F(SASParserTests, RemoveTrailingParentheses)
 	}
 	catch (const std::exception &e)
 	{
-		FAIL () << e.what();
+		FAIL() << e.what();
 	}
 }
 
@@ -142,7 +144,25 @@ TEST_F(SASParserTests, ParseNoneValue)
 	}
 	catch (const std::exception &e)
 	{
-		FAIL () << e.what();
+		FAIL() << e.what();
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TEST_F(SASParserTests, ParseRequirements)
+{
+	try
+	{
+		const auto description = plasp::sas::Description::fromStream(m_cavedivingTestFile);
+
+		ASSERT_TRUE(description.usesActionCosts());
+		ASSERT_TRUE(description.usesConditionalEffects());
+		ASSERT_FALSE(description.usesAxiomRules());
+	}
+	catch (const std::exception &e)
+	{
+		FAIL() << e.what();
 	}
 }
 
