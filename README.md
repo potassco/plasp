@@ -4,7 +4,7 @@
 
 `plasp` 3 is in early development and not intended for productive use yet.
 
-As of now, `plasp` 3 experimentally supports the full [SAS Format](http://www.fast-downward.org/TranslatorOutputFormat) (as of version 3) used by [Fast Downward](www.fast-downward.org/).
+As of now, `plasp` 3 experimentally supports the full [SAS Format](http://www.fast-downward.org/TranslatorOutputFormat) (as of version 3) used by [Fast Downward](http://www.fast-downward.org/).
 
 Please get in touch with [Patrick Lühne](https://www.luehne.de) if you have any suggestions.
 
