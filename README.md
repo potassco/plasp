@@ -16,11 +16,19 @@ To translate an SAS file into ASP facts, call:
 $ plasp file.sas
 ```
 
-For instance, the translated SAS instance can be solved incrementally with `clingo` and the meta encoding `meta-sequential-incremental.lp` as follows:
+For instance, a PDDL instance can be solved as follows.
+First, use [Fast Downward](http://www.fast-downward.org/) to translate the files from PDDL to SAS:
 
 ```bash
-$ plasp file.sas > file.lp
-$ clingo encodings/meta-sequential-incremental.lp file.lp
+$ ./fast-downward.py --translate --build=release64 domain.pddl instance.pddl
+```
+
+This creates the file `output.sas`.
+The translated SAS instance can now be solved incrementally with `clingo` and the meta encoding `meta-sequential-incremental.lp`:
+
+```bash
+$ plasp output.sas > instance.lp
+$ clingo encodings/meta-sequential-incremental.lp instance.lp
 ```
 
 ## Building
