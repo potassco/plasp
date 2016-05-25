@@ -17,7 +17,7 @@ To translate an SAS file into ASP facts, call:
 $ plasp file.sas
 ```
 
-For instance, a PDDL instance can be solved as follows.
+For example, a PDDL instance can be solved as follows.
 First, use [Fast Downward](http://www.fast-downward.org/) to translate the files from PDDL to SAS:
 
 ```bash
@@ -46,6 +46,22 @@ $ make
 ```
 
 The built `plasp` binary is then located at `plasp/build/release/bin/plasp`.
+
+### Running the Tests
+
+`plasp` provides unit tests written using the [Google Test](https://github.com/google/googletest) framework.
+Before building and running the tests, make sure you have fetched the Google Test git submodule:
+
+```bash
+$ git submodule init
+$ git submodule update
+```
+
+Afterward, build and run the tests as follows:
+
+```bash
+$ make run-tests
+```
 
 ## Contributors
 
