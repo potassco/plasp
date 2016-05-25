@@ -12,9 +12,10 @@ matrix:
           packages:
             - g++-5
             - libboost1.55-all-dev
-            - libgtest-dev
       env: COMPILER=g++-5
 script:
+  - git submodule init
+  - git submodule update
   - mkdir build
   - cd build
   - cmake .. -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DCMAKE_CXX_COMPILER=$COMPILER
