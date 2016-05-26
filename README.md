@@ -69,5 +69,5 @@ $ make run-tests
 
 ### Earlier Versions
 
-* René Knaebel (`plasp` 2)
-* Murat Knecht (`plasp`)
+* René Knaebel
+* Murat Knecht
