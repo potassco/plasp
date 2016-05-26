@@ -24,6 +24,14 @@ class TranslatorASP
 		void translate(std::ostream &ostream) const;
 
 	private:
+		void translateRequirements(std::ostream &ostream) const;
+		void translateInitialState(std::ostream &ostream) const;
+		void translateGoal(std::ostream &ostream) const;
+		void translateVariables(std::ostream &ostream) const;
+		void translateActions(std::ostream &ostream) const;
+		void translateMutexes(std::ostream &ostream) const;
+		void translateAxiomRules(std::ostream &ostream) const;
+
 		const Description &m_description;
 };
 
