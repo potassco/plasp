@@ -18,6 +18,9 @@ namespace utils
 class Parser
 {
 	public:
+		using CharacterType = unsigned char;
+
+	public:
 		explicit Parser(std::istream &istream);
 
 		size_t row() const;
@@ -35,18 +38,18 @@ class Parser
 		std::string getLine();
 
 	private:
-		static const std::istream_iterator<unsigned char> EndOfFile;
+		static const std::istream_iterator<CharacterType> EndOfFile;
 
 	private:
 		void checkStream() const;
 		void advance();
 
-		bool advanceIf(unsigned char expectedCharacter);
+		bool advanceIf(CharacterType expectedCharacter);
 
 		uint64_t parseIntegerBody();
 
 		std::istream &m_istream;
-		std::istream_iterator<unsigned char> m_position;
+		std::istream_iterator<CharacterType> m_position;
 
 		size_t m_row;
 		size_t m_column;

@@ -17,7 +17,7 @@ namespace utils
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::istream_iterator<unsigned char> Parser::EndOfFile = std::istream_iterator<unsigned char>();
+const std::istream_iterator<Parser::CharacterType> Parser::EndOfFile = std::istream_iterator<Parser::CharacterType>();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -84,7 +84,7 @@ void Parser::advance()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Parser::advanceIf(unsigned char expectedCharacter)
+bool Parser::advanceIf(CharacterType expectedCharacter)
 {
 	checkStream();
 
@@ -198,7 +198,7 @@ uint64_t Parser::parseIntegerBody()
 
 	uint64_t value = 0;
 
-	while (m_position != std::istream_iterator<unsigned char>())
+	while (m_position != std::istream_iterator<CharacterType>())
 	{
 		const auto character = *m_position;
 
