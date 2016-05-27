@@ -4,7 +4,6 @@
 #include <limits>
 
 #include <plasp/sas/VariableTransition.h>
-#include <plasp/utils/Parsing.h>
 
 namespace plasp
 {
@@ -17,29 +16,29 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Operator Operator::fromSAS(std::istream &istream, const Variables &variables)
+Operator Operator::fromSAS(utils::Parser &parser, const Variables &variables)
 {
 	Operator operator_;
 
-	utils::parseExpected<std::string>(istream, "begin_operator");
+	parser.expect<std::string>("begin_operator");
 
-	operator_.m_predicate = Predicate::fromSAS(istream);
+	operator_.m_predicate = Predicate::fromSAS(parser);
 
-	const auto numberOfPrevailConditions = utils::parse<size_t>(istream);
+	const auto numberOfPrevailConditions = parser.parse<size_t>();
 	operator_.m_preconditions.reserve(numberOfPrevailConditions);
 
 	for (size_t j = 0; j < numberOfPrevailConditions; j++)
-		operator_.m_preconditions.emplace_back(Condition::fromSAS(istream, variables));
+		operator_.m_preconditions.emplace_back(Condition::fromSAS(parser, variables));
 
-	const auto numberOfEffects = utils::parse<size_t>(istream);
+	const auto numberOfEffects = parser.parse<size_t>();
 	operator_.m_effects.reserve(numberOfEffects);
 
 	for (size_t j = 0; j < numberOfEffects; j++)
-		operator_.m_effects.emplace_back(Effect::fromSAS(istream, variables, operator_.m_preconditions));
+		operator_.m_effects.emplace_back(Effect::fromSAS(parser, variables, operator_.m_preconditions));
 
-	operator_.m_costs = utils::parse<size_t>(istream);
+	operator_.m_costs = parser.parse<size_t>();
 
-	utils::parseExpected<std::string>(istream, "end_operator");
+	parser.expect<std::string>("end_operator");
 
 	return operator_;
 }

@@ -4,6 +4,7 @@
 #include <vector>
 
 #include <plasp/sas/AssignedVariable.h>
+#include <plasp/utils/Parser.h>
 
 namespace plasp
 {
@@ -27,7 +28,7 @@ class MutexGroup
 		using Fact = AssignedVariable;
 		using Facts = AssignedVariables;
 
-		static MutexGroup fromSAS(std::istream &istream, const Variables &variables);
+		static MutexGroup fromSAS(utils::Parser &parser, const Variables &variables);
 
 	public:
 		const Facts &facts() const;

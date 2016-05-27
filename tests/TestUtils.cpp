@@ -1,20 +1,84 @@
 #include <gtest/gtest.h>
 
-#include <plasp/utils/Parsing.h>
+#include <plasp/utils/IO.h>
+#include <plasp/utils/Parser.h>
+#include <plasp/utils/ParserException.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 TEST(UtilsTests, ParseSimple)
 {
-	std::stringstream stream("identifier  5   \n-51\t expected unexpected 100 -100");
+	std::stringstream s("identifier  5   \n-51\t 0 1 expected unexpected");
+	plasp::utils::Parser p(s);
 
-	ASSERT_EQ(plasp::utils::parse<std::string>(stream), "identifier");
-	ASSERT_EQ(plasp::utils::parse<size_t>(stream), 5u);
-	ASSERT_EQ(plasp::utils::parse<int>(stream), -51);
-	ASSERT_NO_THROW(plasp::utils::parseExpected<std::string>(stream, "expected"));
-	ASSERT_THROW(plasp::utils::parseExpected<std::string>(stream, "expected"), plasp::utils::ParserException);
-	ASSERT_NO_THROW(plasp::utils::parseExpected<size_t>(stream, 100));
-	ASSERT_THROW(plasp::utils::parseExpected<size_t>(stream, 100), plasp::utils::ParserException);
+	ASSERT_EQ(p.parse<std::string>(), "identifier");
+	ASSERT_EQ(p.parse<size_t>(), 5u);
+	ASSERT_EQ(p.parse<int>(), -51);
+	ASSERT_EQ(p.parse<bool>(), false);
+	ASSERT_EQ(p.parse<bool>(), true);
+
+	ASSERT_NO_THROW(p.expect<std::string>("expected"));
+	ASSERT_THROW(p.expect<std::string>("expected"), plasp::utils::ParserException);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TEST(UtilsTests, ParseUnsignedNumbers)
+{
+	std::stringstream s("100 200 -300 -400");
+	plasp::utils::Parser p(s);
+
+	ASSERT_EQ(p.parse<int>(), 100);
+	ASSERT_EQ(p.parse<size_t>(), 200u);
+	ASSERT_EQ(p.parse<int>(), -300);
+	ASSERT_THROW(p.parse<size_t>(), plasp::utils::ParserException);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TEST(UtilsTests, ParseEndOfFile)
+{
+	std::stringstream s1("test");
+	plasp::utils::Parser p1(s1);
+
+	ASSERT_NO_THROW(p1.expect<std::string>("test"));
+	ASSERT_THROW(p1.parse<std::string>(), plasp::utils::ParserException);
+
+	std::stringstream s2("test1 test2 test3");
+	plasp::utils::Parser p2(s2);
+
+	ASSERT_NO_THROW(p2.expect<std::string>("test1"));
+	ASSERT_NO_THROW(p2.expect<std::string>("test2"));
+	ASSERT_NO_THROW(p2.expect<std::string>("test3"));
+	ASSERT_THROW(p2.parse<std::string>(), plasp::utils::ParserException);
+
+	std::stringstream s3("-127");
+	plasp::utils::Parser p3(s3);
+
+	p3.expect<int>(-127);
+	ASSERT_THROW(p3.parse<int>(), plasp::utils::ParserException);
+
+	std::stringstream s4("128 -1023 -4095");
+	plasp::utils::Parser p4(s4);
+
+	ASSERT_NO_THROW(p4.expect<size_t>(128));
+	ASSERT_NO_THROW(p4.expect<int>(-1023));
+	ASSERT_NO_THROW(p4.expect<int>(-4095));
+	ASSERT_THROW(p4.parse<int>(), plasp::utils::ParserException);
+
+	std::stringstream s5("0");
+	plasp::utils::Parser p5(s5);
+
+	p5.expect<bool>(false);
+	ASSERT_THROW(p5.parse<bool>(), plasp::utils::ParserException);
+
+	std::stringstream s6("0 1 0");
+	plasp::utils::Parser p6(s6);
+
+	ASSERT_NO_THROW(p6.expect<bool>(false));
+	ASSERT_NO_THROW(p6.expect<bool>(true));
+	ASSERT_NO_THROW(p6.expect<bool>(false));
+	ASSERT_THROW(p6.parse<bool>(), plasp::utils::ParserException);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

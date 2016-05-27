@@ -3,7 +3,8 @@
 #include <iostream>
 
 #include <plasp/sas/Variable.h>
-#include <plasp/utils/Parsing.h>
+#include <plasp/utils/IO.h>
+#include <plasp/utils/ParserException.h>
 
 namespace plasp
 {
@@ -53,14 +54,14 @@ Value Value::negated() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Value Value::fromSAS(std::istream &istream)
+Value Value::fromSAS(utils::Parser &parser)
 {
-	const auto sasSign = utils::parse<std::string>(istream);
+	const auto sasSign = parser.parse<std::string>();
 
 	if (sasSign == "<none")
 	{
-		utils::parseExpected<std::string>(istream, "of");
-		utils::parseExpected<std::string>(istream, "those>");
+		parser.expect<std::string>("of");
+		parser.expect<std::string>("those>");
 
 		// TODO: do not return a copy of Value::None
 		return Value::None;
@@ -73,12 +74,12 @@ Value Value::fromSAS(std::istream &istream)
 	else if (sasSign == "NegatedAtom")
 		value.m_sign = Value::Sign::Negative;
 	else
-		throw utils::ParserException("Invalid value sign \"" + sasSign + "\"");
+		throw utils::ParserException(parser.row(), parser.column(), "Invalid value sign \"" + sasSign + "\"");
 
 	try
 	{
-		istream.ignore(1);
-		std::getline(istream, value.m_name);
+		parser.skipWhiteSpace();
+		value.m_name = parser.getLine();
 
 		// Remove trailing ()
 		if (value.m_name.find("()") != std::string::npos)
@@ -89,7 +90,7 @@ Value Value::fromSAS(std::istream &istream)
 	}
 	catch (const std::exception &e)
 	{
-		throw utils::ParserException(std::string("Could not parse variable value (") + e.what() + ")");
+		throw utils::ParserException(parser.row(), parser.column(), std::string("Could not parse variable value (") + e.what() + ")");
 	}
 
 	return value;
@@ -97,15 +98,15 @@ Value Value::fromSAS(std::istream &istream)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const Value &Value::referenceFromSAS(std::istream &istream, const Variable &variable)
+const Value &Value::referenceFromSAS(utils::Parser &parser, const Variable &variable)
 {
-	const auto valueID = utils::parse<int>(istream);
+	const auto valueID = parser.parse<int>();
 
 	if (valueID == -1)
 		return Value::Any;
 
 	if (valueID < 0 || static_cast<size_t>(valueID) >= variable.values().size())
-		throw utils::ParserException("Value index out of range (variable " + variable.name() + ", index " + std::to_string(valueID) + ")");
+		throw utils::ParserException(parser.row(), parser.column(), "Value index out of range (variable " + variable.name() + ", index " + std::to_string(valueID) + ")");
 
 	return variable.values()[valueID];
 }

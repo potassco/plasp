@@ -3,7 +3,6 @@
 #include <iostream>
 
 #include <plasp/sas/VariableTransition.h>
-#include <plasp/utils/Parsing.h>
 
 namespace plasp
 {
@@ -24,17 +23,17 @@ Effect::Effect(Conditions conditions, Condition postcondition)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Effect Effect::fromSAS(std::istream &istream, const Variables &variables, Conditions &preconditions)
+Effect Effect::fromSAS(utils::Parser &parser, const Variables &variables, Conditions &preconditions)
 {
 	Effect::Conditions conditions;
 
-	const auto numberOfEffectConditions = utils::parse<size_t>(istream);
+	const auto numberOfEffectConditions = parser.parse<size_t>();
 	conditions.reserve(numberOfEffectConditions);
 
 	for (size_t k = 0; k < numberOfEffectConditions; k++)
-		conditions.emplace_back(Condition::fromSAS(istream, variables));
+		conditions.emplace_back(Condition::fromSAS(parser, variables));
 
-	const auto variableTransition = VariableTransition::fromSAS(istream, variables);
+	const auto variableTransition = VariableTransition::fromSAS(parser, variables);
 
 	if (&variableTransition.valueBefore() != &Value::Any)
 		preconditions.emplace_back(Condition(variableTransition.variable(), variableTransition.valueBefore()));

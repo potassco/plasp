@@ -2,7 +2,8 @@
 
 #include <iostream>
 
-#include <plasp/utils/Parsing.h>
+#include <plasp/utils/IO.h>
+#include <plasp/utils/ParserException.h>
 
 namespace plasp
 {
@@ -22,28 +23,28 @@ Variable::Variable()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Variable Variable::fromSAS(std::istream &istream)
+Variable Variable::fromSAS(utils::Parser &parser)
 {
 	Variable variable;
 
-	utils::parseExpected<std::string>(istream, "begin_variable");
+	parser.expect<std::string>("begin_variable");
 
-	variable.m_name = utils::parse<std::string>(istream);
-	variable.m_axiomLayer = utils::parse<int>(istream);
+	variable.m_name = parser.parse<std::string>();
+	variable.m_axiomLayer = parser.parse<int>();
 
-	const auto numberOfValues = utils::parse<size_t>(istream);
+	const auto numberOfValues = parser.parse<size_t>();
 	variable.m_values.reserve(numberOfValues);
 
 	for (size_t j = 0; j < numberOfValues; j++)
 	{
-		variable.m_values.emplace_back(Value::fromSAS(istream));
+		variable.m_values.emplace_back(Value::fromSAS(parser));
 
 		// <none of those> values are only allowed at the end
 		if (j < numberOfValues - 1 && variable.m_values[j] == Value::None)
-			throw utils::ParserException("<none of those> value must be the last value of a variable");
+			throw utils::ParserException(parser.row(), parser.column(), "<none of those> value must be the last value of a variable");
 	}
 
-	utils::parseExpected<std::string>(istream, "end_variable");
+	parser.expect<std::string>("end_variable");
 
 	return variable;
 }
@@ -57,12 +58,12 @@ void Variable::printNameAsASPPredicate(std::ostream &ostream) const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const Variable &Variable::referenceFromSAS(std::istream &istream, const Variables &variables)
+const Variable &Variable::referenceFromSAS(utils::Parser &parser, const Variables &variables)
 {
-	const auto variableID = utils::parse<size_t>(istream);
+	const auto variableID = parser.parse<size_t>();
 
 	if (variableID >= variables.size())
-		throw utils::ParserException("Variable index out of range (index " + std::to_string(variableID) + ")");
+		throw utils::ParserException(parser.row(), parser.column(), "Variable index out of range (index " + std::to_string(variableID) + ")");
 
 	return variables[variableID];
 }

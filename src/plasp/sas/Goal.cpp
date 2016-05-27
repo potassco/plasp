@@ -2,8 +2,6 @@
 
 #include <iostream>
 
-#include <plasp/utils/Parsing.h>
-
 namespace plasp
 {
 namespace sas
@@ -15,19 +13,19 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Goal Goal::fromSAS(std::istream &istream, const Variables &variables)
+Goal Goal::fromSAS(utils::Parser &parser, const Variables &variables)
 {
 	Goal goal;
 
-	utils::parseExpected<std::string>(istream, "begin_goal");
+	parser.expect<std::string>("begin_goal");
 
-	const auto numberOfGoalFacts = utils::parse<size_t>(istream);
+	const auto numberOfGoalFacts = parser.parse<size_t>();
 	goal.m_facts.reserve(numberOfGoalFacts);
 
 	for (size_t i = 0; i < numberOfGoalFacts; i++)
-		goal.m_facts.emplace_back(Fact::fromSAS(istream, variables));
+		goal.m_facts.emplace_back(Fact::fromSAS(parser, variables));
 
-	utils::parseExpected<std::string>(istream, "end_goal");
+	parser.expect<std::string>("end_goal");
 
 	return goal;
 }

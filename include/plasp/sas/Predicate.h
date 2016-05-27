@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include <plasp/utils/Parser.h>
+
 namespace plasp
 {
 namespace sas
@@ -19,7 +21,7 @@ namespace sas
 class Predicate
 {
 	public:
-		static Predicate fromSAS(std::istream &istream);
+		static Predicate fromSAS(utils::Parser &parser);
 
 		using Arguments = std::vector<std::string>;
 

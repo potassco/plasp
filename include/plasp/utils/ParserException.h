@@ -18,17 +18,18 @@ namespace utils
 class ParserException: public std::exception
 {
 	public:
-		explicit ParserException()
+		explicit ParserException(size_t row, size_t column)
+		:	ParserException(row, column, "Unspecified parser error")
 		{
 		}
 
-		explicit ParserException(const char *message)
-		:	m_message(message)
+		explicit ParserException(size_t row, size_t column, const char *message)
+		:	ParserException(row, column, static_cast<std::string>(message))
 		{
 		}
 
-		explicit ParserException(const std::string &message)
-		:	m_message(message)
+		explicit ParserException(size_t row, size_t column, const std::string &message)
+		:	m_message{std::to_string(row) + ":" + std::to_string(column) + "\t" + message}
 		{
 		}
 
@@ -39,7 +40,7 @@ class ParserException: public std::exception
 		const char *what() const throw()
 		{
 			if (m_message.empty())
-				return "Unspecified error while parsing SAS description file";
+				return "Unspecified parser error";
 
 			return m_message.c_str();
 		}

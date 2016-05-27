@@ -6,6 +6,7 @@
 #include <vector>
 
 #include <plasp/sas/Value.h>
+#include <plasp/utils/Parser.h>
 
 namespace plasp
 {
@@ -26,8 +27,8 @@ using Variables = std::vector<Variable>;
 class Variable
 {
 	public:
-		static Variable fromSAS(std::istream &istream);
-		static const Variable &referenceFromSAS(std::istream &istream, const Variables &variables);
+		static Variable fromSAS(utils::Parser &parser);
+		static const Variable &referenceFromSAS(utils::Parser &parser, const Variables &variables);
 
 	public:
 		void printNameAsASPPredicate(std::ostream &ostream) const;

@@ -13,6 +13,7 @@
 #include <plasp/sas/MutexGroup.h>
 #include <plasp/sas/Operator.h>
 #include <plasp/sas/Variable.h>
+#include <plasp/utils/Parser.h>
 
 namespace plasp
 {
@@ -46,14 +47,14 @@ class Description
 	private:
 		Description();
 
-		void parseVersionSection(std::istream &istream) const;
-		void parseMetricSection(std::istream &istream);
-		void parseVariablesSection(std::istream &istream);
-		void parseMutexSection(std::istream &istream);
-		void parseInitialStateSection(std::istream &istream);
-		void parseGoalSection(std::istream &istream);
-		void parseOperatorSection(std::istream &istream);
-		void parseAxiomSection(std::istream &istream);
+		void parseVersionSection(utils::Parser &parser) const;
+		void parseMetricSection(utils::Parser &parser);
+		void parseVariablesSection(utils::Parser &parser);
+		void parseMutexSection(utils::Parser &parser);
+		void parseInitialStateSection(utils::Parser &parser);
+		void parseGoalSection(utils::Parser &parser);
+		void parseOperatorSection(utils::Parser &parser);
+		void parseAxiomSection(utils::Parser &parser);
 
 		bool m_usesActionCosts;
 

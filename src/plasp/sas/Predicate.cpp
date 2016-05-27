@@ -4,7 +4,8 @@
 #include <limits>
 #include <sstream>
 
-#include <plasp/utils/Parsing.h>
+#include <plasp/utils/IO.h>
+#include <plasp/utils/ParserException.h>
 
 namespace plasp
 {
@@ -17,21 +18,19 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Predicate Predicate::fromSAS(std::istream &istream)
+Predicate Predicate::fromSAS(utils::Parser &parser)
 {
 	Predicate predicate;
 
 	try
 	{
-		istream.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		parser.skipLine();
 
 		// TODO: Inefficient, reimplement in one pass
-		std::string line;
-		std::getline(istream, line);
+		const std::string line = parser.getLine();
 
 		std::stringstream lineStream(line);
-
-		predicate.m_name = utils::parse<std::string>(lineStream);
+		lineStream >> predicate.m_name;
 
 		while (lineStream.peek() == ' ')
 			lineStream.ignore(1);
@@ -41,7 +40,7 @@ Predicate Predicate::fromSAS(std::istream &istream)
 	}
 	catch (const std::exception &e)
 	{
-		throw utils::ParserException("Could not parse operator predicate");
+		throw utils::ParserException(parser.row(), parser.column(), "Could not parse operator predicate");
 	}
 
 	return predicate;

@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include <plasp/utils/Parser.h>
+
 namespace plasp
 {
 namespace sas
@@ -36,8 +38,8 @@ struct Value
 		static const Value Any;
 		static const Value None;
 
-		static Value fromSAS(std::istream &istream);
-		static const Value &referenceFromSAS(std::istream &istream, const Variable &variable);
+		static Value fromSAS(utils::Parser &parser);
+		static const Value &referenceFromSAS(utils::Parser &parser, const Variable &variable);
 
 	public:
 		Value negated() const;

@@ -4,8 +4,6 @@
 
 #include <boost/assert.hpp>
 
-#include <plasp/utils/Parsing.h>
-
 namespace plasp
 {
 namespace sas
@@ -26,13 +24,13 @@ VariableTransition::VariableTransition()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-VariableTransition VariableTransition::fromSAS(std::istream &istream, const Variables &variables)
+VariableTransition VariableTransition::fromSAS(utils::Parser &parser, const Variables &variables)
 {
 	VariableTransition variableTransition;
 
-	variableTransition.m_variable = &Variable::referenceFromSAS(istream, variables);
-	variableTransition.m_valueBefore = &Value::referenceFromSAS(istream, *variableTransition.m_variable);
-	variableTransition.m_valueAfter = &Value::referenceFromSAS(istream, *variableTransition.m_variable);
+	variableTransition.m_variable = &Variable::referenceFromSAS(parser, variables);
+	variableTransition.m_valueBefore = &Value::referenceFromSAS(parser, *variableTransition.m_variable);
+	variableTransition.m_valueAfter = &Value::referenceFromSAS(parser, *variableTransition.m_variable);
 
 	return variableTransition;
 }

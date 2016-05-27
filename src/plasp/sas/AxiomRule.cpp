@@ -3,7 +3,6 @@
 #include <iostream>
 
 #include <plasp/sas/VariableTransition.h>
-#include <plasp/utils/Parsing.h>
 
 namespace plasp
 {
@@ -24,24 +23,24 @@ AxiomRule::AxiomRule(AxiomRule::Conditions conditions, AxiomRule::Condition post
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-AxiomRule AxiomRule::fromSAS(std::istream &istream, const Variables &variables)
+AxiomRule AxiomRule::fromSAS(utils::Parser &parser, const Variables &variables)
 {
-	utils::parseExpected<std::string>(istream, "begin_rule");
+	parser.expect<std::string>("begin_rule");
 
-	const auto numberOfConditions = utils::parse<size_t>(istream);
+	const auto numberOfConditions = parser.parse<size_t>();
 
 	Conditions conditions;
 	conditions.reserve(numberOfConditions);
 
 	for (size_t j = 0; j < numberOfConditions; j++)
-		conditions.emplace_back(Condition::fromSAS(istream, variables));
+		conditions.emplace_back(Condition::fromSAS(parser, variables));
 
-	const auto variableTransition = VariableTransition::fromSAS(istream, variables);
+	const auto variableTransition = VariableTransition::fromSAS(parser, variables);
 
 	if (&variableTransition.valueBefore() != &Value::Any)
 		conditions.emplace_back(Condition(variableTransition.variable(), variableTransition.valueBefore()));
 
-	utils::parseExpected<std::string>(istream, "end_rule");
+	parser.expect<std::string>("end_rule");
 
 	const Condition postcondition(variableTransition.variable(), variableTransition.valueAfter());
 	const AxiomRule axiomRule(std::move(conditions), std::move(postcondition));

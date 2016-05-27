@@ -8,7 +8,6 @@
 #include <boost/filesystem.hpp>
 
 #include <plasp/utils/ParserException.h>
-#include <plasp/utils/Parsing.h>
 #include <plasp/sas/VariableTransition.h>
 
 namespace plasp
@@ -33,18 +32,16 @@ Description Description::fromStream(std::istream &istream)
 {
 	Description description;
 
-	std::setlocale(LC_NUMERIC, "C");
+	utils::Parser parser(istream);
 
-	istream.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-
-	description.parseVersionSection(istream);
-	description.parseMetricSection(istream);
-	description.parseVariablesSection(istream);
-	description.parseMutexSection(istream);
-	description.parseInitialStateSection(istream);
-	description.parseGoalSection(istream);
-	description.parseOperatorSection(istream);
-	description.parseAxiomSection(istream);
+	description.parseVersionSection(parser);
+	description.parseMetricSection(parser);
+	description.parseVariablesSection(parser);
+	description.parseMutexSection(parser);
+	description.parseInitialStateSection(parser);
+	description.parseGoalSection(parser);
+	description.parseOperatorSection(parser);
+	description.parseAxiomSection(parser);
 
 	return description;
 }
@@ -149,85 +146,85 @@ bool Description::usesConditionalEffects() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Description::parseVersionSection(std::istream &istream) const
+void Description::parseVersionSection(utils::Parser &parser) const
 {
-	utils::parseExpected<std::string>(istream, "begin_version");
+	parser.expect<std::string>("begin_version");
 
-	const auto formatVersion = utils::parse<size_t>(istream);
+	const auto formatVersion = parser.parse<size_t>();
 
 	if (formatVersion != 3)
-		throw utils::ParserException("Unsupported SAS format version (" + std::to_string(formatVersion) + ")");
+		throw utils::ParserException(parser.row(), parser.column(), "Unsupported SAS format version (" + std::to_string(formatVersion) + ")");
 
-	utils::parseExpected<std::string>(istream, "end_version");
+	parser.expect<std::string>("end_version");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Description::parseMetricSection(std::istream &istream)
+void Description::parseMetricSection(utils::Parser &parser)
 {
-	utils::parseExpected<std::string>(istream, "begin_metric");
+	parser.expect<std::string>("begin_metric");
 
-	m_usesActionCosts = utils::parse<bool>(istream);
+	m_usesActionCosts = parser.parse<bool>();
 
-	utils::parseExpected<std::string>(istream, "end_metric");
+	parser.expect<std::string>("end_metric");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Description::parseVariablesSection(std::istream &istream)
+void Description::parseVariablesSection(utils::Parser &parser)
 {
-	const auto numberOfVariables = utils::parse<size_t>(istream);
+	const auto numberOfVariables = parser.parse<size_t>();
 	m_variables.reserve(numberOfVariables);
 
 	for (size_t i = 0; i < numberOfVariables; i++)
-		m_variables.emplace_back(Variable::fromSAS(istream));
+		m_variables.emplace_back(Variable::fromSAS(parser));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Description::parseMutexSection(std::istream &istream)
+void Description::parseMutexSection(utils::Parser &parser)
 {
-	const auto numberOfMutexGroups = utils::parse<size_t>(istream);
+	const auto numberOfMutexGroups = parser.parse<size_t>();
 	m_mutexGroups.reserve(numberOfMutexGroups);
 
 	for (size_t i = 0; i < numberOfMutexGroups; i++)
-		m_mutexGroups.emplace_back(MutexGroup::fromSAS(istream, m_variables));
+		m_mutexGroups.emplace_back(MutexGroup::fromSAS(parser, m_variables));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Description::parseInitialStateSection(std::istream &istream)
+void Description::parseInitialStateSection(utils::Parser &parser)
 {
-	m_initialState = std::make_unique<InitialState>(InitialState::fromSAS(istream, m_variables));
+	m_initialState = std::make_unique<InitialState>(InitialState::fromSAS(parser, m_variables));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Description::parseGoalSection(std::istream &istream)
+void Description::parseGoalSection(utils::Parser &parser)
 {
-	m_goal = std::make_unique<Goal>(Goal::fromSAS(istream, m_variables));
+	m_goal = std::make_unique<Goal>(Goal::fromSAS(parser, m_variables));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Description::parseOperatorSection(std::istream &istream)
+void Description::parseOperatorSection(utils::Parser &parser)
 {
-	const auto numberOfOperators = utils::parse<size_t>(istream);
+	const auto numberOfOperators = parser.parse<size_t>();
 	m_operators.reserve(numberOfOperators);
 
 	for (size_t i = 0; i < numberOfOperators; i++)
-		m_operators.emplace_back(Operator::fromSAS(istream, m_variables));
+		m_operators.emplace_back(Operator::fromSAS(parser, m_variables));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Description::parseAxiomSection(std::istream &istream)
+void Description::parseAxiomSection(utils::Parser &parser)
 {
-	const auto numberOfAxiomRules = utils::parse<size_t>(istream);
+	const auto numberOfAxiomRules = parser.parse<size_t>();
 	m_axiomRules.reserve(numberOfAxiomRules);
 
 	for (size_t i = 0; i < numberOfAxiomRules; i++)
-		m_axiomRules.emplace_back(AxiomRule::fromSAS(istream, m_variables));
+		m_axiomRules.emplace_back(AxiomRule::fromSAS(parser, m_variables));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

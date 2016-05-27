@@ -4,8 +4,6 @@
 
 #include <boost/assert.hpp>
 
-#include <plasp/utils/Parsing.h>
-
 namespace plasp
 {
 namespace sas
@@ -33,24 +31,24 @@ AssignedVariable::AssignedVariable(const Variable &variable, const Value &value)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-AssignedVariable AssignedVariable::fromSAS(std::istream &istream, const Variables &variables)
+AssignedVariable AssignedVariable::fromSAS(utils::Parser &parser, const Variables &variables)
 {
 	AssignedVariable assignedVariable;
 
-	assignedVariable.m_variable = &Variable::referenceFromSAS(istream, variables);
-	assignedVariable.m_value = &Value::referenceFromSAS(istream, *assignedVariable.m_variable);
+	assignedVariable.m_variable = &Variable::referenceFromSAS(parser, variables);
+	assignedVariable.m_value = &Value::referenceFromSAS(parser, *assignedVariable.m_variable);
 
 	return assignedVariable;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-AssignedVariable AssignedVariable::fromSAS(std::istream &istream, const Variable &variable)
+AssignedVariable AssignedVariable::fromSAS(utils::Parser &parser, const Variable &variable)
 {
 	AssignedVariable assignedVariable;
 
 	assignedVariable.m_variable = &variable;
-	assignedVariable.m_value = &Value::referenceFromSAS(istream, *assignedVariable.m_variable);
+	assignedVariable.m_value = &Value::referenceFromSAS(parser, *assignedVariable.m_variable);
 
 	return assignedVariable;
 }
