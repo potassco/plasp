@@ -23,11 +23,11 @@ class Parser
 		size_t row() const;
 		size_t column() const;
 
-		template<typename T>
-		T parse();
+		template<typename Type>
+		Type parse();
 
-		template<typename T>
-		void expect(const T &expectedValue);
+		template<typename Type>
+		void expect(const Type &expectedValue);
 
 		void skipWhiteSpace();
 		void skipLine();
