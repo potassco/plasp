@@ -18,7 +18,7 @@ namespace utils
 class Parser
 {
 	public:
-		Parser(std::istream &istream);
+		explicit Parser(std::istream &istream);
 
 		size_t row() const;
 		size_t column() const;
