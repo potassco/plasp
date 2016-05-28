@@ -26,17 +26,12 @@ Predicate Predicate::fromSAS(utils::Parser &parser)
 	{
 		parser.skipLine();
 
-		// TODO: Inefficient, reimplement in one pass
-		const std::string line = parser.getLine();
+		predicate.m_name = parser.parse<std::string>();
 
-		std::stringstream lineStream(line);
-		lineStream >> predicate.m_name;
-
-		while (lineStream.peek() == ' ')
-			lineStream.ignore(1);
-
-		for (std::string argument; std::getline(lineStream, argument, ' ');)
-			predicate.m_arguments.push_back(std::move(argument));
+		parser.parseUntil(predicate.m_arguments, [](const auto character)
+			{
+				return character == '\n';
+			});
 	}
 	catch (const std::exception &e)
 	{

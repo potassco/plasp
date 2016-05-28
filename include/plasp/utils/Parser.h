@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <iterator>
+#include <vector>
 
 namespace plasp
 {
@@ -28,6 +29,9 @@ class Parser
 
 		template<typename Type>
 		Type parse();
+
+		template<class CharacterCondition>
+		void parseUntil(std::vector<std::string> &container, CharacterCondition characterCondition);
 
 		template<typename Type>
 		void expect(const Type &expectedValue);
@@ -56,6 +60,38 @@ class Parser
 
 		bool m_endOfFile;
 };
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class CharacterCondition>
+void Parser::parseUntil(std::vector<std::string> &container, CharacterCondition characterCondition)
+{
+	while (true)
+	{
+		skipWhiteSpace();
+
+		std::string value;
+
+		while (true)
+		{
+			const auto character = *m_position;
+
+			if (characterCondition(character))
+			{
+				container.emplace_back(std::move(value));
+				return;
+			}
+
+			if (std::isspace(character))
+				break;
+
+			value.push_back(character);
+			advance();
+		}
+
+		container.emplace_back(std::move(value));
+	}
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
