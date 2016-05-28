@@ -62,7 +62,6 @@ int main(int argc, char **argv)
 		const auto sasDescription = variablesMap.count("input")
 			? plasp::sas::Description::fromFile(variablesMap["input"].as<std::string>())
 			: plasp::sas::Description::fromStream(std::cin);
-
 		const auto sasTranslator = plasp::sas::TranslatorASP(sasDescription);
 		sasTranslator.translate(std::cout);
 	}
