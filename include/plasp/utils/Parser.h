@@ -27,14 +27,19 @@ class Parser
 		size_t row() const;
 		size_t column() const;
 
+		CharacterType currentCharacter() const;
+
 		template<typename Type>
 		Type parse();
 
-		template<class CharacterCondition>
-		void parseUntil(std::vector<std::string> &container, CharacterCondition characterCondition);
+		template<class WhiteSpacePredicate, class CharacterPredicate>
+		std::string parseIdentifier(WhiteSpacePredicate whiteSpacePredicate, CharacterPredicate characterPredicate);
 
 		template<typename Type>
 		void expect(const Type &expectedValue);
+
+		template<class WhiteSpacePredicate>
+		void skipWhiteSpace(WhiteSpacePredicate whiteSpacePredicate);
 
 		void skipWhiteSpace();
 		void skipLine();
@@ -63,34 +68,34 @@ class Parser
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class CharacterCondition>
-void Parser::parseUntil(std::vector<std::string> &container, CharacterCondition characterCondition)
+template<class WhiteSpacePredicate, class CharacterPredicate>
+std::string Parser::parseIdentifier(WhiteSpacePredicate whiteSpacePredicate, CharacterPredicate characterPredicate)
 {
+	skipWhiteSpace(whiteSpacePredicate);
+
+	std::string value;
+
 	while (true)
 	{
-		skipWhiteSpace();
+		const auto character = *m_position;
 
-		std::string value;
+		if (!characterPredicate(character))
+			return value;
 
-		while (true)
-		{
-			const auto character = *m_position;
-
-			if (characterCondition(character))
-			{
-				container.emplace_back(std::move(value));
-				return;
-			}
-
-			if (std::isspace(character))
-				break;
-
-			value.push_back(character);
-			advance();
-		}
-
-		container.emplace_back(std::move(value));
+		value.push_back(character);
+		advance();
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class WhiteSpacePredicate>
+void Parser::skipWhiteSpace(WhiteSpacePredicate whiteSpacePredicate)
+{
+	checkStream();
+
+	while (whiteSpacePredicate(*m_position))
+		advance();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

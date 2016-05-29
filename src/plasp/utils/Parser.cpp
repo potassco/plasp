@@ -54,6 +54,15 @@ size_t Parser::column() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+Parser::CharacterType Parser::currentCharacter() const
+{
+	checkStream();
+
+	return *m_position;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void Parser::checkStream() const
 {
 	if (m_position == EndOfFile)
@@ -100,10 +109,11 @@ bool Parser::advanceIf(CharacterType expectedCharacter)
 
 void Parser::skipWhiteSpace()
 {
-	checkStream();
-
-	while (std::isspace(*m_position))
-		advance();
+	return skipWhiteSpace(
+		[](const auto character)
+		{
+			return std::isspace(character);
+		});
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

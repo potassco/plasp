@@ -28,10 +28,21 @@ Predicate Predicate::fromSAS(utils::Parser &parser)
 
 		predicate.m_name = parser.parse<std::string>();
 
-		parser.parseUntil(predicate.m_arguments, [](const auto character)
-			{
-				return character == '\n';
-			});
+		while (true)
+		{
+			// Parse arguments until reaching newline
+			parser.skipWhiteSpace(
+				[&](const auto character)
+				{
+					return character != '\n' && std::isspace(character);
+				});
+
+			if (parser.currentCharacter() == '\n')
+				break;
+
+			const auto value = parser.parse<std::string>();
+			predicate.m_arguments.emplace_back(std::move(value));
+		}
 	}
 	catch (const std::exception &e)
 	{
