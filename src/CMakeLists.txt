@@ -3,6 +3,9 @@ set(target plasp)
 file(GLOB core_sources "plasp/*.cpp")
 file(GLOB core_headers "../include/plasp/*.h")
 
+file(GLOB pddl_sources "plasp/pddl/*.cpp")
+file(GLOB pddl_headers "../include/plasp/pddl/*.h")
+
 file(GLOB sas_sources "plasp/sas/*.cpp")
 file(GLOB sas_headers "../include/plasp/sas/*.h")
 
@@ -20,6 +23,9 @@ include_directories(
 set(sources
 	${core_sources}
 	${core_headers}
+
+	${pddl_sources}
+	${pddl_headers}
 
 	${sas_sources}
 	${sas_headers}
