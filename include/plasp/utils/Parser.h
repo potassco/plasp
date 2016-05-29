@@ -28,12 +28,17 @@ class Parser
 		size_t column() const;
 
 		CharacterType currentCharacter() const;
+		void advance();
+		bool atEndOfFile() const;
 
 		template<typename Type>
 		Type parse();
 
-		template<class WhiteSpacePredicate, class CharacterPredicate>
-		std::string parseIdentifier(WhiteSpacePredicate whiteSpacePredicate, CharacterPredicate characterPredicate);
+		template<class CharacterPredicate, class WhiteSpacePredicate>
+		std::string parseIdentifier(CharacterPredicate characterPredicate, WhiteSpacePredicate whiteSpacePredicate);
+
+		template<class CharacterPredicate>
+		std::string parseIdentifier(CharacterPredicate characterPredicate);
 
 		template<typename Type>
 		void expect(const Type &expectedValue);
@@ -51,7 +56,6 @@ class Parser
 
 	private:
 		void checkStream() const;
-		void advance();
 
 		bool advanceIf(CharacterType expectedCharacter);
 
@@ -68,8 +72,8 @@ class Parser
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class WhiteSpacePredicate, class CharacterPredicate>
-std::string Parser::parseIdentifier(WhiteSpacePredicate whiteSpacePredicate, CharacterPredicate characterPredicate)
+template<class CharacterPredicate, class WhiteSpacePredicate>
+std::string Parser::parseIdentifier(CharacterPredicate characterPredicate, WhiteSpacePredicate whiteSpacePredicate)
 {
 	skipWhiteSpace(whiteSpacePredicate);
 
@@ -89,12 +93,24 @@ std::string Parser::parseIdentifier(WhiteSpacePredicate whiteSpacePredicate, Cha
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template<class CharacterPredicate>
+std::string Parser::parseIdentifier(CharacterPredicate characterPredicate)
+{
+	return parseIdentifier(characterPredicate,
+		[&](const auto character)
+		{
+			return std::isspace(character);
+		});
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template<class WhiteSpacePredicate>
 void Parser::skipWhiteSpace(WhiteSpacePredicate whiteSpacePredicate)
 {
 	checkStream();
 
-	while (whiteSpacePredicate(*m_position))
+	while (m_position != EndOfFile && whiteSpacePredicate(*m_position))
 		advance();
 }
 

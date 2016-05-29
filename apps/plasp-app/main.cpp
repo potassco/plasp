@@ -1,7 +1,10 @@
+#include <algorithm>
 #include <iostream>
+#include <string>
 
 #include <boost/program_options.hpp>
 
+#include <plasp/pddl/Description.h>
 #include <plasp/sas/Description.h>
 #include <plasp/sas/TranslatorASP.h>
 
@@ -13,7 +16,8 @@ int main(int argc, char **argv)
 	description.add_options()
 		("help,h", "Display this help message.")
 		("version,v", "Display version information.")
-		("input,i", po::value<std::string>(), "Specify the SAS input file.");
+		("input,i", po::value<std::string>(), "Specify the SAS input file.")
+		("format,f", po::value<std::string>()->default_value("SAS"), "Specify the file format (SAS or PDDL).");
 
 	po::positional_options_description positionalOptionsDescription;
 	positionalOptionsDescription.add("input", -1);
@@ -59,11 +63,24 @@ int main(int argc, char **argv)
 
 	try
 	{
-		const auto sasDescription = variablesMap.count("input")
-			? plasp::sas::Description::fromFile(variablesMap["input"].as<std::string>())
-			: plasp::sas::Description::fromStream(std::cin);
-		const auto sasTranslator = plasp::sas::TranslatorASP(sasDescription);
-		sasTranslator.translate(std::cout);
+		auto format = variablesMap["format"].as<std::string>();
+		std::transform(format.begin(), format.end(), format.begin(), ::tolower);
+
+		if (format == "sas")
+		{
+			const auto sasDescription = variablesMap.count("input")
+				? plasp::sas::Description::fromFile(variablesMap["input"].as<std::string>())
+				: plasp::sas::Description::fromStream(std::cin);
+			const auto sasTranslator = plasp::sas::TranslatorASP(sasDescription);
+			sasTranslator.translate(std::cout);
+		}
+		else if (format == "pddl")
+		{
+			const auto pddlDescription = variablesMap.count("input")
+				? plasp::pddl::Description::fromFile(variablesMap["input"].as<std::string>())
+				: plasp::pddl::Description::fromStream(std::cin);
+			//std::cout << pddlDescription << std::endl;
+		}
 	}
 	catch (const std::exception &e)
 	{
