@@ -13,7 +13,8 @@ class PDDLParserTests : public ::testing::Test
 {
 	protected:
 		PDDLParserTests()
-		:	m_blocksworldDomainFile(readFile("data/blocksworld-domain.pddl"))
+		:	m_blocksworldDomainFile(readFile("data/blocksworld-domain.pddl")),
+			m_storageDomainFile(readFile("data/storage-domain.pddl"))
 		{
 		}
 
@@ -32,11 +33,12 @@ class PDDLParserTests : public ::testing::Test
 		}
 
 		std::stringstream m_blocksworldDomainFile;
+		std::stringstream m_storageDomainFile;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST_F(PDDLParserTests, ParseValidPDDLFile)
+TEST_F(PDDLParserTests, ParseBlocksWorldDomain)
 {
 	try
 	{
@@ -46,9 +48,62 @@ TEST_F(PDDLParserTests, ParseValidPDDLFile)
 
 		const auto &domain = description.domain();
 
+		ASSERT_EQ(domain.name(), "BLOCKS");
+
 		ASSERT_EQ(domain.requirements().size(), 2u);
 		ASSERT_EQ(domain.requirements()[0], plasp::pddl::Requirement::Type::STRIPS);
 		ASSERT_EQ(domain.requirements()[1], plasp::pddl::Requirement::Type::Typing);
+
+		ASSERT_EQ(domain.types().size(), 1u);
+
+		const auto blockType = domain.types().find("block");
+		ASSERT_NE(blockType, domain.types().cend());
+
+		ASSERT_EQ(blockType->second.name(), "block");
+		ASSERT_EQ(blockType->second.parentTypes().size(), 0u);
+	}
+	catch (const std::exception &e)
+	{
+		FAIL() << e.what();
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TEST_F(PDDLParserTests, ParseStorageDomain)
+{
+	try
+	{
+		const auto description = plasp::pddl::Description::fromStream(m_storageDomainFile);
+
+		ASSERT_NO_THROW(description.domain());
+
+		const auto &domain = description.domain();
+
+		ASSERT_EQ(domain.name(), "Storage-Propositional");
+
+		ASSERT_EQ(domain.requirements().size(), 1u);
+		ASSERT_EQ(domain.requirements()[0], plasp::pddl::Requirement::Type::Typing);
+
+		const auto area = domain.types().find("area");
+		ASSERT_NE(area, domain.types().cend());
+		const auto hoist = domain.types().find("hoist");
+		ASSERT_NE(hoist, domain.types().cend());
+		const auto object = domain.types().find("object");
+		ASSERT_NE(object, domain.types().cend());
+		const auto storearea = domain.types().find("storearea");
+		ASSERT_NE(storearea, domain.types().cend());
+		const auto surface= domain.types().find("surface");
+		ASSERT_NE(surface, domain.types().cend());
+
+		const auto &hoistParents = hoist->second.parentTypes();
+		ASSERT_EQ(hoistParents.size(), 1u);
+		ASSERT_TRUE(std::find(hoistParents.cbegin(), hoistParents.cend(), &object->second) != hoistParents.cend());
+
+		const auto &areaParents = area->second.parentTypes();
+		ASSERT_EQ(areaParents.size(), 2u);
+		ASSERT_TRUE(std::find(areaParents.cbegin(), areaParents.cend(), &object->second) != areaParents.cend());
+		ASSERT_TRUE(std::find(areaParents.cbegin(), areaParents.cend(), &surface->second) != areaParents.cend());
 	}
 	catch (const std::exception &e)
 	{

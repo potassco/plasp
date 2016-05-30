@@ -26,6 +26,7 @@ class Parser
 
 		char currentCharacter() const;
 		void advance();
+		bool advanceIf(char expectedCharacter);
 		bool atEndOfFile() const;
 
 		template<typename Type>
@@ -53,8 +54,6 @@ class Parser
 
 	private:
 		void checkStream() const;
-
-		bool advanceIf(char expectedCharacter);
 
 		uint64_t parseIntegerBody();
 

@@ -2,6 +2,7 @@
 
 #include <algorithm>
 
+#include <plasp/pddl/ConsistencyException.h>
 #include <plasp/pddl/Identifier.h>
 #include <plasp/utils/ParserException.h>
 
@@ -38,6 +39,8 @@ Domain Domain::fromPDDL(utils::Parser &parser)
 
 	domain.computeDerivedRequirements();
 
+	domain.checkConsistency();
+
 	return domain;
 }
 
@@ -53,6 +56,13 @@ const std::string &Domain::name() const
 const Requirement::Types &Domain::requirements() const
 {
 	return m_requirements;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const Domain::TypesHashMap &Domain::types() const
+{
+	return m_types;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -90,7 +100,7 @@ void Domain::parseSection(utils::Parser &parser)
 	if (sectionIdentifier == "requirements")
 		parseRequirementsSection(parser);
 	else if (sectionIdentifier == "types")
-		skipSection();
+		parseTypingSection(parser);
 	else if (sectionIdentifier == "constants")
 		skipSection();
 	else if (sectionIdentifier == "predicates")
@@ -128,16 +138,17 @@ void Domain::parseRequirementsSection(utils::Parser &parser)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+bool Domain::hasRequirement(Requirement::Type requirement) const
+{
+	const auto match = std::find(m_requirements.cbegin(), m_requirements.cend(), requirement);
+
+	return match != m_requirements.cend();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void Domain::computeDerivedRequirements()
 {
-	const auto hasRequirement =
-		[&](const auto requirement)
-		{
-			const auto match = std::find(m_requirements.cbegin(), m_requirements.cend(), requirement);
-
-			return match != m_requirements.cend();
-		};
-
 	const auto addRequirementUnique =
 		[&](const auto requirement)
 		{
@@ -176,6 +187,69 @@ void Domain::computeDerivedRequirements()
 
 	if (hasRequirement(Requirement::Type::TimedInitialLiterals))
 		addRequirementUnique(Requirement::Type::DurativeActions);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Domain::parseTypingSection(utils::Parser &parser)
+{
+	// Parses a single type identifier
+	const auto parseType =
+		[&]() -> auto &
+		{
+			parser.skipWhiteSpace();
+
+			const auto typeName = parser.parseIdentifier(isIdentifier);
+			const auto insertionResult = m_types.emplace(std::make_pair(typeName, Type(typeName)));
+			auto &type = insertionResult.first->second;
+
+			// Flag type for potentially upcoming parent type declaration
+			type.setDirty();
+
+			parser.skipWhiteSpace();
+
+			return type;
+		};
+
+	// Parses a type and potentially its parent type
+	while (parser.currentCharacter() != ')')
+	{
+		parseType();
+
+		// Check for type inheritance
+		if (!parser.advanceIf('-'))
+			continue;
+
+		// If existing, parse parent type
+		auto &parentType = parseType();
+
+		parentType.setDirty(false);
+
+		// Assign parent type to all types that were previously flagged
+		std::for_each(m_types.begin(), m_types.end(),
+			[&](auto &childType)
+			{
+				if (!childType.second.isDirty())
+					return;
+
+				childType.second.addParentType(parentType);
+				childType.second.setDirty(false);
+			});
+	}
+
+	parser.expect<std::string>(")");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Domain::checkConsistency()
+{
+	if (!m_types.empty() && !hasRequirement(Requirement::Type::Typing))
+	{
+		throw ConsistencyException("Domain contains typing information but does not declare typing requirement");
+
+		m_requirements.push_back(Requirement::Type::Typing);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
