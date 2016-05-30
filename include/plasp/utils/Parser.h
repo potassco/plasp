@@ -19,15 +19,12 @@ namespace utils
 class Parser
 {
 	public:
-		using CharacterType = unsigned char;
-
-	public:
 		explicit Parser(std::istream &istream);
 
 		size_t row() const;
 		size_t column() const;
 
-		CharacterType currentCharacter() const;
+		char currentCharacter() const;
 		void advance();
 		bool atEndOfFile() const;
 
@@ -52,17 +49,17 @@ class Parser
 		std::string getLine();
 
 	private:
-		static const std::istream_iterator<CharacterType> EndOfFile;
+		static const std::istreambuf_iterator<char> EndOfFile;
 
 	private:
 		void checkStream() const;
 
-		bool advanceIf(CharacterType expectedCharacter);
+		bool advanceIf(char expectedCharacter);
 
 		uint64_t parseIntegerBody();
 
 		std::istream &m_istream;
-		std::istream_iterator<CharacterType> m_position;
+		std::istreambuf_iterator<char> m_position;
 
 		size_t m_row;
 		size_t m_column;
@@ -81,7 +78,7 @@ std::string Parser::parseIdentifier(CharacterPredicate characterPredicate, White
 
 	while (true)
 	{
-		const auto character = *m_position;
+		const auto character = currentCharacter();
 
 		if (!characterPredicate(character))
 			return value;
@@ -110,7 +107,7 @@ void Parser::skipWhiteSpace(WhiteSpacePredicate whiteSpacePredicate)
 {
 	checkStream();
 
-	while (m_position != EndOfFile && whiteSpacePredicate(*m_position))
+	while (!atEndOfFile() && whiteSpacePredicate(currentCharacter()))
 		advance();
 }
 

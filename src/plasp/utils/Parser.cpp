@@ -17,7 +17,7 @@ namespace utils
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::istream_iterator<Parser::CharacterType> Parser::EndOfFile = std::istream_iterator<Parser::CharacterType>();
+const std::istreambuf_iterator<char> Parser::EndOfFile = std::istreambuf_iterator<char>();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -30,10 +30,9 @@ Parser::Parser(std::istream &istream)
 {
 	std::setlocale(LC_NUMERIC, "C");
 
-	istream.exceptions(std::istream::badbit);
-
 	// Don’t skip whitespace
 	istream >> std::noskipws;
+	istream.exceptions(std::istream::badbit);
 
 	checkStream();
 }
@@ -54,7 +53,7 @@ size_t Parser::column() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Parser::CharacterType Parser::currentCharacter() const
+char Parser::currentCharacter() const
 {
 	checkStream();
 
@@ -65,14 +64,14 @@ Parser::CharacterType Parser::currentCharacter() const
 
 bool Parser::atEndOfFile() const
 {
-	return m_position == EndOfFile;
+	return m_position.equal(EndOfFile);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Parser::checkStream() const
 {
-	if (m_position == EndOfFile)
+	if (atEndOfFile())
 		throw ParserException(m_row, m_column, "Reading past end of file");
 
 	if (m_istream.fail())
@@ -85,7 +84,7 @@ void Parser::advance()
 {
 	checkStream();
 
-	const auto character = *m_position;
+	const auto character = currentCharacter();
 
 	if (character == '\n')
 	{
@@ -100,11 +99,11 @@ void Parser::advance()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Parser::advanceIf(CharacterType expectedCharacter)
+bool Parser::advanceIf(char expectedCharacter)
 {
 	checkStream();
 
-	if (*m_position != expectedCharacter)
+	if (currentCharacter() != expectedCharacter)
 		return false;
 
 	advance();
@@ -129,7 +128,7 @@ void Parser::skipLine()
 {
 	checkStream();
 
-	while (*m_position != '\n')
+	while (currentCharacter() != '\n')
 		advance();
 
 	advance();
@@ -145,7 +144,7 @@ std::string Parser::getLine()
 
 	while (true)
 	{
-		const auto character = *m_position;
+		const auto character = currentCharacter();
 
 		advance();
 
@@ -171,7 +170,7 @@ std::string Parser::parse<std::string>()
 
 	while (true)
 	{
-		const auto character = *m_position;
+		const auto character = currentCharacter();
 
 		if (std::isspace(character))
 			break;
@@ -195,10 +194,10 @@ void Parser::expect<std::string>(const std::string &expectedValue)
 	std::for_each(expectedValue.cbegin(), expectedValue.cend(),
 		[&](const auto &expectedCharacter)
 		{
-			const auto character = *m_position;
+			const auto character = static_cast<char>(this->currentCharacter());
 
 			if (character != expectedCharacter)
-				throw ParserException(m_row, m_column, "Unexpected string, expected " + expectedValue);
+				throw ParserException(m_row, m_column, "Unexpected string, expected " + expectedValue + " (expected " + expectedCharacter + ", got " + character + ")");
 
 			this->advance();
 		});
@@ -210,14 +209,14 @@ uint64_t Parser::parseIntegerBody()
 {
 	checkStream();
 
-	if (!std::isdigit(*m_position))
+	if (!std::isdigit(currentCharacter()))
 		throw ParserException(m_row, m_column, "Could not parse integer value");
 
 	uint64_t value = 0;
 
-	while (m_position != std::istream_iterator<CharacterType>())
+	while (!atEndOfFile())
 	{
-		const auto character = *m_position;
+		const auto character = currentCharacter();
 
 		if (!std::isdigit(character))
 			break;
@@ -252,7 +251,7 @@ uint64_t Parser::parse<uint64_t>()
 {
 	skipWhiteSpace();
 
-	if (*m_position == '-')
+	if (currentCharacter() == '-')
 		throw ParserException(m_row, m_column, "Expected unsigned integer, got signed one");
 
 	return parseIntegerBody();
