@@ -77,8 +77,6 @@ void Description::parseSection(utils::Parser &parser)
 	//	m_problem = std::make_unique<Problem>(Problem::fromPDDL(parser));
 	else
 		throw utils::ParserException(parser.row(), parser.column(), "Unknown PDDL section \"" + sectionIdentifier + "\"");
-
-	parser.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

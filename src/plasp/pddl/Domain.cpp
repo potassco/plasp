@@ -27,8 +27,6 @@ Domain Domain::fromPDDL(utils::Parser &parser)
 	{
 		parser.skipWhiteSpace();
 
-		std::cout << parser.currentCharacter() << std::endl;
-
 		if (parser.currentCharacter() == ')')
 			break;
 
