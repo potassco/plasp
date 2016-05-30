@@ -31,7 +31,6 @@ Parser::Parser(std::istream &istream)
 	std::setlocale(LC_NUMERIC, "C");
 
 	// Don’t skip whitespace
-	istream >> std::noskipws;
 	istream.exceptions(std::istream::badbit);
 
 	checkStream();
