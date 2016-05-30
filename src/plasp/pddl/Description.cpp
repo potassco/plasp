@@ -24,19 +24,6 @@ Description Description::fromStream(std::istream &istream)
 
 	utils::Parser parser(istream);
 
-	std::cout << "CHAR1: " << istream.peek() << std::endl;
-
-	std::cout << "char1: " << parser.currentCharacter() << std::endl;
-	std::cout << "char1: " << parser.currentCharacter() << std::endl;
-	std::cout << "char1: " << parser.currentCharacter() << std::endl;
-	std::cout << "char1: " << parser.currentCharacter() << std::endl;
-	std::cout << "char1: " << parser.currentCharacter() << std::endl;
-	std::cout << "char1: " << parser.currentCharacter() << std::endl;
-	std::cout << "char1: " << parser.currentCharacter() << std::endl;
-	std::cout << "char1: " << parser.currentCharacter() << std::endl;
-	std::cout << "char1: " << parser.currentCharacter() << std::endl;
-	std::cout << "char1: " << parser.currentCharacter() << std::endl;
-
 	while (true)
 	{
 		parser.skipWhiteSpace();
