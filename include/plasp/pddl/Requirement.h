@@ -2,6 +2,7 @@
 #define __PLASP__PDDL__REQUIREMENT_H
 
 #include <plasp/utils/Parser.h>
+#include <vector>
 
 namespace plasp
 {
@@ -39,6 +40,8 @@ struct Requirement
 		Constraints,
 		ActionCosts
 	};
+
+	using Types = std::vector<Type>;
 
 	static Requirement::Type fromPDDL(utils::Parser &parser);
 

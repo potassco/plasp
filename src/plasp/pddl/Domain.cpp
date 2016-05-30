@@ -38,6 +38,20 @@ Domain Domain::fromPDDL(utils::Parser &parser)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+const std::string &Domain::name() const
+{
+	return m_name;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const Requirement::Types &Domain::requirements() const
+{
+	return m_requirements;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void Domain::parseSection(utils::Parser &parser)
 {
 	parser.expect<std::string>("(:");
@@ -69,7 +83,7 @@ void Domain::parseSection(utils::Parser &parser)
 		};
 
 	if (sectionIdentifier == "requirements")
-		skipSection();
+		parseRequirementsSection(parser);
 	else if (sectionIdentifier == "types")
 		skipSection();
 	else if (sectionIdentifier == "constants")
@@ -82,6 +96,26 @@ void Domain::parseSection(utils::Parser &parser)
 		skipSection();
 	else if (sectionIdentifier == "action")
 		skipSection();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Domain::parseRequirementsSection(utils::Parser &parser)
+{
+	while (true)
+	{
+		parser.skipWhiteSpace();
+
+		if (parser.currentCharacter() == ')')
+			break;
+
+		if (parser.currentCharacter() == ':')
+			parser.advance();
+
+		m_requirements.emplace_back(Requirement::fromPDDL(parser));
+	}
+
+	parser.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

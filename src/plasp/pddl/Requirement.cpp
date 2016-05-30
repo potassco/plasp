@@ -18,7 +18,7 @@ namespace pddl
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-using RequirementTypeNames = boost::bimap<Requirement::Type, const char *>;
+using RequirementTypeNames = boost::bimap<Requirement::Type, std::string>;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -74,10 +74,10 @@ Requirement::Type Requirement::fromPDDL(utils::Parser &parser)
 {
 	const auto requirementName = parser.parseIdentifier(isIdentifier);
 
-	const auto match = requirementTypesToPDDL.right.find(requirementName.c_str());
+	const auto match = requirementTypesToPDDL.right.find(requirementName);
 
 	if (match == requirementTypesToPDDL.right.end())
-		throw utils::ParserException(parser.row(), parser.column(), "Could not parse requirement");
+		throw utils::ParserException(parser.row(), parser.column(), "Unknown PDDL requirement \"" + requirementName + "\"");
 
 	return match->second;
 }
