@@ -81,7 +81,7 @@ void Description::parseSection(utils::Parser &parser)
 	std::cout << "Parsing section " << sectionIdentifier << std::endl;
 
 	if (sectionIdentifier == "domain")
-		m_domain = std::make_unique<Domain>(Domain::fromPDDL(parser));
+		m_domain = std::make_unique<Domain>(Domain::fromPDDL(parser, m_context));
 	//else if (sectionIdentifier == "problem")
 	//	m_problem = std::make_unique<Problem>(Problem::fromPDDL(parser));
 	else

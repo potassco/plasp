@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include <plasp/utils/Parser.h>
@@ -18,21 +19,30 @@ namespace pddl
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+class Context;
+
+class Type;
+using TypeHashMap = std::unordered_map<std::string, Type>;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class Type
 {
 	public:
-		Type(std::string name);
+		static void parsePDDL(utils::Parser &parser, Context &context);
 
 	public:
-		void setDirty(bool isDirty = true);
-		bool isDirty() const;
-
 		const std::string &name() const;
-
-		void addParentType(const Type &parentType);
 		const std::vector<const Type *> &parentTypes() const;
 
 	private:
+		Type(std::string name);
+
+		void setDirty(bool isDirty = true);
+		bool isDirty() const;
+
+		void addParentType(const Type &parentType);
+
 		bool m_isDirty;
 
 		std::string m_name;

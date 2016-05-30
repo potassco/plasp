@@ -17,9 +17,16 @@ namespace pddl
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Domain Domain::fromPDDL(utils::Parser &parser)
+Domain::Domain(Context &context)
+:	m_context(context)
 {
-	Domain domain;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Domain Domain::fromPDDL(utils::Parser &parser, Context &context)
+{
+	Domain domain(context);
 
 	domain.m_name = parser.parseIdentifier(isIdentifier);
 
@@ -60,9 +67,9 @@ const Requirement::Types &Domain::requirements() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const Domain::TypesHashMap &Domain::types() const
+const TypeHashMap &Domain::types() const
 {
-	return m_types;
+	return m_context.types;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -193,48 +200,12 @@ void Domain::computeDerivedRequirements()
 
 void Domain::parseTypingSection(utils::Parser &parser)
 {
-	// Parses a single type identifier
-	const auto parseType =
-		[&]() -> auto &
-		{
-			parser.skipWhiteSpace();
-
-			const auto typeName = parser.parseIdentifier(isIdentifier);
-			const auto insertionResult = m_types.emplace(std::make_pair(typeName, Type(typeName)));
-			auto &type = insertionResult.first->second;
-
-			// Flag type for potentially upcoming parent type declaration
-			type.setDirty();
-
-			parser.skipWhiteSpace();
-
-			return type;
-		};
-
 	// Parses a type and potentially its parent type
 	while (parser.currentCharacter() != ')')
 	{
-		parseType();
+		Type::parsePDDL(parser, m_context);
 
-		// Check for type inheritance
-		if (!parser.advanceIf('-'))
-			continue;
-
-		// If existing, parse parent type
-		auto &parentType = parseType();
-
-		parentType.setDirty(false);
-
-		// Assign parent type to all types that were previously flagged
-		std::for_each(m_types.begin(), m_types.end(),
-			[&](auto &childType)
-			{
-				if (!childType.second.isDirty())
-					return;
-
-				childType.second.addParentType(parentType);
-				childType.second.setDirty(false);
-			});
+		parser.skipWhiteSpace();
 	}
 
 	parser.expect<std::string>(")");
@@ -244,7 +215,7 @@ void Domain::parseTypingSection(utils::Parser &parser)
 
 void Domain::checkConsistency()
 {
-	if (!m_types.empty() && !hasRequirement(Requirement::Type::Typing))
+	if (!m_context.types.empty() && !hasRequirement(Requirement::Type::Typing))
 	{
 		throw ConsistencyException("Domain contains typing information but does not declare typing requirement");
 

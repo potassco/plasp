@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 
+#include <plasp/pddl/Context.h>
 #include <plasp/pddl/Requirement.h>
 #include <plasp/pddl/Type.h>
 #include <plasp/utils/Parser.h>
@@ -21,17 +22,15 @@ namespace pddl
 class Domain
 {
 	public:
-		static Domain fromPDDL(utils::Parser &parser);
-
-		using TypesHashMap = std::unordered_map<std::string, Type>;
+		static Domain fromPDDL(utils::Parser &parser, Context &context);
 
 	public:
 		const std::string &name() const;
 		const Requirement::Types &requirements() const;
-		const TypesHashMap &types() const;
+		const TypeHashMap &types() const;
 
 	private:
-		Domain() = default;
+		Domain(Context &context);
 
 		void parseSection(utils::Parser &parser);
 
@@ -43,9 +42,10 @@ class Domain
 
 		void checkConsistency();
 
+		Context &m_context;
+
 		std::string m_name;
 		Requirement::Types m_requirements;
-		TypesHashMap m_types;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

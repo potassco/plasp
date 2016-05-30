@@ -32,6 +32,7 @@ class Description
 		void parseContent(utils::Parser &parser);
 		void parseSection(utils::Parser &parser);
 
+		Context m_context;
 		std::unique_ptr<Domain> m_domain;
 		//std::unique_ptr<Problem> m_problem;
 };
