@@ -85,7 +85,7 @@ TEST(UtilsTests, ParseEndOfFile)
 
 TEST(UtilsTests, ParserPosition)
 {
-	std::stringstream s("123 \n4\ntest1\n test2\ntest3 \n\n\n\n\n");
+	std::stringstream s("123 \n4\ntest1\n test2\ntest3 \ntest4\n\n\n\n");
 	plasp::utils::Parser p(s);
 
 	ASSERT_EQ(p.row(), 1u);
@@ -138,6 +138,16 @@ TEST(UtilsTests, ParserPosition)
 
 	ASSERT_EQ(p.row(), 5u);
 	ASSERT_EQ(p.column(), 6u);
+
+	ASSERT_NO_THROW(p.skipLine());
+
+	ASSERT_EQ(p.row(), 6u);
+	ASSERT_EQ(p.column(), 1u);
+
+	ASSERT_NO_THROW(p.skipLine());
+
+	ASSERT_EQ(p.row(), 7u);
+	ASSERT_EQ(p.column(), 1u);
 
 	ASSERT_NO_THROW(p.skipWhiteSpace());
 
