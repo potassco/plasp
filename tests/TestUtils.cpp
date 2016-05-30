@@ -92,54 +92,54 @@ TEST(UtilsTests, ParserPosition)
 	ASSERT_EQ(p.column(), 1u);
 	ASSERT_EQ(p.currentCharacter(), '1');
 
-	p.advance();
+	ASSERT_NO_THROW(p.advance());
 
 	ASSERT_EQ(p.row(), 1u);
 	ASSERT_EQ(p.column(), 2u);
 	ASSERT_EQ(p.currentCharacter(), '2');
 
-	p.advance();
+	ASSERT_NO_THROW(p.advance());
 
 	ASSERT_EQ(p.row(), 1u);
 	ASSERT_EQ(p.column(), 3u);
 	ASSERT_EQ(p.currentCharacter(), '3');
 
-	p.advance();
+	ASSERT_NO_THROW(p.advance());
 
 	ASSERT_EQ(p.row(), 1u);
 	ASSERT_EQ(p.column(), 4u);
 	ASSERT_EQ(p.currentCharacter(), ' ');
 
-	p.advance();
+	ASSERT_NO_THROW(p.advance());
 
 	ASSERT_EQ(p.row(), 1u);
 	ASSERT_EQ(p.column(), 5u);
 	ASSERT_EQ(p.currentCharacter(), '\n');
 
-	p.advance();
+	ASSERT_NO_THROW(p.advance());
 
 	ASSERT_EQ(p.row(), 2u);
 	ASSERT_EQ(p.column(), 1u);
 	ASSERT_EQ(p.currentCharacter(), '4');
 
-	p.advance();
+	ASSERT_NO_THROW(p.advance());
 
-	p.expect<std::string>("test1");
+	ASSERT_NO_THROW(p.expect<std::string>("test1"));
 
 	ASSERT_EQ(p.row(), 3u);
 	ASSERT_EQ(p.column(), 6u);
 
-	p.expect<std::string>("test2");
+	ASSERT_NO_THROW(p.expect<std::string>("test2"));
 
 	ASSERT_EQ(p.row(), 4u);
 	ASSERT_EQ(p.column(), 7u);
 
-	p.expect<std::string>("test3");
+	ASSERT_NO_THROW(p.expect<std::string>("test3"));
 
 	ASSERT_EQ(p.row(), 5u);
 	ASSERT_EQ(p.column(), 6u);
 
-	p.skipWhiteSpace();
+	ASSERT_NO_THROW(p.skipWhiteSpace());
 
 	ASSERT_TRUE(p.atEndOfFile());
 	ASSERT_EQ(p.row(), 10u);
