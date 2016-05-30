@@ -30,6 +30,7 @@ struct Requirement
 		ConditionalEffects,
 		Fluents,
 		NumericFluents,
+		ObjectFluents,
 		ADL,
 		DurativeActions,
 		DurationInequalities,

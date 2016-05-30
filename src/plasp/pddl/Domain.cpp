@@ -1,6 +1,9 @@
 #include <plasp/pddl/Domain.h>
 
+#include <algorithm>
+
 #include <plasp/pddl/Identifier.h>
+#include <plasp/utils/ParserException.h>
 
 namespace plasp
 {
@@ -32,6 +35,8 @@ Domain Domain::fromPDDL(utils::Parser &parser)
 
 		domain.parseSection(parser);
 	}
+
+	domain.computeDerivedRequirements();
 
 	return domain;
 }
@@ -115,7 +120,62 @@ void Domain::parseRequirementsSection(utils::Parser &parser)
 		m_requirements.emplace_back(Requirement::fromPDDL(parser));
 	}
 
+	if (m_requirements.empty())
+		throw utils::ParserException(parser.row(), parser.column(), "Requirements section does not contain any requirements");
+
 	parser.expect<std::string>(")");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Domain::computeDerivedRequirements()
+{
+	const auto hasRequirement =
+		[&](const auto requirement)
+		{
+			const auto match = std::find(m_requirements.cbegin(), m_requirements.cend(), requirement);
+
+			return match != m_requirements.cend();
+		};
+
+	const auto addRequirementUnique =
+		[&](const auto requirement)
+		{
+			if (hasRequirement(requirement))
+				return;
+
+			m_requirements.push_back(requirement);
+		};
+
+	// If no requirements are specified, assume STRIPS
+	if (m_requirements.empty())
+		addRequirementUnique(Requirement::Type::STRIPS);
+
+	if (hasRequirement(Requirement::Type::ADL))
+	{
+		addRequirementUnique(Requirement::Type::STRIPS);
+		addRequirementUnique(Requirement::Type::Typing);
+		addRequirementUnique(Requirement::Type::NegativePreconditions);
+		addRequirementUnique(Requirement::Type::DisjunctivePreconditions);
+		addRequirementUnique(Requirement::Type::Equality);
+		addRequirementUnique(Requirement::Type::QuantifiedPreconditions);
+		addRequirementUnique(Requirement::Type::ConditionalEffects);
+	}
+
+	if (hasRequirement(Requirement::Type::QuantifiedPreconditions))
+	{
+		addRequirementUnique(Requirement::Type::ExistentialPreconditions);
+		addRequirementUnique(Requirement::Type::UniversalPreconditions);
+	}
+
+	if (hasRequirement(Requirement::Type::Fluents))
+	{
+		addRequirementUnique(Requirement::Type::NumericFluents);
+		addRequirementUnique(Requirement::Type::ObjectFluents);
+	}
+
+	if (hasRequirement(Requirement::Type::TimedInitialLiterals))
+		addRequirementUnique(Requirement::Type::DurativeActions);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

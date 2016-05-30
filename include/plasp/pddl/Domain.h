@@ -30,6 +30,7 @@ class Domain
 		void parseSection(utils::Parser &parser);
 
 		void parseRequirementsSection(utils::Parser &parser);
+		void computeDerivedRequirements();
 
 		std::string m_name;
 		Requirement::Types m_requirements;

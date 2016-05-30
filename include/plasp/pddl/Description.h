@@ -24,6 +24,7 @@ class Description
 		static Description fromFile(const boost::filesystem::path &path);
 
 	public:
+		const Domain &domain() const;
 
 	private:
 		Description() = default;

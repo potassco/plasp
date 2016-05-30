@@ -51,6 +51,15 @@ Description Description::fromFile(const boost::filesystem::path &path)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+const Domain &Description::domain() const
+{
+	BOOST_ASSERT(m_domain);
+
+	return *m_domain;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void Description::parseContent(utils::Parser &parser)
 {
 	std::cout << "Parsing file content" << std::endl;
