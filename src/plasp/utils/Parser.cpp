@@ -196,7 +196,7 @@ void Parser::expect<std::string>(const std::string &expectedValue)
 			const auto character = static_cast<char>(this->currentCharacter());
 
 			if (character != expectedCharacter)
-				throw ParserException(m_row, m_column, "Unexpected string, expected " + expectedValue + " (expected " + expectedCharacter + ", got " + character + ")");
+				throw ParserException(m_row, m_column, "Unexpected string, expected \"" + expectedValue + "\" (expected character '" + expectedCharacter + "', got '" + character + "')");
 
 			this->advance();
 		});
