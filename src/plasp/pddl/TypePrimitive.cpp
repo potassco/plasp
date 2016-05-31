@@ -2,8 +2,6 @@
 
 #include <algorithm>
 
-#include <boost/variant.hpp>
-
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Identifier.h>
 
