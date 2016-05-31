@@ -200,10 +200,10 @@ void Domain::computeDerivedRequirements()
 
 void Domain::parseTypingSection(utils::Parser &parser)
 {
-	// Parses a type and potentially its parent type
+	// Store types and their parent types
 	while (parser.currentCharacter() != ')')
 	{
-		Type::parsePDDL(parser, m_context);
+		Type::parseWithInheritance(parser, m_context);
 
 		parser.skipWhiteSpace();
 	}

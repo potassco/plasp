@@ -29,7 +29,8 @@ using TypeHashMap = std::unordered_map<std::string, Type>;
 class Type
 {
 	public:
-		static void parsePDDL(utils::Parser &parser, Context &context);
+		static Type &parse(utils::Parser &parser, Context &context);
+		static Type &parseWithInheritance(utils::Parser &parser, Context &context);
 
 	public:
 		const std::string &name() const;

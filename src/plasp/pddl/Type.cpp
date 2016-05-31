@@ -25,49 +25,50 @@ Type::Type(std::string name)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Type::parsePDDL(utils::Parser &parser, Context &context)
+Type &Type::parse(utils::Parser &parser, Context &context)
 {
-	// Parses a single type identifier
-	const auto parseType =
-		[&]() -> auto &
-		{
-			parser.skipWhiteSpace();
+	parser.skipWhiteSpace();
 
-			const auto typeName = parser.parseIdentifier(isIdentifier);
-			const auto match = context.types.find(typeName);
-			const auto typeExists = (match != context.types.cend());
+	const auto typeName = parser.parseIdentifier(isIdentifier);
+	const auto match = context.types.find(typeName);
+	const auto typeExists = (match != context.types.cend());
 
-			if (typeExists)
-			{
-				auto &type = match->second;
+	if (typeExists)
+	{
+		auto &type = match->second;
 
-				type.setDirty();
+		type.setDirty();
 
-				return type;
-			}
+		return type;
+	}
 
-			const auto insertionResult = context.types.emplace(std::make_pair(typeName, Type(typeName)));
-			auto &type = insertionResult.first->second;
+	const auto insertionResult = context.types.emplace(std::make_pair(typeName, Type(typeName)));
+	auto &type = insertionResult.first->second;
 
-			// Flag type for potentially upcoming parent type declaration
-			type.setDirty();
+	// Flag type for potentially upcoming parent type declaration
+	type.setDirty();
 
-			// Flag type as correctly declared in the types section
-			type.setDeclared();
+	// Flag type as correctly declared in the types section
+	type.setDeclared();
 
-			return type;
-		};
+	return type;
+}
 
-	parseType();
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Type &Type::parseWithInheritance(utils::Parser &parser, Context &context)
+{
+	// Parse and store type
+	auto &type = parse(parser, context);
 
 	parser.skipWhiteSpace();
 
 	// Check for type inheritance
 	if (!parser.advanceIf('-'))
-		return;
+		return type;
 
-	// If existing, parse parent type
-	auto &parentType = parseType();
+	// If existing, parse and store parent type
+	auto &parentType = parse(parser, context);
 
 	parentType.setDirty(false);
 
@@ -81,6 +82,8 @@ void Type::parsePDDL(utils::Parser &parser, Context &context)
 			childType.second.addParentType(parentType);
 			childType.second.setDirty(false);
 		});
+
+	return type;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
