@@ -56,11 +56,10 @@ TEST_F(PDDLParserTests, ParseBlocksWorldDomain)
 
 		ASSERT_EQ(domain.types().size(), 1u);
 
-		const auto block = domain.types().find("block");
-		ASSERT_NE(block, domain.types().cend());
+		const auto block = boost::get<plasp::pddl::TypePrimitive>(domain.types().find("block")->second);
 
-		ASSERT_EQ(block->second.name(), "block");
-		ASSERT_EQ(block->second.parentTypes().size(), 0u);
+		ASSERT_EQ(block.name(), "block");
+		ASSERT_EQ(block.parentTypes().size(), 0u);
 
 		ASSERT_EQ(domain.predicates().size(), 5u);
 
@@ -89,25 +88,20 @@ TEST_F(PDDLParserTests, ParseStorageDomain)
 		ASSERT_EQ(domain.requirements().size(), 1u);
 		ASSERT_EQ(domain.requirements()[0].type(), plasp::pddl::Requirement::Type::Typing);
 
-		const auto area = domain.types().find("area");
-		ASSERT_NE(area, domain.types().cend());
-		const auto hoist = domain.types().find("hoist");
-		ASSERT_NE(hoist, domain.types().cend());
-		const auto object = domain.types().find("object");
-		ASSERT_NE(object, domain.types().cend());
-		const auto storearea = domain.types().find("storearea");
-		ASSERT_NE(storearea, domain.types().cend());
-		const auto surface= domain.types().find("surface");
-		ASSERT_NE(surface, domain.types().cend());
+		const auto area = boost::get<plasp::pddl::TypePrimitive>(domain.types().find("area")->second);
+		const auto hoist = boost::get<plasp::pddl::TypePrimitive>(domain.types().find("hoist")->second);
+		const auto object = boost::get<plasp::pddl::TypePrimitive>(domain.types().find("object")->second);
+		const auto storearea = boost::get<plasp::pddl::TypePrimitive>(domain.types().find("storearea")->second);
+		const auto surface = boost::get<plasp::pddl::TypePrimitive>(domain.types().find("surface")->second);
 
-		const auto &hoistParents = hoist->second.parentTypes();
+		const auto &hoistParents = hoist.parentTypes();
 		ASSERT_EQ(hoistParents.size(), 1u);
-		ASSERT_TRUE(std::find(hoistParents.cbegin(), hoistParents.cend(), &object->second) != hoistParents.cend());
+		ASSERT_TRUE(std::find(hoistParents.cbegin(), hoistParents.cend(), &object) != hoistParents.cend());
 
-		const auto &areaParents = area->second.parentTypes();
+		const auto &areaParents = area.parentTypes();
 		ASSERT_EQ(areaParents.size(), 2u);
-		ASSERT_TRUE(std::find(areaParents.cbegin(), areaParents.cend(), &object->second) != areaParents.cend());
-		ASSERT_TRUE(std::find(areaParents.cbegin(), areaParents.cend(), &surface->second) != areaParents.cend());
+		ASSERT_TRUE(std::find(areaParents.cbegin(), areaParents.cend(), &object) != areaParents.cend());
+		ASSERT_TRUE(std::find(areaParents.cbegin(), areaParents.cend(), &surface) != areaParents.cend());
 	}
 	catch (const std::exception &e)
 	{

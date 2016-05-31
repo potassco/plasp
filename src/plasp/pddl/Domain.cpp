@@ -215,7 +215,7 @@ void Domain::parseTypingSection(utils::Parser &parser)
 	// Store types and their parent types
 	while (parser.currentCharacter() != ')')
 	{
-		Type::parseDeclaration(parser, m_context);
+		TypePrimitive::parseDeclaration(parser, m_context);
 
 		parser.skipWhiteSpace();
 	}
@@ -256,8 +256,14 @@ void Domain::checkConsistency()
 	std::for_each(m_context.types.cbegin(), m_context.types.cend(),
 		[&](const auto &type)
 		{
-			if (!type.second.isDeclared())
-				throw ConsistencyException("Type \"" + type.second.name() + "\" used but never declared");
+			// TODO: refactor without typeinfo
+			if (type.second.type() != boost::typeindex::type_id<TypePrimitive>())
+				return;
+
+			const auto &typePrimitive = boost::get<TypePrimitive>(type.second);
+
+			if (!typePrimitive.isDeclared())
+				throw ConsistencyException("Type \"" + typePrimitive.name() + "\" used but never declared");
 		});
 
 	// Verify that all used predicates have been declared

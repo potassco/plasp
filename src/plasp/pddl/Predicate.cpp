@@ -49,7 +49,7 @@ Predicate &Predicate::parseDeclaration(utils::Parser &parser, Context &context)
 			continue;
 
 		// Parse argument type
-		const auto &type = Type::parse(parser, context);
+		const auto &type = TypePrimitive::parse(parser, context);
 
 		// Set the argument type for all previously flagged arguments
 		std::for_each(predicate.m_arguments.begin(), predicate.m_arguments.end(),
