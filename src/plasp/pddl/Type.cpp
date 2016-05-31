@@ -18,6 +18,7 @@ namespace pddl
 
 Type::Type(std::string name)
 :	m_isDirty{false},
+	m_isDeclared{false},
 	m_name(name)
 {
 }
@@ -50,6 +51,9 @@ void Type::parsePDDL(utils::Parser &parser, Context &context)
 
 			// Flag type for potentially upcoming parent type declaration
 			type.setDirty();
+
+			// Flag type as correctly declared in the types section
+			type.setDeclared();
 
 			return type;
 		};
@@ -91,6 +95,20 @@ void Type::setDirty(bool isDirty)
 bool Type::isDirty() const
 {
 	return m_isDirty;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Type::setDeclared()
+{
+	m_isDeclared = true;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool Type::isDeclared() const
+{
+	return m_isDeclared;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -215,12 +215,21 @@ void Domain::parseTypingSection(utils::Parser &parser)
 
 void Domain::checkConsistency()
 {
+	// Verify that typing requirement is correctly declared if used
 	if (!m_context.types.empty() && !hasRequirement(Requirement::Type::Typing))
 	{
 		throw ConsistencyException("Domain contains typing information but does not declare typing requirement");
 
 		m_requirements.push_back(Requirement::Type::Typing);
 	}
+
+	// Verify that all used types have been declared
+	std::for_each(m_context.types.cbegin(), m_context.types.cend(),
+		[&](const auto &type)
+		{
+			if (!type.second.isDeclared())
+				throw ConsistencyException("Type \"" + type.second.name() + "\" used but never declared");
+		});
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

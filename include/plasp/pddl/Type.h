@@ -35,15 +35,20 @@ class Type
 		const std::string &name() const;
 		const std::vector<const Type *> &parentTypes() const;
 
+		bool isDeclared() const;
+
 	private:
 		Type(std::string name);
 
 		void setDirty(bool isDirty = true);
 		bool isDirty() const;
 
+		void setDeclared();
+
 		void addParentType(const Type &parentType);
 
 		bool m_isDirty;
+		bool m_isDeclared;
 
 		std::string m_name;
 
