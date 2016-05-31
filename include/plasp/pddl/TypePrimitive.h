@@ -1,9 +1,7 @@
 #ifndef __PLASP__PDDL__TYPE_PRIMITIVE_H
 #define __PLASP__PDDL__TYPE_PRIMITIVE_H
 
-#include <functional>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 #include <plasp/utils/Parser.h>

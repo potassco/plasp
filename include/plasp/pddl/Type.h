@@ -1,6 +1,8 @@
 #ifndef __PLASP__PDDL__TYPE_H
 #define __PLASP__PDDL__TYPE_H
 
+#include <unordered_map>
+
 #include <boost/variant.hpp>
 
 #include <plasp/pddl/TypePrimitive.h>
