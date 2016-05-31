@@ -4,6 +4,7 @@
 #include <unordered_map>
 
 #include <plasp/pddl/Context.h>
+#include <plasp/pddl/Predicate.h>
 #include <plasp/pddl/Requirement.h>
 #include <plasp/pddl/Type.h>
 #include <plasp/utils/Parser.h>
@@ -28,6 +29,7 @@ class Domain
 		const std::string &name() const;
 		const Requirements &requirements() const;
 		const TypeHashMap &types() const;
+		const PredicateHashMap &predicates() const;
 
 	private:
 		Domain(Context &context);
@@ -39,6 +41,8 @@ class Domain
 		void computeDerivedRequirements();
 
 		void parseTypingSection(utils::Parser &parser);
+
+		void parsePredicateSection(utils::Parser &parser);
 
 		void checkConsistency();
 

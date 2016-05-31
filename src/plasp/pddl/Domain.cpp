@@ -74,6 +74,13 @@ const TypeHashMap &Domain::types() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+const PredicateHashMap &Domain::predicates() const
+{
+	return m_context.predicates;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void Domain::parseSection(utils::Parser &parser)
 {
 	parser.expect<std::string>("(:");
@@ -111,7 +118,7 @@ void Domain::parseSection(utils::Parser &parser)
 	else if (sectionIdentifier == "constants")
 		skipSection();
 	else if (sectionIdentifier == "predicates")
-		skipSection();
+		parsePredicateSection(parser);
 	else if (sectionIdentifier == "functions")
 		skipSection();
 	else if (sectionIdentifier == "constraints")
@@ -124,17 +131,16 @@ void Domain::parseSection(utils::Parser &parser)
 
 void Domain::parseRequirementsSection(utils::Parser &parser)
 {
-	while (true)
+	parser.skipWhiteSpace();
+
+	while (parser.currentCharacter() != ')')
 	{
-		parser.skipWhiteSpace();
-
-		if (parser.currentCharacter() == ')')
-			break;
-
 		if (parser.currentCharacter() == ':')
 			parser.advance();
 
 		m_requirements.emplace_back(Requirement::parse(parser));
+
+		parser.skipWhiteSpace();
 	}
 
 	if (m_requirements.empty())
@@ -204,10 +210,29 @@ void Domain::computeDerivedRequirements()
 
 void Domain::parseTypingSection(utils::Parser &parser)
 {
+	parser.skipWhiteSpace();
+
 	// Store types and their parent types
 	while (parser.currentCharacter() != ')')
 	{
-		Type::parseWithInheritance(parser, m_context);
+		Type::parseDeclaration(parser, m_context);
+
+		parser.skipWhiteSpace();
+	}
+
+	parser.expect<std::string>(")");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Domain::parsePredicateSection(utils::Parser &parser)
+{
+	parser.skipWhiteSpace();
+
+	// Store predicates and their arguments
+	while (parser.currentCharacter() != ')')
+	{
+		Predicate::parseDeclaration(parser, m_context);
 
 		parser.skipWhiteSpace();
 	}
@@ -234,6 +259,16 @@ void Domain::checkConsistency()
 			if (!type.second.isDeclared())
 				throw ConsistencyException("Type \"" + type.second.name() + "\" used but never declared");
 		});
+
+	// Verify that all used predicates have been declared
+	std::for_each(m_context.predicates.cbegin(), m_context.predicates.cend(),
+		[&](const auto &predicate)
+		{
+			if (!predicate.second.isDeclared())
+				throw ConsistencyException("Predicate \"" + predicate.second.name() + "\" used but never declared");
+		});
+
+	// Verify that all variables have types
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

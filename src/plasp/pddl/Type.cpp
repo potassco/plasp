@@ -48,18 +48,18 @@ Type &Type::parse(utils::Parser &parser, Context &context)
 	// Flag type for potentially upcoming parent type declaration
 	type.setDirty();
 
-	// Flag type as correctly declared in the types section
-	type.setDeclared();
-
 	return type;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Type &Type::parseWithInheritance(utils::Parser &parser, Context &context)
+Type &Type::parseDeclaration(utils::Parser &parser, Context &context)
 {
 	// Parse and store type
 	auto &type = parse(parser, context);
+
+	// Flag type as correctly declared in the types section
+	type.setDeclared();
 
 	parser.skipWhiteSpace();
 
@@ -71,6 +71,10 @@ Type &Type::parseWithInheritance(utils::Parser &parser, Context &context)
 	auto &parentType = parse(parser, context);
 
 	parentType.setDirty(false);
+
+	// Type object is an implicit primitive type
+	if (parentType.name() == "object")
+		parentType.setDeclared();
 
 	// Assign parent type to all types that were previously flagged
 	std::for_each(context.types.begin(), context.types.end(),

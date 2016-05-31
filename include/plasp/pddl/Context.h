@@ -1,6 +1,7 @@
 #ifndef __PLASP__PDDL__CONTEXT_H
 #define __PLASP__PDDL__CONTEXT_H
 
+#include <plasp/pddl/Predicate.h>
 #include <plasp/pddl/Type.h>
 
 namespace plasp
@@ -14,9 +15,11 @@ namespace pddl
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct Context
+class Context
 {
-	TypeHashMap types;
+	public:
+		TypeHashMap types;
+		PredicateHashMap predicates;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -56,11 +56,15 @@ TEST_F(PDDLParserTests, ParseBlocksWorldDomain)
 
 		ASSERT_EQ(domain.types().size(), 1u);
 
-		const auto blockType = domain.types().find("block");
-		ASSERT_NE(blockType, domain.types().cend());
+		const auto block = domain.types().find("block");
+		ASSERT_NE(block, domain.types().cend());
 
-		ASSERT_EQ(blockType->second.name(), "block");
-		ASSERT_EQ(blockType->second.parentTypes().size(), 0u);
+		ASSERT_EQ(block->second.name(), "block");
+		ASSERT_EQ(block->second.parentTypes().size(), 0u);
+
+		ASSERT_EQ(domain.predicates().size(), 5u);
+
+		const auto on = domain.predicates().find({"on", 2});
 	}
 	catch (const std::exception &e)
 	{

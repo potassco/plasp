@@ -1,11 +1,9 @@
-#ifndef __PLASP__PDDL__TYPE_H
-#define __PLASP__PDDL__TYPE_H
+#ifndef __PLASP__PDDL__VARIABLE_H
+#define __PLASP__PDDL__VARIABLE_H
 
-#include <functional>
-#include <string>
-#include <unordered_map>
 #include <vector>
 
+#include <plasp/pddl/Type.h>
 #include <plasp/utils/Parser.h>
 
 namespace plasp
@@ -15,45 +13,39 @@ namespace pddl
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// Type
+// Variable
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Context;
 
-class Type;
-using TypeHashMap = std::unordered_map<std::string, Type>;
+class Variable;
+using Variables = std::vector<Variable>;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class Type
+class Variable
 {
 	public:
-		static Type &parse(utils::Parser &parser, Context &context);
-		static Type &parseDeclaration(utils::Parser &parser, Context &context);
+		static Variable parse(utils::Parser &parser, Context &context);
 
 	public:
 		const std::string &name() const;
-		const std::vector<const Type *> &parentTypes() const;
-
-		bool isDeclared() const;
-
-	private:
-		Type(std::string name);
+		const Type &type() const;
 
 		void setDirty(bool isDirty = true);
 		bool isDirty() const;
 
-		void setDeclared();
+		void setType(const Type &type);
 
-		void addParentType(const Type &parentType);
+	private:
+		Variable(std::string name);
 
 		bool m_isDirty;
-		bool m_isDeclared;
 
 		std::string m_name;
 
-		std::vector<const Type *> m_parentTypes;
+		const Type *m_type;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
