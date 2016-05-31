@@ -1,8 +1,9 @@
 #ifndef __PLASP__PDDL__REQUIREMENT_H
 #define __PLASP__PDDL__REQUIREMENT_H
 
-#include <plasp/utils/Parser.h>
 #include <vector>
+
+#include <plasp/utils/Parser.h>
 
 namespace plasp
 {
@@ -15,39 +16,51 @@ namespace pddl
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct Requirement
+class Requirement;
+using Requirements = std::vector<Requirement>;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class Requirement
 {
-	enum class Type
-	{
-		STRIPS,
-		Typing,
-		NegativePreconditions,
-		DisjunctivePreconditions,
-		Equality,
-		ExistentialPreconditions,
-		UniversalPreconditions,
-		QuantifiedPreconditions,
-		ConditionalEffects,
-		Fluents,
-		NumericFluents,
-		ObjectFluents,
-		ADL,
-		DurativeActions,
-		DurationInequalities,
-		ContinuousEffects,
-		DerivedPredicates,
-		TimedInitialLiterals,
-		Preferences,
-		Constraints,
-		ActionCosts
-	};
+	public:
+		enum class Type
+		{
+			STRIPS,
+			Typing,
+			NegativePreconditions,
+			DisjunctivePreconditions,
+			Equality,
+			ExistentialPreconditions,
+			UniversalPreconditions,
+			QuantifiedPreconditions,
+			ConditionalEffects,
+			Fluents,
+			NumericFluents,
+			ObjectFluents,
+			ADL,
+			DurativeActions,
+			DurationInequalities,
+			ContinuousEffects,
+			DerivedPredicates,
+			TimedInitialLiterals,
+			Preferences,
+			Constraints,
+			ActionCosts
+		};
 
-	using Types = std::vector<Type>;
+		static Requirement parse(utils::Parser &parser);
 
-	static Requirement::Type fromPDDL(utils::Parser &parser);
+	public:
+		Requirement(Type type);
 
-	static void toPDDL(std::ostream &ostream, Requirement::Type requirementType);
-	static void toASP(std::ostream &ostream, Requirement::Type requirementType);
+		Type type() const;
+
+		void printAsPDDL(std::ostream &ostream) const;
+		void printAsASP(std::ostream &ostream) const;
+
+	private:
+		Type m_type;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

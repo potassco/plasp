@@ -72,7 +72,14 @@ const RequirementTypeNames requirementTypesToASP = boost::assign::list_of<Requir
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Requirement::Type Requirement::fromPDDL(utils::Parser &parser)
+Requirement::Requirement(Requirement::Type type)
+:	m_type{type}
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Requirement Requirement::parse(utils::Parser &parser)
 {
 	const auto requirementName = parser.parseIdentifier(isIdentifier);
 
@@ -81,14 +88,21 @@ Requirement::Type Requirement::fromPDDL(utils::Parser &parser)
 	if (match == requirementTypesToPDDL.right.end())
 		throw utils::ParserException(parser.row(), parser.column(), "Unknown PDDL requirement \"" + requirementName + "\"");
 
-	return match->second;
+	return Requirement(match->second);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Requirement::toPDDL(std::ostream &ostream, Requirement::Type requirementType)
+Requirement::Type Requirement::type() const
 {
-	const auto match = requirementTypesToPDDL.left.find(requirementType);
+	return m_type;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Requirement::printAsPDDL(std::ostream &ostream) const
+{
+	const auto match = requirementTypesToPDDL.left.find(m_type);
 
 	BOOST_ASSERT(match != requirementTypesToPDDL.left.end());
 
@@ -97,9 +111,9 @@ void Requirement::toPDDL(std::ostream &ostream, Requirement::Type requirementTyp
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Requirement::toASP(std::ostream &ostream, Requirement::Type requirementType)
+void Requirement::printAsASP(std::ostream &ostream) const
 {
-	const auto match = requirementTypesToASP.left.find(requirementType);
+	const auto match = requirementTypesToASP.left.find(m_type);
 
 	BOOST_ASSERT(match != requirementTypesToASP.left.end());
 

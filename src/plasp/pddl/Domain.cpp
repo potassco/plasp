@@ -60,7 +60,7 @@ const std::string &Domain::name() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const Requirement::Types &Domain::requirements() const
+const Requirements &Domain::requirements() const
 {
 	return m_requirements;
 }
@@ -134,7 +134,7 @@ void Domain::parseRequirementsSection(utils::Parser &parser)
 		if (parser.currentCharacter() == ':')
 			parser.advance();
 
-		m_requirements.emplace_back(Requirement::fromPDDL(parser));
+		m_requirements.emplace_back(Requirement::parse(parser));
 	}
 
 	if (m_requirements.empty())
@@ -145,9 +145,13 @@ void Domain::parseRequirementsSection(utils::Parser &parser)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Domain::hasRequirement(Requirement::Type requirement) const
+bool Domain::hasRequirement(Requirement::Type requirementType) const
 {
-	const auto match = std::find(m_requirements.cbegin(), m_requirements.cend(), requirement);
+	const auto match = std::find_if(m_requirements.cbegin(), m_requirements.cend(),
+		[&](const auto &requirement)
+		{
+			return requirement.type() == requirementType;
+		});
 
 	return match != m_requirements.cend();
 }
@@ -162,7 +166,7 @@ void Domain::computeDerivedRequirements()
 			if (hasRequirement(requirement))
 				return;
 
-			m_requirements.push_back(requirement);
+			m_requirements.push_back(Requirement(requirement));
 		};
 
 	// If no requirements are specified, assume STRIPS
@@ -220,7 +224,7 @@ void Domain::checkConsistency()
 	{
 		throw ConsistencyException("Domain contains typing information but does not declare typing requirement");
 
-		m_requirements.push_back(Requirement::Type::Typing);
+		m_requirements.push_back(Requirement(Requirement::Type::Typing));
 	}
 
 	// Verify that all used types have been declared

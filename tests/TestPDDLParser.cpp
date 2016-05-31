@@ -51,8 +51,8 @@ TEST_F(PDDLParserTests, ParseBlocksWorldDomain)
 		ASSERT_EQ(domain.name(), "BLOCKS");
 
 		ASSERT_EQ(domain.requirements().size(), 2u);
-		ASSERT_EQ(domain.requirements()[0], plasp::pddl::Requirement::Type::STRIPS);
-		ASSERT_EQ(domain.requirements()[1], plasp::pddl::Requirement::Type::Typing);
+		ASSERT_EQ(domain.requirements()[0].type(), plasp::pddl::Requirement::Type::STRIPS);
+		ASSERT_EQ(domain.requirements()[1].type(), plasp::pddl::Requirement::Type::Typing);
 
 		ASSERT_EQ(domain.types().size(), 1u);
 
@@ -83,7 +83,7 @@ TEST_F(PDDLParserTests, ParseStorageDomain)
 		ASSERT_EQ(domain.name(), "Storage-Propositional");
 
 		ASSERT_EQ(domain.requirements().size(), 1u);
-		ASSERT_EQ(domain.requirements()[0], plasp::pddl::Requirement::Type::Typing);
+		ASSERT_EQ(domain.requirements()[0].type(), plasp::pddl::Requirement::Type::Typing);
 
 		const auto area = domain.types().find("area");
 		ASSERT_NE(area, domain.types().cend());

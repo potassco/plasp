@@ -26,7 +26,7 @@ class Domain
 
 	public:
 		const std::string &name() const;
-		const Requirement::Types &requirements() const;
+		const Requirements &requirements() const;
 		const TypeHashMap &types() const;
 
 	private:
@@ -35,7 +35,7 @@ class Domain
 		void parseSection(utils::Parser &parser);
 
 		void parseRequirementsSection(utils::Parser &parser);
-		bool hasRequirement(Requirement::Type requirement) const;
+		bool hasRequirement(Requirement::Type requirementType) const;
 		void computeDerivedRequirements();
 
 		void parseTypingSection(utils::Parser &parser);
@@ -45,7 +45,7 @@ class Domain
 		Context &m_context;
 
 		std::string m_name;
-		Requirement::Types m_requirements;
+		Requirements m_requirements;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
