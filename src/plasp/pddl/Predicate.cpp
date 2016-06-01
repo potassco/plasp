@@ -48,19 +48,8 @@ Predicate &Predicate::parseDeclaration(utils::Parser &parser, Context &context)
 		if (!parser.advanceIf('-'))
 			continue;
 
-		auto parseType =
-			[&]() -> TypePtr
-			{
-				parser.skipWhiteSpace();
-
-				if (parser.currentCharacter() == '(')
-					return TypePtr(&EitherType::parse(parser, context));
-
-				return TypePtr(&PrimitiveType::parse(parser, context));
-			};
-
 		// Parse argument type
-		const auto type = parseType();
+		const auto type = parseType(parser, context);
 
 		// Set the argument type for all previously flagged arguments
 		std::for_each(predicate->m_arguments.begin(), predicate->m_arguments.end(),
