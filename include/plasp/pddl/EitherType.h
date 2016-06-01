@@ -1,9 +1,9 @@
-#ifndef __PLASP__PDDL__VARIABLE_H
-#define __PLASP__PDDL__VARIABLE_H
+#ifndef __PLASP__PDDL__EITHER_TYPE_H
+#define __PLASP__PDDL__EITHER_TYPE_H
 
 #include <vector>
 
-#include <plasp/pddl/Type.h>
+#include <plasp/pddl/PrimitiveType.h>
 #include <plasp/utils/Parser.h>
 
 namespace plasp
@@ -13,39 +13,26 @@ namespace pddl
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// Variable
+// EitherType
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Context;
 
-class Variable;
-using Variables = std::vector<Variable>;
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class Variable
+class EitherType
 {
 	public:
-		static Variable parse(utils::Parser &parser, Context &context);
+		static EitherType &parse(utils::Parser &parser, Context &context);
 
 	public:
-		const std::string &name() const;
-		TypePtr type() const;
-
-		void setDirty(bool isDirty = true);
-		bool isDirty() const;
-
-		void setType(TypePtr type);
+		const std::vector<const PrimitiveType *> &allowedTypes() const;
 
 	private:
-		Variable(std::string name);
+		EitherType() = default;
 
-		bool m_isDirty;
-
-		std::string m_name;
-
-		TypePtr m_type;
+		std::vector<const PrimitiveType *> m_allowedTypes;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

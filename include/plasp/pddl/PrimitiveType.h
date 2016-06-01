@@ -1,5 +1,5 @@
-#ifndef __PLASP__PDDL__TYPE_PRIMITIVE_H
-#define __PLASP__PDDL__TYPE_PRIMITIVE_H
+#ifndef __PLASP__PDDL__PRIMITIVE_TYPE_H
+#define __PLASP__PDDL__PRIMITIVE_TYPE_H
 
 #include <string>
 #include <vector>
@@ -13,7 +13,7 @@ namespace pddl
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// TypePrimitive
+// PrimitiveType
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -21,34 +21,34 @@ class Context;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class TypePrimitive
+class PrimitiveType
 {
 	public:
-		static TypePrimitive &parse(utils::Parser &parser, Context &context);
-		static TypePrimitive &parseDeclaration(utils::Parser &parser, Context &context);
+		static PrimitiveType &parse(utils::Parser &parser, Context &context);
+		static PrimitiveType &parseDeclaration(utils::Parser &parser, Context &context);
 
 	public:
 		const std::string &name() const;
-		const std::vector<const TypePrimitive *> &parentTypes() const;
+		const std::vector<const PrimitiveType *> &parentTypes() const;
 
 		bool isDeclared() const;
 
 	private:
-		TypePrimitive(std::string name);
+		PrimitiveType(std::string name);
 
 		void setDirty(bool isDirty = true);
 		bool isDirty() const;
 
 		void setDeclared();
 
-		void addParentType(const TypePrimitive &parentType);
+		void addParentType(const PrimitiveType &parentType);
 
 		bool m_isDirty;
 		bool m_isDeclared;
 
 		std::string m_name;
 
-		std::vector<const TypePrimitive *> m_parentTypes;
+		std::vector<const PrimitiveType *> m_parentTypes;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

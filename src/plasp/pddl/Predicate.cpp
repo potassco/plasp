@@ -30,17 +30,17 @@ Predicate &Predicate::parseDeclaration(utils::Parser &parser, Context &context)
 
 	const auto predicateName = parser.parseIdentifier(isIdentifier);
 
-	Predicate predicate(predicateName);
+	auto predicate = std::make_unique<Predicate>(Predicate(predicateName));
 
 	// Flag predicate as correctly declared in the types section
-	predicate.setDeclared();
+	predicate->setDeclared();
 
 	parser.skipWhiteSpace();
 
 	// Parse arguments
 	while (parser.currentCharacter() != ')')
 	{
-		predicate.m_arguments.emplace_back(Variable::parse(parser, context));
+		predicate->m_arguments.emplace_back(Variable::parse(parser, context));
 
 		parser.skipWhiteSpace();
 
@@ -48,11 +48,22 @@ Predicate &Predicate::parseDeclaration(utils::Parser &parser, Context &context)
 		if (!parser.advanceIf('-'))
 			continue;
 
+		auto parseType =
+			[&]() -> TypePtr
+			{
+				parser.skipWhiteSpace();
+
+				if (parser.currentCharacter() == '(')
+					return TypePtr(&EitherType::parse(parser, context));
+
+				return TypePtr(&PrimitiveType::parse(parser, context));
+			};
+
 		// Parse argument type
-		const auto &type = TypePrimitive::parse(parser, context);
+		const auto type = parseType();
 
 		// Set the argument type for all previously flagged arguments
-		std::for_each(predicate.m_arguments.begin(), predicate.m_arguments.end(),
+		std::for_each(predicate->m_arguments.begin(), predicate->m_arguments.end(),
 			[&](auto &argument)
 			{
 				if (!argument.isDirty())
@@ -67,14 +78,16 @@ Predicate &Predicate::parseDeclaration(utils::Parser &parser, Context &context)
 
 	parser.expect<std::string>(")");
 
-	const auto predicateArity = predicate.m_arguments.size();
+	const auto predicateArity = predicate->m_arguments.size();
 	const PredicateHashMapKey key = {predicateName, predicateArity};
 
-	const auto insertionResult = context.predicates.emplace(std::make_pair(key, std::move(predicate)));
+	// Store new predicate
+	context.predicates.emplace_back(std::move(predicate));
 
-	std::cout << "Emplaced " << insertionResult.first->second.name() << std::endl;
+	// Add a pointer to the predicate to the hash map
+	context.predicatesHashMap.emplace(std::make_pair(key, context.predicates.back().get()));
 
-	return insertionResult.first->second;
+	return *context.predicates.back();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

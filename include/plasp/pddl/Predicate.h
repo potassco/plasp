@@ -1,7 +1,6 @@
 #ifndef __PLASP__PDDL__PREDICATE_H
 #define __PLASP__PDDL__PREDICATE_H
 
-#include <unordered_map>
 #include <vector>
 
 #include <boost/functional/hash.hpp>
@@ -32,9 +31,6 @@ struct PredicateHashMapKey
 		return arity == other.arity && name == other.name;
 	}
 };
-
-class Predicate;
-using PredicateHashMap = std::unordered_map<PredicateHashMapKey, Predicate>;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

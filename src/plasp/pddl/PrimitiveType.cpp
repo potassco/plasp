@@ -1,4 +1,4 @@
-#include <plasp/pddl/TypePrimitive.h>
+#include <plasp/pddl/PrimitiveType.h>
 
 #include <algorithm>
 
@@ -12,11 +12,11 @@ namespace pddl
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// TypePrimitive
+// PrimitiveType
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TypePrimitive::TypePrimitive(std::string name)
+PrimitiveType::PrimitiveType(std::string name)
 :	m_isDirty{false},
 	m_isDeclared{false},
 	m_name(name)
@@ -25,37 +25,41 @@ TypePrimitive::TypePrimitive(std::string name)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TypePrimitive &TypePrimitive::parse(utils::Parser &parser, Context &context)
+PrimitiveType &PrimitiveType::parse(utils::Parser &parser, Context &context)
 {
 	parser.skipWhiteSpace();
 
 	const auto typeName = parser.parseIdentifier(isIdentifier);
-	const auto match = context.types.find(typeName);
-	const auto typeExists = (match != context.types.cend());
+	const auto match = context.primitiveTypesHashMap.find(typeName);
+	const auto typeExists = (match != context.primitiveTypesHashMap.cend());
 
+	// Return existing primitive types
 	if (typeExists)
 	{
-		auto &type = match->second;
-		auto &primitiveType = boost::get<TypePrimitive>(type);
+		auto &type = *match->second;
 
-		primitiveType.setDirty();
+		type.setDirty();
 
-		return primitiveType;
+		return type;
 	}
 
-	const auto insertionResult = context.types.emplace(std::make_pair(typeName, TypePrimitive(typeName)));
-	auto &type = insertionResult.first->second;
-	auto &primitiveType = boost::get<TypePrimitive>(type);
+	// Store new primitive type
+	context.primitiveTypes.emplace_back(std::make_unique<PrimitiveType>(PrimitiveType(typeName)));
+
+	auto &type = *context.primitiveTypes.back();
+
+	// Add a pointer to the primitive type to the hash map
+	context.primitiveTypesHashMap.emplace(std::make_pair(typeName, &type));
 
 	// Flag type for potentially upcoming parent type declaration
-	primitiveType.setDirty();
+	type.setDirty();
 
-	return primitiveType;
+	return type;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TypePrimitive &TypePrimitive::parseDeclaration(utils::Parser &parser, Context &context)
+PrimitiveType &PrimitiveType::parseDeclaration(utils::Parser &parser, Context &context)
 {
 	// Parse and store type
 	auto &type = parse(parser, context);
@@ -79,16 +83,14 @@ TypePrimitive &TypePrimitive::parseDeclaration(utils::Parser &parser, Context &c
 		parentType.setDeclared();
 
 	// Assign parent type to all types that were previously flagged
-	std::for_each(context.types.begin(), context.types.end(),
+	std::for_each(context.primitiveTypes.begin(), context.primitiveTypes.end(),
 		[&](auto &childType)
 		{
-			auto &childTypePrimitive = boost::get<TypePrimitive>(childType.second);
-
-			if (!childTypePrimitive.isDirty())
+			if (!childType->isDirty())
 				return;
 
-			childTypePrimitive.addParentType(parentType);
-			childTypePrimitive.setDirty(false);
+			childType->addParentType(parentType);
+			childType->setDirty(false);
 		});
 
 	return type;
@@ -96,49 +98,49 @@ TypePrimitive &TypePrimitive::parseDeclaration(utils::Parser &parser, Context &c
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void TypePrimitive::setDirty(bool isDirty)
+void PrimitiveType::setDirty(bool isDirty)
 {
 	m_isDirty = isDirty;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool TypePrimitive::isDirty() const
+bool PrimitiveType::isDirty() const
 {
 	return m_isDirty;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void TypePrimitive::setDeclared()
+void PrimitiveType::setDeclared()
 {
 	m_isDeclared = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool TypePrimitive::isDeclared() const
+bool PrimitiveType::isDeclared() const
 {
 	return m_isDeclared;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::string &TypePrimitive::name() const
+const std::string &PrimitiveType::name() const
 {
 	return m_name;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void TypePrimitive::addParentType(const TypePrimitive &parentType)
+void PrimitiveType::addParentType(const PrimitiveType &parentType)
 {
 	m_parentTypes.emplace_back(&parentType);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::vector<const TypePrimitive *> &TypePrimitive::parentTypes() const
+const std::vector<const PrimitiveType *> &PrimitiveType::parentTypes() const
 {
 	return m_parentTypes;
 }

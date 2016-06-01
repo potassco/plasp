@@ -67,14 +67,14 @@ const Requirements &Domain::requirements() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const TypeHashMap &Domain::types() const
+const std::vector<std::unique_ptr<PrimitiveType>> &Domain::types() const
 {
-	return m_context.types;
+	return m_context.primitiveTypes;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const PredicateHashMap &Domain::predicates() const
+const std::vector<std::unique_ptr<Predicate>> &Domain::predicates() const
 {
 	return m_context.predicates;
 }
@@ -114,7 +114,7 @@ void Domain::parseSection(utils::Parser &parser)
 	if (sectionIdentifier == "requirements")
 		parseRequirementsSection(parser);
 	else if (sectionIdentifier == "types")
-		parseTypingSection(parser);
+		parseTypeSection(parser);
 	else if (sectionIdentifier == "constants")
 		skipSection();
 	else if (sectionIdentifier == "predicates")
@@ -208,14 +208,17 @@ void Domain::computeDerivedRequirements()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Domain::parseTypingSection(utils::Parser &parser)
+void Domain::parseTypeSection(utils::Parser &parser)
 {
 	parser.skipWhiteSpace();
 
 	// Store types and their parent types
 	while (parser.currentCharacter() != ')')
 	{
-		TypePrimitive::parseDeclaration(parser, m_context);
+		if (parser.currentCharacter() == '(')
+			throw utils::ParserException(parser.row(), parser.column(), "Only primitive types are allowed in type section");
+
+		PrimitiveType::parseDeclaration(parser, m_context);
 
 		parser.skipWhiteSpace();
 	}
@@ -245,7 +248,7 @@ void Domain::parsePredicateSection(utils::Parser &parser)
 void Domain::checkConsistency()
 {
 	// Verify that typing requirement is correctly declared if used
-	if (!m_context.types.empty() && !hasRequirement(Requirement::Type::Typing))
+	if (!m_context.primitiveTypes.empty() && !hasRequirement(Requirement::Type::Typing))
 	{
 		throw ConsistencyException("Domain contains typing information but does not declare typing requirement");
 
@@ -253,25 +256,19 @@ void Domain::checkConsistency()
 	}
 
 	// Verify that all used types have been declared
-	std::for_each(m_context.types.cbegin(), m_context.types.cend(),
+	std::for_each(m_context.primitiveTypes.cbegin(), m_context.primitiveTypes.cend(),
 		[&](const auto &type)
 		{
-			// TODO: refactor without typeinfo
-			if (type.second.type() != boost::typeindex::type_id<TypePrimitive>())
-				return;
-
-			const auto &typePrimitive = boost::get<TypePrimitive>(type.second);
-
-			if (!typePrimitive.isDeclared())
-				throw ConsistencyException("Type \"" + typePrimitive.name() + "\" used but never declared");
+			if (!type->isDeclared())
+				throw ConsistencyException("Type \"" + type->name() + "\" used but never declared");
 		});
 
 	// Verify that all used predicates have been declared
 	std::for_each(m_context.predicates.cbegin(), m_context.predicates.cend(),
 		[&](const auto &predicate)
 		{
-			if (!predicate.second.isDeclared())
-				throw ConsistencyException("Predicate \"" + predicate.second.name() + "\" used but never declared");
+			if (!predicate->isDeclared())
+				throw ConsistencyException("Predicate \"" + predicate->name() + "\" used but never declared");
 		});
 
 	// Verify that all variables have types

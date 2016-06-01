@@ -28,8 +28,8 @@ class Domain
 	public:
 		const std::string &name() const;
 		const Requirements &requirements() const;
-		const TypeHashMap &types() const;
-		const PredicateHashMap &predicates() const;
+		const std::vector<std::unique_ptr<PrimitiveType>> &types() const;
+		const std::vector<std::unique_ptr<Predicate>> &predicates() const;
 
 	private:
 		Domain(Context &context);
@@ -40,7 +40,7 @@ class Domain
 		bool hasRequirement(Requirement::Type requirementType) const;
 		void computeDerivedRequirements();
 
-		void parseTypingSection(utils::Parser &parser);
+		void parseTypeSection(utils::Parser &parser);
 
 		void parsePredicateSection(utils::Parser &parser);
 

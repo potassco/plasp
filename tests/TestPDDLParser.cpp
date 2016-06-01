@@ -48,22 +48,40 @@ TEST_F(PDDLParserTests, ParseBlocksWorldDomain)
 
 		const auto &domain = description.domain();
 
+		// Name
 		ASSERT_EQ(domain.name(), "BLOCKS");
 
+		// Requirements
 		ASSERT_EQ(domain.requirements().size(), 2u);
 		ASSERT_EQ(domain.requirements()[0].type(), plasp::pddl::Requirement::Type::STRIPS);
 		ASSERT_EQ(domain.requirements()[1].type(), plasp::pddl::Requirement::Type::Typing);
 
+		// Types
 		ASSERT_EQ(domain.types().size(), 1u);
 
-		const auto block = boost::get<plasp::pddl::TypePrimitive>(domain.types().find("block")->second);
+		const auto &block = *domain.types()[0];
 
 		ASSERT_EQ(block.name(), "block");
 		ASSERT_EQ(block.parentTypes().size(), 0u);
 
+		// Predicates
 		ASSERT_EQ(domain.predicates().size(), 5u);
 
-		const auto on = domain.predicates().find({"on", 2});
+		const auto &on = *domain.predicates()[0];
+
+		ASSERT_EQ(on.name(), "on");
+		ASSERT_EQ(on.arguments().size(), 2u);
+		ASSERT_EQ(on.arguments()[0].name(), "x");
+		const auto onArgument0Type = boost::get<const plasp::pddl::PrimitiveType *>(on.arguments()[0].type());
+		ASSERT_EQ(onArgument0Type, &block);
+		ASSERT_EQ(on.arguments()[1].name(), "y");
+		const auto onArgument1Type = boost::get<const plasp::pddl::PrimitiveType *>(on.arguments()[1].type());
+		ASSERT_EQ(onArgument1Type, &block);
+
+		const auto &handempty = *domain.predicates()[3];
+
+		ASSERT_EQ(handempty.name(), "handempty");
+		ASSERT_TRUE(handempty.arguments().empty());
 	}
 	catch (const std::exception &e)
 	{
@@ -83,16 +101,22 @@ TEST_F(PDDLParserTests, ParseStorageDomain)
 
 		const auto &domain = description.domain();
 
+		// Name
 		ASSERT_EQ(domain.name(), "Storage-Propositional");
 
+		// Requirements
 		ASSERT_EQ(domain.requirements().size(), 1u);
 		ASSERT_EQ(domain.requirements()[0].type(), plasp::pddl::Requirement::Type::Typing);
 
-		const auto area = boost::get<plasp::pddl::TypePrimitive>(domain.types().find("area")->second);
-		const auto hoist = boost::get<plasp::pddl::TypePrimitive>(domain.types().find("hoist")->second);
-		const auto object = boost::get<plasp::pddl::TypePrimitive>(domain.types().find("object")->second);
-		const auto storearea = boost::get<plasp::pddl::TypePrimitive>(domain.types().find("storearea")->second);
-		const auto surface = boost::get<plasp::pddl::TypePrimitive>(domain.types().find("surface")->second);
+		// Types
+		ASSERT_EQ(domain.types().size(), 10u);
+
+		const auto &hoist = *domain.types()[0];
+		const auto &surface = *domain.types()[1];
+		const auto &area = *domain.types()[3];
+		const auto &object = *domain.types()[4];
+		const auto &storearea = *domain.types()[7];
+		const auto &crate = *domain.types()[9];
 
 		const auto &hoistParents = hoist.parentTypes();
 		ASSERT_EQ(hoistParents.size(), 1u);
@@ -102,6 +126,29 @@ TEST_F(PDDLParserTests, ParseStorageDomain)
 		ASSERT_EQ(areaParents.size(), 2u);
 		ASSERT_TRUE(std::find(areaParents.cbegin(), areaParents.cend(), &object) != areaParents.cend());
 		ASSERT_TRUE(std::find(areaParents.cbegin(), areaParents.cend(), &surface) != areaParents.cend());
+
+		// Predicates
+		ASSERT_EQ(domain.predicates().size(), 8u);
+
+		const auto &on = *domain.predicates()[5];
+
+		ASSERT_EQ(on.name(), "on");
+		ASSERT_EQ(on.arguments().size(), 2u);
+		ASSERT_EQ(on.arguments()[0].name(), "c");
+		const auto onArgument0Type = boost::get<const plasp::pddl::PrimitiveType *>(on.arguments()[0].type());
+		ASSERT_EQ(onArgument0Type, &crate);
+		ASSERT_EQ(on.arguments()[1].name(), "s");
+		const auto onArgument1Type = boost::get<const plasp::pddl::PrimitiveType *>(on.arguments()[1].type());
+		ASSERT_EQ(onArgument1Type, &storearea);
+
+		const auto &in = *domain.predicates()[1];
+		ASSERT_EQ(in.name(), "in");
+		ASSERT_EQ(in.arguments().size(), 2u);
+		ASSERT_EQ(in.arguments()[0].name(), "x");
+		const auto inArgument0Type = boost::get<const plasp::pddl::EitherType *>(in.arguments()[0].type());
+		ASSERT_EQ(inArgument0Type->allowedTypes().size(), 2u);
+		ASSERT_EQ(inArgument0Type->allowedTypes()[0], &storearea);
+		ASSERT_EQ(inArgument0Type->allowedTypes()[1], &crate);
 	}
 	catch (const std::exception &e)
 	{
