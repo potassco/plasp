@@ -74,6 +74,13 @@ const std::vector<std::unique_ptr<PrimitiveType>> &Domain::types() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+const std::vector<std::unique_ptr<Constant>> &Domain::constants() const
+{
+	return m_context.constants;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 const std::vector<std::unique_ptr<Predicate>> &Domain::predicates() const
 {
 	return m_context.predicates;
@@ -116,7 +123,7 @@ void Domain::parseSection(utils::Parser &parser)
 	else if (sectionIdentifier == "types")
 		parseTypeSection(parser);
 	else if (sectionIdentifier == "constants")
-		skipSection();
+		parseConstantSection(parser);
 	else if (sectionIdentifier == "predicates")
 		parsePredicateSection(parser);
 	else if (sectionIdentifier == "functions")
@@ -124,6 +131,10 @@ void Domain::parseSection(utils::Parser &parser)
 	else if (sectionIdentifier == "constraints")
 		skipSection();
 	else if (sectionIdentifier == "action")
+		skipSection();
+	else if (sectionIdentifier == "durative-action")
+		skipSection();
+	else if (sectionIdentifier == "derived")
 		skipSection();
 }
 
@@ -228,6 +239,23 @@ void Domain::parseTypeSection(utils::Parser &parser)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void Domain::parseConstantSection(utils::Parser &parser)
+{
+	parser.skipWhiteSpace();
+
+	// Store constants
+	while (parser.currentCharacter() != ')')
+	{
+		Constant::parseDeclaration(parser, m_context);
+
+		parser.skipWhiteSpace();
+	}
+
+	parser.expect<std::string>(")");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void Domain::parsePredicateSection(utils::Parser &parser)
 {
 	parser.skipWhiteSpace();
@@ -261,6 +289,17 @@ void Domain::checkConsistency()
 		{
 			if (!type->isDeclared())
 				throw ConsistencyException("Type \"" + type->name() + "\" used but never declared");
+		});
+
+	// Verify that all used constants have been declared
+	std::for_each(m_context.constants.cbegin(), m_context.constants.cend(),
+		[&](const auto &constant)
+		{
+			if (!constant->isDeclared())
+				throw ConsistencyException("Constant \"" + constant->name() + "\" used but never declared");
+
+			if (constant->type() == nullptr)
+				throw ConsistencyException("Constant \"" + constant->name() + "\" has an undeclared type");
 		});
 
 	// Verify that all used predicates have been declared

@@ -1,4 +1,4 @@
-#include <plasp/pddl/PrimitiveType.h>
+#include <plasp/pddl/Constant.h>
 
 #include <algorithm>
 
@@ -12,137 +12,132 @@ namespace pddl
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// PrimitiveType
+// Constant
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PrimitiveType::PrimitiveType(std::string name)
+Constant::Constant(std::string name)
 :	m_isDirty{false},
 	m_isDeclared{false},
-	m_name(name)
+	m_name(name),
+	m_type{nullptr}
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PrimitiveType &PrimitiveType::parse(utils::Parser &parser, Context &context)
+Constant &Constant::parse(utils::Parser &parser, Context &context)
 {
 	parser.skipWhiteSpace();
 
-	const auto typeName = parser.parseIdentifier(isIdentifier);
-	const auto match = context.primitiveTypesHashMap.find(typeName);
-	const auto typeExists = (match != context.primitiveTypesHashMap.cend());
+	const auto constantName = parser.parseIdentifier(isIdentifier);
+	const auto match = context.constantsHashMap.find(constantName);
+	const auto constantExists = (match != context.constantsHashMap.cend());
 
 	// Return existing primitive types
-	if (typeExists)
+	if (constantExists)
 	{
-		auto &type = *match->second;
+		auto &constant = *match->second;
 
-		type.setDirty();
+		constant.setDirty();
 
-		return type;
+		return constant;
 	}
 
 	// Store new primitive type
-	context.primitiveTypes.emplace_back(std::make_unique<PrimitiveType>(PrimitiveType(typeName)));
+	context.constants.emplace_back(std::make_unique<Constant>(Constant(constantName)));
 
-	auto &type = *context.primitiveTypes.back();
+	auto &constant = *context.constants.back();
 
 	// Add a pointer to the primitive type to the hash map
-	context.primitiveTypesHashMap.emplace(std::make_pair(typeName, &type));
+	context.constantsHashMap.emplace(std::make_pair(constantName, &constant));
 
 	// Flag type for potentially upcoming parent type declaration
-	type.setDirty();
+	constant.setDirty();
 
-	return type;
+	return constant;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PrimitiveType &PrimitiveType::parseDeclaration(utils::Parser &parser, Context &context)
+Constant &Constant::parseDeclaration(utils::Parser &parser, Context &context)
 {
-	// Parse and store type
-	auto &type = parse(parser, context);
+	// Parse and store constant
+	auto &constant = parse(parser, context);
 
-	// Flag type as correctly declared in the types section
-	type.setDeclared();
+	// Flag constant as correctly declared in the types section
+	constant.setDeclared();
 
 	parser.skipWhiteSpace();
 
-	// Check for type inheritance
+	// Check for typing information
 	if (!parser.advanceIf('-'))
-		return type;
+		return constant;
 
 	// If existing, parse and store parent type
-	auto &parentType = parse(parser, context);
-
-	parentType.setDirty(false);
-
-	// Type object is an implicit primitive type
-	if (parentType.name() == "object")
-		parentType.setDeclared();
+	auto &type = PrimitiveType::parse(parser, context);
 
 	// Assign parent type to all types that were previously flagged
-	std::for_each(context.primitiveTypes.begin(), context.primitiveTypes.end(),
-		[&](auto &childType)
+	std::for_each(context.constants.begin(), context.constants.end(),
+		[&](auto &constant)
 		{
-			if (!childType->isDirty())
+			if (!constant->isDirty())
 				return;
 
-			childType->addParentType(&parentType);
-			childType->setDirty(false);
+			constant->setType(&type);
+			constant->setDirty(false);
 		});
 
-	return type;
+	return constant;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void PrimitiveType::setDirty(bool isDirty)
+void Constant::setDirty(bool isDirty)
 {
 	m_isDirty = isDirty;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool PrimitiveType::isDirty() const
+bool Constant::isDirty() const
 {
 	return m_isDirty;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void PrimitiveType::setDeclared()
+void Constant::setDeclared()
 {
 	m_isDeclared = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool PrimitiveType::isDeclared() const
+bool Constant::isDeclared() const
 {
 	return m_isDeclared;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::string &PrimitiveType::name() const
+const std::string &Constant::name() const
 {
 	return m_name;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void PrimitiveType::addParentType(const PrimitiveType *parentType)
+void Constant::setType(const PrimitiveType *type)
 {
-	m_parentTypes.push_back(parentType);
+	m_type = type;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::vector<const PrimitiveType *> &PrimitiveType::parentTypes() const
+const PrimitiveType *Constant::type() const
 {
-	return m_parentTypes;
+	return m_type;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

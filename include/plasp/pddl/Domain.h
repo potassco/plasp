@@ -29,6 +29,7 @@ class Domain
 		const std::string &name() const;
 		const Requirements &requirements() const;
 		const std::vector<std::unique_ptr<PrimitiveType>> &types() const;
+		const std::vector<std::unique_ptr<Constant>> &constants() const;
 		const std::vector<std::unique_ptr<Predicate>> &predicates() const;
 
 	private:
@@ -41,6 +42,8 @@ class Domain
 		void computeDerivedRequirements();
 
 		void parseTypeSection(utils::Parser &parser);
+
+		void parseConstantSection(utils::Parser &parser);
 
 		void parsePredicateSection(utils::Parser &parser);
 

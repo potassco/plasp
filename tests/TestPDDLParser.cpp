@@ -14,7 +14,8 @@ class PDDLParserTests : public ::testing::Test
 	protected:
 		PDDLParserTests()
 		:	m_blocksworldDomainFile(readFile("data/blocksworld-domain.pddl")),
-			m_storageDomainFile(readFile("data/storage-domain.pddl"))
+			m_storageDomainFile(readFile("data/storage-domain.pddl")),
+			m_woodworkingDomainFile(readFile("data/woodworking-domain.pddl"))
 		{
 		}
 
@@ -34,6 +35,7 @@ class PDDLParserTests : public ::testing::Test
 
 		std::stringstream m_blocksworldDomainFile;
 		std::stringstream m_storageDomainFile;
+		std::stringstream m_woodworkingDomainFile;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -149,6 +151,40 @@ TEST_F(PDDLParserTests, ParseStorageDomain)
 		ASSERT_EQ(inArgument0Type->allowedTypes().size(), 2u);
 		ASSERT_EQ(inArgument0Type->allowedTypes()[0], &storearea);
 		ASSERT_EQ(inArgument0Type->allowedTypes()[1], &crate);
+	}
+	catch (const std::exception &e)
+	{
+		FAIL() << e.what();
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TEST_F(PDDLParserTests, ParseConstants)
+{
+	try
+	{
+		const auto description = plasp::pddl::Description::fromStream(m_woodworkingDomainFile);
+
+		ASSERT_NO_THROW(description.domain());
+
+		const auto &domain = description.domain();
+
+		// Name
+		ASSERT_EQ(domain.name(), "woodworking");
+
+		// Types
+		const auto &acolour = *domain.types()[0];
+		const auto &surface = *domain.types()[4];
+		const auto &treatmentstatus = *domain.types()[5];
+
+		// Constants
+		ASSERT_EQ(domain.constants().size(), 8u);
+		ASSERT_EQ(domain.constants()[0]->type(), &surface);
+		ASSERT_EQ(domain.constants()[2]->type(), &surface);
+		ASSERT_EQ(domain.constants()[3]->type(), &treatmentstatus);
+		ASSERT_EQ(domain.constants()[6]->type(), &treatmentstatus);
+		ASSERT_EQ(domain.constants()[7]->type(), &acolour);
 	}
 	catch (const std::exception &e)
 	{

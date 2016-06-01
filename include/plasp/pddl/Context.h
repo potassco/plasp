@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include <plasp/pddl/Constant.h>
 #include <plasp/pddl/Predicate.h>
 #include <plasp/pddl/Type.h>
 
@@ -26,6 +27,9 @@ class Context
 		std::unordered_map<std::string, PrimitiveType *> primitiveTypesHashMap;
 
 		std::vector<std::unique_ptr<EitherType>> eitherTypes;
+
+		std::vector<std::unique_ptr<Constant>> constants;
+		std::unordered_map<std::string, Constant *> constantsHashMap;
 
 		std::vector<std::unique_ptr<Predicate>> predicates;
 		std::unordered_map<PredicateHashMapKey, Predicate *> predicatesHashMap;
