@@ -1,8 +1,6 @@
 #ifndef __PLASP__PDDL__PREDICATE_H
 #define __PLASP__PDDL__PREDICATE_H
 
-#include <vector>
-
 #include <boost/functional/hash.hpp>
 
 #include <plasp/pddl/Variable.h>
