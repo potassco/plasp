@@ -4,6 +4,7 @@
 
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Identifier.h>
+#include <plasp/pddl/Type.h>
 
 namespace plasp
 {
@@ -24,7 +25,7 @@ Variable::Variable(std::string name)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Variable Variable::parse(utils::Parser &parser, Context &context)
+Variable Variable::parse(utils::Parser &parser)
 {
 	parser.skipWhiteSpace();
 
@@ -36,6 +37,34 @@ Variable Variable::parse(utils::Parser &parser, Context &context)
 	variable.setDirty();
 
 	return variable;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Variable::parseTyped(utils::Parser &parser, Context &context, std::vector<Variable> &variables)
+{
+	// Parse and store variable itself
+	variables.emplace_back(parse(parser));
+
+	parser.skipWhiteSpace();
+
+	// Check if the variable has a type declaration
+	if (!parser.advanceIf('-'))
+		return;
+
+	// Parse argument type
+	const auto type = parseType(parser, context);
+
+	// Set the argument type for all previously flagged arguments
+	std::for_each(variables.begin(), variables.end(),
+		[&](auto &variable)
+		{
+			if (!variable.isDirty())
+				return;
+
+			variable.setType(type);
+			variable.setDirty(false);
+		});
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

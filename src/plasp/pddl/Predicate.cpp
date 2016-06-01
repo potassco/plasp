@@ -39,31 +39,7 @@ Predicate &Predicate::parseDeclaration(utils::Parser &parser, Context &context)
 
 	// Parse arguments
 	while (parser.currentCharacter() != ')')
-	{
-		predicate->m_arguments.emplace_back(Variable::parse(parser, context));
-
-		parser.skipWhiteSpace();
-
-		// Check if the variable has a type declaration
-		if (!parser.advanceIf('-'))
-			continue;
-
-		// Parse argument type
-		const auto type = parseType(parser, context);
-
-		// Set the argument type for all previously flagged arguments
-		std::for_each(predicate->m_arguments.begin(), predicate->m_arguments.end(),
-			[&](auto &argument)
-			{
-				if (!argument.isDirty())
-					return;
-
-				argument.setType(type);
-				argument.setDirty(false);
-			});
-
-		parser.skipWhiteSpace();
-	}
+		Variable::parseTyped(parser, context, predicate->m_arguments);
 
 	parser.expect<std::string>(")");
 

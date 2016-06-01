@@ -27,7 +27,8 @@ using Variables = std::vector<Variable>;
 class Variable
 {
 	public:
-		static Variable parse(utils::Parser &parser, Context &context);
+		static Variable parse(utils::Parser &parser);
+		static void parseTyped(utils::Parser &parser, Context &context, std::vector<Variable> &variables);
 
 	public:
 		const std::string &name() const;
