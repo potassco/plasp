@@ -78,9 +78,8 @@ PrimitiveType &PrimitiveType::parseDeclaration(utils::Parser &parser, Context &c
 
 	parentType.setDirty(false);
 
-	// Type object is an implicit primitive type
-	if (parentType.name() == "object")
-		parentType.setDeclared();
+	// Flag parent tpe as correctly declared in the types section
+	parentType.setDeclared();
 
 	// Assign parent type to all types that were previously flagged
 	std::for_each(context.primitiveTypes.begin(), context.primitiveTypes.end(),
