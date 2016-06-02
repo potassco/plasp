@@ -35,6 +35,8 @@ class Expression
 std::unique_ptr<Expression> parsePreconditionExpression(utils::Parser &parser, Context &context, const Variables &parameters);
 std::unique_ptr<Expression> parseExpression(utils::Parser &parser, Context &context, const Variables &parameters);
 
+std::unique_ptr<Expression> parseEffectExpression(utils::Parser &parser, Context &context, const Variables &parameters);
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 }

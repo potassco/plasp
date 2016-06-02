@@ -18,7 +18,15 @@ namespace pddl
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::unique_ptr<Expression> parseExpressionBody(const std::string &expressionIdentifier, utils::Parser &parser, Context &context, const Variables &parameters);
+std::unique_ptr<Expression> parseExpressionContent(const std::string &expressionIdentifier, utils::Parser &parser, Context &context, const Variables &parameters);
+std::unique_ptr<Expression> parseEffectBodyExpressionContent(const std::string &expressionIdentifier, utils::Parser &parser, Context &context, const Variables &parameters);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void throwUnsupported(const utils::Parser &parser, const std::string &expressionIdentifier)
+{
+	throw utils::ParserException(parser.row(), parser.column(), "Expression type \"" + expressionIdentifier + "\" currently unsupported");
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -30,24 +38,17 @@ std::unique_ptr<Expression> parsePreconditionExpression(utils::Parser &parser, C
 
 	const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);
 
-	std::cout << "Parsing precondition expression " << expressionIdentifier << std::endl;
-
 	std::unique_ptr<Expression> expression;
-
-	const auto throwUnsupported =
-		[&]()
-		{
-			throw utils::ParserException(parser.row(), parser.column(), "Expression type \"" + expressionIdentifier + "\" unsupported");
-		};
 
 	if (expressionIdentifier == "and")
 		expression = expressions::AndExpression::parse(parser, context, parameters, parsePreconditionExpression);
-	else if (expressionIdentifier == "forall")
-		throwUnsupported();
-	else if (expressionIdentifier == "preference")
-		throwUnsupported();
+	else if (expressionIdentifier == "forall"
+		|| expressionIdentifier == "preference")
+	{
+		throwUnsupported(parser, expressionIdentifier);
+	}
 	else
-		expression = parseExpressionBody(expressionIdentifier, parser, context, parameters);
+		expression = parseExpressionContent(expressionIdentifier, parser, context, parameters);
 
 	parser.expect<std::string>(")");
 
@@ -64,7 +65,7 @@ std::unique_ptr<Expression> parseExpression(utils::Parser &parser, Context &cont
 
 	const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);
 
-	auto expression = parseExpressionBody(expressionIdentifier, parser, context, parameters);
+	auto expression = parseExpressionContent(expressionIdentifier, parser, context, parameters);
 
 	parser.expect<std::string>(")");
 
@@ -73,19 +74,11 @@ std::unique_ptr<Expression> parseExpression(utils::Parser &parser, Context &cont
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::unique_ptr<Expression> parseExpressionBody(const std::string &expressionIdentifier, utils::Parser &parser, Context &context, const Variables &parameters)
+std::unique_ptr<Expression> parseExpressionContent(const std::string &expressionIdentifier, utils::Parser &parser, Context &context, const Variables &parameters)
 {
 	parser.skipWhiteSpace();
 
-	std::cout << "Parsing expression " << expressionIdentifier << std::endl;
-
 	std::unique_ptr<Expression> expression;
-
-	const auto throwUnsupported =
-	[&]()
-	{
-		throw utils::ParserException(parser.row(), parser.column(), "Expression type \"" + expressionIdentifier + "\" unsupported");
-	};
 
 	if (expressionIdentifier == "and")
 		expression = expressions::AndExpression::parse(parser, context, parameters, parseExpression);
@@ -107,7 +100,7 @@ std::unique_ptr<Expression> parseExpressionBody(const std::string &expressionIde
 		|| expressionIdentifier == ">="
 		|| expressionIdentifier == "<=")
 	{
-		throwUnsupported();
+		throwUnsupported(parser, expressionIdentifier);
 	}
 	else
 	{
@@ -122,7 +115,73 @@ std::unique_ptr<Expression> parseExpressionBody(const std::string &expressionIde
 		if (match != context.predicates.cend())
 			expression = expressions::PredicateExpression::parse(expressionIdentifier, parser, context, parameters);
 		else
-			throw utils::ParserException(parser.row(), parser.column(), "Undeclared expression \"" + expressionIdentifier + "\"");
+			throw utils::ParserException(parser.row(), parser.column(), "Expression \"" + expressionIdentifier + "\" not allowed in this context");
+	}
+
+	return expression;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+std::unique_ptr<Expression> parseEffectExpression(utils::Parser &parser, Context &context, const Variables &parameters)
+{
+	parser.skipWhiteSpace();
+
+	parser.expect<std::string>("(");
+
+	const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);
+
+	std::cout << "Parsing effect expression " << expressionIdentifier << std::endl;
+
+	std::unique_ptr<Expression> expression;
+
+	if (expressionIdentifier == "and")
+		expression = expressions::AndExpression::parse(parser, context, parameters, parseEffectExpression);
+	else if (expressionIdentifier == "forall"
+		|| expressionIdentifier == "when")
+	{
+		throwUnsupported(parser, expressionIdentifier);
+	}
+	else
+		expression = parseEffectBodyExpressionContent(expressionIdentifier, parser, context, parameters);
+
+	parser.expect<std::string>(")");
+
+	return expression;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+std::unique_ptr<Expression> parseEffectBodyExpressionContent(const std::string &expressionIdentifier, utils::Parser &parser, Context &context, const Variables &parameters)
+{
+	parser.skipWhiteSpace();
+
+	std::unique_ptr<Expression> expression;
+
+	if (expressionIdentifier == "not"
+		|| expressionIdentifier == "="
+		|| expressionIdentifier == "assign"
+		|| expressionIdentifier == "scale-up"
+		|| expressionIdentifier == "scale-down"
+		|| expressionIdentifier == "increase"
+		|| expressionIdentifier == "decrease")
+	{
+		throwUnsupported(parser, expressionIdentifier);
+	}
+	else
+	{
+		// Check if predicate with that name exists
+		const auto match = std::find_if(context.predicates.cbegin(), context.predicates.cend(),
+			[&](const auto &predicate)
+			{
+				return predicate->name() == expressionIdentifier;
+			});
+
+		// If predicate exists, parse it
+		if (match != context.predicates.cend())
+			expression = expressions::PredicateExpression::parse(expressionIdentifier, parser, context, parameters);
+		else
+			throw utils::ParserException(parser.row(), parser.column(), "Expression \"" + expressionIdentifier + "\" not allowed in this context");
 	}
 
 	return expression;

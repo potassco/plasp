@@ -40,8 +40,6 @@ class NAryExpression: public Expression
 template<typename ExpressionParser>
 void NAryExpression::parse(utils::Parser &parser, Context &context, const Variables &parameters, ExpressionParser parseExpression)
 {
-	std::cout << "Parsing n-ary predicate" << std::endl;
-
 	parser.skipWhiteSpace();
 
 	// Assume that expression identifier (and, or, etc.) is already parsed

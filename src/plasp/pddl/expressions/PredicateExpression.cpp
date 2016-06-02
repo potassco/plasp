@@ -27,7 +27,7 @@ std::unique_ptr<PredicateExpression> PredicateExpression::parse(std::string name
 	while (parser.currentCharacter() != ')')
 		Variable::parseTyped(parser, context, expression->m_arguments);
 
-	std::cout << "Parsed " << expression->m_arguments.size() << " arguments" << std::endl;
+	// TODO: check that signature matches one of the declared ones
 
 	return expression;
 }
