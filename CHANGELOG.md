@@ -5,6 +5,7 @@
 Features:
 
 * supports input from std::cin
+* basic support for parsing PDDL 3.1 domains
 
 ## 3.0.0 (2016-05-24)
 
