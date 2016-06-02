@@ -55,6 +55,8 @@ Action &Action::parseDeclaration(utils::Parser &parser, Context &context)
 			action->m_precondition = parsePreconditionExpression(parser, context, action->m_parameters);
 		else if (sectionIdentifier == "effect")
 			action->m_effect = parseEffectExpression(parser, context, action->m_parameters);
+
+		parser.skipWhiteSpace();
 	}
 
 	// Store new action
