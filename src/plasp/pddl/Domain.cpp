@@ -88,6 +88,13 @@ const std::vector<std::unique_ptr<Predicate>> &Domain::predicates() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+const std::vector<std::unique_ptr<Action>> &Domain::actions() const
+{
+	return m_context.actions;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void Domain::parseSection(utils::Parser &parser)
 {
 	parser.expect<std::string>("(:");
@@ -131,7 +138,7 @@ void Domain::parseSection(utils::Parser &parser)
 	else if (sectionIdentifier == "constraints")
 		skipSection();
 	else if (sectionIdentifier == "action")
-		skipSection();
+		parseActionSection(parser);
 	else if (sectionIdentifier == "durative-action")
 		skipSection();
 	else if (sectionIdentifier == "derived")
@@ -267,6 +274,17 @@ void Domain::parsePredicateSection(utils::Parser &parser)
 
 		parser.skipWhiteSpace();
 	}
+
+	parser.expect<std::string>(")");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Domain::parseActionSection(utils::Parser &parser)
+{
+	parser.skipWhiteSpace();
+
+	Action::parseDeclaration(parser, m_context);
 
 	parser.expect<std::string>(")");
 }

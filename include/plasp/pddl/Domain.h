@@ -31,6 +31,7 @@ class Domain
 		const std::vector<std::unique_ptr<PrimitiveType>> &types() const;
 		const std::vector<std::unique_ptr<Constant>> &constants() const;
 		const std::vector<std::unique_ptr<Predicate>> &predicates() const;
+		const std::vector<std::unique_ptr<Action>> &actions() const;
 
 	private:
 		Domain(Context &context);
@@ -46,6 +47,8 @@ class Domain
 		void parseConstantSection(utils::Parser &parser);
 
 		void parsePredicateSection(utils::Parser &parser);
+
+		void parseActionSection(utils::Parser &parser);
 
 		void checkConsistency();
 

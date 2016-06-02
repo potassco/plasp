@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include <plasp/pddl/Action.h>
 #include <plasp/pddl/Constant.h>
 #include <plasp/pddl/Predicate.h>
 #include <plasp/pddl/Type.h>
@@ -33,6 +34,8 @@ class Context
 
 		std::vector<std::unique_ptr<Predicate>> predicates;
 		std::unordered_map<PredicateHashMapKey, Predicate *> predicatesHashMap;
+
+		std::vector<std::unique_ptr<Action>> actions;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -1,6 +1,8 @@
 #ifndef __PLASP__PDDL__EXPRESSION_H
 #define __PLASP__PDDL__EXPRESSION_H
 
+#include <memory>
+
 #include <boost/variant.hpp>
 
 #include <plasp/utils/Parser.h>
@@ -17,17 +19,19 @@ namespace pddl
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Context;
-
-namespace expression
-{
-	class And;
-}
+class ExpressionVisitor;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-using ExpressionPtr = boost::variant<void *>;
+class Expression
+{
+	public:
+		virtual void accept(ExpressionVisitor &expressionVisitor) const = 0;
+};
 
-ExpressionPtr parsePreconditionExpression(utils::Parser &parser, Context &context);
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+std::unique_ptr<Expression> parsePreconditionExpression(utils::Parser &parser, Context &context);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

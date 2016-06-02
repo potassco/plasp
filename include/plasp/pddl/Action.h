@@ -3,6 +3,7 @@
 
 #include <vector>
 
+#include <plasp/pddl/Expression.h>
 #include <plasp/pddl/Variable.h>
 #include <plasp/utils/Parser.h>
 
@@ -25,14 +26,18 @@ class Action
 	public:
 		const std::string &name() const;
 
+		const Variables &parameters() const;
+		const Expression &precondition() const;
+		const Expression &effect() const;
+
 	private:
 		Action(std::string name);
 
-		void parsePrecondition(utils::Parser &parser, Context &context);
-
 		std::string m_name;
 
-		std::vector<Variable> m_parameters;
+		Variables m_parameters;
+		std::unique_ptr<Expression> m_precondition;
+		std::unique_ptr<Expression> m_effect;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -31,25 +31,29 @@ Action &Action::parseDeclaration(utils::Parser &parser, Context &context)
 
 	parser.expect<std::string>(":parameters");
 
-	parser.skipWhiteSpace();
+	parser.expect<std::string>("(");
 
 	// Read parameters
-	while (parser.currentCharacter() != ':')
+	while (parser.currentCharacter() != ')')
 	{
 		Variable::parseTyped(parser, context, action->m_parameters);
 
 		parser.skipWhiteSpace();
 	}
 
+	parser.expect<std::string>(")");
+
 	// Parse preconditions and effects
-	while (parser.currentCharacter() == ')')
+	while (parser.currentCharacter() != ')')
 	{
 		parser.expect<std::string>(":");
 
 		const auto sectionIdentifier = parser.parseIdentifier(isIdentifier);
 
 		if (sectionIdentifier == "precondition")
-			action->parsePrecondition(parser, context);
+			action->m_precondition = parsePreconditionExpression(parser, context);
+		//else if (sectionIdentifier == "effect")
+		//	action->m_effect = parseEffectExpression(parser, context);
 	}
 
 	parser.expect<std::string>(")");
@@ -58,25 +62,6 @@ Action &Action::parseDeclaration(utils::Parser &parser, Context &context)
 	context.actions.emplace_back(std::move(action));
 
 	return *context.actions.back();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void Action::parsePrecondition(utils::Parser &parser, Context &context)
-{
-	parser.skipWhiteSpace();
-
-	// Check for empty precondition
-	if (parser.currentCharacter() == '(')
-	{
-		// Leave the preconditions empty and return
-		parser.expect<std::string>("()");
-		parser.expect<std::string>(")");
-
-		return;
-	}
-
-	parser.expect<std::string>")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -91,6 +76,24 @@ const std::string &Action::name() const
 const Variables &Action::parameters() const
 {
 	return m_parameters;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const Expression &Action::precondition() const
+{
+	BOOST_ASSERT(m_precondition);
+
+	return *m_precondition;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const Expression &Action::effect() const
+{
+	BOOST_ASSERT(m_effect);
+
+	return *m_effect;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
