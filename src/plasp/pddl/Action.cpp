@@ -57,8 +57,6 @@ Action &Action::parseDeclaration(utils::Parser &parser, Context &context)
 			action->m_effect = parseEffectExpression(parser, context, action->m_parameters);
 	}
 
-	parser.expect<std::string>(")");
-
 	// Store new action
 	context.actions.emplace_back(std::move(action));
 

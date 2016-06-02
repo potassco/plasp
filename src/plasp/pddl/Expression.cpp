@@ -3,6 +3,7 @@
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Identifier.h>
 #include <plasp/pddl/expressions/AndExpression.h>
+#include <plasp/pddl/expressions/NotExpression.h>
 #include <plasp/pddl/expressions/OrExpression.h>
 #include <plasp/pddl/expressions/PredicateExpression.h>
 #include <plasp/utils/ParserException.h>
@@ -20,6 +21,7 @@ namespace pddl
 
 std::unique_ptr<Expression> parseExpressionContent(const std::string &expressionIdentifier, utils::Parser &parser, Context &context, const Variables &parameters);
 std::unique_ptr<Expression> parseEffectBodyExpressionContent(const std::string &expressionIdentifier, utils::Parser &parser, Context &context, const Variables &parameters);
+std::unique_ptr<Expression> parsePredicateExpression(utils::Parser &parser, Context &context, const Variables &parameters);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -32,8 +34,6 @@ void throwUnsupported(const utils::Parser &parser, const std::string &expression
 
 std::unique_ptr<Expression> parsePreconditionExpression(utils::Parser &parser, Context &context, const Variables &parameters)
 {
-	parser.skipWhiteSpace();
-
 	parser.expect<std::string>("(");
 
 	const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);
@@ -59,8 +59,6 @@ std::unique_ptr<Expression> parsePreconditionExpression(utils::Parser &parser, C
 
 std::unique_ptr<Expression> parseExpression(utils::Parser &parser, Context &context, const Variables &parameters)
 {
-	parser.skipWhiteSpace();
-
 	parser.expect<std::string>("(");
 
 	const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);
@@ -84,8 +82,9 @@ std::unique_ptr<Expression> parseExpressionContent(const std::string &expression
 		expression = expressions::AndExpression::parse(parser, context, parameters, parseExpression);
 	else if (expressionIdentifier == "or")
 		expression = expressions::OrExpression::parse(parser, context, parameters, parseExpression);
-	else if (expressionIdentifier == "not"
-		|| expressionIdentifier == "imply"
+	else if (expressionIdentifier == "not")
+		expression = expressions::NotExpression::parse(parser, context, parameters, parseExpression);
+	else if (expressionIdentifier == "imply"
 		|| expressionIdentifier == "exists"
 		|| expressionIdentifier == "forall"
 		|| expressionIdentifier == "-"
@@ -125,13 +124,9 @@ std::unique_ptr<Expression> parseExpressionContent(const std::string &expression
 
 std::unique_ptr<Expression> parseEffectExpression(utils::Parser &parser, Context &context, const Variables &parameters)
 {
-	parser.skipWhiteSpace();
-
 	parser.expect<std::string>("(");
 
 	const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);
-
-	std::cout << "Parsing effect expression " << expressionIdentifier << std::endl;
 
 	std::unique_ptr<Expression> expression;
 
@@ -154,12 +149,11 @@ std::unique_ptr<Expression> parseEffectExpression(utils::Parser &parser, Context
 
 std::unique_ptr<Expression> parseEffectBodyExpressionContent(const std::string &expressionIdentifier, utils::Parser &parser, Context &context, const Variables &parameters)
 {
-	parser.skipWhiteSpace();
-
 	std::unique_ptr<Expression> expression;
 
-	if (expressionIdentifier == "not"
-		|| expressionIdentifier == "="
+	if (expressionIdentifier == "not")
+		expression = expressions::NotExpression::parse(parser, context, parameters, parsePredicateExpression);
+	else if (expressionIdentifier == "="
 		|| expressionIdentifier == "assign"
 		|| expressionIdentifier == "scale-up"
 		|| expressionIdentifier == "scale-down"
@@ -183,6 +177,34 @@ std::unique_ptr<Expression> parseEffectBodyExpressionContent(const std::string &
 		else
 			throw utils::ParserException(parser.row(), parser.column(), "Expression \"" + expressionIdentifier + "\" not allowed in this context");
 	}
+
+	return expression;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+std::unique_ptr<Expression> parsePredicateExpression(utils::Parser &parser, Context &context, const Variables &parameters)
+{
+	parser.expect<std::string>("(");
+
+	const auto predicateName = parser.parseIdentifier(isIdentifier);
+
+	std::unique_ptr<Expression> expression;
+
+	// Check if predicate with that name exists
+	const auto match = std::find_if(context.predicates.cbegin(), context.predicates.cend(),
+		[&](const auto &predicate)
+		{
+			return predicate->name() == predicateName;
+		});
+
+	// If predicate exists, parse it
+	if (match == context.predicates.cend())
+		throw utils::ParserException(parser.row(), parser.column(), "Unknown predicate \"" + predicateName + "\"");
+
+	expression = expressions::PredicateExpression::parse(predicateName, parser, context, parameters);
+
+	parser.expect<std::string>(")");
 
 	return expression;
 }
