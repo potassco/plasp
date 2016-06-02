@@ -4,6 +4,7 @@
 
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Identifier.h>
+#include <plasp/utils/ParserException.h>
 
 namespace plasp
 {
@@ -52,7 +53,8 @@ Action &Action::parseDeclaration(utils::Parser &parser, Context &context)
 
 		if (sectionIdentifier == "precondition")
 			action->m_precondition = parsePreconditionExpression(parser, context, action->m_parameters);
-		//else if (sectionIdentifier == "effect")
+		else if (sectionIdentifier == "effect")
+			throw utils::ParserException(parser.row(), parser.column(), "Action effects are currently unsupported");
 		//	action->m_effect = parseEffectExpression(parser, context);
 	}
 
