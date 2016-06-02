@@ -21,7 +21,7 @@ class Expression;
 class ExpressionVisitor
 {
 	public:
-		virtual void apply(const Expression &expression)
+		virtual void visit(const Expression &expression)
 		{
 			expression.accept(*this);
 		}

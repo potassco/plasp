@@ -2,7 +2,7 @@
 
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Identifier.h>
-#include <plasp/pddl/expressions/NAryExpression.h>
+#include <plasp/pddl/expressions/AndExpression.h>
 #include <plasp/utils/ParserException.h>
 
 namespace plasp
@@ -16,7 +16,7 @@ namespace pddl
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::unique_ptr<Expression> parsePreconditionExpression(utils::Parser &parser, Context &context)
+std::unique_ptr<Expression> parsePreconditionExpression(utils::Parser &parser, Context &context, const Variables &parameters)
 {
 	parser.skipWhiteSpace();
 
@@ -24,16 +24,30 @@ std::unique_ptr<Expression> parsePreconditionExpression(utils::Parser &parser, C
 
 	const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);
 
+	std::cout << "Parsing identifier " << expressionIdentifier << std::endl;
+
 	std::unique_ptr<Expression> expression;
 
-	throw utils::ParserException(parser.row(), parser.column(), "Expression of type \"" + expressionIdentifier + "\" not allowed in preference declaration");
+	const auto throwNotAllowed =
+		[&]()
+		{
+			throw utils::ParserException(parser.row(), parser.column(), "Expression of type \"" + expressionIdentifier + "\" not allowed in preference declaration");
+		};
 
-	//if (expressionIdentifier == "and")
-	//	expression = NAry
+	if (expressionIdentifier == "and")
+		expression = expressions::AndExpression::parse(parser, context, parameters, parsePreconditionExpression);
+	else if (expressionIdentifier == "or")
+		throwNotAllowed();
+	else if (expressionIdentifier == "not")
+		throwNotAllowed();
+	else if (expressionIdentifier == "exists")
+		throwNotAllowed();
+	else
+		throw utils::ParserException(parser.row(), parser.column(), "Undeclared expression \"" + expressionIdentifier + "\"");
 
 	parser.expect<std::string>(")");
 
-	return std::move(expression);
+	return expression;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

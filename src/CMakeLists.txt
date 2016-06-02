@@ -6,6 +6,9 @@ file(GLOB core_headers "../include/plasp/*.h")
 file(GLOB pddl_sources "plasp/pddl/*.cpp")
 file(GLOB pddl_headers "../include/plasp/pddl/*.h")
 
+file(GLOB pddl_expressions_sources "plasp/pddl/expressions/*.cpp")
+file(GLOB pddl_expressions_headers "../include/plasp/pddl/expressions/*.h")
+
 file(GLOB sas_sources "plasp/sas/*.cpp")
 file(GLOB sas_headers "../include/plasp/sas/*.h")
 
@@ -26,6 +29,9 @@ set(sources
 
 	${pddl_sources}
 	${pddl_headers}
+
+	${pddl_expressions_sources}
+	${pddl_expressions_headers}
 
 	${sas_sources}
 	${sas_headers}

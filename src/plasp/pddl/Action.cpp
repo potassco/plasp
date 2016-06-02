@@ -51,7 +51,7 @@ Action &Action::parseDeclaration(utils::Parser &parser, Context &context)
 		const auto sectionIdentifier = parser.parseIdentifier(isIdentifier);
 
 		if (sectionIdentifier == "precondition")
-			action->m_precondition = parsePreconditionExpression(parser, context);
+			action->m_precondition = parsePreconditionExpression(parser, context, action->m_parameters);
 		//else if (sectionIdentifier == "effect")
 		//	action->m_effect = parseEffectExpression(parser, context);
 	}

@@ -5,6 +5,7 @@
 
 #include <boost/variant.hpp>
 
+#include <plasp/pddl/Variable.h>
 #include <plasp/utils/Parser.h>
 
 namespace plasp
@@ -31,7 +32,7 @@ class Expression
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::unique_ptr<Expression> parsePreconditionExpression(utils::Parser &parser, Context &context);
+std::unique_ptr<Expression> parsePreconditionExpression(utils::Parser &parser, Context &context, const Variables &parameters);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
