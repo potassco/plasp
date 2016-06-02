@@ -2,7 +2,6 @@
 #define __PLASP__PDDL__EXPRESSION__PREDICATE_EXPRESSION_H
 
 #include <plasp/pddl/Expression.h>
-#include <plasp/pddl/Identifier.h>
 #include <plasp/pddl/Predicate.h>
 
 namespace plasp
