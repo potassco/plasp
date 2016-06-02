@@ -15,6 +15,7 @@ class PDDLParserTests : public ::testing::Test
 		PDDLParserTests()
 		:	m_blocksworldDomainFile(readFile("data/blocksworld-domain.pddl")),
 			m_storageDomainFile(readFile("data/storage-domain.pddl")),
+			m_whiteSpaceTestFile(readFile("data/white-space-test.pddl")),
 			m_woodworkingDomainFile(readFile("data/woodworking-domain.pddl"))
 		{
 		}
@@ -35,6 +36,7 @@ class PDDLParserTests : public ::testing::Test
 
 		std::stringstream m_blocksworldDomainFile;
 		std::stringstream m_storageDomainFile;
+		std::stringstream m_whiteSpaceTestFile;
 		std::stringstream m_woodworkingDomainFile;
 };
 
@@ -185,6 +187,20 @@ TEST_F(PDDLParserTests, ParseConstants)
 		ASSERT_EQ(domain.constants()[3]->type(), &treatmentstatus);
 		ASSERT_EQ(domain.constants()[6]->type(), &treatmentstatus);
 		ASSERT_EQ(domain.constants()[7]->type(), &acolour);
+	}
+	catch (const std::exception &e)
+	{
+		FAIL() << e.what();
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TEST_F(PDDLParserTests, ParseWithWhiteSpace)
+{
+	try
+	{
+		ASSERT_NO_THROW(plasp::pddl::Description::fromStream(m_whiteSpaceTestFile));
 	}
 	catch (const std::exception &e)
 	{

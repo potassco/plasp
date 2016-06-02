@@ -64,7 +64,8 @@ void Description::parseContent(utils::Parser &parser)
 {
 	std::cout << "Parsing file content" << std::endl;
 
-	parser.expect<std::string>("(define");
+	parser.expect<std::string>("(");
+	parser.expect<std::string>("define");
 	parseSection(parser);
 	parser.expect<std::string>(")");
 }

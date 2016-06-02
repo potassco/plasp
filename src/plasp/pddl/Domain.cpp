@@ -97,7 +97,8 @@ const std::vector<std::unique_ptr<Action>> &Domain::actions() const
 
 void Domain::parseSection(utils::Parser &parser)
 {
-	parser.expect<std::string>("(:");
+	parser.expect<std::string>("(");
+	parser.expect<std::string>(":");
 
 	const auto sectionIdentifier = parser.parseIdentifier(isIdentifier);
 

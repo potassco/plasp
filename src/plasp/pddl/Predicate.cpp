@@ -39,7 +39,11 @@ Predicate &Predicate::parseDeclaration(utils::Parser &parser, Context &context)
 
 	// Parse arguments
 	while (parser.currentCharacter() != ')')
+	{
 		Variable::parseTyped(parser, context, predicate->m_arguments);
+
+		parser.skipWhiteSpace();
+	}
 
 	parser.expect<std::string>(")");
 
