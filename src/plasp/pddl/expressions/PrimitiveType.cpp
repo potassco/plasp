@@ -1,13 +1,15 @@
-#include <plasp/pddl/PrimitiveType.h>
+#include <plasp/pddl/expressions/PrimitiveType.h>
 
 #include <algorithm>
 
 #include <plasp/pddl/Context.h>
-#include <plasp/pddl/Identifier.h>
+#include <plasp/pddl/ExpressionVisitor.h>
 
 namespace plasp
 {
 namespace pddl
+{
+namespace expressions
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -16,70 +18,66 @@ namespace pddl
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PrimitiveType::PrimitiveType(std::string name)
+PrimitiveType::PrimitiveType()
 :	m_isDirty{false},
-	m_isDeclared{false},
-	m_name(name)
+	m_isDeclared{false}
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PrimitiveType &PrimitiveType::parse(utils::Parser &parser, Context &context)
+PrimitiveTypePointer PrimitiveType::parseDeclaration(utils::Parser &parser, Context &context)
 {
-	parser.skipWhiteSpace();
-
-	const auto typeName = parser.parseIdentifier(isIdentifier);
-	const auto match = context.primitiveTypesHashMap.find(typeName);
-	const auto typeExists = (match != context.primitiveTypesHashMap.cend());
-
-	// Return existing primitive types
-	if (typeExists)
+	// TODO: refactor
+	if (context.primitiveTypes.empty())
 	{
-		auto &type = *match->second;
+		auto object = std::make_unique<PrimitiveType>(PrimitiveType());
+		object->m_name = "object";
+		object->setDirty();
+		object->setDeclared();
 
-		type.setDirty();
-
-		return type;
+		context.primitiveTypes.emplace_back(std::move(object));
 	}
 
-	// Store new primitive type
-	context.primitiveTypes.emplace_back(std::make_unique<PrimitiveType>(PrimitiveType(typeName)));
+	parser.skipWhiteSpace();
 
-	auto &type = *context.primitiveTypes.back();
+	auto type = std::make_unique<PrimitiveType>(PrimitiveType());
 
-	// Add a pointer to the primitive type to the hash map
-	context.primitiveTypesHashMap.emplace(std::make_pair(typeName, &type));
+	type->m_name = parser.parseIdentifier(isIdentifier);
 
 	// Flag type for potentially upcoming parent type declaration
-	type.setDirty();
+	type->setDirty();
+
+	// TODO: Store constant in hash map
 
 	return type;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PrimitiveType &PrimitiveType::parseDeclaration(utils::Parser &parser, Context &context)
+void PrimitiveType::parseTypedDeclaration(utils::Parser &parser, Context &context)
 {
 	// Parse and store type
-	auto &type = parse(parser, context);
+	context.primitiveTypes.emplace_back(parseDeclaration(parser, context));
+
+	const auto &type = context.primitiveTypes.back();
 
 	// Flag type as correctly declared in the types section
-	type.setDeclared();
+	type->setDeclared();
 
 	parser.skipWhiteSpace();
 
 	// Check for type inheritance
 	if (!parser.advanceIf('-'))
-		return type;
+		return;
 
 	// If existing, parse and store parent type
-	auto &parentType = parse(parser, context);
+	auto *parentType = parseExisting(parser, context.primitiveTypes);
 
-	parentType.setDirty(false);
+	parentType->setDirty(false);
 
 	// Flag parent tpe as correctly declared in the types section
-	parentType.setDeclared();
+	parentType->setDeclared();
 
 	// Assign parent type to all types that were previously flagged
 	std::for_each(context.primitiveTypes.begin(), context.primitiveTypes.end(),
@@ -88,11 +86,16 @@ PrimitiveType &PrimitiveType::parseDeclaration(utils::Parser &parser, Context &c
 			if (!childType->isDirty())
 				return;
 
-			childType->addParentType(&parentType);
+			childType->addParentType(parentType);
 			childType->setDirty(false);
 		});
+}
 
-	return type;
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PrimitiveType::accept(plasp::pddl::ExpressionVisitor &expressionVisitor) const
+{
+	expressionVisitor.visit(*this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -146,5 +149,6 @@ const std::vector<const PrimitiveType *> &PrimitiveType::parentTypes() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+}
 }
 }

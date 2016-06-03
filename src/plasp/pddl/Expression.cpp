@@ -6,6 +6,8 @@
 #include <plasp/pddl/expressions/Not.h>
 #include <plasp/pddl/expressions/Or.h>
 #include <plasp/pddl/expressions/Predicate.h>
+#include <plasp/pddl/expressions/PredicateDeclaration.h>
+#include <plasp/pddl/expressions/Reference.h>
 #include <plasp/utils/ParserException.h>
 
 namespace plasp
@@ -113,14 +115,14 @@ ExpressionPointer parseExpressionContent(const std::string &expressionIdentifier
 	else
 	{
 		// Check if predicate with that name exists
-		const auto match = std::find_if(context.predicates.cbegin(), context.predicates.cend(),
+		const auto match = std::find_if(context.predicateDeclarations.cbegin(), context.predicateDeclarations.cend(),
 			[&](const auto &predicate)
 			{
 				return predicate->name() == expressionIdentifier;
 			});
 
 		// If predicate exists, parse it
-		if (match != context.predicates.cend())
+		if (match != context.predicateDeclarations.cend())
 			expression = expressions::Predicate::parse(expressionIdentifier, parser, context, parameters);
 		else
 			throw utils::ParserException(parser.row(), parser.column(), "Expression \"" + expressionIdentifier + "\" not allowed in this context");
@@ -176,14 +178,14 @@ ExpressionPointer parseEffectBodyExpressionContent(const std::string &expression
 	else
 	{
 		// Check if predicate with that name exists
-		const auto match = std::find_if(context.predicates.cbegin(), context.predicates.cend(),
+		const auto match = std::find_if(context.predicateDeclarations.cbegin(), context.predicateDeclarations.cend(),
 			[&](const auto &predicate)
 			{
 				return predicate->name() == expressionIdentifier;
 			});
 
 		// If predicate exists, parse it
-		if (match != context.predicates.cend())
+		if (match != context.predicateDeclarations.cend())
 			expression = expressions::Predicate::parse(expressionIdentifier, parser, context, parameters);
 		else
 			throw utils::ParserException(parser.row(), parser.column(), "Expression \"" + expressionIdentifier + "\" not allowed in this context");
@@ -204,14 +206,14 @@ ExpressionPointer parsePredicate(utils::Parser &parser, Context &context,
 	ExpressionPointer expression;
 
 	// Check if predicate with that name exists
-	const auto match = std::find_if(context.predicates.cbegin(), context.predicates.cend(),
+	const auto match = std::find_if(context.predicateDeclarations.cbegin(), context.predicateDeclarations.cend(),
 		[&](const auto &predicate)
 		{
 			return predicate->name() == predicateName;
 		});
 
 	// If predicate exists, parse it
-	if (match == context.predicates.cend())
+	if (match == context.predicateDeclarations.cend())
 		throw utils::ParserException(parser.row(), parser.column(), "Unknown predicate \"" + predicateName + "\"");
 
 	expression = expressions::Predicate::parse(predicateName, parser, context, parameters);

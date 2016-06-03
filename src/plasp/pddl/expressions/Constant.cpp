@@ -1,13 +1,16 @@
-#include <plasp/pddl/Constant.h>
+#include <plasp/pddl/expressions/Constant.h>
 
 #include <algorithm>
 
 #include <plasp/pddl/Context.h>
-#include <plasp/pddl/Identifier.h>
+#include <plasp/pddl/ExpressionVisitor.h>
+#include <plasp/pddl/expressions/PrimitiveType.h>
 
 namespace plasp
 {
 namespace pddl
+{
+namespace expressions
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -16,66 +19,51 @@ namespace pddl
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Constant::Constant(std::string name)
+Constant::Constant()
 :	m_isDirty{false},
 	m_isDeclared{false},
-	m_name(name),
 	m_type{nullptr}
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Constant &Constant::parse(utils::Parser &parser, Context &context)
+ConstantPointer Constant::parseDeclaration(utils::Parser &parser, Context &context)
 {
 	parser.skipWhiteSpace();
 
-	const auto constantName = parser.parseIdentifier(isIdentifier);
-	const auto match = context.constantsHashMap.find(constantName);
-	const auto constantExists = (match != context.constantsHashMap.cend());
+	auto constant = std::make_unique<Constant>(Constant());
 
-	// Return existing primitive types
-	if (constantExists)
-	{
-		auto &constant = *match->second;
+	constant->m_name = parser.parseIdentifier(isIdentifier);
 
-		constant.setDirty();
+	// Flag constant for potentially upcoming type declaration
+	constant->setDirty();
 
-		return constant;
-	}
-
-	// Store new primitive type
-	context.constants.emplace_back(std::make_unique<Constant>(Constant(constantName)));
-
-	auto &constant = *context.constants.back();
-
-	// Add a pointer to the primitive type to the hash map
-	context.constantsHashMap.emplace(std::make_pair(constantName, &constant));
-
-	// Flag type for potentially upcoming parent type declaration
-	constant.setDirty();
+	// TODO: Store constant in hash map
 
 	return constant;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Constant &Constant::parseDeclaration(utils::Parser &parser, Context &context)
+void Constant::parseTypedDeclaration(utils::Parser &parser, Context &context)
 {
 	// Parse and store constant
-	auto &constant = parse(parser, context);
+	context.constants.emplace_back(parseDeclaration(parser, context));
+
+	const auto &constant = context.constants.back();
 
 	// Flag constant as correctly declared in the types section
-	constant.setDeclared();
+	constant->setDeclared();
 
 	parser.skipWhiteSpace();
 
 	// Check for typing information
 	if (!parser.advanceIf('-'))
-		return constant;
+		return;
 
 	// If existing, parse and store parent type
-	auto &type = PrimitiveType::parse(parser, context);
+	auto *type = PrimitiveType::parseExisting(parser, context.primitiveTypes);
 
 	// Assign parent type to all types that were previously flagged
 	std::for_each(context.constants.begin(), context.constants.end(),
@@ -84,11 +72,16 @@ Constant &Constant::parseDeclaration(utils::Parser &parser, Context &context)
 			if (!constant->isDirty())
 				return;
 
-			constant->setType(&type);
+			constant->setType(type);
 			constant->setDirty(false);
 		});
+}
 
-	return constant;
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Constant::accept(plasp::pddl::ExpressionVisitor &expressionVisitor) const
+{
+	expressionVisitor.visit(*this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -142,5 +135,6 @@ const PrimitiveType *Constant::type() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+}
 }
 }

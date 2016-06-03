@@ -6,9 +6,10 @@
 #include <vector>
 
 #include <plasp/pddl/Action.h>
-#include <plasp/pddl/Constant.h>
-#include <plasp/pddl/Predicate.h>
-#include <plasp/pddl/Type.h>
+#include <plasp/pddl/Expression.h>
+#include <plasp/pddl/expressions/Constant.h>
+#include <plasp/pddl/expressions/PredicateDeclaration.h>
+#include <plasp/pddl/expressions/PrimitiveType.h>
 
 namespace plasp
 {
@@ -24,16 +25,14 @@ namespace pddl
 class Context
 {
 	public:
-		std::vector<std::unique_ptr<PrimitiveType>> primitiveTypes;
-		std::unordered_map<std::string, PrimitiveType *> primitiveTypesHashMap;
+		expressions::PrimitiveTypes primitiveTypes;
+		//std::unordered_map<std::string, expressions::PrimitiveType *> primitiveTypesHashMap;
 
-		std::vector<std::unique_ptr<EitherType>> eitherTypes;
+		expressions::Constants constants;
+		//std::unordered_map<std::string, expressions::Constant *> constantsHashMap;
 
-		std::vector<std::unique_ptr<Constant>> constants;
-		std::unordered_map<std::string, Constant *> constantsHashMap;
-
-		std::vector<std::unique_ptr<Predicate>> predicates;
-		std::unordered_map<PredicateHashMapKey, Predicate *> predicatesHashMap;
+		expressions::PredicateDeclarations predicateDeclarations;
+		//std::unordered_map<expressions::PredicateHashMapKey, expressions::Predicate *> predicatesHashMap;
 
 		std::vector<std::unique_ptr<Action>> actions;
 };

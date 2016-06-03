@@ -5,6 +5,8 @@
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/ExpressionVisitor.h>
 #include <plasp/pddl/Identifier.h>
+#include <plasp/pddl/expressions/Either.h>
+#include <plasp/pddl/expressions/Type.h>
 #include <plasp/utils/ParserException.h>
 
 namespace plasp
@@ -36,6 +38,8 @@ VariablePointer Variable::parseDeclaration(utils::Parser &parser)
 	auto variable = std::make_unique<Variable>(Variable());
 
 	variable->m_name = parser.parseIdentifier(isIdentifier);
+
+	// Flag variable for potentially upcoming type declaration
 	variable->setDirty();
 
 	return variable;
@@ -43,10 +47,12 @@ VariablePointer Variable::parseDeclaration(utils::Parser &parser)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Variable::parseTypedDeclaration(utils::Parser &parser, Context &context, Variables &variables)
+void Variable::parseTypedDeclaration(utils::Parser &parser, Context &context, Variables &parameters)
 {
 	// Parse and store variable itself
-	variables.emplace_back(parseDeclaration(parser));
+	parameters.emplace_back(parseDeclaration(parser));
+
+	auto &parameter = parameters.back();
 
 	parser.skipWhiteSpace();
 
@@ -54,24 +60,41 @@ void Variable::parseTypedDeclaration(utils::Parser &parser, Context &context, Va
 	if (!parser.advanceIf('-'))
 		return;
 
-	// Parse argument type
-	const auto type = parseType(parser, context);
+	// TODO: do not allow nested either expressions
 
-	// Set the argument type for all previously flagged arguments
-	std::for_each(variables.begin(), variables.end(),
-		[&](auto &variable)
+	const auto setType =
+		[&](const auto *type)
 		{
-			if (!variable->isDirty())
-				return;
+			// Set the argument type for all previously flagged arguments
+			std::for_each(parameters.begin(), parameters.end(),
+				[&](auto &parameter)
+				{
+					if (!parameter->isDirty())
+						return;
 
-			variable->setType(type);
-			variable->setDirty(false);
-		});
+					parameter->setType(type);
+					parameter->setDirty(false);
+				});
+		};
+
+	// Parse argument of "either" type (always begins with opening parenthesis)
+	if (parser.currentCharacter() == '(')
+	{
+		parameter->m_eitherExpression = Either::parse(parser, context, parameters, parseExistingPrimitiveType);
+
+		setType(parameter->m_eitherExpression.get());
+		return;
+	}
+
+	// Parse primitive type
+	const auto *type = PrimitiveType::parseExisting(parser, context.primitiveTypes);
+
+	setType(type);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const Variable *Variable::parse(utils::Parser &parser, const Variables &variables)
+const Variable *Variable::parseExisting(utils::Parser &parser, const Variables &variables)
 {
 	parser.skipWhiteSpace();
 
@@ -107,7 +130,7 @@ const std::string &Variable::name() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TypePtr Variable::type() const
+const Expression *Variable::type() const
 {
 	return m_type;
 }
@@ -128,7 +151,7 @@ bool Variable::isDirty() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Variable::setType(TypePtr type)
+void Variable::setType(const Expression *type)
 {
 	m_type = type;
 }

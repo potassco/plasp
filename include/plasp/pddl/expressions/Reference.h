@@ -1,0 +1,76 @@
+#ifndef __PLASP__PDDL__EXPRESSION__REFERENCE_H
+#define __PLASP__PDDL__EXPRESSION__REFERENCE_H
+
+#include <plasp/pddl/Expression.h>
+#include <plasp/pddl/ExpressionVisitor.h>
+#include <plasp/utils/Parser.h>
+
+namespace plasp
+{
+namespace pddl
+{
+namespace expressions
+{
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Reference
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Type>
+class Reference: public Expression
+{
+	public:
+		Reference(const Type *value);
+
+		void accept(ExpressionVisitor &expressionVisitor) const override;
+
+		const Type *value() const;
+
+	private:
+		Reference();
+
+		const Type *m_value;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Type>
+Reference<Type>::Reference()
+:	m_value{nullptr}
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Type>
+Reference<Type>::Reference(const Type *value)
+:	m_value{value}
+{
+	BOOST_ASSERT(m_value != nullptr);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Type>
+void Reference<Type>::accept(plasp::pddl::ExpressionVisitor &expressionVisitor) const
+{
+	expressionVisitor.visit(*this);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Type>
+const Type *Reference<Type>::value() const
+{
+	return m_value;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+}
+}
+}
+
+#endif

@@ -1,7 +1,7 @@
-#ifndef __PLASP__PDDL__EXPRESSION__NOT_H
-#define __PLASP__PDDL__EXPRESSION__NOT_H
+#ifndef __PLASP__PDDL__EXPRESSION__EITHER_H
+#define __PLASP__PDDL__EXPRESSION__EITHER_H
 
-#include <plasp/pddl/Expression.h>
+#include <plasp/pddl/expressions/NAry.h>
 
 namespace plasp
 {
@@ -12,40 +12,36 @@ namespace expressions
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// Not
+// Either
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class Not: public Expression
+class Either: public NAry
 {
 	public:
 		template<typename ExpressionParser>
-		static NotPointer parse(utils::Parser &parser, Context &context,
+		static EitherPointer parse(utils::Parser &parser, Context &context,
 			const Variables &parameters, ExpressionParser parseExpression);
 
 	public:
 		void accept(ExpressionVisitor &expressionVisitor) const override;
 
-		const Expression &argument();
-
 	private:
-		Not() = default;
-
-		ExpressionPointer m_argument;
+		Either() = default;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ExpressionParser>
-NotPointer Not::parse(utils::Parser &parser, Context &context,
+EitherPointer Either::parse(utils::Parser &parser, Context &context,
 	const Variables &parameters, ExpressionParser parseExpression)
 {
-	auto expression = std::make_unique<Not>(Not());
+	auto expression = std::make_unique<Either>(Either());
 
-	parser.skipWhiteSpace();
+	expression->NAry::parse(parser, context, parameters, parseExpression);
 
-	// Parse argument
-	expression->m_argument = parseExpression(parser, context, parameters);
+	if (expression->arguments().empty())
+		throw ConsistencyException("\"and\" expressions should not be empty");
 
 	return expression;
 }

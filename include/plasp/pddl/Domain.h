@@ -4,9 +4,8 @@
 #include <unordered_map>
 
 #include <plasp/pddl/Context.h>
-#include <plasp/pddl/Predicate.h>
+#include <plasp/pddl/Expression.h>
 #include <plasp/pddl/Requirement.h>
-#include <plasp/pddl/Type.h>
 #include <plasp/utils/Parser.h>
 
 namespace plasp
@@ -28,9 +27,9 @@ class Domain
 	public:
 		const std::string &name() const;
 		const Requirements &requirements() const;
-		const std::vector<std::unique_ptr<PrimitiveType>> &types() const;
-		const std::vector<std::unique_ptr<Constant>> &constants() const;
-		const std::vector<std::unique_ptr<Predicate>> &predicates() const;
+		const expressions::PrimitiveTypes &types() const;
+		const expressions::Constants &constants() const;
+		const expressions::PredicateDeclarations &predicates() const;
 		const std::vector<std::unique_ptr<Action>> &actions() const;
 
 	private:

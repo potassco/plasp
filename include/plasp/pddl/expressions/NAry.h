@@ -1,10 +1,6 @@
 #ifndef __PLASP__PDDL__EXPRESSION__N_ARY_H
 #define __PLASP__PDDL__EXPRESSION__N_ARY_H
 
-#include <memory>
-#include <string>
-#include <vector>
-
 #include <plasp/pddl/ConsistencyException.h>
 #include <plasp/pddl/Expression.h>
 #include <plasp/pddl/expressions/Variable.h>

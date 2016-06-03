@@ -1,15 +1,17 @@
-#ifndef __PLASP__PDDL__TYPE_H
-#define __PLASP__PDDL__TYPE_H
+#ifndef __PLASP__PDDL__EXPRESSIONS__TYPE_H
+#define __PLASP__PDDL__EXPRESSIONS__TYPE_H
 
 #include <boost/variant.hpp>
 
-#include <plasp/pddl/EitherType.h>
-#include <plasp/pddl/PrimitiveType.h>
+#include <plasp/pddl/expressions/Either.h>
+#include <plasp/pddl/expressions/PrimitiveType.h>
 #include <plasp/utils/Parser.h>
 
 namespace plasp
 {
 namespace pddl
+{
+namespace expressions
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -18,16 +20,12 @@ namespace pddl
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class Context;
+ExpressionPointer parseExistingPrimitiveType(utils::Parser &parser, Context &context, const Variables &parameters);
+//ExpressionPointer parseExistingType(utils::Parser &parser, Context &context, const Variables &parameters);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-using TypePtr = boost::variant<const PrimitiveType *, const EitherType *>;
-
-TypePtr parseType(utils::Parser &parser, Context &context);
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
+}
 }
 }
 

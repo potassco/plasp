@@ -1,5 +1,5 @@
-#ifndef __PLASP__PDDL__EXPRESSION__PREDICATE_H
-#define __PLASP__PDDL__EXPRESSION__PREDICATE_H
+#ifndef __PLASP__PDDL__EXPRESSION__PREDICATE_DECLARATION_H
+#define __PLASP__PDDL__EXPRESSION__PREDICATE_DECLARATION_H
 
 #include <plasp/pddl/Expression.h>
 
@@ -12,33 +12,32 @@ namespace expressions
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// Predicate
+// PredicateDeclaration
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class Predicate: public Expression
+class PredicateDeclaration: public Expression
 {
 	public:
-		static PredicatePointer parse(std::string name, utils::Parser &parser,
-			Context &context, const Variables &parameters);
+		static void parse(utils::Parser &parser, Context &context);
 
 	public:
 		void accept(ExpressionVisitor &expressionVisitor) const override;
 
 		const std::string &name() const;
-		const Expressions &arguments() const;
+		const Variables &arguments() const;
 
 		bool isDeclared() const;
 
 	private:
-		Predicate();
+		PredicateDeclaration();
 
 		void setDeclared();
 
 		bool m_isDeclared;
 
 		std::string m_name;
-		Expressions m_arguments;
+		Variables m_arguments;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

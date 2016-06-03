@@ -6,6 +6,8 @@
 #include <stdexcept>
 
 #include <plasp/pddl/Description.h>
+#include <plasp/pddl/expressions/PrimitiveType.h>
+#include <plasp/pddl/expressions/Either.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -76,10 +78,10 @@ TEST_F(PDDLParserTests, ParseBlocksWorldDomain)
 		ASSERT_EQ(on.name(), "on");
 		ASSERT_EQ(on.arguments().size(), 2u);
 		ASSERT_EQ(on.arguments()[0]->name(), "x");
-		const auto onArgument0Type = boost::get<const plasp::pddl::PrimitiveType *>(on.arguments()[0]->type());
+		const auto *onArgument0Type = dynamic_cast<const plasp::pddl::expressions::PrimitiveType *>(on.arguments()[0]->type());
 		ASSERT_EQ(onArgument0Type, &block);
 		ASSERT_EQ(on.arguments()[1]->name(), "y");
-		const auto onArgument1Type = boost::get<const plasp::pddl::PrimitiveType *>(on.arguments()[1]->type());
+		const auto onArgument1Type = dynamic_cast<const plasp::pddl::expressions::PrimitiveType *>(on.arguments()[1]->type());
 		ASSERT_EQ(onArgument1Type, &block);
 
 		const auto &handempty = *domain.predicates()[3];
@@ -139,20 +141,20 @@ TEST_F(PDDLParserTests, ParseStorageDomain)
 		ASSERT_EQ(on.name(), "on");
 		ASSERT_EQ(on.arguments().size(), 2u);
 		ASSERT_EQ(on.arguments()[0]->name(), "c");
-		const auto onArgument0Type = boost::get<const plasp::pddl::PrimitiveType *>(on.arguments()[0]->type());
+		const auto onArgument0Type = dynamic_cast<const plasp::pddl::expressions::PrimitiveType *>(on.arguments()[0]->type());
 		ASSERT_EQ(onArgument0Type, &crate);
 		ASSERT_EQ(on.arguments()[1]->name(), "s");
-		const auto onArgument1Type = boost::get<const plasp::pddl::PrimitiveType *>(on.arguments()[1]->type());
+		const auto onArgument1Type = dynamic_cast<const plasp::pddl::expressions::PrimitiveType *>(on.arguments()[1]->type());
 		ASSERT_EQ(onArgument1Type, &storearea);
 
 		const auto &in = *domain.predicates()[1];
 		ASSERT_EQ(in.name(), "in");
 		ASSERT_EQ(in.arguments().size(), 2u);
 		ASSERT_EQ(in.arguments()[0]->name(), "x");
-		const auto inArgument0Type = boost::get<const plasp::pddl::EitherType *>(in.arguments()[0]->type());
-		ASSERT_EQ(inArgument0Type->allowedTypes().size(), 2u);
-		ASSERT_EQ(inArgument0Type->allowedTypes()[0], &storearea);
-		ASSERT_EQ(inArgument0Type->allowedTypes()[1], &crate);
+		const auto inArgument0Type = dynamic_cast<const plasp::pddl::expressions::Either *>(in.arguments()[0]->type());
+		ASSERT_EQ(inArgument0Type->arguments().size(), 2u);
+		ASSERT_EQ(dynamic_cast<const plasp::pddl::expressions::PrimitiveType *>(inArgument0Type->arguments()[0].get()), &storearea);
+		ASSERT_EQ(dynamic_cast<const plasp::pddl::expressions::PrimitiveType *>(inArgument0Type->arguments()[1].get()), &crate);
 	}
 	catch (const std::exception &e)
 	{

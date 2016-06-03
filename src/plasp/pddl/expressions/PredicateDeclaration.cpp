@@ -1,36 +1,39 @@
-#include <plasp/pddl/Predicate.h>
-
-#include <algorithm>
+#include <plasp/pddl/expressions/PredicateDeclaration.h>
 
 #include <plasp/pddl/Context.h>
+#include <plasp/pddl/ExpressionVisitor.h>
 #include <plasp/pddl/Identifier.h>
+#include <plasp/pddl/expressions/Constant.h>
+#include <plasp/pddl/expressions/Reference.h>
+#include <plasp/pddl/expressions/Variable.h>
 
 namespace plasp
 {
 namespace pddl
 {
+namespace expressions
+{
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// Predicate
+// PredicateDeclaration
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Predicate::Predicate(std::string name)
-:	m_isDeclared{false},
-	m_name{name}
+PredicateDeclaration::PredicateDeclaration()
+:	m_isDeclared{false}
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Predicate &Predicate::parseDeclaration(utils::Parser &parser, Context &context)
+void PredicateDeclaration::parse(utils::Parser &parser, Context &context)
 {
 	parser.expect<std::string>("(");
 
-	const auto predicateName = parser.parseIdentifier(isIdentifier);
+	auto predicate = std::make_unique<PredicateDeclaration>(PredicateDeclaration());
 
-	auto predicate = std::make_unique<Predicate>(Predicate(predicateName));
+	predicate->m_name = parser.parseIdentifier(isIdentifier);
 
 	// Flag predicate as correctly declared in the types section
 	predicate->setDeclared();
@@ -47,47 +50,47 @@ Predicate &Predicate::parseDeclaration(utils::Parser &parser, Context &context)
 
 	parser.expect<std::string>(")");
 
-	const auto predicateArity = predicate->m_arguments.size();
-	const PredicateHashMapKey key = {predicateName, predicateArity};
-
 	// Store new predicate
-	context.predicates.emplace_back(std::move(predicate));
-
-	// Add a pointer to the predicate to the hash map
-	context.predicatesHashMap.emplace(std::make_pair(key, context.predicates.back().get()));
-
-	return *context.predicates.back();
+	context.predicateDeclarations.emplace_back(std::move(predicate));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Predicate::setDeclared()
+void PredicateDeclaration::accept(plasp::pddl::ExpressionVisitor &expressionVisitor) const
+{
+	expressionVisitor.visit(*this);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PredicateDeclaration::setDeclared()
 {
 	m_isDeclared = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Predicate::isDeclared() const
+bool PredicateDeclaration::isDeclared() const
 {
 	return m_isDeclared;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::string &Predicate::name() const
+const std::string &PredicateDeclaration::name() const
 {
 	return m_name;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const expressions::Variables &Predicate::arguments() const
+const Variables &PredicateDeclaration::arguments() const
 {
 	return m_arguments;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+}
 }
 }

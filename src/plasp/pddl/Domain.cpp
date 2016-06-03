@@ -4,6 +4,10 @@
 
 #include <plasp/pddl/ConsistencyException.h>
 #include <plasp/pddl/Identifier.h>
+#include <plasp/pddl/expressions/Constant.h>
+#include <plasp/pddl/expressions/PredicateDeclaration.h>
+#include <plasp/pddl/expressions/PrimitiveType.h>
+#include <plasp/pddl/expressions/Variable.h>
 #include <plasp/utils/ParserException.h>
 
 namespace plasp
@@ -67,23 +71,23 @@ const Requirements &Domain::requirements() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::vector<std::unique_ptr<PrimitiveType>> &Domain::types() const
+const expressions::PrimitiveTypes &Domain::types() const
 {
 	return m_context.primitiveTypes;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::vector<std::unique_ptr<Constant>> &Domain::constants() const
+const expressions::Constants &Domain::constants() const
 {
 	return m_context.constants;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::vector<std::unique_ptr<Predicate>> &Domain::predicates() const
+const expressions::PredicateDeclarations &Domain::predicates() const
 {
-	return m_context.predicates;
+	return m_context.predicateDeclarations;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -237,7 +241,7 @@ void Domain::parseTypeSection(utils::Parser &parser)
 		if (parser.currentCharacter() == '(')
 			throw utils::ParserException(parser.row(), parser.column(), "Only primitive types are allowed in type section");
 
-		PrimitiveType::parseDeclaration(parser, m_context);
+		expressions::PrimitiveType::parseTypedDeclaration(parser, m_context);
 
 		parser.skipWhiteSpace();
 	}
@@ -254,7 +258,7 @@ void Domain::parseConstantSection(utils::Parser &parser)
 	// Store constants
 	while (parser.currentCharacter() != ')')
 	{
-		Constant::parseDeclaration(parser, m_context);
+		expressions::Constant::parseDeclaration(parser, m_context);
 
 		parser.skipWhiteSpace();
 	}
@@ -271,7 +275,7 @@ void Domain::parsePredicateSection(utils::Parser &parser)
 	// Store predicates and their arguments
 	while (parser.currentCharacter() != ')')
 	{
-		Predicate::parseDeclaration(parser, m_context);
+		expressions::PredicateDeclaration::parse(parser, m_context);
 
 		parser.skipWhiteSpace();
 	}
@@ -322,7 +326,7 @@ void Domain::checkConsistency()
 		});
 
 	// Verify that all used predicates have been declared
-	std::for_each(m_context.predicates.cbegin(), m_context.predicates.cend(),
+	std::for_each(m_context.predicateDeclarations.cbegin(), m_context.predicateDeclarations.cend(),
 		[&](const auto &predicate)
 		{
 			if (!predicate->isDeclared())
@@ -330,6 +334,8 @@ void Domain::checkConsistency()
 		});
 
 	// Verify that all variables have types
+	// Verify that constants are unique
+	// Verify that all primitive types are unique
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
