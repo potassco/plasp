@@ -20,7 +20,8 @@ class OrExpression: public NAryExpression
 {
 	public:
 		template<typename ExpressionParser>
-		static std::unique_ptr<OrExpression> parse(utils::Parser &parser, Context &context, const Variables &parameters, ExpressionParser parseExpression);
+		static OrExpressionPointer parse(utils::Parser &parser, Context &context,
+			const VariableExpressions &parameters, ExpressionParser parseExpression);
 
 	public:
 		void accept(ExpressionVisitor &expressionVisitor) const override;
@@ -32,7 +33,8 @@ class OrExpression: public NAryExpression
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ExpressionParser>
-std::unique_ptr<OrExpression> OrExpression::parse(utils::Parser &parser, Context &context, const Variables &parameters, ExpressionParser parseExpression)
+OrExpressionPointer OrExpression::parse(utils::Parser &parser, Context &context,
+	const VariableExpressions &parameters, ExpressionParser parseExpression)
 {
 	auto expression = std::make_unique<OrExpression>(OrExpression());
 

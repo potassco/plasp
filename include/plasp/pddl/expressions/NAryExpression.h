@@ -7,6 +7,7 @@
 
 #include <plasp/pddl/ConsistencyException.h>
 #include <plasp/pddl/Expression.h>
+#include <plasp/pddl/expressions/VariableExpression.h>
 #include <plasp/utils/Parser.h>
 
 namespace plasp
@@ -25,20 +26,22 @@ namespace expressions
 class NAryExpression: public Expression
 {
 	public:
-		const std::vector<std::unique_ptr<Expression>> &arguments() const;
+		const Expressions &arguments() const;
 
 	protected:
 		template<typename ExpressionParser>
-		void parse(utils::Parser &parser, Context &context, const Variables &parameters, ExpressionParser parseExpression);
+		void parse(utils::Parser &parser, Context &context, const VariableExpressions &parameters,
+			ExpressionParser parseExpression);
 
 	private:
-		std::vector<std::unique_ptr<Expression>> m_arguments;
+		Expressions m_arguments;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ExpressionParser>
-void NAryExpression::parse(utils::Parser &parser, Context &context, const Variables &parameters, ExpressionParser parseExpression)
+void NAryExpression::parse(utils::Parser &parser, Context &context,
+	const VariableExpressions &parameters, ExpressionParser parseExpression)
 {
 	parser.skipWhiteSpace();
 

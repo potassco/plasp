@@ -22,6 +22,29 @@ namespace pddl
 class Context;
 class ExpressionVisitor;
 
+class Expression;
+using ExpressionPointer = std::unique_ptr<Expression>;
+using Expressions = std::vector<ExpressionPointer>;
+
+namespace expressions
+{
+class AndExpression;
+using AndExpressionPointer = std::unique_ptr<AndExpression>;
+
+class NotExpression;
+using NotExpressionPointer = std::unique_ptr<NotExpression>;
+
+class OrExpression;
+using OrExpressionPointer = std::unique_ptr<OrExpression>;
+
+class PredicateExpression;
+using PredicateExpressionPointer = std::unique_ptr<PredicateExpression>;
+
+class VariableExpression;
+using VariableExpressionPointer = std::unique_ptr<VariableExpression>;
+using VariableExpressions = std::vector<VariableExpressionPointer>;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Expression
@@ -32,10 +55,13 @@ class Expression
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::unique_ptr<Expression> parsePreconditionExpression(utils::Parser &parser, Context &context, const Variables &parameters);
-std::unique_ptr<Expression> parseExpression(utils::Parser &parser, Context &context, const Variables &parameters);
+ExpressionPointer parsePreconditionExpression(utils::Parser &parser, Context &context,
+	const expressions::VariableExpressions &parameters);
+ExpressionPointer parseExpression(utils::Parser &parser, Context &context,
+	const expressions::VariableExpressions &parameters);
 
-std::unique_ptr<Expression> parseEffectExpression(utils::Parser &parser, Context &context, const Variables &parameters);
+ExpressionPointer parseEffectExpression(utils::Parser &parser, Context &context,
+	const expressions::VariableExpressions &parameters);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

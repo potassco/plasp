@@ -4,7 +4,7 @@
 #include <vector>
 
 #include <plasp/pddl/Expression.h>
-#include <plasp/pddl/Variable.h>
+#include <plasp/pddl/expressions/VariableExpression.h>
 #include <plasp/utils/Parser.h>
 
 namespace plasp
@@ -26,7 +26,7 @@ class Action
 	public:
 		const std::string &name() const;
 
-		const Variables &parameters() const;
+		const expressions::VariableExpressions &parameters() const;
 		const Expression &precondition() const;
 		const Expression &effect() const;
 
@@ -35,7 +35,7 @@ class Action
 
 		std::string m_name;
 
-		Variables m_parameters;
+		expressions::VariableExpressions m_parameters;
 		std::unique_ptr<Expression> m_precondition;
 		std::unique_ptr<Expression> m_effect;
 };

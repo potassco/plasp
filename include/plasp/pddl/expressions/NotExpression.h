@@ -21,7 +21,8 @@ class NotExpression: public Expression
 {
 	public:
 		template<typename ExpressionParser>
-		static std::unique_ptr<NotExpression> parse(utils::Parser &parser, Context &context, const Variables &parameters, ExpressionParser parseExpression);
+		static NotExpressionPointer parse(utils::Parser &parser, Context &context,
+			const VariableExpressions &parameters, ExpressionParser parseExpression);
 
 	public:
 		void accept(ExpressionVisitor &expressionVisitor) const override;
@@ -31,13 +32,14 @@ class NotExpression: public Expression
 	private:
 		NotExpression() = default;
 
-		std::unique_ptr<Expression> m_argument;
+		ExpressionPointer m_argument;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ExpressionParser>
-std::unique_ptr<NotExpression> NotExpression::parse(utils::Parser &parser, Context &context, const Variables &parameters, ExpressionParser parseExpression)
+NotExpressionPointer NotExpression::parse(utils::Parser &parser, Context &context,
+	const VariableExpressions &parameters, ExpressionParser parseExpression)
 {
 	auto expression = std::make_unique<NotExpression>(NotExpression());
 

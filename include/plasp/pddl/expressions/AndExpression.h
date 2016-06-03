@@ -20,7 +20,8 @@ class AndExpression: public NAryExpression
 {
 	public:
 		template<typename ExpressionParser>
-		static std::unique_ptr<AndExpression> parse(utils::Parser &parser, Context &context, const Variables &parameters, ExpressionParser parseExpression);
+		static AndExpressionPointer parse(utils::Parser &parser, Context &context,
+			const VariableExpressions &parameters, ExpressionParser parseExpression);
 
 	public:
 		void accept(ExpressionVisitor &expressionVisitor) const override;
@@ -32,7 +33,8 @@ class AndExpression: public NAryExpression
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ExpressionParser>
-std::unique_ptr<AndExpression> AndExpression::parse(utils::Parser &parser, Context &context, const Variables &parameters, ExpressionParser parseExpression)
+AndExpressionPointer AndExpression::parse(utils::Parser &parser, Context &context,
+	const VariableExpressions &parameters, ExpressionParser parseExpression)
 {
 	auto expression = std::make_unique<AndExpression>(AndExpression());
 
