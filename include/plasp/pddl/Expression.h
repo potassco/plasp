@@ -5,7 +5,6 @@
 
 #include <boost/variant.hpp>
 
-#include <plasp/pddl/Variable.h>
 #include <plasp/utils/Parser.h>
 
 namespace plasp

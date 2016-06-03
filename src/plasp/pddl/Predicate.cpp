@@ -40,7 +40,7 @@ Predicate &Predicate::parseDeclaration(utils::Parser &parser, Context &context)
 	// Parse arguments
 	while (parser.currentCharacter() != ')')
 	{
-		Variable::parseTyped(parser, context, predicate->m_arguments);
+		expressions::Variable::parseTypedDeclaration(parser, context, predicate->m_arguments);
 
 		parser.skipWhiteSpace();
 	}
@@ -82,7 +82,7 @@ const std::string &Predicate::name() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const Variables &Predicate::arguments() const
+const expressions::Variables &Predicate::arguments() const
 {
 	return m_arguments;
 }

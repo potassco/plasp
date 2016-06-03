@@ -3,7 +3,7 @@
 
 #include <boost/functional/hash.hpp>
 
-#include <plasp/pddl/Variable.h>
+#include <plasp/pddl/expressions/Variable.h>
 #include <plasp/utils/Parser.h>
 
 namespace plasp
@@ -39,7 +39,7 @@ class Predicate
 
 	public:
 		const std::string &name() const;
-		const Variables &arguments() const;
+		const expressions::Variables &arguments() const;
 
 		bool isDeclared() const;
 
@@ -51,7 +51,7 @@ class Predicate
 		bool m_isDeclared;
 
 		std::string m_name;
-		Variables m_arguments;
+		expressions::Variables m_arguments;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

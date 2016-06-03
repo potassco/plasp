@@ -2,6 +2,7 @@
 #define __PLASP__PDDL__EXPRESSION__VARIABLE_H
 
 #include <plasp/pddl/Expression.h>
+#include <plasp/pddl/Type.h>
 
 namespace plasp
 {
