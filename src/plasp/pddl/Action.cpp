@@ -37,7 +37,7 @@ Action &Action::parseDeclaration(utils::Parser &parser, Context &context)
 	// Read parameters
 	while (parser.currentCharacter() != ')')
 	{
-		expressions::VariableExpression::parseTypedDeclaration(parser, context, action->m_parameters);
+		expressions::Variable::parseTypedDeclaration(parser, context, action->m_parameters);
 
 		parser.skipWhiteSpace();
 	}
@@ -74,7 +74,7 @@ const std::string &Action::name() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const expressions::VariableExpressions &Action::parameters() const
+const expressions::Variables &Action::parameters() const
 {
 	return m_parameters;
 }

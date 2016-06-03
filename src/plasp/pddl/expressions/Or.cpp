@@ -1,4 +1,4 @@
-#include <plasp/pddl/expressions/OrExpression.h>
+#include <plasp/pddl/expressions/Or.h>
 
 #include <plasp/pddl/ExpressionVisitor.h>
 
@@ -11,11 +11,11 @@ namespace expressions
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// OrExpression
+// Or
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void OrExpression::accept(plasp::pddl::ExpressionVisitor &expressionVisitor) const
+void Or::accept(plasp::pddl::ExpressionVisitor &expressionVisitor) const
 {
 	expressionVisitor.visit(*this);
 }

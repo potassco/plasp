@@ -1,5 +1,5 @@
-#ifndef __PLASP__PDDL__EXPRESSION__NOT_EXPRESSION_H
-#define __PLASP__PDDL__EXPRESSION__NOT_EXPRESSION_H
+#ifndef __PLASP__PDDL__EXPRESSION__NOT_H
+#define __PLASP__PDDL__EXPRESSION__NOT_H
 
 #include <plasp/pddl/Expression.h>
 #include <plasp/pddl/Predicate.h>
@@ -13,16 +13,16 @@ namespace expressions
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// NotExpression
+// Not
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class NotExpression: public Expression
+class Not: public Expression
 {
 	public:
 		template<typename ExpressionParser>
-		static NotExpressionPointer parse(utils::Parser &parser, Context &context,
-			const VariableExpressions &parameters, ExpressionParser parseExpression);
+		static NotPointer parse(utils::Parser &parser, Context &context,
+			const Variables &parameters, ExpressionParser parseExpression);
 
 	public:
 		void accept(ExpressionVisitor &expressionVisitor) const override;
@@ -30,7 +30,7 @@ class NotExpression: public Expression
 		const Expression &argument();
 
 	private:
-		NotExpression() = default;
+		Not() = default;
 
 		ExpressionPointer m_argument;
 };
@@ -38,10 +38,10 @@ class NotExpression: public Expression
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ExpressionParser>
-NotExpressionPointer NotExpression::parse(utils::Parser &parser, Context &context,
-	const VariableExpressions &parameters, ExpressionParser parseExpression)
+NotPointer Not::parse(utils::Parser &parser, Context &context,
+	const Variables &parameters, ExpressionParser parseExpression)
 {
-	auto expression = std::make_unique<NotExpression>(NotExpression());
+	auto expression = std::make_unique<Not>(Not());
 
 	parser.skipWhiteSpace();
 

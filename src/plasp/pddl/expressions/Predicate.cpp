@@ -1,4 +1,4 @@
-#include <plasp/pddl/expressions/PredicateExpression.h>
+#include <plasp/pddl/expressions/Predicate.h>
 
 #include <plasp/pddl/ExpressionVisitor.h>
 
@@ -11,14 +11,14 @@ namespace expressions
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// PredicateExpression
+// Predicate
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PredicateExpressionPointer PredicateExpression::parse(std::string name, utils::Parser &parser,
-	Context &context, const VariableExpressions &parameters)
+PredicatePointer Predicate::parse(std::string name, utils::Parser &parser,
+	Context &context, const Variables &parameters)
 {
-	auto expression = std::make_unique<PredicateExpression>(PredicateExpression());
+	auto expression = std::make_unique<Predicate>(Predicate());
 
 	expression->m_name = name;
 
@@ -26,7 +26,7 @@ PredicateExpressionPointer PredicateExpression::parse(std::string name, utils::P
 
 	// Parse arguments
 	while (parser.currentCharacter() != ')')
-		expression->m_arguments.emplace_back(VariableExpression::parse(parser, parameters));
+		expression->m_arguments.emplace_back(Variable::parse(parser, parameters));
 
 	// TODO: check that signature matches one of the declared ones
 
@@ -35,14 +35,14 @@ PredicateExpressionPointer PredicateExpression::parse(std::string name, utils::P
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void PredicateExpression::accept(plasp::pddl::ExpressionVisitor &expressionVisitor) const
+void Predicate::accept(plasp::pddl::ExpressionVisitor &expressionVisitor) const
 {
 	expressionVisitor.visit(*this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::vector<const VariableExpression *> &PredicateExpression::arguments() const
+const std::vector<const Variable *> &Predicate::arguments() const
 {
 	return m_arguments;
 }

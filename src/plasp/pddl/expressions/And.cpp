@@ -1,10 +1,6 @@
-#include <plasp/pddl/expressions/NAryExpression.h>
+#include <plasp/pddl/expressions/And.h>
 
-#include <algorithm>
-
-#include <plasp/pddl/Context.h>
 #include <plasp/pddl/ExpressionVisitor.h>
-#include <plasp/pddl/Identifier.h>
 
 namespace plasp
 {
@@ -15,13 +11,13 @@ namespace expressions
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// NAryExpression
+// And
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::vector<std::unique_ptr<Expression>> &NAryExpression::arguments() const
+void And::accept(plasp::pddl::ExpressionVisitor &expressionVisitor) const
 {
-	return m_arguments;
+	expressionVisitor.visit(*this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

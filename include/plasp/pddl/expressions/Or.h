@@ -1,7 +1,7 @@
-#ifndef __PLASP__PDDL__EXPRESSION__OR_EXPRESSION_H
-#define __PLASP__PDDL__EXPRESSION__OR_EXPRESSION_H
+#ifndef __PLASP__PDDL__EXPRESSION__OR_H
+#define __PLASP__PDDL__EXPRESSION__OR_H
 
-#include <plasp/pddl/expressions/NAryExpression.h>
+#include <plasp/pddl/expressions/NAry.h>
 
 namespace plasp
 {
@@ -12,33 +12,33 @@ namespace expressions
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// OrExpression
+// Or
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class OrExpression: public NAryExpression
+class Or: public NAry
 {
 	public:
 		template<typename ExpressionParser>
-		static OrExpressionPointer parse(utils::Parser &parser, Context &context,
-			const VariableExpressions &parameters, ExpressionParser parseExpression);
+		static OrPointer parse(utils::Parser &parser, Context &context,
+			const Variables &parameters, ExpressionParser parseExpression);
 
 	public:
 		void accept(ExpressionVisitor &expressionVisitor) const override;
 
 	private:
-		OrExpression() = default;
+		Or() = default;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ExpressionParser>
-OrExpressionPointer OrExpression::parse(utils::Parser &parser, Context &context,
-	const VariableExpressions &parameters, ExpressionParser parseExpression)
+OrPointer Or::parse(utils::Parser &parser, Context &context,
+	const Variables &parameters, ExpressionParser parseExpression)
 {
-	auto expression = std::make_unique<OrExpression>(OrExpression());
+	auto expression = std::make_unique<Or>(Or());
 
-	expression->NAryExpression::parse(parser, context, parameters, parseExpression);
+	expression->NAry::parse(parser, context, parameters, parseExpression);
 
 	if (expression->arguments().empty())
 		throw ConsistencyException("\"or\" expressions should not be empty");

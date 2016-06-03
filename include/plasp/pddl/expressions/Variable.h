@@ -1,5 +1,5 @@
-#ifndef __PLASP__PDDL__EXPRESSION__VARIABLE_EXPRESSION_H
-#define __PLASP__PDDL__EXPRESSION__VARIABLE_EXPRESSION_H
+#ifndef __PLASP__PDDL__EXPRESSION__VARIABLE_H
+#define __PLASP__PDDL__EXPRESSION__VARIABLE_H
 
 #include <plasp/pddl/Expression.h>
 
@@ -12,19 +12,18 @@ namespace expressions
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// VariableExpression
+// Variable
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class VariableExpression: public Expression
+class Variable: public Expression
 {
 	public:
-		static VariableExpressionPointer parseDeclaration(utils::Parser &parser);
+		static VariablePointer parseDeclaration(utils::Parser &parser);
 		static void parseTypedDeclaration(utils::Parser &parser, Context &context,
-			VariableExpressions &variableExpressions);
+			Variables &variables);
 
-		static const VariableExpression *parse(utils::Parser &parser,
-			const VariableExpressions &variableExpressions);
+		static const Variable *parse(utils::Parser &parser, const Variables &variables);
 
 	public:
 		void accept(ExpressionVisitor &expressionVisitor) const override;
@@ -38,7 +37,7 @@ class VariableExpression: public Expression
 		void setType(TypePtr type);
 
 	private:
-		VariableExpression();
+		Variable();
 
 		bool m_isDirty;
 

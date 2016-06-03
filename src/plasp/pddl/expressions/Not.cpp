@@ -1,4 +1,4 @@
-#include <plasp/pddl/expressions/NotExpression.h>
+#include <plasp/pddl/expressions/Not.h>
 
 #include <plasp/pddl/ExpressionVisitor.h>
 
@@ -11,11 +11,11 @@ namespace expressions
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// NotExpression
+// Not
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void NotExpression::accept(plasp::pddl::ExpressionVisitor &expressionVisitor) const
+void Not::accept(plasp::pddl::ExpressionVisitor &expressionVisitor) const
 {
 	expressionVisitor.visit(*this);
 }

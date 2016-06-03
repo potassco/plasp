@@ -28,21 +28,21 @@ using Expressions = std::vector<ExpressionPointer>;
 
 namespace expressions
 {
-class AndExpression;
-using AndExpressionPointer = std::unique_ptr<AndExpression>;
+class And;
+using AndPointer = std::unique_ptr<And>;
 
-class NotExpression;
-using NotExpressionPointer = std::unique_ptr<NotExpression>;
+class Not;
+using NotPointer = std::unique_ptr<Not>;
 
-class OrExpression;
-using OrExpressionPointer = std::unique_ptr<OrExpression>;
+class Or;
+using OrPointer = std::unique_ptr<Or>;
 
-class PredicateExpression;
-using PredicateExpressionPointer = std::unique_ptr<PredicateExpression>;
+class Predicate;
+using PredicatePointer = std::unique_ptr<Predicate>;
 
-class VariableExpression;
-using VariableExpressionPointer = std::unique_ptr<VariableExpression>;
-using VariableExpressions = std::vector<VariableExpressionPointer>;
+class Variable;
+using VariablePointer = std::unique_ptr<Variable>;
+using Variables = std::vector<VariablePointer>;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -56,12 +56,12 @@ class Expression
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ExpressionPointer parsePreconditionExpression(utils::Parser &parser, Context &context,
-	const expressions::VariableExpressions &parameters);
+	const expressions::Variables &parameters);
 ExpressionPointer parseExpression(utils::Parser &parser, Context &context,
-	const expressions::VariableExpressions &parameters);
+	const expressions::Variables &parameters);
 
 ExpressionPointer parseEffectExpression(utils::Parser &parser, Context &context,
-	const expressions::VariableExpressions &parameters);
+	const expressions::Variables &parameters);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

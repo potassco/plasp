@@ -1,7 +1,7 @@
-#ifndef __PLASP__PDDL__EXPRESSION__AND_EXPRESSION_H
-#define __PLASP__PDDL__EXPRESSION__AND_EXPRESSION_H
+#ifndef __PLASP__PDDL__EXPRESSION__AND_H
+#define __PLASP__PDDL__EXPRESSION__AND_H
 
-#include <plasp/pddl/expressions/NAryExpression.h>
+#include <plasp/pddl/expressions/NAry.h>
 
 namespace plasp
 {
@@ -12,33 +12,33 @@ namespace expressions
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// AndExpression
+// And
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class AndExpression: public NAryExpression
+class And: public NAry
 {
 	public:
 		template<typename ExpressionParser>
-		static AndExpressionPointer parse(utils::Parser &parser, Context &context,
-			const VariableExpressions &parameters, ExpressionParser parseExpression);
+		static AndPointer parse(utils::Parser &parser, Context &context,
+			const Variables &parameters, ExpressionParser parseExpression);
 
 	public:
 		void accept(ExpressionVisitor &expressionVisitor) const override;
 
 	private:
-		AndExpression() = default;
+		And() = default;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ExpressionParser>
-AndExpressionPointer AndExpression::parse(utils::Parser &parser, Context &context,
-	const VariableExpressions &parameters, ExpressionParser parseExpression)
+AndPointer And::parse(utils::Parser &parser, Context &context,
+	const Variables &parameters, ExpressionParser parseExpression)
 {
-	auto expression = std::make_unique<AndExpression>(AndExpression());
+	auto expression = std::make_unique<And>(And());
 
-	expression->NAryExpression::parse(parser, context, parameters, parseExpression);
+	expression->NAry::parse(parser, context, parameters, parseExpression);
 
 	if (expression->arguments().empty())
 		throw ConsistencyException("\"and\" expressions should not be empty");

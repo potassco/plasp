@@ -1,4 +1,4 @@
-#include <plasp/pddl/expressions/VariableExpression.h>
+#include <plasp/pddl/expressions/Variable.h>
 
 #include <algorithm>
 
@@ -16,24 +16,24 @@ namespace expressions
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// VariableExpression
+// Variable
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-VariableExpression::VariableExpression()
+Variable::Variable()
 :	m_isDirty{false}
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-VariableExpressionPointer VariableExpression::parseDeclaration(utils::Parser &parser)
+VariablePointer Variable::parseDeclaration(utils::Parser &parser)
 {
 	parser.skipWhiteSpace();
 
 	parser.expect<std::string>("?");
 
-	auto variable = std::make_unique<VariableExpression>(VariableExpression());
+	auto variable = std::make_unique<Variable>(Variable());
 
 	variable->m_name = parser.parseIdentifier(isIdentifier);
 	variable->setDirty();
@@ -43,11 +43,10 @@ VariableExpressionPointer VariableExpression::parseDeclaration(utils::Parser &pa
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void VariableExpression::parseTypedDeclaration(utils::Parser &parser, Context &context,
-	VariableExpressions &variableExpressions)
+void Variable::parseTypedDeclaration(utils::Parser &parser, Context &context, Variables &variables)
 {
 	// Parse and store variable itself
-	variableExpressions.emplace_back(parseDeclaration(parser));
+	variables.emplace_back(parseDeclaration(parser));
 
 	parser.skipWhiteSpace();
 
@@ -59,7 +58,7 @@ void VariableExpression::parseTypedDeclaration(utils::Parser &parser, Context &c
 	const auto type = parseType(parser, context);
 
 	// Set the argument type for all previously flagged arguments
-	std::for_each(variableExpressions.begin(), variableExpressions.end(),
+	std::for_each(variables.begin(), variables.end(),
 		[&](auto &variable)
 		{
 			if (!variable->isDirty())
@@ -72,8 +71,7 @@ void VariableExpression::parseTypedDeclaration(utils::Parser &parser, Context &c
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const VariableExpression *VariableExpression::parse(utils::Parser &parser,
-	const VariableExpressions &variableExpressions)
+const Variable *Variable::parse(utils::Parser &parser, const Variables &variables)
 {
 	parser.skipWhiteSpace();
 
@@ -81,13 +79,13 @@ const VariableExpression *VariableExpression::parse(utils::Parser &parser,
 
 	const auto variableName = parser.parseIdentifier(isIdentifier);
 
-	const auto match = std::find_if(variableExpressions.cbegin(), variableExpressions.cend(),
-		[&](const auto &variableExpression)
+	const auto match = std::find_if(variables.cbegin(), variables.cend(),
+		[&](const auto &variable)
 		{
-			return variableExpression->name() == variableName;
+			return variable->name() == variableName;
 		});
 
-	if (match == variableExpressions.cend())
+	if (match == variables.cend())
 		throw utils::ParserException(parser.row(), parser.column(), "Variable \"" + variableName + "\" used but never declared");
 
 	return match->get();
@@ -95,42 +93,42 @@ const VariableExpression *VariableExpression::parse(utils::Parser &parser,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void VariableExpression::accept(plasp::pddl::ExpressionVisitor &expressionVisitor) const
+void Variable::accept(plasp::pddl::ExpressionVisitor &expressionVisitor) const
 {
 	expressionVisitor.visit(*this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::string &VariableExpression::name() const
+const std::string &Variable::name() const
 {
 	return m_name;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TypePtr VariableExpression::type() const
+TypePtr Variable::type() const
 {
 	return m_type;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void VariableExpression::setDirty(bool isDirty)
+void Variable::setDirty(bool isDirty)
 {
 	m_isDirty = isDirty;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool VariableExpression::isDirty() const
+bool Variable::isDirty() const
 {
 	return m_isDirty;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void VariableExpression::setType(TypePtr type)
+void Variable::setType(TypePtr type)
 {
 	m_type = type;
 }
