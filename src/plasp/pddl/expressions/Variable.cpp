@@ -94,7 +94,7 @@ void Variable::parseTypedDeclaration(utils::Parser &parser, Context &context, Va
 	}
 
 	// Parse primitive type
-	const auto *type = PrimitiveType::parseExisting(parser, context.primitiveTypes);
+	const auto *type = PrimitiveType::parseExisting(parser, context);
 
 	setType(type);
 }

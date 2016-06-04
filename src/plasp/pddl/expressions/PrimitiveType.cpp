@@ -26,6 +26,26 @@ PrimitiveType::PrimitiveType()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+PrimitiveType *PrimitiveType::create(std::string name, Context &context)
+{
+	// Create new primitive type if not already existing
+	auto type = std::make_unique<PrimitiveType>(PrimitiveType());
+
+	type->m_name = name;
+
+	BOOST_ASSERT(!type->m_name.empty());
+
+	// Flag type for potentially upcoming parent type declaration
+	type->setDirty();
+
+	// TODO: Store constant in hash map
+	context.primitiveTypes.emplace_back(std::move(type));
+
+	return context.primitiveTypes.back().get();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 PrimitiveType *PrimitiveType::parseDeclaration(utils::Parser &parser, Context &context)
 {
 	parser.skipWhiteSpace();
@@ -49,20 +69,7 @@ PrimitiveType *PrimitiveType::parseDeclaration(utils::Parser &parser, Context &c
 		return type;
 	}
 
-	// Create new primitive type if not already existing
-	auto type = std::make_unique<PrimitiveType>(PrimitiveType());
-
-	type->m_name = typeName;
-
-	BOOST_ASSERT(!type->m_name.empty());
-
-	// Flag type for potentially upcoming parent type declaration
-	type->setDirty();
-
-	// TODO: Store constant in hash map
-	context.primitiveTypes.emplace_back(std::move(type));
-
-	return context.primitiveTypes.back().get();
+	return create(typeName, context);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -82,7 +89,7 @@ void PrimitiveType::parseTypedDeclaration(utils::Parser &parser, Context &contex
 		return;
 
 	// If existing, parse and store parent type
-	auto *parentType = parseExisting(parser, context.primitiveTypes);
+	auto *parentType = parseExisting(parser, context);
 
 	parentType->setDirty(false);
 
@@ -99,6 +106,38 @@ void PrimitiveType::parseTypedDeclaration(utils::Parser &parser, Context &contex
 			childType->m_parentTypes.push_back(parentType);
 			childType->setDirty(false);
 		});
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+PrimitiveType *PrimitiveType::parseExisting(utils::Parser &parser, Context &context)
+{
+	parser.skipWhiteSpace();
+
+	const auto typeName = parser.parseIdentifier(isIdentifier);
+
+	BOOST_ASSERT(!typeName.empty());
+
+	// TODO: use hash map
+	const auto match = std::find_if(context.primitiveTypes.cbegin(), context.primitiveTypes.cend(),
+		[&](const auto &primitiveType)
+		{
+			return primitiveType->name() == typeName;
+		});
+
+	if (match == context.primitiveTypes.cend())
+	{
+		// Primitive type "object" is implicitly declared
+		if (typeName != "object")
+			throw ConsistencyException("Primitive type \"" + typeName + "\" used but never declared");
+
+		return create(typeName, context);
+	}
+
+	auto *type = match->get();
+	type->setDirty();
+
+	return type;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
