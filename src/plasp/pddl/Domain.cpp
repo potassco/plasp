@@ -8,6 +8,7 @@
 #include <plasp/pddl/expressions/PredicateDeclaration.h>
 #include <plasp/pddl/expressions/PrimitiveType.h>
 #include <plasp/pddl/expressions/Variable.h>
+#include <plasp/utils/IO.h>
 #include <plasp/utils/ParserException.h>
 
 namespace plasp
@@ -104,7 +105,7 @@ void Domain::parseSection()
 	m_context.parser.expect<std::string>("(");
 	m_context.parser.expect<std::string>(":");
 
-	const auto sectionIdentifier = m_context.parser.parseIdentifier(isIdentifier);
+	const auto sectionIdentifier = utils::toLowerCase(m_context.parser.parseIdentifier(isIdentifier));
 
 	const auto skipSection =
 		[&]()
@@ -149,6 +150,8 @@ void Domain::parseSection()
 		skipSection();
 	else if (sectionIdentifier == "derived")
 		skipSection();
+	else
+		throw utils::ParserException(m_context.parser, "Unknown domain section \"" + sectionIdentifier + "\"");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

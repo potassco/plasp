@@ -5,6 +5,7 @@
 #include <boost/bimap.hpp>
 
 #include <plasp/pddl/Identifier.h>
+#include <plasp/utils/IO.h>
 #include <plasp/utils/ParserException.h>
 
 namespace plasp
@@ -81,7 +82,7 @@ Requirement::Requirement(Requirement::Type type)
 
 Requirement Requirement::parse(Context &context)
 {
-	const auto requirementName = context.parser.parseIdentifier(isIdentifier);
+	const auto requirementName = utils::toLowerCase(context.parser.parseIdentifier(isIdentifier));
 
 	const auto match = requirementTypesToPDDL.right.find(requirementName);
 

@@ -9,6 +9,7 @@
 #include <plasp/pddl/expressions/Predicate.h>
 #include <plasp/pddl/expressions/PredicateDeclaration.h>
 #include <plasp/pddl/expressions/Reference.h>
+#include <plasp/utils/IO.h>
 #include <plasp/utils/ParserException.h>
 
 namespace plasp
@@ -42,7 +43,7 @@ ExpressionPointer parsePreconditionExpression(Context &context,
 {
 	context.parser.expect<std::string>("(");
 
-	const auto expressionIdentifier = context.parser.parseIdentifier(isIdentifier);
+	const auto expressionIdentifier = utils::toLowerCase(context.parser.parseIdentifier(isIdentifier));
 
 	ExpressionPointer expression;
 
@@ -70,7 +71,7 @@ ExpressionPointer parseExpression(Context &context, const expressions::Variables
 {
 	context.parser.expect<std::string>("(");
 
-	const auto expressionIdentifier = context.parser.parseIdentifier(isIdentifier);
+	const auto expressionIdentifier = utils::toLowerCase(context.parser.parseIdentifier(isIdentifier));
 
 	auto expression = parseExpressionContent(expressionIdentifier, context, parameters);
 
@@ -137,7 +138,7 @@ ExpressionPointer parseEffectExpression(Context &context, const expressions::Var
 {
 	context.parser.expect<std::string>("(");
 
-	const auto expressionIdentifier = context.parser.parseIdentifier(isIdentifier);
+	const auto expressionIdentifier = utils::toLowerCase(context.parser.parseIdentifier(isIdentifier));
 
 	ExpressionPointer expression;
 
