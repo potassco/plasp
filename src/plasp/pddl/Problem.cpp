@@ -71,7 +71,7 @@ void Problem::parseSection()
 	m_context.parser.expect<std::string>("(");
 	m_context.parser.expect<std::string>(":");
 
-	const auto sectionIdentifier = utils::toLowerCase(m_context.parser.parseIdentifier(isIdentifier));
+	const auto sectionIdentifier = m_context.parser.parseIdentifier(isIdentifier);
 
 	const auto skipSection =
 		[&]()

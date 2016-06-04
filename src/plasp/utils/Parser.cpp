@@ -26,6 +26,7 @@ Parser::Parser(std::istream &istream)
 	m_position(m_istream),
 	m_row{1},
 	m_column{1},
+	m_isCaseSensitive{true},
 	m_endOfFile{false}
 {
 	std::setlocale(LC_NUMERIC, "C");
@@ -52,11 +53,21 @@ size_t Parser::column() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void Parser::setCaseSensitive(bool isCaseSensitive)
+{
+	m_isCaseSensitive = isCaseSensitive;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 char Parser::currentCharacter() const
 {
 	checkStream();
 
-	return *m_position;
+	if (m_isCaseSensitive)
+		return *m_position;
+
+	return std::tolower(*m_position);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

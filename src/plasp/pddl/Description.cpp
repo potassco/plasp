@@ -22,6 +22,7 @@ Description::Description(std::istream &istream)
 :	m_parser(istream),
 	m_context(m_parser)
 {
+	m_parser.setCaseSensitive(false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -58,7 +58,7 @@ TEST_F(PDDLParserTests, ParseBlocksWorldDomain)
 		const auto &domain = description.domain();
 
 		// Name
-		ASSERT_EQ(domain.name(), "BLOCKS");
+		ASSERT_EQ(domain.name(), "blocks");
 
 		// Requirements
 		ASSERT_EQ(domain.requirements().size(), 2u);
@@ -113,7 +113,7 @@ TEST_F(PDDLParserTests, ParseStorageDomain)
 		const auto &domain = description.domain();
 
 		// Name
-		ASSERT_EQ(domain.name(), "Storage-Propositional");
+		ASSERT_EQ(domain.name(), "storage-propositional");
 
 		// Requirements
 		ASSERT_EQ(domain.requirements().size(), 1u);

@@ -24,6 +24,8 @@ class Parser
 		size_t row() const;
 		size_t column() const;
 
+		void setCaseSensitive(bool isCaseInsensitive = true);
+
 		char currentCharacter() const;
 		void advance();
 		bool advanceIf(char expectedCharacter);
@@ -62,6 +64,8 @@ class Parser
 
 		size_t m_row;
 		size_t m_column;
+
+		bool m_isCaseSensitive;
 
 		bool m_endOfFile;
 };

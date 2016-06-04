@@ -82,7 +82,7 @@ Requirement::Requirement(Requirement::Type type)
 
 Requirement Requirement::parse(Context &context)
 {
-	const auto requirementName = utils::toLowerCase(context.parser.parseIdentifier(isIdentifier));
+	const auto requirementName = context.parser.parseIdentifier(isIdentifier);
 
 	const auto match = requirementTypesToPDDL.right.find(requirementName);
 

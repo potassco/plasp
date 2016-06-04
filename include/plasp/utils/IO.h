@@ -40,18 +40,6 @@ inline std::string unescapeASP(const std::string &string)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline std::string toLowerCase(const std::string &string)
-{
-	std::string result;
-	result.resize(string.size());
-
-	std::transform(string.begin(), string.end(), result.begin(), ::tolower);
-
-	return result;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 }
 }
 
