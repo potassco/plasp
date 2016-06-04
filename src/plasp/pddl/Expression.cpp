@@ -3,6 +3,7 @@
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Identifier.h>
 #include <plasp/pddl/expressions/And.h>
+#include <plasp/pddl/expressions/Imply.h>
 #include <plasp/pddl/expressions/Not.h>
 #include <plasp/pddl/expressions/Or.h>
 #include <plasp/pddl/expressions/Predicate.h>
@@ -93,8 +94,9 @@ ExpressionPointer parseExpressionContent(const std::string &expressionIdentifier
 		expression = expressions::Or::parse(context, parameters, parseExpression);
 	else if (expressionIdentifier == "not")
 		expression = expressions::Not::parse(context, parameters, parseExpression);
-	else if (expressionIdentifier == "imply"
-		|| expressionIdentifier == "exists"
+	else if (expressionIdentifier == "imply")
+		expression = expressions::Imply::parse(context, parameters, parseExpression);
+	else if (expressionIdentifier == "exists"
 		|| expressionIdentifier == "forall"
 		|| expressionIdentifier == "-"
 		|| expressionIdentifier == "="

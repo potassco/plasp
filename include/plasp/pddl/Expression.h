@@ -37,6 +37,9 @@ using Constants = std::vector<ConstantPointer>;
 class Either;
 using EitherPointer = std::unique_ptr<Either>;
 
+class Imply;
+using ImplyPointer = std::unique_ptr<Imply>;
+
 class Not;
 using NotPointer = std::unique_ptr<Not>;
 
