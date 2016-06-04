@@ -5,6 +5,7 @@
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Identifier.h>
 #include <plasp/pddl/expressions/Type.h>
+#include <plasp/utils/IO.h>
 #include <plasp/utils/ParserException.h>
 
 namespace plasp
@@ -50,7 +51,7 @@ Action &Action::parseDeclaration(Context &context)
 	{
 		context.parser.expect<std::string>(":");
 
-		const auto sectionIdentifier = context.parser.parseIdentifier(isIdentifier);
+		const auto sectionIdentifier = utils::toLowerCase(context.parser.parseIdentifier(isIdentifier));
 
 		if (sectionIdentifier == "precondition")
 			action->m_precondition = parsePreconditionExpression(context, action->m_parameters);
