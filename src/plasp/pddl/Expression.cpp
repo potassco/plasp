@@ -33,7 +33,7 @@ ExpressionPointer parsePredicate(Context &context, const expressions::Variables 
 
 void throwUnsupported(const utils::Parser &parser, const std::string &expressionIdentifier)
 {
-	throw utils::ParserException(parser, "Expression type \"" + expressionIdentifier + "\" currently unsupported");
+	throw utils::ParserException(parser, "Expression type \"" + expressionIdentifier + "\" currently unsupported in this context");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
