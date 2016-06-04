@@ -36,6 +36,8 @@ ConstantPointer Constant::parseDeclaration(utils::Parser &parser, Context &conte
 
 	constant->m_name = parser.parseIdentifier(isIdentifier);
 
+	BOOST_ASSERT(constant->m_name != "-");
+
 	// Flag constant for potentially upcoming type declaration
 	constant->setDirty();
 

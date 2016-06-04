@@ -77,10 +77,17 @@ void Variable::parseTypedDeclaration(utils::Parser &parser, Context &context, Va
 				});
 		};
 
+	parser.skipWhiteSpace();
+
 	// Parse argument of "either" type (always begins with opening parenthesis)
 	if (parser.currentCharacter() == '(')
 	{
+		parser.expect<std::string>("(");
+		parser.expect<std::string>("either");
+
 		parameter->m_eitherExpression = Either::parse(parser, context, parameters, parseExistingPrimitiveType);
+
+		parser.expect<std::string>(")");
 
 		setType(parameter->m_eitherExpression.get());
 		return;

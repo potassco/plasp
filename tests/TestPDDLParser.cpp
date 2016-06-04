@@ -6,8 +6,9 @@
 #include <stdexcept>
 
 #include <plasp/pddl/Description.h>
-#include <plasp/pddl/expressions/PrimitiveType.h>
 #include <plasp/pddl/expressions/Either.h>
+#include <plasp/pddl/expressions/PrimitiveType.h>
+#include <plasp/pddl/expressions/Reference.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -46,9 +47,11 @@ class PDDLParserTests : public ::testing::Test
 
 TEST_F(PDDLParserTests, ParseBlocksWorldDomain)
 {
+	using namespace plasp::pddl;
+
 	try
 	{
-		const auto description = plasp::pddl::Description::fromStream(m_blocksworldDomainFile);
+		const auto description = Description::fromStream(m_blocksworldDomainFile);
 
 		ASSERT_NO_THROW(description.domain());
 
@@ -59,8 +62,8 @@ TEST_F(PDDLParserTests, ParseBlocksWorldDomain)
 
 		// Requirements
 		ASSERT_EQ(domain.requirements().size(), 2u);
-		ASSERT_EQ(domain.requirements()[0].type(), plasp::pddl::Requirement::Type::STRIPS);
-		ASSERT_EQ(domain.requirements()[1].type(), plasp::pddl::Requirement::Type::Typing);
+		ASSERT_EQ(domain.requirements()[0].type(), Requirement::Type::STRIPS);
+		ASSERT_EQ(domain.requirements()[1].type(), Requirement::Type::Typing);
 
 		// Types
 		ASSERT_EQ(domain.types().size(), 1u);
@@ -78,10 +81,10 @@ TEST_F(PDDLParserTests, ParseBlocksWorldDomain)
 		ASSERT_EQ(on.name(), "on");
 		ASSERT_EQ(on.arguments().size(), 2u);
 		ASSERT_EQ(on.arguments()[0]->name(), "x");
-		const auto *onArgument0Type = dynamic_cast<const plasp::pddl::expressions::PrimitiveType *>(on.arguments()[0]->type());
+		const auto *onArgument0Type = dynamic_cast<const expressions::PrimitiveType *>(on.arguments()[0]->type());
 		ASSERT_EQ(onArgument0Type, &block);
 		ASSERT_EQ(on.arguments()[1]->name(), "y");
-		const auto onArgument1Type = dynamic_cast<const plasp::pddl::expressions::PrimitiveType *>(on.arguments()[1]->type());
+		const auto onArgument1Type = dynamic_cast<const expressions::PrimitiveType *>(on.arguments()[1]->type());
 		ASSERT_EQ(onArgument1Type, &block);
 
 		const auto &handempty = *domain.predicates()[3];
@@ -99,6 +102,8 @@ TEST_F(PDDLParserTests, ParseBlocksWorldDomain)
 
 TEST_F(PDDLParserTests, ParseStorageDomain)
 {
+	using namespace plasp::pddl;
+
 	try
 	{
 		const auto description = plasp::pddl::Description::fromStream(m_storageDomainFile);
@@ -112,7 +117,7 @@ TEST_F(PDDLParserTests, ParseStorageDomain)
 
 		// Requirements
 		ASSERT_EQ(domain.requirements().size(), 1u);
-		ASSERT_EQ(domain.requirements()[0].type(), plasp::pddl::Requirement::Type::Typing);
+		ASSERT_EQ(domain.requirements()[0].type(), Requirement::Type::Typing);
 
 		// Types
 		ASSERT_EQ(domain.types().size(), 10u);
@@ -141,20 +146,20 @@ TEST_F(PDDLParserTests, ParseStorageDomain)
 		ASSERT_EQ(on.name(), "on");
 		ASSERT_EQ(on.arguments().size(), 2u);
 		ASSERT_EQ(on.arguments()[0]->name(), "c");
-		const auto onArgument0Type = dynamic_cast<const plasp::pddl::expressions::PrimitiveType *>(on.arguments()[0]->type());
+		const auto onArgument0Type = dynamic_cast<const expressions::PrimitiveType *>(on.arguments()[0]->type());
 		ASSERT_EQ(onArgument0Type, &crate);
 		ASSERT_EQ(on.arguments()[1]->name(), "s");
-		const auto onArgument1Type = dynamic_cast<const plasp::pddl::expressions::PrimitiveType *>(on.arguments()[1]->type());
+		const auto onArgument1Type = dynamic_cast<const expressions::PrimitiveType *>(on.arguments()[1]->type());
 		ASSERT_EQ(onArgument1Type, &storearea);
 
 		const auto &in = *domain.predicates()[1];
 		ASSERT_EQ(in.name(), "in");
 		ASSERT_EQ(in.arguments().size(), 2u);
 		ASSERT_EQ(in.arguments()[0]->name(), "x");
-		const auto inArgument0Type = dynamic_cast<const plasp::pddl::expressions::Either *>(in.arguments()[0]->type());
+		const auto inArgument0Type = dynamic_cast<const expressions::Either *>(in.arguments()[0]->type());
 		ASSERT_EQ(inArgument0Type->arguments().size(), 2u);
-		ASSERT_EQ(dynamic_cast<const plasp::pddl::expressions::PrimitiveType *>(inArgument0Type->arguments()[0].get()), &storearea);
-		ASSERT_EQ(dynamic_cast<const plasp::pddl::expressions::PrimitiveType *>(inArgument0Type->arguments()[1].get()), &crate);
+		ASSERT_EQ(dynamic_cast<const expressions::Reference<expressions::PrimitiveType> *>(inArgument0Type->arguments()[0].get())->value(), &storearea);
+		ASSERT_EQ(dynamic_cast<const expressions::Reference<expressions::PrimitiveType> *>(inArgument0Type->arguments()[1].get())->value(), &crate);
 	}
 	catch (const std::exception &e)
 	{
@@ -166,9 +171,11 @@ TEST_F(PDDLParserTests, ParseStorageDomain)
 
 TEST_F(PDDLParserTests, ParseConstants)
 {
+	using namespace plasp::pddl;
+
 	try
 	{
-		const auto description = plasp::pddl::Description::fromStream(m_woodworkingDomainFile);
+		const auto description = Description::fromStream(m_woodworkingDomainFile);
 
 		ASSERT_NO_THROW(description.domain());
 
@@ -200,9 +207,11 @@ TEST_F(PDDLParserTests, ParseConstants)
 
 TEST_F(PDDLParserTests, ParseWithWhiteSpace)
 {
+	using namespace plasp::pddl;
+
 	try
 	{
-		ASSERT_NO_THROW(plasp::pddl::Description::fromStream(m_whiteSpaceTestFile));
+		ASSERT_NO_THROW(Description::fromStream(m_whiteSpaceTestFile));
 	}
 	catch (const std::exception &e)
 	{

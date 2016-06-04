@@ -22,11 +22,11 @@ namespace expressions
 class PrimitiveType: public Expression
 {
 	public:
-		static PrimitiveTypePointer parseDeclaration(utils::Parser &parser, Context &context);
+		static PrimitiveType *parseDeclaration(utils::Parser &parser, Context &context);
 		static void parseTypedDeclaration(utils::Parser &parser, Context &context);
 
 		template<class Container>
-		static PrimitiveType *parseExisting(utils::Parser &parser, const Container &primitiveTypes);
+		static PrimitiveType *parseExisting(utils::Parser &parser, Container &primitiveTypes);
 
 		// TODO: method for lazy creation if not existing
 
@@ -46,8 +46,6 @@ class PrimitiveType: public Expression
 
 		void setDeclared();
 
-		void addParentType(const PrimitiveType *parentType);
-
 		bool m_isDirty;
 		bool m_isDeclared;
 
@@ -60,22 +58,39 @@ class PrimitiveType: public Expression
 
 template<class Container>
 PrimitiveType *PrimitiveType::parseExisting(utils::Parser &parser,
-	const Container &primitiveTypes)
+	Container &primitiveTypes)
 {
 	parser.skipWhiteSpace();
 
 	const auto typeName = parser.parseIdentifier(isIdentifier);
+
+	BOOST_ASSERT(!typeName.empty());
+
 	// TODO: use hash map
 	const auto match = std::find_if(primitiveTypes.cbegin(), primitiveTypes.cend(),
 		[&](const auto &primitiveType)
 		{
 			return primitiveType->name() == typeName;
 		});
-	const auto typeExists = (match != primitiveTypes.cend());
 
-	// Return existing primitive types
-	if (!typeExists)
-		throw utils::ParserException(parser.row(), parser.column(), "Primitive type \"" + typeName + "\" used but never declared");
+	if (match == primitiveTypes.cend())
+	{
+		// Allow implicit type "object"
+		if (typeName == "object")
+		{
+			auto objectType = std::make_unique<PrimitiveType>(PrimitiveType());
+			objectType->m_name = typeName;
+			objectType->setDirty(false);
+			objectType->setDeclared();
+
+			// TODO: make std::vector-independent
+			primitiveTypes.emplace_back(std::move(objectType));
+
+			return primitiveTypes.back().get();
+		}
+		else
+			throw utils::ParserException(parser.row(), parser.column(), "Primitive type \"" + typeName + "\" used but never declared");
+	}
 
 	auto *type = match->get();
 	type->setDirty();

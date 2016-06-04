@@ -26,31 +26,43 @@ PrimitiveType::PrimitiveType()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PrimitiveTypePointer PrimitiveType::parseDeclaration(utils::Parser &parser, Context &context)
+PrimitiveType *PrimitiveType::parseDeclaration(utils::Parser &parser, Context &context)
 {
-	// TODO: refactor
-	if (context.primitiveTypes.empty())
-	{
-		auto object = std::make_unique<PrimitiveType>(PrimitiveType());
-		object->m_name = "object";
-		object->setDirty();
-		object->setDeclared();
-
-		context.primitiveTypes.emplace_back(std::move(object));
-	}
-
 	parser.skipWhiteSpace();
 
+	const auto typeName = parser.parseIdentifier(isIdentifier);
+
+	// TODO: use hash map
+	const auto match = std::find_if(context.primitiveTypes.cbegin(), context.primitiveTypes.cend(),
+		[&](const auto &primitiveType)
+		{
+			return primitiveType->name() == typeName;
+		});
+
+	// Return existing primitive type
+	if (match != context.primitiveTypes.cend())
+	{
+		auto *type = match->get();
+
+		type->setDirty();
+
+		return type;
+	}
+
+	// Create new primitive type if not already existing
 	auto type = std::make_unique<PrimitiveType>(PrimitiveType());
 
-	type->m_name = parser.parseIdentifier(isIdentifier);
+	type->m_name = typeName;
+
+	BOOST_ASSERT(!type->m_name.empty());
 
 	// Flag type for potentially upcoming parent type declaration
 	type->setDirty();
 
 	// TODO: Store constant in hash map
+	context.primitiveTypes.emplace_back(std::move(type));
 
-	return type;
+	return context.primitiveTypes.back().get();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -58,9 +70,7 @@ PrimitiveTypePointer PrimitiveType::parseDeclaration(utils::Parser &parser, Cont
 void PrimitiveType::parseTypedDeclaration(utils::Parser &parser, Context &context)
 {
 	// Parse and store type
-	context.primitiveTypes.emplace_back(parseDeclaration(parser, context));
-
-	const auto &type = context.primitiveTypes.back();
+	auto *type = parseDeclaration(parser, context);
 
 	// Flag type as correctly declared in the types section
 	type->setDeclared();
@@ -86,7 +96,7 @@ void PrimitiveType::parseTypedDeclaration(utils::Parser &parser, Context &contex
 			if (!childType->isDirty())
 				return;
 
-			childType->addParentType(parentType);
+			childType->m_parentTypes.push_back(parentType);
 			childType->setDirty(false);
 		});
 }
@@ -131,13 +141,6 @@ bool PrimitiveType::isDeclared() const
 const std::string &PrimitiveType::name() const
 {
 	return m_name;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void PrimitiveType::addParentType(const PrimitiveType *parentType)
-{
-	m_parentTypes.push_back(parentType);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
