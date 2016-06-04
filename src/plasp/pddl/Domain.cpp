@@ -169,6 +169,7 @@ void Domain::parseRequirementSection()
 		m_context.parser.skipWhiteSpace();
 	}
 
+	// TODO: Do this check only once the problem is parsed
 	// If no requirements are specified, assume STRIPS
 	if (m_requirements.empty())
 		m_requirements.emplace_back(Requirement::Type::STRIPS);
