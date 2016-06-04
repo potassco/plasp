@@ -28,13 +28,13 @@ Constant::Constant()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ConstantPointer Constant::parseDeclaration(utils::Parser &parser, Context &context)
+ConstantPointer Constant::parseDeclaration(Context &context)
 {
-	parser.skipWhiteSpace();
+	context.parser.skipWhiteSpace();
 
 	auto constant = std::make_unique<Constant>(Constant());
 
-	constant->m_name = parser.parseIdentifier(isIdentifier);
+	constant->m_name = context.parser.parseIdentifier(isIdentifier);
 
 	BOOST_ASSERT(constant->m_name != "-");
 
@@ -48,24 +48,24 @@ ConstantPointer Constant::parseDeclaration(utils::Parser &parser, Context &conte
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Constant::parseTypedDeclaration(utils::Parser &parser, Context &context)
+void Constant::parseTypedDeclaration(Context &context)
 {
 	// Parse and store constant
-	context.constants.emplace_back(parseDeclaration(parser, context));
+	context.constants.emplace_back(parseDeclaration(context));
 
 	const auto &constant = context.constants.back();
 
 	// Flag constant as correctly declared in the types section
 	constant->setDeclared();
 
-	parser.skipWhiteSpace();
+	context.parser.skipWhiteSpace();
 
 	// Check for typing information
-	if (!parser.advanceIf('-'))
+	if (!context.parser.advanceIf('-'))
 		return;
 
 	// If existing, parse and store parent type
-	auto *type = PrimitiveType::parseExisting(parser, context);
+	auto *type = PrimitiveType::parseExisting(context);
 
 	// Assign parent type to all types that were previously flagged
 	std::for_each(context.constants.begin(), context.constants.end(),
@@ -81,11 +81,11 @@ void Constant::parseTypedDeclaration(utils::Parser &parser, Context &context)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Constant *Constant::parseExisting(utils::Parser &parser, Context &context)
+Constant *Constant::parseExisting(Context &context)
 {
-	parser.skipWhiteSpace();
+	context.parser.skipWhiteSpace();
 
-	const auto constantName = parser.parseIdentifier(isIdentifier);
+	const auto constantName = context.parser.parseIdentifier(isIdentifier);
 	// TODO: use hash map
 	const auto match = std::find_if(context.constants.cbegin(), context.constants.cend(),
 		[&](const auto &constant)
@@ -95,7 +95,7 @@ Constant *Constant::parseExisting(utils::Parser &parser, Context &context)
 	const auto constantExists = (match != context.constants.cend());
 
 	if (!constantExists)
-		throw utils::ParserException(parser, "Constant \"" + constantName + "\" used but never declared");
+		throw utils::ParserException(context.parser, "Constant \"" + constantName + "\" used but never declared");
 
 	return match->get();
 }

@@ -29,15 +29,15 @@ Variable::Variable()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-VariablePointer Variable::parseDeclaration(utils::Parser &parser)
+VariablePointer Variable::parseDeclaration(Context &context)
 {
-	parser.skipWhiteSpace();
+	context.parser.skipWhiteSpace();
 
-	parser.expect<std::string>("?");
+	context.parser.expect<std::string>("?");
 
 	auto variable = std::make_unique<Variable>(Variable());
 
-	variable->m_name = parser.parseIdentifier(isIdentifier);
+	variable->m_name = context.parser.parseIdentifier(isIdentifier);
 
 	// Flag variable for potentially upcoming type declaration
 	variable->setDirty();
@@ -47,17 +47,17 @@ VariablePointer Variable::parseDeclaration(utils::Parser &parser)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Variable::parseTypedDeclaration(utils::Parser &parser, Context &context, Variables &parameters)
+void Variable::parseTypedDeclaration(Context &context, Variables &parameters)
 {
 	// Parse and store variable itself
-	parameters.emplace_back(parseDeclaration(parser));
+	parameters.emplace_back(parseDeclaration(context));
 
 	auto &parameter = parameters.back();
 
-	parser.skipWhiteSpace();
+	context.parser.skipWhiteSpace();
 
 	// Check if the variable has a type declaration
-	if (!parser.advanceIf('-'))
+	if (!context.parser.advanceIf('-'))
 		return;
 
 	// TODO: do not allow nested either expressions
@@ -77,37 +77,37 @@ void Variable::parseTypedDeclaration(utils::Parser &parser, Context &context, Va
 				});
 		};
 
-	parser.skipWhiteSpace();
+	context.parser.skipWhiteSpace();
 
 	// Parse argument of "either" type (always begins with opening parenthesis)
-	if (parser.currentCharacter() == '(')
+	if (context.parser.currentCharacter() == '(')
 	{
-		parser.expect<std::string>("(");
-		parser.expect<std::string>("either");
+		context.parser.expect<std::string>("(");
+		context.parser.expect<std::string>("either");
 
-		parameter->m_eitherExpression = Either::parse(parser, context, parameters, parseExistingPrimitiveType);
+		parameter->m_eitherExpression = Either::parse(context, parameters, parseExistingPrimitiveType);
 
-		parser.expect<std::string>(")");
+		context.parser.expect<std::string>(")");
 
 		setType(parameter->m_eitherExpression.get());
 		return;
 	}
 
 	// Parse primitive type
-	const auto *type = PrimitiveType::parseExisting(parser, context);
+	const auto *type = PrimitiveType::parseExisting(context);
 
 	setType(type);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const Variable *Variable::parseExisting(utils::Parser &parser, const Variables &variables)
+const Variable *Variable::parseExisting(Context &context, const Variables &variables)
 {
-	parser.skipWhiteSpace();
+	context.parser.skipWhiteSpace();
 
-	parser.expect<std::string>("?");
+	context.parser.expect<std::string>("?");
 
-	const auto variableName = parser.parseIdentifier(isIdentifier);
+	const auto variableName = context.parser.parseIdentifier(isIdentifier);
 
 	const auto match = std::find_if(variables.cbegin(), variables.cend(),
 		[&](const auto &variable)
@@ -116,7 +116,7 @@ const Variable *Variable::parseExisting(utils::Parser &parser, const Variables &
 		});
 
 	if (match == variables.cend())
-		throw utils::ParserException(parser, "Variable \"" + variableName + "\" used but never declared");
+		throw utils::ParserException(context.parser, "Variable \"" + variableName + "\" used but never declared");
 
 	return match->get();
 }

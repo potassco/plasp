@@ -162,7 +162,7 @@ void Domain::parseRequirementSection()
 		if (m_context.parser.currentCharacter() == ':')
 			m_context.parser.advance();
 
-		m_requirements.emplace_back(Requirement::parse(m_context.parser));
+		m_requirements.emplace_back(Requirement::parse(m_context));
 
 		m_context.parser.skipWhiteSpace();
 	}
@@ -242,7 +242,7 @@ void Domain::parseTypeSection()
 		if (m_context.parser.currentCharacter() == '(')
 			throw utils::ParserException(m_context.parser, "Only primitive types are allowed in type section");
 
-		expressions::PrimitiveType::parseTypedDeclaration(m_context.parser, m_context);
+		expressions::PrimitiveType::parseTypedDeclaration(m_context);
 
 		m_context.parser.skipWhiteSpace();
 	}
@@ -259,7 +259,7 @@ void Domain::parseConstantSection()
 	// Store constants
 	while (m_context.parser.currentCharacter() != ')')
 	{
-		expressions::Constant::parseTypedDeclaration(m_context.parser, m_context);
+		expressions::Constant::parseTypedDeclaration(m_context);
 
 		m_context.parser.skipWhiteSpace();
 	}
@@ -276,7 +276,7 @@ void Domain::parsePredicateSection()
 	// Store predicates and their arguments
 	while (m_context.parser.currentCharacter() != ')')
 	{
-		expressions::PredicateDeclaration::parse(m_context.parser, m_context);
+		expressions::PredicateDeclaration::parse(m_context);
 
 		m_context.parser.skipWhiteSpace();
 	}
@@ -290,7 +290,7 @@ void Domain::parseActionSection()
 {
 	m_context.parser.skipWhiteSpace();
 
-	Action::parseDeclaration(m_context.parser, m_context);
+	Action::parseDeclaration(m_context);
 
 	m_context.parser.expect<std::string>(")");
 }

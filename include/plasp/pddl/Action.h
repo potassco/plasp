@@ -21,7 +21,7 @@ namespace pddl
 class Action
 {
 	public:
-		static Action &parseDeclaration(utils::Parser &parser, Context &context);
+		static Action &parseDeclaration(Context &context);
 
 	public:
 		const std::string &name() const;

@@ -25,39 +25,39 @@ Action::Action(std::string name)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Action &Action::parseDeclaration(utils::Parser &parser, Context &context)
+Action &Action::parseDeclaration(Context &context)
 {
-	const auto actionName = parser.parseIdentifier(isIdentifier);
+	const auto actionName = context.parser.parseIdentifier(isIdentifier);
 
 	auto action = std::make_unique<Action>(Action(actionName));
 
-	parser.expect<std::string>(":parameters");
+	context.parser.expect<std::string>(":parameters");
 
-	parser.expect<std::string>("(");
+	context.parser.expect<std::string>("(");
 
 	// Read parameters
-	while (parser.currentCharacter() != ')')
+	while (context.parser.currentCharacter() != ')')
 	{
-		expressions::Variable::parseTypedDeclaration(parser, context, action->m_parameters);
+		expressions::Variable::parseTypedDeclaration(context, action->m_parameters);
 
-		parser.skipWhiteSpace();
+		context.parser.skipWhiteSpace();
 	}
 
-	parser.expect<std::string>(")");
+	context.parser.expect<std::string>(")");
 
 	// Parse preconditions and effects
-	while (parser.currentCharacter() != ')')
+	while (context.parser.currentCharacter() != ')')
 	{
-		parser.expect<std::string>(":");
+		context.parser.expect<std::string>(":");
 
-		const auto sectionIdentifier = parser.parseIdentifier(isIdentifier);
+		const auto sectionIdentifier = context.parser.parseIdentifier(isIdentifier);
 
 		if (sectionIdentifier == "precondition")
-			action->m_precondition = parsePreconditionExpression(parser, context, action->m_parameters);
+			action->m_precondition = parsePreconditionExpression(context, action->m_parameters);
 		else if (sectionIdentifier == "effect")
-			action->m_effect = parseEffectExpression(parser, context, action->m_parameters);
+			action->m_effect = parseEffectExpression(context, action->m_parameters);
 
-		parser.skipWhiteSpace();
+		context.parser.skipWhiteSpace();
 	}
 
 	// Store new action

@@ -2,9 +2,9 @@
 #define __PLASP__PDDL__EXPRESSION__N_ARY_H
 
 #include <plasp/pddl/ConsistencyException.h>
+#include <plasp/pddl/Context.h>
 #include <plasp/pddl/Expression.h>
 #include <plasp/pddl/expressions/Variable.h>
-#include <plasp/utils/Parser.h>
 
 namespace plasp
 {
@@ -26,8 +26,7 @@ class NAry: public Expression
 
 	protected:
 		template<typename ExpressionParser>
-		void parse(utils::Parser &parser, Context &context, const Variables &parameters,
-			ExpressionParser parseExpression);
+		void parse(Context &context, const Variables &parameters, ExpressionParser parseExpression);
 
 	private:
 		Expressions m_arguments;
@@ -36,18 +35,17 @@ class NAry: public Expression
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ExpressionParser>
-void NAry::parse(utils::Parser &parser, Context &context,
-	const Variables &parameters, ExpressionParser parseExpression)
+void NAry::parse(Context &context, const Variables &parameters, ExpressionParser parseExpression)
 {
-	parser.skipWhiteSpace();
+	context.parser.skipWhiteSpace();
 
 	// Assume that expression identifier (and, or, etc.) is already parsed
 	// Parse arguments of the expression
-	while (parser.currentCharacter() != ')')
+	while (context.parser.currentCharacter() != ')')
 	{
-		m_arguments.emplace_back(parseExpression(parser, context, parameters));
+		m_arguments.emplace_back(parseExpression(context, parameters));
 
-		parser.skipWhiteSpace();
+		context.parser.skipWhiteSpace();
 	}
 }
 

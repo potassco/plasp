@@ -27,28 +27,28 @@ PredicateDeclaration::PredicateDeclaration()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void PredicateDeclaration::parse(utils::Parser &parser, Context &context)
+void PredicateDeclaration::parse(Context &context)
 {
-	parser.expect<std::string>("(");
+	context.parser.expect<std::string>("(");
 
 	auto predicate = std::make_unique<PredicateDeclaration>(PredicateDeclaration());
 
-	predicate->m_name = parser.parseIdentifier(isIdentifier);
+	predicate->m_name = context.parser.parseIdentifier(isIdentifier);
 
 	// Flag predicate as correctly declared in the types section
 	predicate->setDeclared();
 
-	parser.skipWhiteSpace();
+	context.parser.skipWhiteSpace();
 
 	// Parse arguments
-	while (parser.currentCharacter() != ')')
+	while (context.parser.currentCharacter() != ')')
 	{
-		expressions::Variable::parseTypedDeclaration(parser, context, predicate->m_arguments);
+		expressions::Variable::parseTypedDeclaration(context, predicate->m_arguments);
 
-		parser.skipWhiteSpace();
+		context.parser.skipWhiteSpace();
 	}
 
-	parser.expect<std::string>(")");
+	context.parser.expect<std::string>(")");
 
 	// Store new predicate
 	context.predicateDeclarations.emplace_back(std::move(predicate));

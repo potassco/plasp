@@ -19,7 +19,7 @@ namespace expressions
 class PredicateDeclaration: public Expression
 {
 	public:
-		static void parse(utils::Parser &parser, Context &context);
+		static void parse(Context &context);
 
 	public:
 		void accept(ExpressionVisitor &expressionVisitor) const override;

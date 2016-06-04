@@ -20,8 +20,8 @@ class Either: public NAry
 {
 	public:
 		template<typename ExpressionParser>
-		static EitherPointer parse(utils::Parser &parser, Context &context,
-			const Variables &parameters, ExpressionParser parseExpression);
+		static EitherPointer parse(Context &context, const Variables &parameters,
+			ExpressionParser parseExpression);
 
 	public:
 		void accept(ExpressionVisitor &expressionVisitor) const override;
@@ -33,12 +33,12 @@ class Either: public NAry
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ExpressionParser>
-EitherPointer Either::parse(utils::Parser &parser, Context &context,
-	const Variables &parameters, ExpressionParser parseExpression)
+EitherPointer Either::parse(Context &context, const Variables &parameters,
+	ExpressionParser parseExpression)
 {
 	auto expression = std::make_unique<Either>(Either());
 
-	expression->NAry::parse(parser, context, parameters, parseExpression);
+	expression->NAry::parse(context, parameters, parseExpression);
 
 	if (expression->arguments().empty())
 		throw ConsistencyException("\"and\" expressions should not be empty");

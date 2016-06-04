@@ -4,7 +4,6 @@
 #include <plasp/pddl/ConsistencyException.h>
 #include <plasp/pddl/Expression.h>
 #include <plasp/pddl/Identifier.h>
-#include <plasp/utils/Parser.h>
 #include <plasp/utils/ParserException.h>
 
 namespace plasp
@@ -23,12 +22,10 @@ namespace expressions
 class PrimitiveType: public Expression
 {
 	public:
-		static PrimitiveType *parseDeclaration(utils::Parser &parser, Context &context);
-		static void parseTypedDeclaration(utils::Parser &parser, Context &context);
+		static PrimitiveType *parseDeclaration(Context &context);
+		static void parseTypedDeclaration(Context &context);
 
-		static PrimitiveType *parseExisting(utils::Parser &parser, Context &context);
-
-		// TODO: method for lazy creation if not existing
+		static PrimitiveType *parseExisting(Context &context);
 
 	public:
 		void accept(ExpressionVisitor &expressionVisitor) const override;

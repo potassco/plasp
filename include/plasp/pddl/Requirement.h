@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include <plasp/utils/Parser.h>
+#include <plasp/pddl/Context.h>
 
 namespace plasp
 {
@@ -49,7 +49,7 @@ class Requirement
 			ActionCosts
 		};
 
-		static Requirement parse(utils::Parser &parser);
+		static Requirement parse(Context &context);
 
 	public:
 		Requirement(Type type);

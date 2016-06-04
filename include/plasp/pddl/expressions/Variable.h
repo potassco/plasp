@@ -19,12 +19,11 @@ namespace expressions
 class Variable: public Expression
 {
 	public:
-		static VariablePointer parseDeclaration(utils::Parser &parser);
+		static VariablePointer parseDeclaration(Context &context);
 
-		static void parseTypedDeclaration(utils::Parser &parser, Context &context,
-			Variables &parameters);
+		static void parseTypedDeclaration(Context &context, Variables &parameters);
 
-		static const Variable *parseExisting(utils::Parser &parser, const Variables &variables);
+		static const Variable *parseExisting(Context &context, const Variables &variables);
 
 	public:
 		void accept(ExpressionVisitor &expressionVisitor) const override;

@@ -22,10 +22,10 @@ namespace expressions
 class Constant: public Expression
 {
 	public:
-		static ConstantPointer parseDeclaration(utils::Parser &parser, Context &context);
-		static void parseTypedDeclaration(utils::Parser &parser, Context &context);
+		static ConstantPointer parseDeclaration(Context &context);
+		static void parseTypedDeclaration(Context &context);
 
-		static Constant *parseExisting(utils::Parser &parser, Context &context);
+		static Constant *parseExisting(Context &context);
 
 		// TODO: method for lazy creation if not existing
 

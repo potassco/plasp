@@ -16,10 +16,9 @@ namespace expressions
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ExpressionPointer parseExistingPrimitiveType(utils::Parser &parser, Context &context,
-	const Variables &parameters)
+ExpressionPointer parseExistingPrimitiveType(Context &context, const Variables &parameters)
 {
-	auto primitiveType = PrimitiveType::parseExisting(parser, context);
+	auto primitiveType = PrimitiveType::parseExisting(context);
 
 	return std::make_unique<Reference<PrimitiveType>>(primitiveType);
 }

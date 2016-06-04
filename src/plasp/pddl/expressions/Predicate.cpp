@@ -27,34 +27,33 @@ Predicate::Predicate()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PredicatePointer Predicate::parse(std::string name, utils::Parser &parser,
-	Context &context, const Variables &parameters)
+PredicatePointer Predicate::parse(std::string name, Context &context, const Variables &parameters)
 {
 	auto predicate = std::make_unique<Predicate>(Predicate());
 
 	predicate->m_name = name;
 
-	parser.skipWhiteSpace();
+	context.parser.skipWhiteSpace();
 
 	// Parse arguments
-	while (parser.currentCharacter() != ')')
+	while (context.parser.currentCharacter() != ')')
 	{
 		// Parse variables
-		if (parser.currentCharacter() == '?')
+		if (context.parser.currentCharacter() == '?')
 		{
-			const auto *variable = Variable::parseExisting(parser, parameters);
+			const auto *variable = Variable::parseExisting(context, parameters);
 			auto variableReference = std::make_unique<Reference<Variable>>(variable);
 			predicate->m_arguments.emplace_back(std::move(variableReference));
 		}
 		// Parse constants
 		else
 		{
-			const auto *constant = Constant::parseExisting(parser, context);
+			const auto *constant = Constant::parseExisting(context);
 			auto constantReference = std::make_unique<Reference<Constant>>(constant);
 			predicate->m_arguments.emplace_back(std::move(constantReference));
 		}
 
-		parser.skipWhiteSpace();
+		context.parser.skipWhiteSpace();
 	}
 
 	// TODO: check that signature matches one of the declared ones

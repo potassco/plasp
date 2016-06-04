@@ -46,11 +46,11 @@ PrimitiveType *PrimitiveType::create(std::string name, Context &context)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PrimitiveType *PrimitiveType::parseDeclaration(utils::Parser &parser, Context &context)
+PrimitiveType *PrimitiveType::parseDeclaration(Context &context)
 {
-	parser.skipWhiteSpace();
+	context.parser.skipWhiteSpace();
 
-	const auto typeName = parser.parseIdentifier(isIdentifier);
+	const auto typeName = context.parser.parseIdentifier(isIdentifier);
 
 	// TODO: use hash map
 	const auto match = std::find_if(context.primitiveTypes.cbegin(), context.primitiveTypes.cend(),
@@ -74,22 +74,22 @@ PrimitiveType *PrimitiveType::parseDeclaration(utils::Parser &parser, Context &c
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void PrimitiveType::parseTypedDeclaration(utils::Parser &parser, Context &context)
+void PrimitiveType::parseTypedDeclaration(Context &context)
 {
 	// Parse and store type
-	auto *type = parseDeclaration(parser, context);
+	auto *type = parseDeclaration(context);
 
 	// Flag type as correctly declared in the types section
 	type->setDeclared();
 
-	parser.skipWhiteSpace();
+	context.parser.skipWhiteSpace();
 
 	// Check for type inheritance
-	if (!parser.advanceIf('-'))
+	if (!context.parser.advanceIf('-'))
 		return;
 
 	// If existing, parse and store parent type
-	auto *parentType = parseExisting(parser, context);
+	auto *parentType = parseExisting(context);
 
 	parentType->setDirty(false);
 
@@ -110,11 +110,11 @@ void PrimitiveType::parseTypedDeclaration(utils::Parser &parser, Context &contex
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PrimitiveType *PrimitiveType::parseExisting(utils::Parser &parser, Context &context)
+PrimitiveType *PrimitiveType::parseExisting(Context &context)
 {
-	parser.skipWhiteSpace();
+	context.parser.skipWhiteSpace();
 
-	const auto typeName = parser.parseIdentifier(isIdentifier);
+	const auto typeName = context.parser.parseIdentifier(isIdentifier);
 
 	BOOST_ASSERT(!typeName.empty());
 

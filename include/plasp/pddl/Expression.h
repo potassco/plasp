@@ -75,13 +75,11 @@ class Expression
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ExpressionPointer parsePreconditionExpression(utils::Parser &parser, Context &context,
+ExpressionPointer parsePreconditionExpression(Context &context,
 	const expressions::Variables &parameters);
-ExpressionPointer parseExpression(utils::Parser &parser, Context &context,
-	const expressions::Variables &parameters);
+ExpressionPointer parseExpression(Context &context, const expressions::Variables &parameters);
 
-ExpressionPointer parseEffectExpression(utils::Parser &parser, Context &context,
-	const expressions::Variables &parameters);
+ExpressionPointer parseEffectExpression(Context &context, const expressions::Variables &parameters);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

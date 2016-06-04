@@ -1,6 +1,7 @@
 #ifndef __PLASP__PDDL__EXPRESSION__NOT_H
 #define __PLASP__PDDL__EXPRESSION__NOT_H
 
+#include <plasp/pddl/Context.h>
 #include <plasp/pddl/Expression.h>
 
 namespace plasp
@@ -20,8 +21,8 @@ class Not: public Expression
 {
 	public:
 		template<typename ExpressionParser>
-		static NotPointer parse(utils::Parser &parser, Context &context,
-			const Variables &parameters, ExpressionParser parseExpression);
+		static NotPointer parse(Context &context, const Variables &parameters,
+			ExpressionParser parseExpression);
 
 	public:
 		void accept(ExpressionVisitor &expressionVisitor) const override;
@@ -37,15 +38,15 @@ class Not: public Expression
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ExpressionParser>
-NotPointer Not::parse(utils::Parser &parser, Context &context,
-	const Variables &parameters, ExpressionParser parseExpression)
+NotPointer Not::parse(Context &context, const Variables &parameters,
+	ExpressionParser parseExpression)
 {
 	auto expression = std::make_unique<Not>(Not());
 
-	parser.skipWhiteSpace();
+	context.parser.skipWhiteSpace();
 
 	// Parse argument
-	expression->m_argument = parseExpression(parser, context, parameters);
+	expression->m_argument = parseExpression(context, parameters);
 
 	return expression;
 }

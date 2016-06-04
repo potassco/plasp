@@ -79,14 +79,14 @@ Requirement::Requirement(Requirement::Type type)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Requirement Requirement::parse(utils::Parser &parser)
+Requirement Requirement::parse(Context &context)
 {
-	const auto requirementName = parser.parseIdentifier(isIdentifier);
+	const auto requirementName = context.parser.parseIdentifier(isIdentifier);
 
 	const auto match = requirementTypesToPDDL.right.find(requirementName);
 
 	if (match == requirementTypesToPDDL.right.end())
-		throw utils::ParserException(parser, "Unknown PDDL requirement \"" + requirementName + "\"");
+		throw utils::ParserException(context.parser, "Unknown PDDL requirement \"" + requirementName + "\"");
 
 	return Requirement(match->second);
 }
