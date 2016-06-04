@@ -130,10 +130,9 @@ void Domain::parseSection(utils::Parser &parser)
 			}
 		};
 
-	// TODO: make naming consistent
 	// TODO: check order of the sections
 	if (sectionIdentifier == "requirements")
-		parseRequirementsSection(parser);
+		parseRequirementSection(parser);
 	else if (sectionIdentifier == "types")
 		parseTypeSection(parser);
 	else if (sectionIdentifier == "constants")
@@ -154,7 +153,7 @@ void Domain::parseSection(utils::Parser &parser)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Domain::parseRequirementsSection(utils::Parser &parser)
+void Domain::parseRequirementSection(utils::Parser &parser)
 {
 	parser.skipWhiteSpace();
 

@@ -37,7 +37,7 @@ class Domain
 
 		void parseSection(utils::Parser &parser);
 
-		void parseRequirementsSection(utils::Parser &parser);
+		void parseRequirementSection(utils::Parser &parser);
 		bool hasRequirement(Requirement::Type requirementType) const;
 		void computeDerivedRequirements();
 
