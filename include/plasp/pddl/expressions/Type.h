@@ -20,8 +20,8 @@ namespace expressions
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ExpressionPointer parseExistingPrimitiveType(utils::Parser &parser, Context &context, const Variables &parameters);
-//ExpressionPointer parseExistingType(utils::Parser &parser, Context &context, const Variables &parameters);
+ExpressionPointer parseExistingPrimitiveType(utils::Parser &parser, Context &context,
+	const Variables &parameters);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
