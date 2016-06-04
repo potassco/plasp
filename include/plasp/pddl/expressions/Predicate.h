@@ -1,5 +1,5 @@
-#ifndef __PLASP__PDDL__EXPRESSION__PREDICATE_H
-#define __PLASP__PDDL__EXPRESSION__PREDICATE_H
+#ifndef __PLASP__PDDL__EXPRESSIONS__PREDICATE_H
+#define __PLASP__PDDL__EXPRESSIONS__PREDICATE_H
 
 #include <plasp/pddl/Expression.h>
 

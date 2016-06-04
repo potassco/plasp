@@ -1,5 +1,5 @@
-#ifndef __PLASP__PDDL__EXPRESSION__OR_H
-#define __PLASP__PDDL__EXPRESSION__OR_H
+#ifndef __PLASP__PDDL__EXPRESSIONS__OR_H
+#define __PLASP__PDDL__EXPRESSIONS__OR_H
 
 #include <plasp/pddl/expressions/NAry.h>
 

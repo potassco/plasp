@@ -1,5 +1,5 @@
-#ifndef __PLASP__PDDL__EXPRESSION__NOT_H
-#define __PLASP__PDDL__EXPRESSION__NOT_H
+#ifndef __PLASP__PDDL__EXPRESSIONS__NOT_H
+#define __PLASP__PDDL__EXPRESSIONS__NOT_H
 
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Expression.h>

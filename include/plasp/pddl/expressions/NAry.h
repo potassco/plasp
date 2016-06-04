@@ -1,5 +1,5 @@
-#ifndef __PLASP__PDDL__EXPRESSION__N_ARY_H
-#define __PLASP__PDDL__EXPRESSION__N_ARY_H
+#ifndef __PLASP__PDDL__EXPRESSIONS__N_ARY_H
+#define __PLASP__PDDL__EXPRESSIONS__N_ARY_H
 
 #include <plasp/pddl/ConsistencyException.h>
 #include <plasp/pddl/Context.h>

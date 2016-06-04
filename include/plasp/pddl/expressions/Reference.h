@@ -1,5 +1,5 @@
-#ifndef __PLASP__PDDL__EXPRESSION__REFERENCE_H
-#define __PLASP__PDDL__EXPRESSION__REFERENCE_H
+#ifndef __PLASP__PDDL__EXPRESSIONS__REFERENCE_H
+#define __PLASP__PDDL__EXPRESSIONS__REFERENCE_H
 
 #include <plasp/pddl/Expression.h>
 #include <plasp/pddl/ExpressionVisitor.h>

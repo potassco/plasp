@@ -1,5 +1,5 @@
-#ifndef __PLASP__PDDL__EXPRESSION__EITHER_H
-#define __PLASP__PDDL__EXPRESSION__EITHER_H
+#ifndef __PLASP__PDDL__EXPRESSIONS__EITHER_H
+#define __PLASP__PDDL__EXPRESSIONS__EITHER_H
 
 #include <plasp/pddl/expressions/NAry.h>
 
