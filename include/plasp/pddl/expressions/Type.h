@@ -1,11 +1,7 @@
 #ifndef __PLASP__PDDL__EXPRESSIONS__TYPE_H
 #define __PLASP__PDDL__EXPRESSIONS__TYPE_H
 
-#include <boost/variant.hpp>
-
-#include <plasp/pddl/expressions/Either.h>
-#include <plasp/pddl/expressions/PrimitiveType.h>
-#include <plasp/utils/Parser.h>
+#include <plasp/pddl/Expression.h>
 
 namespace plasp
 {

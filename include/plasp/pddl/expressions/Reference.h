@@ -1,6 +1,8 @@
 #ifndef __PLASP__PDDL__EXPRESSIONS__REFERENCE_H
 #define __PLASP__PDDL__EXPRESSIONS__REFERENCE_H
 
+#include <boost/assert.hpp>
+
 #include <plasp/pddl/Expression.h>
 #include <plasp/pddl/ExpressionVisitor.h>
 #include <plasp/utils/Parser.h>

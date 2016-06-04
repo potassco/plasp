@@ -3,8 +3,6 @@
 
 #include <memory>
 
-#include <boost/variant.hpp>
-
 #include <plasp/utils/Parser.h>
 
 namespace plasp

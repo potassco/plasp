@@ -2,6 +2,8 @@
 
 #include <algorithm>
 
+#include <boost/assert.hpp>
+
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/ExpressionVisitor.h>
 
