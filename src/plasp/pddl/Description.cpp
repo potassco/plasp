@@ -89,8 +89,8 @@ void Description::parseSection()
 
 	if (sectionIdentifier == "domain")
 		m_domain = std::make_unique<Domain>(Domain::fromPDDL(m_context));
-	//else if (sectionIdentifier == "problem")
-	//	m_problem = std::make_unique<Problem>(Problem::fromPDDL(parser));
+	else if (sectionIdentifier == "problem")
+		m_problem = std::make_unique<Problem>(Problem::fromPDDL(m_context));
 	else
 		throw utils::ParserException(m_context.parser, "Unknown PDDL section \"" + sectionIdentifier + "\"");
 }

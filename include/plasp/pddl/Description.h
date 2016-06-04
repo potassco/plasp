@@ -4,6 +4,7 @@
 #include <boost/filesystem/path.hpp>
 
 #include <plasp/pddl/Domain.h>
+#include <plasp/pddl/Problem.h>
 #include <plasp/utils/Parser.h>
 
 namespace plasp
@@ -36,7 +37,7 @@ class Description
 		Context m_context;
 
 		std::unique_ptr<Domain> m_domain;
-		//std::unique_ptr<Problem> m_problem;
+		std::unique_ptr<Problem> m_problem;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
