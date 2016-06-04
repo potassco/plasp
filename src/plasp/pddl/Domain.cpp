@@ -336,6 +336,7 @@ void Domain::checkConsistency()
 	// Verify that all variables have types
 	// Verify that constants are unique
 	// Verify that all primitive types are unique
+	// Check for case-sensitivity issues
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
