@@ -167,8 +167,9 @@ void Domain::parseRequirementSection()
 		m_context.parser.skipWhiteSpace();
 	}
 
+	// If no requirements are specified, assume STRIPS
 	if (m_requirements.empty())
-		throw utils::ParserException(m_context.parser, "Requirements section does not contain any requirements");
+		m_requirements.emplace_back(Requirement::Type::STRIPS);
 
 	m_context.parser.expect<std::string>(")");
 }
@@ -198,10 +199,6 @@ void Domain::computeDerivedRequirements()
 
 			m_requirements.push_back(Requirement(requirement));
 		};
-
-	// If no requirements are specified, assume STRIPS
-	if (m_requirements.empty())
-		addRequirementUnique(Requirement::Type::STRIPS);
 
 	if (hasRequirement(Requirement::Type::ADL))
 	{
