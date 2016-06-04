@@ -58,7 +58,7 @@ Reference<Type>::Reference(const Type *value)
 template<class Type>
 void Reference<Type>::accept(plasp::pddl::ExpressionVisitor &expressionVisitor) const
 {
-	expressionVisitor.visit(*this);
+	expressionVisitor.visit(*m_value);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
