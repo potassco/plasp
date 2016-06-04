@@ -87,17 +87,19 @@ ExpressionPointer parseExpressionContent(const std::string &expressionIdentifier
 {
 	context.parser.skipWhiteSpace();
 
-	ExpressionPointer expression;
-
 	if (expressionIdentifier == "and")
-		expression = expressions::And::parse(context, parameters, parseExpression);
-	else if (expressionIdentifier == "or")
-		expression = expressions::Or::parse(context, parameters, parseExpression);
-	else if (expressionIdentifier == "not")
-		expression = expressions::Not::parse(context, parameters, parseExpression);
-	else if (expressionIdentifier == "imply")
-		expression = expressions::Imply::parse(context, parameters, parseExpression);
-	else if (expressionIdentifier == "exists"
+		return expressions::And::parse(context, parameters, parseExpression);
+
+	if (expressionIdentifier == "or")
+		return expressions::Or::parse(context, parameters, parseExpression);
+
+	if (expressionIdentifier == "not")
+		return expressions::Not::parse(context, parameters, parseExpression);
+
+	if (expressionIdentifier == "imply")
+		return expressions::Imply::parse(context, parameters, parseExpression);
+
+	if (expressionIdentifier == "exists"
 		|| expressionIdentifier == "forall"
 		|| expressionIdentifier == "-"
 		|| expressionIdentifier == "="
@@ -113,23 +115,19 @@ ExpressionPointer parseExpressionContent(const std::string &expressionIdentifier
 	{
 		throwUnsupported(context.parser, expressionIdentifier);
 	}
-	else
-	{
-		// Check if predicate with that name exists
-		const auto match = std::find_if(context.predicateDeclarations.cbegin(), context.predicateDeclarations.cend(),
-			[&](const auto &predicate)
-			{
-				return predicate->name() == expressionIdentifier;
-			});
 
-		// If predicate exists, parse it
-		if (match != context.predicateDeclarations.cend())
-			expression = expressions::Predicate::parse(expressionIdentifier, context, parameters);
-		else
-			throw utils::ParserException(context.parser, "Expression \"" + expressionIdentifier + "\" not allowed in this context");
-	}
+	// Check if predicate with that name exists
+	const auto match = std::find_if(context.predicateDeclarations.cbegin(), context.predicateDeclarations.cend(),
+		[&](const auto &predicate)
+		{
+			return predicate->name() == expressionIdentifier;
+		});
 
-	return expression;
+	// If predicate exists, parse it
+	if (match != context.predicateDeclarations.cend())
+		return expressions::Predicate::parse(expressionIdentifier, context, parameters);
+
+	throw utils::ParserException(context.parser, "Expression \"" + expressionIdentifier + "\" not allowed in this context");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -165,8 +163,9 @@ ExpressionPointer parseEffectBodyExpressionContent(const std::string &expression
 	ExpressionPointer expression;
 
 	if (expressionIdentifier == "not")
-		expression = expressions::Not::parse(context, parameters, parsePredicate);
-	else if (expressionIdentifier == "="
+		return expressions::Not::parse(context, parameters, parsePredicate);
+
+	if (expressionIdentifier == "="
 		|| expressionIdentifier == "assign"
 		|| expressionIdentifier == "scale-up"
 		|| expressionIdentifier == "scale-down"
@@ -175,23 +174,19 @@ ExpressionPointer parseEffectBodyExpressionContent(const std::string &expression
 	{
 		throwUnsupported(context.parser, expressionIdentifier);
 	}
-	else
-	{
-		// Check if predicate with that name exists
-		const auto match = std::find_if(context.predicateDeclarations.cbegin(), context.predicateDeclarations.cend(),
-			[&](const auto &predicate)
-			{
-				return predicate->name() == expressionIdentifier;
-			});
 
-		// If predicate exists, parse it
-		if (match != context.predicateDeclarations.cend())
-			expression = expressions::Predicate::parse(expressionIdentifier, context, parameters);
-		else
-			throw utils::ParserException(context.parser, "Expression \"" + expressionIdentifier + "\" not allowed in this context");
-	}
+	// Check if predicate with that name exists
+	const auto match = std::find_if(context.predicateDeclarations.cbegin(), context.predicateDeclarations.cend(),
+		[&](const auto &predicate)
+		{
+			return predicate->name() == expressionIdentifier;
+		});
 
-	return expression;
+	// If predicate exists, parse it
+	if (match != context.predicateDeclarations.cend())
+		return expressions::Predicate::parse(expressionIdentifier, context, parameters);
+
+	throw utils::ParserException(context.parser, "Expression \"" + expressionIdentifier + "\" not allowed in this context");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
