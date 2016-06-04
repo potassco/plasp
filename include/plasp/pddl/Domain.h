@@ -1,8 +1,6 @@
 #ifndef __PLASP__PDDL__DOMAIN_H
 #define __PLASP__PDDL__DOMAIN_H
 
-#include <unordered_map>
-
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Expression.h>
 #include <plasp/pddl/Requirement.h>
