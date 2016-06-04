@@ -10,6 +10,7 @@
 #include <plasp/pddl/expressions/Constant.h>
 #include <plasp/pddl/expressions/PredicateDeclaration.h>
 #include <plasp/pddl/expressions/PrimitiveType.h>
+#include <plasp/utils/Logger.h>
 
 namespace plasp
 {
@@ -31,6 +32,7 @@ class Context
 		}
 
 		utils::Parser &parser;
+		utils::Logger logger;
 
 		expressions::PrimitiveTypes primitiveTypes;
 		//std::unordered_map<std::string, expressions::PrimitiveType *> primitiveTypesHashMap;

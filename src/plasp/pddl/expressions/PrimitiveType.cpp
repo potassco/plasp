@@ -129,7 +129,7 @@ PrimitiveType *PrimitiveType::parseExisting(Context &context)
 	{
 		// Primitive type "object" is implicitly declared
 		if (typeName != "object")
-			throw ConsistencyException("Primitive type \"" + typeName + "\" used but never declared");
+			context.logger.parserWarning(context.parser, "Primitive type \"" + typeName + "\" used but never declared");
 
 		return create(typeName, context);
 	}
