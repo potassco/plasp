@@ -159,8 +159,7 @@ void Domain::parseRequirementSection()
 
 	while (m_context.parser.currentCharacter() != ')')
 	{
-		if (m_context.parser.currentCharacter() == ':')
-			m_context.parser.advance();
+		m_context.parser.expect<std::string>(":");
 
 		m_requirements.emplace_back(Requirement::parse(m_context));
 
