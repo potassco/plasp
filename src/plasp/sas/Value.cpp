@@ -74,7 +74,7 @@ Value Value::fromSAS(utils::Parser &parser)
 	else if (sasSign == "NegatedAtom")
 		value.m_sign = Value::Sign::Negative;
 	else
-		throw utils::ParserException(parser.row(), parser.column(), "Invalid value sign \"" + sasSign + "\"");
+		throw utils::ParserException(parser, "Invalid value sign \"" + sasSign + "\"");
 
 	try
 	{
@@ -90,7 +90,7 @@ Value Value::fromSAS(utils::Parser &parser)
 	}
 	catch (const std::exception &e)
 	{
-		throw utils::ParserException(parser.row(), parser.column(), std::string("Could not parse variable value (") + e.what() + ")");
+		throw utils::ParserException(parser, std::string("Could not parse variable value (") + e.what() + ")");
 	}
 
 	return value;
@@ -106,7 +106,7 @@ const Value &Value::referenceFromSAS(utils::Parser &parser, const Variable &vari
 		return Value::Any;
 
 	if (valueID < 0 || static_cast<size_t>(valueID) >= variable.values().size())
-		throw utils::ParserException(parser.row(), parser.column(), "Value index out of range (variable " + variable.name() + ", index " + std::to_string(valueID) + ")");
+		throw utils::ParserException(parser, "Value index out of range (variable " + variable.name() + ", index " + std::to_string(valueID) + ")");
 
 	return variable.values()[valueID];
 }

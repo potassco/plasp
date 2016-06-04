@@ -32,7 +32,7 @@ ExpressionPointer parsePredicate(utils::Parser &parser, Context &context,
 
 void throwUnsupported(const utils::Parser &parser, const std::string &expressionIdentifier)
 {
-	throw utils::ParserException(parser.row(), parser.column(), "Expression type \"" + expressionIdentifier + "\" currently unsupported");
+	throw utils::ParserException(parser, "Expression type \"" + expressionIdentifier + "\" currently unsupported");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -125,7 +125,7 @@ ExpressionPointer parseExpressionContent(const std::string &expressionIdentifier
 		if (match != context.predicateDeclarations.cend())
 			expression = expressions::Predicate::parse(expressionIdentifier, parser, context, parameters);
 		else
-			throw utils::ParserException(parser.row(), parser.column(), "Expression \"" + expressionIdentifier + "\" not allowed in this context");
+			throw utils::ParserException(parser, "Expression \"" + expressionIdentifier + "\" not allowed in this context");
 	}
 
 	return expression;
@@ -188,7 +188,7 @@ ExpressionPointer parseEffectBodyExpressionContent(const std::string &expression
 		if (match != context.predicateDeclarations.cend())
 			expression = expressions::Predicate::parse(expressionIdentifier, parser, context, parameters);
 		else
-			throw utils::ParserException(parser.row(), parser.column(), "Expression \"" + expressionIdentifier + "\" not allowed in this context");
+			throw utils::ParserException(parser, "Expression \"" + expressionIdentifier + "\" not allowed in this context");
 	}
 
 	return expression;
@@ -214,7 +214,7 @@ ExpressionPointer parsePredicate(utils::Parser &parser, Context &context,
 
 	// If predicate exists, parse it
 	if (match == context.predicateDeclarations.cend())
-		throw utils::ParserException(parser.row(), parser.column(), "Unknown predicate \"" + predicateName + "\"");
+		throw utils::ParserException(parser, "Unknown predicate \"" + predicateName + "\"");
 
 	expression = expressions::Predicate::parse(predicateName, parser, context, parameters);
 

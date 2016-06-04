@@ -28,24 +28,24 @@ Domain::Domain(Context &context)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Domain Domain::fromPDDL(utils::Parser &parser, Context &context)
+Domain Domain::fromPDDL(Context &context)
 {
 	Domain domain(context);
 
-	domain.m_name = parser.parseIdentifier(isIdentifier);
+	domain.m_name = context.parser.parseIdentifier(isIdentifier);
 
 	std::cout << "Parsing domain " << domain.m_name << std::endl;
 
-	parser.expect<std::string>(")");
+	context.parser.expect<std::string>(")");
 
 	while (true)
 	{
-		parser.skipWhiteSpace();
+		context.parser.skipWhiteSpace();
 
-		if (parser.currentCharacter() == ')')
+		if (context.parser.currentCharacter() == ')')
 			break;
 
-		domain.parseSection(parser);
+		domain.parseSection();
 	}
 
 	domain.computeDerivedRequirements();
@@ -99,12 +99,12 @@ const std::vector<std::unique_ptr<Action>> &Domain::actions() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Domain::parseSection(utils::Parser &parser)
+void Domain::parseSection()
 {
-	parser.expect<std::string>("(");
-	parser.expect<std::string>(":");
+	m_context.parser.expect<std::string>("(");
+	m_context.parser.expect<std::string>(":");
 
-	const auto sectionIdentifier = parser.parseIdentifier(isIdentifier);
+	const auto sectionIdentifier = m_context.parser.parseIdentifier(isIdentifier);
 
 	const auto skipSection =
 		[&]()
@@ -115,8 +115,8 @@ void Domain::parseSection(utils::Parser &parser)
 
 			while (true)
 			{
-				const auto character = parser.currentCharacter();
-				parser.advance();
+				const auto character = m_context.parser.currentCharacter();
+				m_context.parser.advance();
 
 				if (character == '(')
 					openParentheses++;
@@ -132,19 +132,19 @@ void Domain::parseSection(utils::Parser &parser)
 
 	// TODO: check order of the sections
 	if (sectionIdentifier == "requirements")
-		parseRequirementSection(parser);
+		parseRequirementSection();
 	else if (sectionIdentifier == "types")
-		parseTypeSection(parser);
+		parseTypeSection();
 	else if (sectionIdentifier == "constants")
-		parseConstantSection(parser);
+		parseConstantSection();
 	else if (sectionIdentifier == "predicates")
-		parsePredicateSection(parser);
+		parsePredicateSection();
 	else if (sectionIdentifier == "functions")
 		skipSection();
 	else if (sectionIdentifier == "constraints")
 		skipSection();
 	else if (sectionIdentifier == "action")
-		parseActionSection(parser);
+		parseActionSection();
 	else if (sectionIdentifier == "durative-action")
 		skipSection();
 	else if (sectionIdentifier == "derived")
@@ -153,24 +153,24 @@ void Domain::parseSection(utils::Parser &parser)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Domain::parseRequirementSection(utils::Parser &parser)
+void Domain::parseRequirementSection()
 {
-	parser.skipWhiteSpace();
+	m_context.parser.skipWhiteSpace();
 
-	while (parser.currentCharacter() != ')')
+	while (m_context.parser.currentCharacter() != ')')
 	{
-		if (parser.currentCharacter() == ':')
-			parser.advance();
+		if (m_context.parser.currentCharacter() == ':')
+			m_context.parser.advance();
 
-		m_requirements.emplace_back(Requirement::parse(parser));
+		m_requirements.emplace_back(Requirement::parse(m_context.parser));
 
-		parser.skipWhiteSpace();
+		m_context.parser.skipWhiteSpace();
 	}
 
 	if (m_requirements.empty())
-		throw utils::ParserException(parser.row(), parser.column(), "Requirements section does not contain any requirements");
+		throw utils::ParserException(m_context.parser, "Requirements section does not contain any requirements");
 
-	parser.expect<std::string>(")");
+	m_context.parser.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -232,67 +232,67 @@ void Domain::computeDerivedRequirements()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Domain::parseTypeSection(utils::Parser &parser)
+void Domain::parseTypeSection()
 {
-	parser.skipWhiteSpace();
+	m_context.parser.skipWhiteSpace();
 
 	// Store types and their parent types
-	while (parser.currentCharacter() != ')')
+	while (m_context.parser.currentCharacter() != ')')
 	{
-		if (parser.currentCharacter() == '(')
-			throw utils::ParserException(parser.row(), parser.column(), "Only primitive types are allowed in type section");
+		if (m_context.parser.currentCharacter() == '(')
+			throw utils::ParserException(m_context.parser, "Only primitive types are allowed in type section");
 
-		expressions::PrimitiveType::parseTypedDeclaration(parser, m_context);
+		expressions::PrimitiveType::parseTypedDeclaration(m_context.parser, m_context);
 
-		parser.skipWhiteSpace();
+		m_context.parser.skipWhiteSpace();
 	}
 
-	parser.expect<std::string>(")");
+	m_context.parser.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Domain::parseConstantSection(utils::Parser &parser)
+void Domain::parseConstantSection()
 {
-	parser.skipWhiteSpace();
+	m_context.parser.skipWhiteSpace();
 
 	// Store constants
-	while (parser.currentCharacter() != ')')
+	while (m_context.parser.currentCharacter() != ')')
 	{
-		expressions::Constant::parseTypedDeclaration(parser, m_context);
+		expressions::Constant::parseTypedDeclaration(m_context.parser, m_context);
 
-		parser.skipWhiteSpace();
+		m_context.parser.skipWhiteSpace();
 	}
 
-	parser.expect<std::string>(")");
+	m_context.parser.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Domain::parsePredicateSection(utils::Parser &parser)
+void Domain::parsePredicateSection()
 {
-	parser.skipWhiteSpace();
+	m_context.parser.skipWhiteSpace();
 
 	// Store predicates and their arguments
-	while (parser.currentCharacter() != ')')
+	while (m_context.parser.currentCharacter() != ')')
 	{
-		expressions::PredicateDeclaration::parse(parser, m_context);
+		expressions::PredicateDeclaration::parse(m_context.parser, m_context);
 
-		parser.skipWhiteSpace();
+		m_context.parser.skipWhiteSpace();
 	}
 
-	parser.expect<std::string>(")");
+	m_context.parser.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Domain::parseActionSection(utils::Parser &parser)
+void Domain::parseActionSection()
 {
-	parser.skipWhiteSpace();
+	m_context.parser.skipWhiteSpace();
 
-	Action::parseDeclaration(parser, m_context);
+	Action::parseDeclaration(m_context.parser, m_context);
 
-	parser.expect<std::string>(")");
+	m_context.parser.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

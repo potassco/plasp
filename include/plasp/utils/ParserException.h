@@ -4,6 +4,8 @@
 #include <exception>
 #include <string>
 
+#include <plasp/utils/Parser.h>
+
 namespace plasp
 {
 namespace utils
@@ -18,18 +20,18 @@ namespace utils
 class ParserException: public std::exception
 {
 	public:
-		explicit ParserException(size_t row, size_t column)
-		:	ParserException(row, column, "Unspecified parser error")
+		explicit ParserException(const utils::Parser &parser)
+		:	ParserException(parser, "Unspecified parser error")
 		{
 		}
 
-		explicit ParserException(size_t row, size_t column, const char *message)
-		:	ParserException(row, column, static_cast<std::string>(message))
+		explicit ParserException(const utils::Parser &parser, const char *message)
+		:	ParserException(parser, static_cast<std::string>(message))
 		{
 		}
 
-		explicit ParserException(size_t row, size_t column, const std::string &message)
-		:	m_message{std::to_string(row) + ":" + std::to_string(column) + "\t" + message}
+		explicit ParserException(const utils::Parser &parser, const std::string &message)
+		:	m_message{std::to_string(parser.row()) + ":" + std::to_string(parser.column()) + "\t" + message}
 		{
 		}
 

@@ -71,10 +71,10 @@ bool Parser::atEndOfFile() const
 void Parser::checkStream() const
 {
 	if (atEndOfFile())
-		throw ParserException(m_row, m_column, "Reading past end of file");
+		throw ParserException(*this, "Reading past end of file");
 
 	if (m_istream.fail())
-		throw ParserException(m_row, m_column);
+		throw ParserException(*this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -196,7 +196,7 @@ void Parser::expect<std::string>(const std::string &expectedValue)
 			const auto character = static_cast<char>(this->currentCharacter());
 
 			if (character != expectedCharacter)
-				throw ParserException(m_row, m_column, "Unexpected string, expected \"" + expectedValue + "\" (expected character '" + expectedCharacter + "', got '" + character + "')");
+				throw ParserException(*this, "Unexpected string, expected \"" + expectedValue + "\" (expected character '" + expectedCharacter + "', got '" + character + "')");
 
 			this->advance();
 		});
@@ -209,7 +209,7 @@ uint64_t Parser::parseIntegerBody()
 	checkStream();
 
 	if (!std::isdigit(currentCharacter()))
-		throw ParserException(m_row, m_column, "Could not parse integer value");
+		throw ParserException(*this, "Could not parse integer value");
 
 	uint64_t value = 0;
 
@@ -251,7 +251,7 @@ uint64_t Parser::parse<uint64_t>()
 	skipWhiteSpace();
 
 	if (currentCharacter() == '-')
-		throw ParserException(m_row, m_column, "Expected unsigned integer, got signed one");
+		throw ParserException(*this, "Expected unsigned integer, got signed one");
 
 	return parseIntegerBody();
 }
@@ -264,7 +264,7 @@ void Parser::expect<int64_t>(const int64_t &expectedValue)
 	const auto value = parse<int64_t>();
 
 	if (value != expectedValue)
-		throw ParserException(m_row, m_column, "Unexpected value " + std::to_string(value) + ", expected " + std::to_string(expectedValue));
+		throw ParserException(*this, "Unexpected value " + std::to_string(value) + ", expected " + std::to_string(expectedValue));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -275,7 +275,7 @@ void Parser::expect<uint64_t>(const uint64_t &expectedValue)
 	const auto value = parse<uint64_t>();
 
 	if (value != expectedValue)
-		throw ParserException(m_row, m_column, "Unexpected value " + std::to_string(value) + ", expected " + std::to_string(expectedValue));
+		throw ParserException(*this, "Unexpected value " + std::to_string(value) + ", expected " + std::to_string(expectedValue));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -387,7 +387,7 @@ bool Parser::parse<bool>()
 	if (advanceIf('1'))
 		return true;
 
-	throw ParserException(m_row, m_column, "Could not parse Boolean value");
+	throw ParserException(*this, "Could not parse Boolean value");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -398,7 +398,7 @@ void Parser::expect<bool>(const bool &expectedValue)
 	const auto value = parse<bool>();
 
 	if (value != expectedValue)
-		throw ParserException(m_row, m_column, "Unexpected value " + std::to_string(value) + ", expected " + std::to_string(expectedValue));
+		throw ParserException(*this, "Unexpected value " + std::to_string(value) + ", expected " + std::to_string(expectedValue));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

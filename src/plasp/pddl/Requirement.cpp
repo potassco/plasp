@@ -86,7 +86,7 @@ Requirement Requirement::parse(utils::Parser &parser)
 	const auto match = requirementTypesToPDDL.right.find(requirementName);
 
 	if (match == requirementTypesToPDDL.right.end())
-		throw utils::ParserException(parser.row(), parser.column(), "Unknown PDDL requirement \"" + requirementName + "\"");
+		throw utils::ParserException(parser, "Unknown PDDL requirement \"" + requirementName + "\"");
 
 	return Requirement(match->second);
 }

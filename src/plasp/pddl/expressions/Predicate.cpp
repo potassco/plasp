@@ -49,7 +49,7 @@ PredicatePointer Predicate::parse(std::string name, utils::Parser &parser,
 		// Parse constants
 		else
 		{
-			const auto *constant = Constant::parseExisting(parser, context.constants);
+			const auto *constant = Constant::parseExisting(parser, context);
 			auto constantReference = std::make_unique<Reference<Constant>>(constant);
 			predicate->m_arguments.emplace_back(std::move(constantReference));
 		}

@@ -25,6 +25,13 @@ namespace pddl
 class Context
 {
 	public:
+		Context(utils::Parser &parser)
+		:	parser(parser)
+		{
+		}
+
+		utils::Parser &parser;
+
 		expressions::PrimitiveTypes primitiveTypes;
 		//std::unordered_map<std::string, expressions::PrimitiveType *> primitiveTypesHashMap;
 

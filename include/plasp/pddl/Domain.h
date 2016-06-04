@@ -6,7 +6,6 @@
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Expression.h>
 #include <plasp/pddl/Requirement.h>
-#include <plasp/utils/Parser.h>
 
 namespace plasp
 {
@@ -22,7 +21,7 @@ namespace pddl
 class Domain
 {
 	public:
-		static Domain fromPDDL(utils::Parser &parser, Context &context);
+		static Domain fromPDDL(Context &context);
 
 	public:
 		const std::string &name() const;
@@ -35,19 +34,19 @@ class Domain
 	private:
 		Domain(Context &context);
 
-		void parseSection(utils::Parser &parser);
+		void parseSection();
 
-		void parseRequirementSection(utils::Parser &parser);
+		void parseRequirementSection();
 		bool hasRequirement(Requirement::Type requirementType) const;
 		void computeDerivedRequirements();
 
-		void parseTypeSection(utils::Parser &parser);
+		void parseTypeSection();
 
-		void parseConstantSection(utils::Parser &parser);
+		void parseConstantSection();
 
-		void parsePredicateSection(utils::Parser &parser);
+		void parsePredicateSection();
 
-		void parseActionSection(utils::Parser &parser);
+		void parseActionSection();
 
 		void checkConsistency();
 

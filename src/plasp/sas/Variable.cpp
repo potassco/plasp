@@ -41,7 +41,7 @@ Variable Variable::fromSAS(utils::Parser &parser)
 
 		// <none of those> values are only allowed at the end
 		if (j < numberOfValues - 1 && variable.m_values[j] == Value::None)
-			throw utils::ParserException(parser.row(), parser.column(), "<none of those> value must be the last value of a variable");
+			throw utils::ParserException(parser, "<none of those> value must be the last value of a variable");
 	}
 
 	parser.expect<std::string>("end_variable");
@@ -63,7 +63,7 @@ const Variable &Variable::referenceFromSAS(utils::Parser &parser, const Variable
 	const auto variableID = parser.parse<size_t>();
 
 	if (variableID >= variables.size())
-		throw utils::ParserException(parser.row(), parser.column(), "Variable index out of range (index " + std::to_string(variableID) + ")");
+		throw utils::ParserException(parser, "Variable index out of range (index " + std::to_string(variableID) + ")");
 
 	return variables[variableID];
 }

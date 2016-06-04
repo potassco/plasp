@@ -27,12 +27,14 @@ class Description
 		const Domain &domain() const;
 
 	private:
-		Description() = default;
+		Description(std::istream &istream);
 
-		void parseContent(utils::Parser &parser);
-		void parseSection(utils::Parser &parser);
+		void parseContent();
+		void parseSection();
 
+		utils::Parser m_parser;
 		Context m_context;
+
 		std::unique_ptr<Domain> m_domain;
 		//std::unique_ptr<Problem> m_problem;
 };

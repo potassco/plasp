@@ -25,8 +25,7 @@ class Constant: public Expression
 		static ConstantPointer parseDeclaration(utils::Parser &parser, Context &context);
 		static void parseTypedDeclaration(utils::Parser &parser, Context &context);
 
-		template<class Container>
-		static Constant *parseExisting(utils::Parser &parser, const Container &constants);
+		static Constant *parseExisting(utils::Parser &parser, Context &context);
 
 		// TODO: method for lazy creation if not existing
 
@@ -55,28 +54,6 @@ class Constant: public Expression
 
 		const PrimitiveType *m_type;
 };
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<class Container>
-Constant *Constant::parseExisting(utils::Parser &parser, const Container &constants)
-{
-	parser.skipWhiteSpace();
-
-	const auto constantName = parser.parseIdentifier(isIdentifier);
-	// TODO: use hash map
-	const auto match = std::find_if(constants.cbegin(), constants.cend(),
-		[&](const auto &constant)
-		{
-			return constant->name() == constantName;
-		});
-	const auto constantExists = (match != constants.cend());
-
-	if (!constantExists)
-		throw utils::ParserException(parser.row(), parser.column(), "Constant \"" + constantName + "\" used but never declared");
-
-	return match->get();
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

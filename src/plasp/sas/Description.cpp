@@ -153,7 +153,7 @@ void Description::parseVersionSection(utils::Parser &parser) const
 	const auto formatVersion = parser.parse<size_t>();
 
 	if (formatVersion != 3)
-		throw utils::ParserException(parser.row(), parser.column(), "Unsupported SAS format version (" + std::to_string(formatVersion) + ")");
+		throw utils::ParserException(parser, "Unsupported SAS format version (" + std::to_string(formatVersion) + ")");
 
 	parser.expect<std::string>("end_version");
 }

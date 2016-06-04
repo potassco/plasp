@@ -81,6 +81,27 @@ void Constant::parseTypedDeclaration(utils::Parser &parser, Context &context)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+Constant *Constant::parseExisting(utils::Parser &parser, Context &context)
+{
+	parser.skipWhiteSpace();
+
+	const auto constantName = parser.parseIdentifier(isIdentifier);
+	// TODO: use hash map
+	const auto match = std::find_if(context.constants.cbegin(), context.constants.cend(),
+		[&](const auto &constant)
+		{
+			return constant->name() == constantName;
+		});
+	const auto constantExists = (match != context.constants.cend());
+
+	if (!constantExists)
+		throw utils::ParserException(parser, "Constant \"" + constantName + "\" used but never declared");
+
+	return match->get();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void Constant::accept(plasp::pddl::ExpressionVisitor &expressionVisitor) const
 {
 	expressionVisitor.visit(*this);

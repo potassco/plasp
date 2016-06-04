@@ -116,7 +116,7 @@ const Variable *Variable::parseExisting(utils::Parser &parser, const Variables &
 		});
 
 	if (match == variables.cend())
-		throw utils::ParserException(parser.row(), parser.column(), "Variable \"" + variableName + "\" used but never declared");
+		throw utils::ParserException(parser, "Variable \"" + variableName + "\" used but never declared");
 
 	return match->get();
 }

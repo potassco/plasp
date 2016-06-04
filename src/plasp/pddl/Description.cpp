@@ -18,20 +18,26 @@ namespace pddl
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+Description::Description(std::istream &istream)
+:	m_parser(istream),
+	m_context(m_parser)
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 Description Description::fromStream(std::istream &istream)
 {
-	Description description;
-
-	utils::Parser parser(istream);
+	Description description(istream);
 
 	while (true)
 	{
-		parser.skipWhiteSpace();
+		description.m_context.parser.skipWhiteSpace();
 
-		if (parser.atEndOfFile())
+		if (description.m_context.parser.atEndOfFile())
 			break;
 
-		description.parseContent(parser);
+		description.parseContent();
 	}
 
 	return description;
@@ -60,33 +66,33 @@ const Domain &Description::domain() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Description::parseContent(utils::Parser &parser)
+void Description::parseContent()
 {
 	std::cout << "Parsing file content" << std::endl;
 
-	parser.expect<std::string>("(");
-	parser.expect<std::string>("define");
-	parseSection(parser);
-	parser.expect<std::string>(")");
+	m_context.parser.expect<std::string>("(");
+	m_context.parser.expect<std::string>("define");
+	parseSection();
+	m_context.parser.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Description::parseSection(utils::Parser &parser)
+void Description::parseSection()
 {
 	// Parse domain/problem identifier
-	parser.expect<std::string>("(");
+	m_context.parser.expect<std::string>("(");
 
-	const auto sectionIdentifier = parser.parse<std::string>();
+	const auto sectionIdentifier = m_context.parser.parse<std::string>();
 
 	std::cout << "Parsing section " << sectionIdentifier << std::endl;
 
 	if (sectionIdentifier == "domain")
-		m_domain = std::make_unique<Domain>(Domain::fromPDDL(parser, m_context));
+		m_domain = std::make_unique<Domain>(Domain::fromPDDL(m_context));
 	//else if (sectionIdentifier == "problem")
 	//	m_problem = std::make_unique<Problem>(Problem::fromPDDL(parser));
 	else
-		throw utils::ParserException(parser.row(), parser.column(), "Unknown PDDL section \"" + sectionIdentifier + "\"");
+		throw utils::ParserException(m_context.parser, "Unknown PDDL section \"" + sectionIdentifier + "\"");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
