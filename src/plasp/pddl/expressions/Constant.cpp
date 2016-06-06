@@ -50,12 +50,12 @@ ConstantPointer Constant::parseDeclaration(Context &context)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Constant::parseTypedDeclaration(Context &context)
+void Constant::parseTypedDeclaration(Context &context, Constants &constants)
 {
 	// Parse and store constant
-	context.constants.emplace_back(parseDeclaration(context));
+	constants.emplace_back(parseDeclaration(context));
 
-	const auto &constant = context.constants.back();
+	const auto &constant = constants.back();
 
 	// Flag constant as correctly declared in the types section
 	constant->setDeclared();
@@ -70,7 +70,7 @@ void Constant::parseTypedDeclaration(Context &context)
 	auto *type = PrimitiveType::parseExisting(context);
 
 	// Assign parent type to all types that were previously flagged
-	std::for_each(context.constants.begin(), context.constants.end(),
+	std::for_each(constants.begin(), constants.end(),
 		[&](auto &constant)
 		{
 			if (!constant->isDirty())

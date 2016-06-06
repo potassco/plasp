@@ -23,7 +23,7 @@ class Constant: public Expression
 {
 	public:
 		static ConstantPointer parseDeclaration(Context &context);
-		static void parseTypedDeclaration(Context &context);
+		static void parseTypedDeclaration(Context &context, Constants &constants);
 
 		static Constant *parseExisting(Context &context);
 

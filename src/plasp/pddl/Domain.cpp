@@ -259,7 +259,7 @@ void Domain::parseConstantSection()
 	// Store constants
 	while (m_context.parser.currentCharacter() != ')')
 	{
-		expressions::Constant::parseTypedDeclaration(m_context);
+		expressions::Constant::parseTypedDeclaration(m_context, m_context.constants);
 
 		m_context.parser.skipWhiteSpace();
 	}

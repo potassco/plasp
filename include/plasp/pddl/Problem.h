@@ -34,12 +34,16 @@ class Problem
 		bool hasRequirement(Requirement::Type requirementType) const;
 		void computeDerivedRequirements();
 
+		void parseObjectSection();
+
 		void checkConsistency();
 
 		Context &m_context;
 
 		std::string m_name;
 		Requirements m_requirements;
+
+		expressions::Constants m_objects;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

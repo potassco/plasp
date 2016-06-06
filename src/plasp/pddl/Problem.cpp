@@ -103,7 +103,7 @@ void Problem::parseSection()
 	else if (sectionIdentifier == "requirements")
 		parseRequirementSection();
 	else if (sectionIdentifier == "objects")
-		skipSection();
+		parseObjectSection();
 	else if (sectionIdentifier == "init")
 		skipSection();
 	else if (sectionIdentifier == "goal")
@@ -192,6 +192,23 @@ void Problem::computeDerivedRequirements()
 
 	if (hasRequirement(Requirement::Type::TimedInitialLiterals))
 		addRequirementUnique(Requirement::Type::DurativeActions);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Problem::parseObjectSection()
+{
+	m_context.parser.skipWhiteSpace();
+
+	// Store constants
+	while (m_context.parser.currentCharacter() != ')')
+	{
+		expressions::Constant::parseTypedDeclaration(m_context);
+
+		m_context.parser.skipWhiteSpace();
+	}
+
+	m_context.parser.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
