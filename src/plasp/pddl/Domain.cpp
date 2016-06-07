@@ -4,6 +4,7 @@
 
 #include <plasp/pddl/ConsistencyException.h>
 #include <plasp/pddl/Identifier.h>
+#include <plasp/pddl/IO.h>
 #include <plasp/pddl/expressions/Constant.h>
 #include <plasp/pddl/expressions/PredicateDeclaration.h>
 #include <plasp/pddl/expressions/PrimitiveType.h>
@@ -152,30 +153,6 @@ void Domain::parseSection()
 
 	const auto sectionIdentifier = m_context.parser.parseIdentifier(isIdentifier);
 
-	const auto skipSection =
-		[&]()
-		{
-			std::cout << "Skipping section " << sectionIdentifier << std::endl;
-
-			size_t openParentheses = 1;
-
-			while (true)
-			{
-				const auto character = m_context.parser.currentCharacter();
-				m_context.parser.advance();
-
-				if (character == '(')
-					openParentheses++;
-				else if (character == ')')
-				{
-					openParentheses--;
-
-					if (openParentheses == 0)
-						return;
-				}
-			}
-		};
-
 	// TODO: check order of the sections
 	if (sectionIdentifier == "requirements")
 		parseRequirementSection();
@@ -185,16 +162,16 @@ void Domain::parseSection()
 		parseConstantSection();
 	else if (sectionIdentifier == "predicates")
 		parsePredicateSection();
-	else if (sectionIdentifier == "functions")
-		skipSection();
-	else if (sectionIdentifier == "constraints")
-		skipSection();
 	else if (sectionIdentifier == "action")
 		parseActionSection();
-	else if (sectionIdentifier == "durative-action")
-		skipSection();
-	else if (sectionIdentifier == "derived")
-		skipSection();
+	else if (sectionIdentifier == "functions"
+		|| sectionIdentifier == "constraints"
+		|| sectionIdentifier == "durative-action"
+		|| sectionIdentifier == "derived")
+	{
+		std::cout << "Skipping section " << sectionIdentifier << std::endl;
+		skipSection(m_context.parser);
+	}
 	else
 		throw utils::ParserException(m_context.parser, "Unknown domain section \"" + sectionIdentifier + "\"");
 }

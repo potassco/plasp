@@ -4,6 +4,7 @@
 
 #include <plasp/pddl/Domain.h>
 #include <plasp/pddl/Identifier.h>
+#include <plasp/pddl/IO.h>
 #include <plasp/pddl/expressions/Constant.h>
 #include <plasp/utils/IO.h>
 #include <plasp/utils/ParserException.h>
@@ -109,30 +110,6 @@ void Problem::parseSection()
 
 	const auto sectionIdentifier = m_context.parser.parseIdentifier(isIdentifier);
 
-	const auto skipSection =
-		[&]()
-		{
-			std::cout << "Skipping section " << sectionIdentifier << std::endl;
-
-			size_t openParentheses = 1;
-
-			while (true)
-			{
-				const auto character = m_context.parser.currentCharacter();
-				m_context.parser.advance();
-
-				if (character == '(')
-					openParentheses++;
-				else if (character == ')')
-				{
-					openParentheses--;
-
-					if (openParentheses == 0)
-						return;
-				}
-			}
-		};
-
 	// TODO: check order of the sections
 	if (sectionIdentifier == "domain")
 		parseDomainSection();
@@ -140,16 +117,15 @@ void Problem::parseSection()
 		parseRequirementSection();
 	else if (sectionIdentifier == "objects")
 		parseObjectSection();
-	else if (sectionIdentifier == "init")
-		skipSection();
-	else if (sectionIdentifier == "goal")
-		skipSection();
-	else if (sectionIdentifier == "constraints")
-		skipSection();
-	else if (sectionIdentifier == "metric")
-		skipSection();
-	else if (sectionIdentifier == "length")
-		skipSection();
+	else if (sectionIdentifier == "init"
+		|| sectionIdentifier == "goal"
+		|| sectionIdentifier == "constraints"
+		|| sectionIdentifier == "metric"
+		|| sectionIdentifier == "length")
+	{
+		std::cout << "Skipping section " << sectionIdentifier << std::endl;
+		skipSection(m_context.parser);
+	}
 	else
 		throw utils::ParserException(m_context.parser, "Unknown problem section \"" + sectionIdentifier + "\"");
 }
