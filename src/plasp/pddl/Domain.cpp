@@ -273,12 +273,7 @@ void Domain::parseConstantSection()
 	m_context.parser.skipWhiteSpace();
 
 	// Store constants
-	while (m_context.parser.currentCharacter() != ')')
-	{
-		expressions::Constant::parseTypedDeclaration(m_context, *this);
-
-		m_context.parser.skipWhiteSpace();
-	}
+	expressions::Constant::parseTypedDeclarations(m_context, *this);
 
 	m_context.parser.expect<std::string>(")");
 }
@@ -315,17 +310,6 @@ void Domain::parseActionSection()
 
 void Domain::checkConsistency()
 {
-	// Verify that all used constants have been declared
-	std::for_each(m_constants.cbegin(), m_constants.cend(),
-		[&](const auto &constant)
-		{
-			if (!constant->isDeclared())
-				throw ConsistencyException("Constant \"" + constant->name() + "\" used but never declared");
-
-			if (constant->type() == nullptr)
-				throw ConsistencyException("Constant \"" + constant->name() + "\" has an undeclared type");
-		});
-
 	// Verify that all used predicates have been declared
 	std::for_each(m_predicateDeclarations.cbegin(), m_predicateDeclarations.cend(),
 		[&](const auto &predicate)

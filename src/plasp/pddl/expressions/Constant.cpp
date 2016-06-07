@@ -26,7 +26,6 @@ namespace expressions
 
 Constant::Constant()
 :	m_isDirty{false},
-	m_isDeclared{false},
 	m_type{nullptr}
 {
 }
@@ -72,11 +71,6 @@ void Constant::parseTypedDeclaration(Context &context, Domain &domain, Constants
 	// Parse and store constant
 	constants.emplace_back(parseDeclaration(context));
 
-	const auto &constant = constants.back();
-
-	// Flag constant as correctly declared in the types section
-	constant->setDeclared();
-
 	context.parser.skipWhiteSpace();
 
 	// Check for typing information
@@ -96,6 +90,27 @@ void Constant::parseTypedDeclaration(Context &context, Domain &domain, Constants
 			constant->setType(type);
 			constant->setDirty(false);
 		});
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Constant::parseTypedDeclarations(Context &context, Domain &domain)
+{
+	while (context.parser.currentCharacter() != ')')
+		parseTypedDeclaration(context, domain);
+
+	if (domain.constants().empty())
+		return;
+
+	// Check correct use of typing requirement
+	const auto typingUsed = (domain.constants().back()->type() != nullptr);
+	const auto typingDeclared = domain.hasRequirement(Requirement::Type::Typing);
+
+	if (!typingUsed && typingDeclared)
+		throw utils::ParserException(context.parser, "Constant has undeclared type");
+
+	if (typingUsed && !typingDeclared)
+		throw utils::ParserException(context.parser, "Typing used but not declared as a requirement");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -159,20 +174,6 @@ void Constant::setDirty(bool isDirty)
 bool Constant::isDirty() const
 {
 	return m_isDirty;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void Constant::setDeclared()
-{
-	m_isDeclared = true;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-bool Constant::isDeclared() const
-{
-	return m_isDeclared;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -23,6 +23,7 @@ class Constant: public Expression
 {
 	public:
 		static void parseTypedDeclaration(Context &context, Domain &domain);
+		static void parseTypedDeclarations(Context &context, Domain &domain);
 		static void parseTypedDeclaration(Context &context, Problem &problem);
 
 		static Constant *parseAndFind(Context &context, const ExpressionContext &expressionContext);
@@ -35,8 +36,6 @@ class Constant: public Expression
 		const std::string &name() const;
 		const PrimitiveType *type() const;
 
-		bool isDeclared() const;
-
 	private:
 		static ConstantPointer parseDeclaration(Context &context);
 		static void parseTypedDeclaration(Context &context, Domain &domain, Constants &constants);
@@ -48,12 +47,9 @@ class Constant: public Expression
 		void setDirty(bool isDirty = true);
 		bool isDirty() const;
 
-		void setDeclared();
-
 		void setType(const PrimitiveType *parentType);
 
 		bool m_isDirty;
-		bool m_isDeclared;
 
 		std::string m_name;
 
