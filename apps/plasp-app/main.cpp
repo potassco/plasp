@@ -70,7 +70,7 @@ int main(int argc, char **argv)
 
 		if (format == "sas")
 		{
-			if (inputFiles.size() > 0)
+			if (inputFiles.size() != 1)
 			{
 				std::cerr << "Error: Only one input file allowed for SAS translation" << std::endl;
 				printHelp();
