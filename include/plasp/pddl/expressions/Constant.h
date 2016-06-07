@@ -25,6 +25,7 @@ class Constant: public Expression
 		static void parseTypedDeclaration(Context &context, Domain &domain);
 		static void parseTypedDeclarations(Context &context, Domain &domain);
 		static void parseTypedDeclaration(Context &context, Problem &problem);
+		static void parseTypedDeclarations(Context &context, Problem &problem);
 
 		static Constant *parseAndFind(Context &context, const ExpressionContext &expressionContext);
 

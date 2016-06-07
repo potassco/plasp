@@ -113,6 +113,28 @@ void Constant::parseTypedDeclarations(Context &context, Domain &domain)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void Constant::parseTypedDeclarations(Context &context, Problem &problem)
+{
+	while (context.parser.currentCharacter() != ')')
+		parseTypedDeclaration(context, problem);
+
+	if (problem.objects().empty())
+		return;
+
+	// Check correct use of typing requirement
+	const auto typingUsed = (problem.objects().back()->type() != nullptr);
+	const auto typingDeclared = problem.domain().hasRequirement(Requirement::Type::Typing)
+		|| problem.hasRequirement(Requirement::Type::Typing);
+
+	if (!typingUsed && typingDeclared)
+		throw utils::ParserException(context.parser, "Constant has undeclared type");
+
+	if (typingUsed && !typingDeclared)
+		throw utils::ParserException(context.parser, "Typing used but not declared as a requirement");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 Constant *Constant::parseAndFind(Context &context, const ExpressionContext &expressionContext)
 {
 	context.parser.skipWhiteSpace();

@@ -235,12 +235,7 @@ void Problem::parseObjectSection()
 	m_context.parser.skipWhiteSpace();
 
 	// Store constants
-	while (m_context.parser.currentCharacter() != ')')
-	{
-		expressions::Constant::parseTypedDeclaration(m_context, *this);
-
-		m_context.parser.skipWhiteSpace();
-	}
+	expressions::Constant::parseTypedDeclarations(m_context, *this);
 
 	m_context.parser.expect<std::string>(")");
 }
