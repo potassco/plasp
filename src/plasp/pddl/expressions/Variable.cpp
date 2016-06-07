@@ -120,7 +120,7 @@ void Variable::parseTypedDeclarations(Context &context, ExpressionContext &expre
 	const auto typingDeclared = expressionContext.domain.hasRequirement(Requirement::Type::Typing);
 
 	if (!typingUsed && typingDeclared)
-		throw utils::ParserException(context.parser, "Object has undeclared type");
+		throw utils::ParserException(context.parser, "Variable has undeclared type");
 
 	if (typingUsed && !typingDeclared)
 		throw utils::ParserException(context.parser, "Typing used but not declared as a requirement");
