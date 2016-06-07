@@ -66,28 +66,40 @@ int main(int argc, char **argv)
 		auto format = variablesMap["format"].as<std::string>();
 		std::transform(format.begin(), format.end(), format.begin(), ::tolower);
 
-		const auto &inputFiles = variablesMap["input"].as<std::vector<std::string>>();
-
 		if (format == "sas")
 		{
-			if (inputFiles.size() > 1)
+			if (variablesMap.count("input"))
 			{
-				std::cerr << "Error: Only one input file allowed for SAS translation" << std::endl;
-				printHelp();
-				return EXIT_FAILURE;
-			}
+				const auto &inputFiles = variablesMap["input"].as<std::vector<std::string>>();
 
-			const auto sasDescription = variablesMap.count("input")
-				? plasp::sas::Description::fromFile(inputFiles.front())
-				: plasp::sas::Description::fromStream(std::cin);
-			const auto sasTranslator = plasp::sas::TranslatorASP(sasDescription);
-			sasTranslator.translate(std::cout);
+				if (inputFiles.size() > 1)
+				{
+					std::cerr << "Error: Only one input file allowed for SAS translation" << std::endl;
+					printHelp();
+					return EXIT_FAILURE;
+				}
+
+				const auto sasDescription = plasp::sas::Description::fromFile(inputFiles.front());
+				const auto sasTranslator = plasp::sas::TranslatorASP(sasDescription);
+				sasTranslator.translate(std::cout);
+			}
+			else
+			{
+				const auto sasDescription = plasp::sas::Description::fromStream(std::cin);
+				const auto sasTranslator = plasp::sas::TranslatorASP(sasDescription);
+				sasTranslator.translate(std::cout);
+			}
 		}
 		else if (format == "pddl")
 		{
-			const auto pddlDescription = variablesMap.count("input")
-				? plasp::pddl::Description::fromFiles(inputFiles)
-				: plasp::pddl::Description::fromStream(std::cin);
+			if (variablesMap.count("input"))
+			{
+				const auto &inputFiles = variablesMap["input"].as<std::vector<std::string>>();
+				const auto pddlDescription = plasp::pddl::Description::fromFiles(inputFiles);
+			}
+			else
+				const auto pddlDescription = plasp::pddl::Description::fromStream(std::cin);
+
 			//std::cout << pddlDescription << std::endl;
 		}
 	}
