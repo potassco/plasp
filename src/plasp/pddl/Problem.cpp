@@ -138,11 +138,8 @@ void Problem::parseDomainSection()
 
 	const auto domainName = m_context.parser.parseIdentifier(isIdentifier);
 
-	if (m_domain.isDeclared() && m_domain.name() != domainName)
+	if (m_domain.name() != domainName)
 		throw utils::ParserException(m_context.parser, "Domains do not match (\"" + m_domain.name() + "\" and \"" + domainName + "\")");
-
-	if (!m_domain.isDeclared())
-		m_domain.setName(domainName);
 
 	m_context.parser.expect<std::string>(")");
 }

@@ -24,8 +24,7 @@ namespace pddl
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 Domain::Domain(Context &context)
-:	m_context(context),
-	m_isDeclared{false}
+:	m_context(context)
 {
 }
 
@@ -38,13 +37,7 @@ void Domain::readPDDL()
 	m_context.parser.expect<std::string>("(");
 	m_context.parser.expect<std::string>("domain");
 
-	const auto domainName = m_context.parser.parseIdentifier(isIdentifier);
-
-	if (m_name.empty())
-		m_name = domainName;
-	// If the domain has previously been referenced, check that the name matches
-	else if (m_name != domainName)
-		throw utils::ParserException(m_context.parser, "Domains do not match (\"" + domainName + "\" and \"" + m_name + "\")");
+	m_name = m_context.parser.parseIdentifier(isIdentifier);
 
 	std::cout << "Parsing domain " << m_name << std::endl;
 
@@ -61,15 +54,6 @@ void Domain::readPDDL()
 	}
 
 	computeDerivedRequirements();
-
-	m_isDeclared = true;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-bool Domain::isDeclared() const
-{
-	return m_isDeclared;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

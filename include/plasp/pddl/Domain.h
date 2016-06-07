@@ -28,8 +28,6 @@ class Domain
 	public:
 		void readPDDL();
 
-		bool isDeclared() const;
-
 		void setName(std::string name);
 		const std::string &name() const;
 
@@ -65,7 +63,6 @@ class Domain
 		void parseActionSection();
 
 		Context &m_context;
-		bool m_isDeclared;
 
 		std::string m_name;
 		Requirements m_requirements;
