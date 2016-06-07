@@ -198,6 +198,35 @@ TEST_F(PDDLParserTests, ParseStorageDomain)
 		ASSERT_EQ(inArgument0Type0, &storearea);
 		const auto inArgument0Type1 = dynamic_cast<const expressions::Reference<expressions::PrimitiveType> *>(inArgument0Type->arguments()[1].get())->value();
 		ASSERT_EQ(inArgument0Type1, &crate);
+
+		// Actions
+		ASSERT_EQ(domain.actions().size(), 5u);
+
+		const auto &drop = *domain.actions()[1];
+
+		ASSERT_EQ(drop.name(), "drop");
+		ASSERT_EQ(drop.parameters().size(), 5u);
+		ASSERT_EQ(drop.parameters()[3]->name(), "a2");
+		ASSERT_EQ(drop.parameters()[3]->type(), &area);
+
+		const auto &dropPre = dynamic_cast<const expressions::And &>(drop.precondition());
+		ASSERT_EQ(dropPre.arguments().size(), 5u);
+		const auto &dropPre2 = dynamic_cast<const expressions::Predicate &>(*dropPre.arguments()[2]);
+		ASSERT_EQ(dropPre2.name(), "lifting");
+		ASSERT_EQ(dropPre2.arguments().size(), 2u);
+		const auto &dropPre21 = *dynamic_cast<const expressions::Reference<expressions::Variable> &>(*dropPre2.arguments()[1]).value();
+		ASSERT_EQ(dropPre21.name(), "c");
+		ASSERT_EQ(dropPre21.type(), &crate);
+
+		const auto &dropEff = dynamic_cast<const expressions::And &>(drop.effect());
+		ASSERT_EQ(dropEff.arguments().size(), 5u);
+		const auto &dropEff2 = dynamic_cast<const expressions::Not &>(*dropEff.arguments()[2]);
+		const auto &dropEff20 = dynamic_cast<const expressions::Predicate &>(dropEff2.argument());
+		ASSERT_EQ(dropEff20.name(), "clear");
+		ASSERT_EQ(dropEff20.arguments().size(), 1u);
+		const auto &dropEff200 = *dynamic_cast<const expressions::Reference<expressions::Variable> &>(*dropEff20.arguments()[0]).value();
+		ASSERT_EQ(dropEff200.name(), "a1");
+		ASSERT_EQ(dropEff200.type(), &storearea);
 	}
 	catch (const std::exception &e)
 	{
@@ -234,6 +263,8 @@ TEST_F(PDDLParserTests, ParseConstants)
 		ASSERT_EQ(domain.constants()[3]->type(), &treatmentstatus);
 		ASSERT_EQ(domain.constants()[6]->type(), &treatmentstatus);
 		ASSERT_EQ(domain.constants()[7]->type(), &acolour);
+
+		// TODO: add test with constants in predicates
 	}
 	catch (const std::exception &e)
 	{
