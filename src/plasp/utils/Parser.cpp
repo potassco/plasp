@@ -179,20 +179,6 @@ void Parser::advance()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Parser::advanceIf(char expectedCharacter)
-{
-	checkStream();
-
-	if (currentCharacter() != expectedCharacter)
-		return false;
-
-	advance();
-
-	return true;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 void Parser::skipWhiteSpace()
 {
 	return skipWhiteSpace(
@@ -265,22 +251,78 @@ std::string Parser::parse<std::string>()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<>
-void Parser::expect<std::string>(const std::string &expectedValue)
+bool Parser::probe<std::string>(const std::string &expectedValue)
 {
 	BOOST_ASSERT(!std::isspace(expectedValue[0]));
 
 	skipWhiteSpace();
 
-	std::for_each(expectedValue.cbegin(), expectedValue.cend(),
+	const auto previousPosition = position();
+
+	const auto match = std::find_if(expectedValue.cbegin(), expectedValue.cend(),
 		[&](const auto &expectedCharacter)
 		{
 			const auto character = static_cast<char>(this->currentCharacter());
 
 			if (character != expectedCharacter)
-				throw ParserException(*this, "Unexpected string, expected \"" + expectedValue + "\" (expected character '" + expectedCharacter + "', got '" + character + "')");
+				return true;
 
 			this->advance();
+
+			return false;
 		});
+
+	const auto differs = (match != expectedValue.cend());
+
+	if (!differs)
+		return true;
+
+	seek(previousPosition);
+
+	return false;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<>
+void Parser::expect<std::string>(const std::string &expectedValue)
+{
+	if (!probe<std::string>(expectedValue))
+		throw ParserException(*this, "Unexpected value, expected \"" + expectedValue + "\"");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<>
+char Parser::parse<char>()
+{
+	const auto value = currentCharacter();
+
+	advance();
+
+	return value;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<>
+bool Parser::probe<char>(const char &expectedValue)
+{
+	if (currentCharacter() != expectedValue)
+		return false;
+
+	advance();
+
+	return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<>
+void Parser::expect<char>(const char &expectedValue)
+{
+	if (!probe<char>(expectedValue))
+		throw ParserException(*this, std::string("Unexpected value, expected \"") + expectedValue + "\"");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -317,7 +359,7 @@ int64_t Parser::parse<int64_t>()
 {
 	skipWhiteSpace();
 
-	bool positive = advanceIf('+') || !advanceIf('-');
+	bool positive = probe('+') || !probe('-');
 
 	const auto value = parseIntegerBody();
 
@@ -340,12 +382,42 @@ uint64_t Parser::parse<uint64_t>()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<>
-void Parser::expect<int64_t>(const int64_t &expectedValue)
+bool Parser::probe<int64_t>(const int64_t &expectedValue)
 {
+	const auto previousPosition = position();
 	const auto value = parse<int64_t>();
 
-	if (value != expectedValue)
-		throw ParserException(*this, "Unexpected value " + std::to_string(value) + ", expected " + std::to_string(expectedValue));
+	if (value == expectedValue)
+		return true;
+
+	seek(previousPosition);
+
+	return false;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<>
+bool Parser::probe<uint64_t>(const uint64_t &expectedValue)
+{
+	const auto previousPosition = position();
+	const auto value = parse<uint64_t>();
+
+	if (value == expectedValue)
+		return true;
+
+	seek(previousPosition);
+
+	return false;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<>
+void Parser::expect<int64_t>(const int64_t &expectedValue)
+{
+	if (!probe<int64_t>(expectedValue))
+		throw ParserException(*this, "Unexpected value, expected \"" + std::to_string(expectedValue) + "\"");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -353,10 +425,8 @@ void Parser::expect<int64_t>(const int64_t &expectedValue)
 template<>
 void Parser::expect<uint64_t>(const uint64_t &expectedValue)
 {
-	const auto value = parse<uint64_t>();
-
-	if (value != expectedValue)
-		throw ParserException(*this, "Unexpected value " + std::to_string(value) + ", expected " + std::to_string(expectedValue));
+	if (!probe<uint64_t>(expectedValue))
+		throw ParserException(*this, "Unexpected value, expected \"" + std::to_string(expectedValue) + "\"");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -378,6 +448,22 @@ uint32_t Parser::parse<uint32_t>()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<>
+bool Parser::probe<int32_t>(const int32_t &expectedValue)
+{
+	return probe<int64_t>(static_cast<int64_t>(expectedValue));
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<>
+bool Parser::probe<uint32_t>(const uint32_t &expectedValue)
+{
+	return probe<uint64_t>(static_cast<uint64_t>(expectedValue));
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<>
 void Parser::expect<int32_t>(const int32_t &expectedValue)
 {
 	expect<int64_t>(static_cast<int64_t>(expectedValue));
@@ -394,78 +480,14 @@ void Parser::expect<uint32_t>(const uint32_t &expectedValue)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<>
-int16_t Parser::parse<int16_t>()
-{
-	return static_cast<int16_t>(parse<int64_t>());
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<>
-uint16_t Parser::parse<uint16_t>()
-{
-	return static_cast<uint16_t>(parse<uint64_t>());
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<>
-void Parser::expect<int16_t>(const int16_t &expectedValue)
-{
-	expect<int64_t>(static_cast<int64_t>(expectedValue));
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<>
-void Parser::expect<uint16_t>(const uint16_t &expectedValue)
-{
-	expect<uint64_t>(static_cast<uint64_t>(expectedValue));
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<>
-int8_t Parser::parse<int8_t>()
-{
-	return static_cast<int8_t>(parse<int64_t>());
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<>
-uint8_t Parser::parse<uint8_t>()
-{
-	return static_cast<uint8_t>(parse<uint64_t>());
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<>
-void Parser::expect<int8_t>(const int8_t &expectedValue)
-{
-	expect<int64_t>(static_cast<int64_t>(expectedValue));
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<>
-void Parser::expect<uint8_t>(const uint8_t &expectedValue)
-{
-	expect<uint64_t>(static_cast<uint64_t>(expectedValue));
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<>
 bool Parser::parse<bool>()
 {
 	skipWhiteSpace();
 
-	if (advanceIf('0'))
+	if (probe('0'))
 	    return false;
 
-	if (advanceIf('1'))
+	if (probe('1'))
 		return true;
 
 	throw ParserException(*this, "Could not parse Boolean value");

@@ -53,7 +53,6 @@ class Parser
 
 		char currentCharacter() const;
 		void advance();
-		bool advanceIf(char expectedCharacter);
 		bool atEndOfStream() const;
 
 		template<typename Type>
@@ -64,6 +63,9 @@ class Parser
 
 		template<class CharacterPredicate>
 		std::string parseIdentifier(CharacterPredicate characterPredicate);
+
+		template<typename Type>
+		bool probe(const Type &expectedValue);
 
 		template<typename Type>
 		void expect(const Type &expectedValue);

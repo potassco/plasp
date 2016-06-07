@@ -64,7 +64,7 @@ void Variable::parseTypedDeclaration(Context &context, ExpressionContext &expres
 	context.parser.skipWhiteSpace();
 
 	// Check if the variable has a type declaration
-	if (!context.parser.advanceIf('-'))
+	if (!context.parser.probe('-'))
 		return;
 
 	// TODO: do not allow nested either expressions

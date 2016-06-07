@@ -80,7 +80,7 @@ void Constant::parseTypedDeclaration(Context &context, Domain &domain, Constants
 	context.parser.skipWhiteSpace();
 
 	// Check for typing information
-	if (!context.parser.advanceIf('-'))
+	if (!context.parser.probe('-'))
 		return;
 
 	// If existing, parse and store parent type

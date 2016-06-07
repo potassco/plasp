@@ -82,7 +82,7 @@ void PrimitiveType::parseTypedDeclaration(Context &context, Domain &domain)
 	context.parser.skipWhiteSpace();
 
 	// Check for type inheritance
-	if (!context.parser.advanceIf('-'))
+	if (!context.parser.probe('-'))
 		return;
 
 	// If existing, parse and store parent type
