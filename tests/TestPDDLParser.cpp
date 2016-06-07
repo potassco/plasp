@@ -6,7 +6,10 @@
 #include <stdexcept>
 
 #include <plasp/pddl/Description.h>
+#include <plasp/pddl/expressions/And.h>
 #include <plasp/pddl/expressions/Either.h>
+#include <plasp/pddl/expressions/Not.h>
+#include <plasp/pddl/expressions/Predicate.h>
 #include <plasp/pddl/expressions/PrimitiveType.h>
 #include <plasp/pddl/expressions/Reference.h>
 
@@ -91,6 +94,39 @@ TEST_F(PDDLParserTests, ParseBlocksWorldDomain)
 
 		ASSERT_EQ(handempty.name(), "handempty");
 		ASSERT_TRUE(handempty.arguments().empty());
+
+		// Actions
+		ASSERT_EQ(domain.actions().size(), 4u);
+
+		const auto &pickUp = *domain.actions()[0];
+
+		ASSERT_EQ(pickUp.name(), "pick-up");
+		ASSERT_EQ(pickUp.parameters().size(), 1u);
+		ASSERT_EQ(pickUp.parameters()[0]->name(), "x");
+		ASSERT_EQ(pickUp.parameters()[0]->type(), &block);
+
+		const auto &pickUpPre = dynamic_cast<const expressions::And &>(pickUp.precondition());
+		ASSERT_EQ(pickUpPre.arguments().size(), 3u);
+		const auto &pickUpPre0 = dynamic_cast<const expressions::Predicate &>(*pickUpPre.arguments()[0]);
+		ASSERT_EQ(pickUpPre0.name(), "clear");
+		ASSERT_EQ(pickUpPre0.arguments().size(), 1u);
+		const auto &pickUpPre00 = *dynamic_cast<const expressions::Reference<expressions::Variable> &>(*pickUpPre0.arguments()[0]).value();
+		ASSERT_EQ(pickUpPre00.name(), "x");
+		ASSERT_EQ(pickUpPre00.type(), &block);
+		ASSERT_EQ(&pickUpPre00, pickUp.parameters()[0].get());
+		const auto &pickUpPre2 = dynamic_cast<const expressions::Predicate &>(*pickUpPre.arguments()[2]);
+		ASSERT_EQ(pickUpPre2.name(), "handempty");
+		ASSERT_EQ(pickUpPre2.arguments().size(), 0u);
+
+		const auto &pickUpEff = dynamic_cast<const expressions::And &>(pickUp.effect());
+		ASSERT_EQ(pickUpEff.arguments().size(), 4u);
+		const auto &pickUpEff0 = dynamic_cast<const expressions::Not &>(*pickUpEff.arguments()[0]);
+		const auto &pickUpEff00 = dynamic_cast<const expressions::Predicate &>(pickUpEff0.argument());
+		ASSERT_EQ(pickUpEff00.name(), "ontable");
+		ASSERT_EQ(pickUpEff00.arguments().size(), 1u);
+		const auto &pickUpEff000 = *dynamic_cast<const expressions::Reference<expressions::Variable> &>(*pickUpEff00.arguments()[0]).value();
+		ASSERT_EQ(pickUpEff000.name(), "x");
+		ASSERT_EQ(pickUpEff000.type(), &block);
 	}
 	catch (const std::exception &e)
 	{

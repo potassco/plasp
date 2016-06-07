@@ -27,7 +27,7 @@ class Not: public Expression
 	public:
 		void accept(ExpressionVisitor &expressionVisitor) const override;
 
-		const Expression &argument();
+		const Expression &argument() const;
 
 	private:
 		Not() = default;
