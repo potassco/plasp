@@ -358,7 +358,7 @@ void Domain::checkConsistency()
 		const auto acceptType =
 			[&](const auto *type)
 			{
-				return ((type == nullptr) != hasRequirement(Requirement::Type::Typing));
+				return ((type == nullptr) != this->hasRequirement(Requirement::Type::Typing));
 			};
 
 		std::for_each(m_constants.cbegin(), m_constants.cend(),
