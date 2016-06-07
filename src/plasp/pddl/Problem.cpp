@@ -105,29 +105,32 @@ const expressions::Constants &Problem::objects() const
 
 void Problem::parseSection()
 {
-	m_context.parser.expect<std::string>("(");
-	m_context.parser.expect<std::string>(":");
+	auto &parser = m_context.parser;
 
-	const auto sectionIdentifier = m_context.parser.parseIdentifier(isIdentifier);
+	parser.expect<std::string>("(");
+	parser.expect<std::string>(":");
 
 	// TODO: check order of the sections
-	if (sectionIdentifier == "domain")
+	if (parser.probe<std::string>("domain"))
 		parseDomainSection();
-	else if (sectionIdentifier == "requirements")
+	else if (parser.probe<std::string>("requirements"))
 		parseRequirementSection();
-	else if (sectionIdentifier == "objects")
+	else if (parser.probe<std::string>("objects"))
 		parseObjectSection();
-	else if (sectionIdentifier == "init"
-		|| sectionIdentifier == "goal"
-		|| sectionIdentifier == "constraints"
-		|| sectionIdentifier == "metric"
-		|| sectionIdentifier == "length")
+	else if (parser.probe<std::string>("init")
+		|| parser.probe<std::string>("goal")
+		|| parser.probe<std::string>("constraints")
+		|| parser.probe<std::string>("metric")
+		|| parser.probe<std::string>("length"))
 	{
-		std::cout << "Skipping section " << sectionIdentifier << std::endl;
+		std::cout << "Skipping section" << std::endl;
 		skipSection(m_context.parser);
 	}
 	else
+	{
+		const auto sectionIdentifier = parser.parseIdentifier(isIdentifier);
 		throw utils::ParserException(m_context.parser, "Unknown problem section \"" + sectionIdentifier + "\"");
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
