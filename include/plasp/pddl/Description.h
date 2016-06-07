@@ -31,14 +31,16 @@ class Description
 		Description();
 
 		void parseContent();
-		void parseSection();
+		void findSections();
 
 		void checkConsistency();
 
 		utils::Parser m_parser;
 		Context m_context;
 
+		utils::Parser::Position m_domainPosition;
 		std::unique_ptr<Domain> m_domain;
+		utils::Parser::Position m_problemPosition;
 		std::unique_ptr<Problem> m_problem;
 };
 

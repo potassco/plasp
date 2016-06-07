@@ -33,6 +33,11 @@ Domain::Domain(Context &context)
 
 void Domain::readPDDL()
 {
+	m_context.parser.expect<std::string>("(");
+	m_context.parser.expect<std::string>("define");
+	m_context.parser.expect<std::string>("(");
+	m_context.parser.expect<std::string>("domain");
+
 	const auto domainName = m_context.parser.parseIdentifier(isIdentifier);
 
 	if (m_name.empty())
@@ -49,7 +54,7 @@ void Domain::readPDDL()
 	{
 		m_context.parser.skipWhiteSpace();
 
-		if (m_context.parser.currentCharacter() == ')')
+		if (m_context.parser.probe(')'))
 			break;
 
 		parseSection();

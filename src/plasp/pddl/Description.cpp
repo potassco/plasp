@@ -5,6 +5,7 @@
 
 #include <boost/filesystem.hpp>
 
+#include <plasp/pddl/IO.h>
 #include <plasp/utils/ParserException.h>
 
 namespace plasp
@@ -20,7 +21,9 @@ namespace pddl
 
 Description::Description()
 :	m_context(m_parser),
+	m_domainPosition{-1},
 	m_domain{std::make_unique<Domain>(Domain(m_context))},
+	m_problemPosition{-1},
 	m_problem{std::make_unique<Problem>(Problem(m_context, *m_domain))}
 {
 	m_parser.setCaseSensitive(false);
@@ -73,6 +76,26 @@ const Domain &Description::domain() const
 
 void Description::parseContent()
 {
+	// First, determine the locations of domain and problem
+	findSections();
+
+	if (m_domainPosition == -1)
+		throw ConsistencyException("No PDDL domain specified");
+
+	m_context.parser.seek(m_domainPosition);
+	m_domain->readPDDL();
+
+	if (m_problemPosition != -1)
+	{
+		m_context.parser.seek(m_problemPosition);
+		m_problem->readPDDL();
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Description::findSections()
+{
 	while (true)
 	{
 		m_context.parser.skipWhiteSpace();
@@ -80,57 +103,43 @@ void Description::parseContent()
 		if (m_context.parser.atEndOfStream())
 			return;
 
+		const auto position = m_context.parser.position();
+
 		m_context.parser.expect<std::string>("(");
 		m_context.parser.expect<std::string>("define");
-		parseSection();
-		m_context.parser.expect<std::string>(")");
+		m_context.parser.expect<std::string>("(");
+
+		if (m_context.parser.probe<std::string>("domain"))
+		{
+			std::cout << "Found domain at " << position << std::endl;
+
+			if (m_domainPosition != -1)
+				throw utils::ParserException(m_context.parser, "PDDL description may not contain two domains");
+
+			m_domainPosition = position;
+		}
+		else if (m_context.parser.probe<std::string>("problem"))
+		{
+			if (m_problemPosition != -1)
+				throw utils::ParserException(m_context.parser, "PDDL description may currently not contain two problems");
+
+			m_problemPosition = position;
+		}
+		else
+		{
+			const auto sectionIdentifier = m_context.parser.parse<std::string>();
+			throw utils::ParserException(m_context.parser, "Unknown PDDL section \"" + sectionIdentifier + "\"");
+		}
+
+		skipSection(m_context.parser);
+		skipSection(m_context.parser);
 	}
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void Description::parseSection()
-{
-	// Parse domain/problem identifier
-	m_context.parser.expect<std::string>("(");
-
-	const auto sectionIdentifier = m_context.parser.parse<std::string>();
-
-	if (sectionIdentifier == "domain")
-	{
-		BOOST_ASSERT(m_domain);
-
-		if (m_domain->isDeclared())
-			throw utils::ParserException(m_context.parser, "PDDL description may not contain two domains");
-
-		m_domain->readPDDL();
-	}
-	else if (sectionIdentifier == "problem")
-	{
-		BOOST_ASSERT(m_problem);
-
-		if (m_problem->isDeclared())
-			throw utils::ParserException(m_context.parser, "PDDL description may currently not contain two problems");
-
-		m_problem->readPDDL();
-	}
-	else
-		throw utils::ParserException(m_context.parser, "Unknown PDDL section \"" + sectionIdentifier + "\"");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Description::checkConsistency()
 {
-	if (!m_domain->isDeclared())
-		throw ConsistencyException("No PDDL domain specified");
-
-	if (m_problem->hasRequirement(Requirement::Type::Typing)
-		&& !m_domain->hasRequirement(Requirement::Type::Typing))
-	{
-		throw ConsistencyException("PDDL problems may not add the \"typing\" requirement");
-	}
-
 	m_domain->checkConsistency();
 	m_problem->checkConsistency();
 }
