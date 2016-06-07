@@ -31,7 +31,7 @@ class ParserException: public std::exception
 		}
 
 		explicit ParserException(const utils::Parser &parser, const std::string &message)
-		:	m_message{std::to_string(parser.row()) + ":" + std::to_string(parser.column()) + "\t" + message}
+		:	m_message{parser.fileName() + ":" + std::to_string(parser.row()) + ":" + std::to_string(parser.column()) + " " + message}
 		{
 		}
 

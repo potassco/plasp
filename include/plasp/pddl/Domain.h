@@ -30,9 +30,11 @@ class Domain
 
 		bool isDeclared() const;
 
+		void setName(std::string name);
 		const std::string &name() const;
 
 		const Requirements &requirements() const;
+		bool hasRequirement(Requirement::Type requirementType) const;
 
 		expressions::PrimitiveTypes &types();
 		const expressions::PrimitiveTypes &types() const;
@@ -52,7 +54,6 @@ class Domain
 		void parseSection();
 
 		void parseRequirementSection();
-		bool hasRequirement(Requirement::Type requirementType) const;
 		void computeDerivedRequirements();
 
 		void parseTypeSection();

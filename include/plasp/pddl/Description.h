@@ -22,7 +22,7 @@ class Description
 {
 	public:
 		static Description fromStream(std::istream &istream);
-		static Description fromFile(const boost::filesystem::path &path);
+		static Description fromFiles(const std::vector<std::string> &paths);
 
 	public:
 		const Domain &domain() const;

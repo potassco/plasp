@@ -32,7 +32,13 @@ Domain::Domain(Context &context)
 
 void Domain::readPDDL()
 {
-	m_name = m_context.parser.parseIdentifier(isIdentifier);
+	const auto domainName = m_context.parser.parseIdentifier(isIdentifier);
+
+	if (m_name.empty())
+		m_name = domainName;
+	// If the domain has previously been referenced, check that the name matches
+	else if (m_name != domainName)
+		throw utils::ParserException(m_context.parser, "Domains do not match (\"" + domainName + "\" and \"" + m_name + "\")");
 
 	std::cout << "Parsing domain " << m_name << std::endl;
 
@@ -58,6 +64,13 @@ void Domain::readPDDL()
 bool Domain::isDeclared() const
 {
 	return m_isDeclared;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Domain::setName(std::string name)
+{
+	m_name = name;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -334,9 +347,20 @@ void Domain::checkConsistency()
 	// Verify that typing requirement is correctly declared if used
 	if (!m_primitiveTypes.empty() && !hasRequirement(Requirement::Type::Typing))
 	{
-		throw ConsistencyException("Domain contains typing information but does not declare typing requirement");
+		m_context.logger.parserWarning(m_context.parser, "Domain contains typing information but does not declare typing requirement");
 
 		m_requirements.push_back(Requirement(Requirement::Type::Typing));
+	}
+
+	// Verify that all variables and constants have types
+	if (hasRequirement(Requirement::Type::Typing))
+	{
+		std::for_each(m_constants.cbegin(), m_constants.cend(),
+			[&](const auto &constant)
+			{
+				if (constant->type() == nullptr)
+					throw ConsistencyException("Constant \"" + constant->name() + "\" has no type");
+			});
 	}
 
 	// Verify that all used types have been declared
@@ -366,7 +390,6 @@ void Domain::checkConsistency()
 				throw ConsistencyException("Predicate \"" + predicate->name() + "\" used but never declared");
 		});
 
-	// Verify that all variables have types
 	// Verify that constants are unique
 	// Verify that all primitive types are unique
 	// Check for case-sensitivity issues

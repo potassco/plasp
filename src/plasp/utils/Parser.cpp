@@ -27,14 +27,36 @@ Parser::Parser(std::istream &istream)
 	m_row{1},
 	m_column{1},
 	m_isCaseSensitive{true},
-	m_endOfFile{false}
+	m_atEndOfFile{false}
 {
 	std::setlocale(LC_NUMERIC, "C");
 
 	// Don’t skip whitespace
 	istream.exceptions(std::istream::badbit);
+}
 
-	checkStream();
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Parser::setFileName(std::string fileName)
+{
+	m_fileName = fileName;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const std::string &Parser::fileName() const
+{
+	return m_fileName;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Parser::resetPosition()
+{
+	m_row = 1;
+	m_column = 1;
+	m_atEndOfFile = false;
+	m_position = std::istreambuf_iterator<char>(m_istream);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

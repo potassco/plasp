@@ -2,6 +2,7 @@
 
 #include <algorithm>
 
+#include <plasp/pddl/Domain.h>
 #include <plasp/pddl/Identifier.h>
 #include <plasp/pddl/expressions/Constant.h>
 #include <plasp/utils/IO.h>
@@ -134,7 +135,7 @@ void Problem::parseSection()
 
 	// TODO: check order of the sections
 	if (sectionIdentifier == "domain")
-		skipSection();
+		parseDomainSection();
 	else if (sectionIdentifier == "requirements")
 		parseRequirementSection();
 	else if (sectionIdentifier == "objects")
@@ -151,6 +152,23 @@ void Problem::parseSection()
 		skipSection();
 	else
 		throw utils::ParserException(m_context.parser, "Unknown problem section \"" + sectionIdentifier + "\"");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Problem::parseDomainSection()
+{
+	m_context.parser.skipWhiteSpace();
+
+	const auto domainName = m_context.parser.parseIdentifier(isIdentifier);
+
+	if (m_domain.isDeclared() && m_domain.name() != domainName)
+		throw utils::ParserException(m_context.parser, "Domains do not match (\"" + m_domain.name() + "\" and \"" + domainName + "\")");
+
+	if (!m_domain.isDeclared())
+		m_domain.setName(domainName);
+
+	m_context.parser.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -238,7 +256,7 @@ void Problem::parseObjectSection()
 	// Store constants
 	while (m_context.parser.currentCharacter() != ')')
 	{
-		//expressions::Constant::parseTypedDeclaration(m_context);
+		expressions::Constant::parseTypedDeclaration(m_context, *this);
 
 		m_context.parser.skipWhiteSpace();
 	}
@@ -250,6 +268,14 @@ void Problem::parseObjectSection()
 
 void Problem::checkConsistency()
 {
+	// Verify that all objects have types
+	if (hasRequirement(Requirement::Type::Typing) || m_domain.hasRequirement(Requirement::Type::Typing))
+		std::for_each(m_objects.cbegin(), m_objects.cend(),
+			[&](const auto &constant)
+			{
+				if (constant->type() == nullptr)
+					throw ConsistencyException("Object \"" + constant->name() + "\" has no type");
+			});
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

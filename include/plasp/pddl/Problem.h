@@ -44,6 +44,8 @@ class Problem
 		bool hasRequirement(Requirement::Type requirementType) const;
 		void computeDerivedRequirements();
 
+		void parseDomainSection();
+
 		void parseObjectSection();
 
 		Context &m_context;

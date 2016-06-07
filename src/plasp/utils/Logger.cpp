@@ -32,7 +32,7 @@ void Logger::parserWarning(const Parser &parser, const std::string &text)
 	if (m_isPedantic)
 		throw ParserWarning(parser, text);
 
-	std::cerr << "Warning: " << parser.row() << ":" << parser.column() << "\t" << text << std::endl;
+	std::cerr << "Warning: " << parser.fileName() << ":" << parser.row() << ":" << parser.column() << " " << text << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

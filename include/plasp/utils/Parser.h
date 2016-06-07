@@ -21,6 +21,11 @@ class Parser
 	public:
 		explicit Parser(std::istream &istream);
 
+		void setFileName(std::string fileName);
+		const std::string &fileName() const;
+
+		void resetPosition();
+
 		size_t row() const;
 		size_t column() const;
 
@@ -60,6 +65,7 @@ class Parser
 		uint64_t parseIntegerBody();
 
 		std::istream &m_istream;
+		std::string m_fileName;
 		std::istreambuf_iterator<char> m_position;
 
 		size_t m_row;
@@ -67,7 +73,7 @@ class Parser
 
 		bool m_isCaseSensitive;
 
-		bool m_endOfFile;
+		bool m_atEndOfFile;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

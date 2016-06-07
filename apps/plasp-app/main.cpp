@@ -16,7 +16,7 @@ int main(int argc, char **argv)
 	description.add_options()
 		("help,h", "Display this help message.")
 		("version,v", "Display version information.")
-		("input,i", po::value<std::string>(), "Specify the SAS input file.")
+		("input,i", po::value<std::vector<std::string>>(), "Specify the SAS input file.")
 		("format,f", po::value<std::string>()->default_value("SAS"), "Specify the file format (SAS or PDDL).");
 
 	po::positional_options_description positionalOptionsDescription;
@@ -66,10 +66,19 @@ int main(int argc, char **argv)
 		auto format = variablesMap["format"].as<std::string>();
 		std::transform(format.begin(), format.end(), format.begin(), ::tolower);
 
+		const auto &inputFiles = variablesMap["input"].as<std::vector<std::string>>();
+
 		if (format == "sas")
 		{
+			if (inputFiles.size() > 0)
+			{
+				std::cerr << "Error: Only one input file allowed for SAS translation" << std::endl;
+				printHelp();
+				return EXIT_FAILURE;
+			}
+
 			const auto sasDescription = variablesMap.count("input")
-				? plasp::sas::Description::fromFile(variablesMap["input"].as<std::string>())
+				? plasp::sas::Description::fromFile(inputFiles.front())
 				: plasp::sas::Description::fromStream(std::cin);
 			const auto sasTranslator = plasp::sas::TranslatorASP(sasDescription);
 			sasTranslator.translate(std::cout);
@@ -77,7 +86,7 @@ int main(int argc, char **argv)
 		else if (format == "pddl")
 		{
 			const auto pddlDescription = variablesMap.count("input")
-				? plasp::pddl::Description::fromFile(variablesMap["input"].as<std::string>())
+				? plasp::pddl::Description::fromFiles(inputFiles)
 				: plasp::pddl::Description::fromStream(std::cin);
 			//std::cout << pddlDescription << std::endl;
 		}

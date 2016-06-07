@@ -61,11 +61,13 @@ void PrimitiveType::parseDeclaration(Context &context, Domain &domain)
 		auto *type = match->get();
 
 		type->setDirty();
+		type->setDeclared();
 
 		return;
 	}
 
 	types.emplace_back(std::make_unique<PrimitiveType>(typeName));
+	types.back()->setDeclared();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -76,11 +78,6 @@ void PrimitiveType::parseTypedDeclaration(Context &context, Domain &domain)
 
 	// Parse and store type
 	parseDeclaration(context, domain);
-
-	auto *type = types.back().get();
-
-	// Flag type as correctly declared in the types section
-	type->setDeclared();
 
 	context.parser.skipWhiteSpace();
 
@@ -129,12 +126,8 @@ PrimitiveType *PrimitiveType::parseAndFindOrCreate(Context &context, Domain &dom
 
 	if (match == types.cend())
 	{
-		// Primitive type "object" is implicitly declared
-		if (typeName != "object")
-			context.logger.parserWarning(context.parser, "Primitive type \"" + typeName + "\" used but never declared");
-
+		// If necessary, insert new primitive type but don't declare it
 		types.emplace_back(std::make_unique<expressions::PrimitiveType>(typeName));
-		types.back()->setDeclared();
 
 		return types.back().get();
 	}
