@@ -31,6 +31,11 @@ Problem::Problem(Context &context, Domain &domain)
 
 void Problem::readPDDL()
 {
+	m_context.parser.expect<std::string>("(");
+	m_context.parser.expect<std::string>("define");
+	m_context.parser.expect<std::string>("(");
+	m_context.parser.expect<std::string>("problem");
+
 	m_name = m_context.parser.parseIdentifier(isIdentifier);
 
 	std::cout << "Parsing problem " << m_name << std::endl;
