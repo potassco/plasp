@@ -16,27 +16,26 @@ namespace pddl
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const auto skipSection =
-	[](utils::Parser &parser)
+inline void skipSection(utils::Parser &parser)
+{
+	size_t openParentheses = 1;
+
+	while (true)
 	{
-		size_t openParentheses = 1;
+		const auto character = parser.currentCharacter();
+		parser.advance();
 
-		while (true)
+		if (character == '(')
+			openParentheses++;
+		else if (character == ')')
 		{
-			const auto character = parser.currentCharacter();
-			parser.advance();
+			openParentheses--;
 
-			if (character == '(')
-				openParentheses++;
-			else if (character == ')')
-			{
-				openParentheses--;
-
-				if (openParentheses == 0)
-					return;
-			}
+			if (openParentheses == 0)
+				return;
 		}
-	};
+	}
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
