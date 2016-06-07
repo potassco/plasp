@@ -21,18 +21,11 @@ namespace pddl
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Action::Action(std::string name)
-:	m_name{name}
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 void Action::parseDeclaration(Context &context, Domain &domain)
 {
-	const auto actionName = context.parser.parseIdentifier(isIdentifier);
+	auto action = std::make_unique<Action>(Action());
 
-	auto action = std::make_unique<Action>(Action(actionName));
+	action->m_name = context.parser.parseIdentifier(isIdentifier);
 
 	context.parser.expect<std::string>(":parameters");
 	context.parser.expect<std::string>("(");
@@ -49,11 +42,9 @@ void Action::parseDeclaration(Context &context, Domain &domain)
 	{
 		context.parser.expect<std::string>(":");
 
-		const auto sectionIdentifier = context.parser.parseIdentifier(isIdentifier);
-
-		if (sectionIdentifier == "precondition")
+		if (context.parser.probe<std::string>("precondition"))
 			action->m_precondition = parsePreconditionExpression(context, expressionContext);
-		else if (sectionIdentifier == "effect")
+		else if (context.parser.probe<std::string>("effect"))
 			action->m_effect = parseEffectExpression(context, expressionContext);
 
 		context.parser.skipWhiteSpace();

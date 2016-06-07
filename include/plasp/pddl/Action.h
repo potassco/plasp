@@ -31,7 +31,7 @@ class Action
 		const Expression &effect() const;
 
 	private:
-		Action(std::string name);
+		Action() = default;
 
 		std::string m_name;
 
