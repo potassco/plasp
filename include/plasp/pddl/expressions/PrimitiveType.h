@@ -36,16 +36,11 @@ class PrimitiveType: public Expression
 		const std::string &name() const;
 		const std::vector<const PrimitiveType *> &parentTypes() const;
 
-		bool isDeclared() const;
-
 	private:
 		void setDirty(bool isDirty = true);
 		bool isDirty() const;
 
-		void setDeclared();
-
 		bool m_isDirty;
-		bool m_isDeclared;
 
 		std::string m_name;
 

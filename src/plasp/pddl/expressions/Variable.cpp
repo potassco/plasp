@@ -5,6 +5,7 @@
 #include <boost/assert.hpp>
 
 #include <plasp/pddl/Context.h>
+#include <plasp/pddl/Domain.h>
 #include <plasp/pddl/ExpressionContext.h>
 #include <plasp/pddl/ExpressionVisitor.h>
 #include <plasp/pddl/Identifier.h>
@@ -67,8 +68,6 @@ void Variable::parseTypedDeclaration(Context &context, ExpressionContext &expres
 	if (!context.parser.probe('-'))
 		return;
 
-	// TODO: do not allow nested either expressions
-
 	const auto setType =
 		[&](const auto *type)
 		{
@@ -104,6 +103,27 @@ void Variable::parseTypedDeclaration(Context &context, ExpressionContext &expres
 	const auto *type = PrimitiveType::parseAndFindOrCreate(context, expressionContext.domain);
 
 	setType(type);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Variable::parseTypedDeclarations(Context &context, ExpressionContext &expressionContext)
+{
+	while (context.parser.currentCharacter() != ')')
+		parseTypedDeclaration(context, expressionContext);
+
+	if (expressionContext.parameters.empty())
+		return;
+
+	// Check correct use of typing requirement
+	const auto typingUsed = (expressionContext.parameters.back()->type() != nullptr);
+	const auto typingDeclared = expressionContext.domain.hasRequirement(Requirement::Type::Typing);
+
+	if (!typingUsed && typingDeclared)
+		throw utils::ParserException(context.parser, "Object has undeclared type");
+
+	if (typingUsed && !typingDeclared)
+		throw utils::ParserException(context.parser, "Typing used but not declared as a requirement");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

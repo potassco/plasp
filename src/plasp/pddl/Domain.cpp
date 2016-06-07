@@ -315,52 +315,6 @@ void Domain::parseActionSection()
 
 void Domain::checkConsistency()
 {
-	// TODO: implement requirement declaration checking
-
-	// Verify that typing requirement is correctly declared if used
-	if (!m_primitiveTypes.empty() && !hasRequirement(Requirement::Type::Typing))
-	{
-		m_context.logger.parserWarning(m_context.parser, "Domain contains typing information but does not declare typing requirement");
-
-		m_requirements.push_back(Requirement(Requirement::Type::Typing));
-	}
-
-	// Verify that all variables and constants have types if and only if typing enabled
-	if (hasRequirement(Requirement::Type::Typing))
-	{
-		const auto acceptType =
-			[&](const auto *type)
-			{
-				return ((type == nullptr) != this->hasRequirement(Requirement::Type::Typing));
-			};
-
-		std::for_each(m_constants.cbegin(), m_constants.cend(),
-			[&](const auto &constant)
-			{
-				if (!acceptType(constant->type()))
-					throw ConsistencyException("Constant \"" + constant->name() + "\" has no type");
-			});
-
-		std::for_each(m_predicateDeclarations.cbegin(), m_predicateDeclarations.cend(),
-			[&](const auto &predicateDeclaration)
-			{
-				std::for_each(predicateDeclaration->arguments().cbegin(), predicateDeclaration->arguments().cend(),
-					[&](const auto &argument)
-					{
-						if (!acceptType(argument->type()))
-							throw ConsistencyException("Variable \"" + argument->name() + "\" has no type");
-					});
-			});
-	}
-
-	// Verify that all used types have been declared
-	std::for_each(m_primitiveTypes.cbegin(), m_primitiveTypes.cend(),
-		[&](const auto &type)
-		{
-			if (!type->isDeclared())
-				throw ConsistencyException("Type \"" + type->name() + "\" used but never declared");
-		});
-
 	// Verify that all used constants have been declared
 	std::for_each(m_constants.cbegin(), m_constants.cend(),
 		[&](const auto &constant)

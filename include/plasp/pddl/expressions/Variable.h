@@ -20,8 +20,10 @@ class Variable: public Expression
 {
 	public:
 		static void parseTypedDeclaration(Context &context, ExpressionContext &expressionContext);
+		static void parseTypedDeclarations(Context &context, ExpressionContext &expressionContext);
 
-		static const Variable *parseAndFind(Context &context, const ExpressionContext &expressionContext);
+		static const Variable *parseAndFind(Context &context,
+			const ExpressionContext &expressionContext);
 
 	public:
 		void accept(ExpressionVisitor &expressionVisitor) const override;

@@ -111,8 +111,6 @@ void Description::findSections()
 
 		if (m_context.parser.probe<std::string>("domain"))
 		{
-			std::cout << "Found domain at " << position << std::endl;
-
 			if (m_domainPosition != -1)
 				throw utils::ParserException(m_context.parser, "PDDL description may not contain two domains");
 

@@ -255,9 +255,9 @@ bool Parser::probe<std::string>(const std::string &expectedValue)
 {
 	BOOST_ASSERT(!std::isspace(expectedValue[0]));
 
-	skipWhiteSpace();
-
 	const auto previousPosition = position();
+
+	skipWhiteSpace();
 
 	const auto match = std::find_if(expectedValue.cbegin(), expectedValue.cend(),
 		[&](const auto &expectedCharacter)

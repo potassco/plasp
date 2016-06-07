@@ -23,8 +23,7 @@ namespace expressions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 PrimitiveType::PrimitiveType()
-:	m_isDirty{true},
-	m_isDeclared{false}
+:	m_isDirty{true}
 {
 }
 
@@ -32,7 +31,6 @@ PrimitiveType::PrimitiveType()
 
 PrimitiveType::PrimitiveType(std::string name)
 :	m_isDirty{true},
-	m_isDeclared{false},
 	m_name{name}
 {
 	BOOST_ASSERT(!m_name.empty());
@@ -61,13 +59,11 @@ void PrimitiveType::parseDeclaration(Context &context, Domain &domain)
 		auto *type = match->get();
 
 		type->setDirty();
-		type->setDeclared();
 
 		return;
 	}
 
 	types.emplace_back(std::make_unique<PrimitiveType>(typeName));
-	types.back()->setDeclared();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -92,9 +88,6 @@ void PrimitiveType::parseTypedDeclaration(Context &context, Domain &domain)
 	auto *parentType = parseAndFindOrCreate(context, domain);
 
 	parentType->setDirty(false);
-
-	// Flag parent tpe as correctly declared in the types section
-	parentType->setDeclared();
 
 	// Assign parent type to all types that were previously flagged
 	std::for_each(types.begin(), types.end(),
@@ -160,20 +153,6 @@ void PrimitiveType::setDirty(bool isDirty)
 bool PrimitiveType::isDirty() const
 {
 	return m_isDirty;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void PrimitiveType::setDeclared()
-{
-	m_isDeclared = true;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-bool PrimitiveType::isDeclared() const
-{
-	return m_isDeclared;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

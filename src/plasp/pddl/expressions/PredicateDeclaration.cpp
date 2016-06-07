@@ -45,12 +45,7 @@ void PredicateDeclaration::parse(Context &context, Domain &domain)
 	ExpressionContext expressionContext(domain, predicate->m_parameters);
 
 	// Parse arguments
-	while (context.parser.currentCharacter() != ')')
-	{
-		expressions::Variable::parseTypedDeclaration(context, expressionContext);
-
-		context.parser.skipWhiteSpace();
-	}
+	expressions::Variable::parseTypedDeclarations(context, expressionContext);
 
 	context.parser.expect<std::string>(")");
 
