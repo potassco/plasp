@@ -100,7 +100,7 @@ void Variable::parseTypedDeclaration(Context &context, ExpressionContext &expres
 	}
 
 	// Parse primitive type
-	const auto *type = PrimitiveType::parseAndFindOrCreate(context, expressionContext.domain);
+	const auto *type = PrimitiveType::parseAndFind(context, expressionContext.domain);
 
 	setType(type);
 }

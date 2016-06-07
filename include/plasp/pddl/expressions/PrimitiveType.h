@@ -25,7 +25,7 @@ class PrimitiveType: public Expression
 		static void parseDeclaration(Context &context, Domain &domain);
 		static void parseTypedDeclaration(Context &context, Domain &domain);
 
-		static PrimitiveType *parseAndFindOrCreate(Context &context, Domain &domain);
+		static PrimitiveType *parseAndFind(Context &context, Domain &domain);
 
 	public:
 		PrimitiveType();

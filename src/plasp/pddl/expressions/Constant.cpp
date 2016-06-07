@@ -84,7 +84,7 @@ void Constant::parseTypedDeclaration(Context &context, Domain &domain, Constants
 		return;
 
 	// If existing, parse and store parent type
-	auto *type = PrimitiveType::parseAndFindOrCreate(context, domain);
+	auto *type = PrimitiveType::parseAndFind(context, domain);
 
 	// Assign parent type to all types that were previously flagged
 	std::for_each(constants.begin(), constants.end(),

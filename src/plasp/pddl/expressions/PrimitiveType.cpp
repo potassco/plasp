@@ -85,7 +85,7 @@ void PrimitiveType::parseTypedDeclaration(Context &context, Domain &domain)
 		throw utils::ParserException(context.parser, "Typing used but not declared as a requirement");
 
 	// If existing, parse and store parent type
-	auto *parentType = parseAndFindOrCreate(context, domain);
+	auto *parentType = parseAndFind(context, domain);
 
 	parentType->setDirty(false);
 
@@ -103,7 +103,7 @@ void PrimitiveType::parseTypedDeclaration(Context &context, Domain &domain)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PrimitiveType *PrimitiveType::parseAndFindOrCreate(Context &context, Domain &domain)
+PrimitiveType *PrimitiveType::parseAndFind(Context &context, Domain &domain)
 {
 	auto &types = domain.types();
 
@@ -122,8 +122,11 @@ PrimitiveType *PrimitiveType::parseAndFindOrCreate(Context &context, Domain &dom
 
 	if (match == types.cend())
 	{
-		// If necessary, insert new primitive type but don't declare it
-		types.emplace_back(std::make_unique<expressions::PrimitiveType>(typeName));
+		// Only "object" is allowed as an implicit type
+		if (typeName == "object")
+			types.emplace_back(std::make_unique<expressions::PrimitiveType>(typeName));
+		else
+			throw utils::ParserException(context.parser, "Type \"" + typeName + "\" used but never declared");
 
 		return types.back().get();
 	}

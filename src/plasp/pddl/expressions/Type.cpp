@@ -20,7 +20,7 @@ namespace expressions
 
 ExpressionPointer parseExistingPrimitiveType(Context &context, ExpressionContext &expressionContext)
 {
-	auto *primitiveType = PrimitiveType::parseAndFindOrCreate(context, expressionContext.domain);
+	auto *primitiveType = PrimitiveType::parseAndFind(context, expressionContext.domain);
 
 	return std::make_unique<Reference<PrimitiveType>>(primitiveType);
 }
