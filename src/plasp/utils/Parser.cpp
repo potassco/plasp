@@ -1,6 +1,7 @@
 #include <plasp/utils/Parser.h>
 
 #include <algorithm>
+#include <fstream>
 
 #include <boost/assert.hpp>
 
@@ -21,56 +22,116 @@ const std::istreambuf_iterator<char> Parser::EndOfFile = std::istreambuf_iterato
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Parser::Parser(std::istream &istream)
-:	m_istream(istream),
-	m_position(m_istream),
-	m_row{1},
-	m_column{1},
-	m_isCaseSensitive{true},
-	m_atEndOfFile{false}
+Parser::Parser()
+:	m_isCaseSensitive{true}
 {
 	std::setlocale(LC_NUMERIC, "C");
 
 	// Don’t skip whitespace
-	istream.exceptions(std::istream::badbit);
+	m_stream.exceptions(std::istream::badbit);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Parser::setFileName(std::string fileName)
+Parser::Parser(std::string streamName, std::istream &istream)
+:	Parser()
 {
-	m_fileName = fileName;
+	readStream(streamName, istream);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::string &Parser::fileName() const
+void Parser::readStream(std::string streamName, std::istream &istream)
 {
-	return m_fileName;
+	// Store position of new section
+	const auto position = m_stream.tellp();
+
+	m_streamDelimiters.push_back({position, streamName});
+
+	m_stream << istream.rdbuf();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Parser::resetPosition()
+void Parser::readFile(const boost::filesystem::path &path)
 {
-	m_row = 1;
-	m_column = 1;
-	m_atEndOfFile = false;
-	m_position = std::istreambuf_iterator<char>(m_istream);
+	if (!boost::filesystem::is_regular_file(path))
+		throw std::runtime_error("File does not exist: \"" + path.string() + "\"");
+
+	std::ifstream fileStream(path.string(), std::ios::in);
+
+	readStream(path.string(), fileStream);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-size_t Parser::row() const
+void Parser::reset()
 {
-	return m_row;
+	m_stream.clear();
+	seek(std::ios::beg);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-size_t Parser::column() const
+void Parser::seek(Position position)
 {
-	return m_column;
+	m_stream.clear();
+	m_stream.seekg(position);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Parser::Position Parser::position() const
+{
+	return m_stream.tellg();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Parser::Coordinate Parser::coordinate() const
+{
+	const auto currentPosition = position();
+
+	// Find current section
+	auto currentFile = std::find_if(m_streamDelimiters.crbegin(), m_streamDelimiters.crend(),
+		[&](const auto &fileDelimiter)
+		{
+			return currentPosition >= fileDelimiter.position;
+		});
+
+	// If the parser is at the end of the stream, still count from the beginning of the last section
+	if (currentFile == m_streamDelimiters.crend())
+		currentFile = m_streamDelimiters.crbegin();
+
+	// Go back to beginning of section
+	m_stream.clear();
+	m_stream.seekg(currentFile->position);
+
+	size_t row = 1;
+	size_t column = 1;
+
+	// Compute the coordinate character by character
+	while (true)
+	{
+		if (currentPosition == -1 && atEndOfStream())
+			break;
+		else if (currentPosition >= 0 && position() >= currentPosition)
+			break;
+
+		const auto character = currentCharacter();
+
+		if (character == '\n')
+		{
+			row++;
+			column = 1;
+		}
+		else if (std::isblank(character) || std::isprint(character))
+			column++;
+
+		m_stream.ignore(1);
+	}
+
+	return {currentFile->sectionName, row, column};
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -84,29 +145,27 @@ void Parser::setCaseSensitive(bool isCaseSensitive)
 
 char Parser::currentCharacter() const
 {
-	checkStream();
-
 	if (m_isCaseSensitive)
-		return *m_position;
+		return m_stream.peek();
 
-	return std::tolower(*m_position);
+	return std::tolower(m_stream.peek());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Parser::atEndOfFile() const
+bool Parser::atEndOfStream() const
 {
-	return m_position.equal(EndOfFile);
+	return position() == -1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Parser::checkStream() const
 {
-	if (atEndOfFile())
+	if (atEndOfStream())
 		throw ParserException(*this, "Reading past end of file");
 
-	if (m_istream.fail())
+	if (m_stream.fail())
 		throw ParserException(*this);
 }
 
@@ -115,18 +174,7 @@ void Parser::checkStream() const
 void Parser::advance()
 {
 	checkStream();
-
-	const auto character = currentCharacter();
-
-	if (character == '\n')
-	{
-		m_row++;
-		m_column = 1;
-	}
-	else if (std::isblank(character) || std::isprint(character))
-		m_column++;
-
-	m_position++;
+	m_stream.ignore(1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -246,7 +294,7 @@ uint64_t Parser::parseIntegerBody()
 
 	uint64_t value = 0;
 
-	while (!atEndOfFile())
+	while (!atEndOfStream())
 	{
 		const auto character = currentCharacter();
 

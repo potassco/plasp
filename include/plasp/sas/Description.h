@@ -47,6 +47,8 @@ class Description
 	private:
 		Description();
 
+		void parseContent(utils::Parser &parser);
+
 		void parseVersionSection(utils::Parser &parser) const;
 		void parseMetricSection(utils::Parser &parser);
 		void parseVariablesSection(utils::Parser &parser);

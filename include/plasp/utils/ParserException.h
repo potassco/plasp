@@ -31,8 +31,10 @@ class ParserException: public std::exception
 		}
 
 		explicit ParserException(const utils::Parser &parser, const std::string &message)
-		:	m_message{parser.fileName() + ":" + std::to_string(parser.row()) + ":" + std::to_string(parser.column()) + " " + message}
 		{
+			const auto coordinate = parser.coordinate();
+
+			m_message = coordinate.sectionName + ":" + std::to_string(coordinate.row) + ":" + std::to_string(coordinate.column) + " " + message;
 		}
 
 		~ParserException() throw()

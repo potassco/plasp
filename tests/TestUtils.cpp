@@ -9,7 +9,7 @@
 TEST(UtilsTests, ParseSimple)
 {
 	std::stringstream s("identifier  5   \n-51\t 0 1 expected unexpected");
-	plasp::utils::Parser p(s);
+	plasp::utils::Parser p("input", s);
 
 	ASSERT_EQ(p.parse<std::string>(), "identifier");
 	ASSERT_EQ(p.parse<size_t>(), 5u);
@@ -19,6 +19,8 @@ TEST(UtilsTests, ParseSimple)
 
 	ASSERT_NO_THROW(p.expect<std::string>("expected"));
 	ASSERT_THROW(p.expect<std::string>("expected"), plasp::utils::ParserException);
+
+	// TODO: test case-insensitive input
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -26,7 +28,7 @@ TEST(UtilsTests, ParseSimple)
 TEST(UtilsTests, ParseUnsignedNumbers)
 {
 	std::stringstream s("100 200 -300 -400");
-	plasp::utils::Parser p(s);
+	plasp::utils::Parser p("input", s);
 
 	ASSERT_EQ(p.parse<int>(), 100);
 	ASSERT_EQ(p.parse<size_t>(), 200u);
@@ -39,13 +41,13 @@ TEST(UtilsTests, ParseUnsignedNumbers)
 TEST(UtilsTests, ParseEndOfFile)
 {
 	std::stringstream s1("test");
-	plasp::utils::Parser p1(s1);
+	plasp::utils::Parser p1("input", s1);
 
 	ASSERT_NO_THROW(p1.expect<std::string>("test"));
 	ASSERT_THROW(p1.parse<std::string>(), plasp::utils::ParserException);
 
 	std::stringstream s2("test1 test2 test3");
-	plasp::utils::Parser p2(s2);
+	plasp::utils::Parser p2("input", s2);
 
 	ASSERT_NO_THROW(p2.expect<std::string>("test1"));
 	ASSERT_NO_THROW(p2.expect<std::string>("test2"));
@@ -53,13 +55,13 @@ TEST(UtilsTests, ParseEndOfFile)
 	ASSERT_THROW(p2.parse<std::string>(), plasp::utils::ParserException);
 
 	std::stringstream s3("-127");
-	plasp::utils::Parser p3(s3);
+	plasp::utils::Parser p3("input", s3);
 
 	p3.expect<int>(-127);
 	ASSERT_THROW(p3.parse<int>(), plasp::utils::ParserException);
 
 	std::stringstream s4("128 -1023 -4095");
-	plasp::utils::Parser p4(s4);
+	plasp::utils::Parser p4("input", s4);
 
 	ASSERT_NO_THROW(p4.expect<size_t>(128));
 	ASSERT_NO_THROW(p4.expect<int>(-1023));
@@ -67,13 +69,13 @@ TEST(UtilsTests, ParseEndOfFile)
 	ASSERT_THROW(p4.parse<int>(), plasp::utils::ParserException);
 
 	std::stringstream s5("0");
-	plasp::utils::Parser p5(s5);
+	plasp::utils::Parser p5("input", s5);
 
 	p5.expect<bool>(false);
 	ASSERT_THROW(p5.parse<bool>(), plasp::utils::ParserException);
 
 	std::stringstream s6("0 1 0");
-	plasp::utils::Parser p6(s6);
+	plasp::utils::Parser p6("input", s6);
 
 	ASSERT_NO_THROW(p6.expect<bool>(false));
 	ASSERT_NO_THROW(p6.expect<bool>(true));
@@ -86,74 +88,90 @@ TEST(UtilsTests, ParseEndOfFile)
 TEST(UtilsTests, ParserPosition)
 {
 	std::stringstream s("123 \n4\ntest1\n test2\ntest3 \ntest4\n\n\n\n");
-	plasp::utils::Parser p(s);
+	plasp::utils::Parser p("input", s);
 
-	ASSERT_EQ(p.row(), 1u);
-	ASSERT_EQ(p.column(), 1u);
+	plasp::utils::Parser::Coordinate c;
+
+	c = p.coordinate();
+	ASSERT_EQ(c.row, 1u);
+	ASSERT_EQ(c.column, 1u);
 	ASSERT_EQ(p.currentCharacter(), '1');
 
 	ASSERT_NO_THROW(p.advance());
 
-	ASSERT_EQ(p.row(), 1u);
-	ASSERT_EQ(p.column(), 2u);
+	c = p.coordinate();
+	ASSERT_EQ(c.row, 1u);
+	ASSERT_EQ(c.column, 2u);
 	ASSERT_EQ(p.currentCharacter(), '2');
 
 	ASSERT_NO_THROW(p.advance());
 
-	ASSERT_EQ(p.row(), 1u);
-	ASSERT_EQ(p.column(), 3u);
+	c = p.coordinate();
+	ASSERT_EQ(c.row, 1u);
+	ASSERT_EQ(c.column, 3u);
 	ASSERT_EQ(p.currentCharacter(), '3');
 
 	ASSERT_NO_THROW(p.advance());
 
-	ASSERT_EQ(p.row(), 1u);
-	ASSERT_EQ(p.column(), 4u);
+	c = p.coordinate();
+	ASSERT_EQ(c.row, 1u);
+	ASSERT_EQ(c.column, 4u);
 	ASSERT_EQ(p.currentCharacter(), ' ');
 
 	ASSERT_NO_THROW(p.advance());
 
-	ASSERT_EQ(p.row(), 1u);
-	ASSERT_EQ(p.column(), 5u);
+	c = p.coordinate();
+	ASSERT_EQ(c.row, 1u);
+	ASSERT_EQ(c.column, 5u);
 	ASSERT_EQ(p.currentCharacter(), '\n');
 
 	ASSERT_NO_THROW(p.advance());
 
-	ASSERT_EQ(p.row(), 2u);
-	ASSERT_EQ(p.column(), 1u);
+	c = p.coordinate();
+	ASSERT_EQ(c.row, 2u);
+	ASSERT_EQ(c.column, 1u);
 	ASSERT_EQ(p.currentCharacter(), '4');
 
 	ASSERT_NO_THROW(p.advance());
 
 	ASSERT_NO_THROW(p.expect<std::string>("test1"));
 
-	ASSERT_EQ(p.row(), 3u);
-	ASSERT_EQ(p.column(), 6u);
+	c = p.coordinate();
+	ASSERT_EQ(c.row, 3u);
+	ASSERT_EQ(c.column, 6u);
 
 	ASSERT_NO_THROW(p.expect<std::string>("test2"));
 
-	ASSERT_EQ(p.row(), 4u);
-	ASSERT_EQ(p.column(), 7u);
+	c = p.coordinate();
+	ASSERT_EQ(c.row, 4u);
+	ASSERT_EQ(c.column, 7u);
 
 	ASSERT_NO_THROW(p.expect<std::string>("test3"));
 
-	ASSERT_EQ(p.row(), 5u);
-	ASSERT_EQ(p.column(), 6u);
+	c = p.coordinate();
+	ASSERT_EQ(c.row, 5u);
+	ASSERT_EQ(c.column, 6u);
 
 	ASSERT_NO_THROW(p.skipLine());
 
-	ASSERT_EQ(p.row(), 6u);
-	ASSERT_EQ(p.column(), 1u);
+	c = p.coordinate();
+	ASSERT_EQ(c.row, 6u);
+	ASSERT_EQ(c.column, 1u);
 
 	ASSERT_NO_THROW(p.skipLine());
 
-	ASSERT_EQ(p.row(), 7u);
-	ASSERT_EQ(p.column(), 1u);
+	c = p.coordinate();
+	ASSERT_EQ(c.row, 7u);
+	ASSERT_EQ(c.column, 1u);
 
 	ASSERT_NO_THROW(p.skipWhiteSpace());
 
-	ASSERT_TRUE(p.atEndOfFile());
-	ASSERT_EQ(p.row(), 10u);
-	ASSERT_EQ(p.column(), 1u);
+	c = p.coordinate();
+	ASSERT_EQ(c.row, 10u);
+	ASSERT_EQ(c.column, 1u);
+	ASSERT_TRUE(p.atEndOfStream());
+
+	// TODO: test parser with multiple sections
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

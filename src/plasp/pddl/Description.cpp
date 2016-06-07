@@ -18,9 +18,8 @@ namespace pddl
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Description::Description(std::istream &istream)
-:	m_parser(istream),
-	m_context(m_parser),
+Description::Description()
+:	m_context(m_parser),
 	m_domain{std::make_unique<Domain>(Domain(m_context))},
 	m_problem{std::make_unique<Problem>(Problem(m_context, *m_domain))}
 {
@@ -31,9 +30,9 @@ Description::Description(std::istream &istream)
 
 Description Description::fromStream(std::istream &istream)
 {
-	Description description(istream);
+	Description description;
 
-	description.m_parser.setFileName("std::cin");
+	description.m_parser.readStream("std::cin", istream);
 
 	description.parseContent();
 	description.checkConsistency();
@@ -47,29 +46,15 @@ Description Description::fromFiles(const std::vector<std::string> &paths)
 {
 	BOOST_ASSERT(!paths.empty());
 
-	std::for_each(paths.cbegin(), paths.cend(),
-		[&](const auto &path)
-		{
-			if (!boost::filesystem::is_regular_file(path))
-				throw std::runtime_error("File does not exist: \"" + path + "\"");
-		});
-
-	std::ifstream fileStream;
-	Description description(fileStream);
+	Description description;
 
 	std::for_each(paths.cbegin(), paths.cend(),
 		[&](const auto &path)
 		{
-			fileStream.close();
-			fileStream.clear();
-			fileStream.open(path, std::ios::in);
-
-			description.m_parser.setFileName(path);
-			description.m_parser.resetPosition();
-
-			description.parseContent();
+			description.m_parser.readFile(path);
 		});
 
+	description.parseContent();
 	description.checkConsistency();
 
 	return description;
@@ -92,7 +77,7 @@ void Description::parseContent()
 	{
 		m_context.parser.skipWhiteSpace();
 
-		if (m_context.parser.atEndOfFile())
+		if (m_context.parser.atEndOfStream())
 			return;
 
 		m_context.parser.expect<std::string>("(");

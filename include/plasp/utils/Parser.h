@@ -3,7 +3,10 @@
 
 #include <iostream>
 #include <iterator>
+#include <sstream>
 #include <vector>
+
+#include <boost/filesystem.hpp>
 
 namespace plasp
 {
@@ -19,22 +22,39 @@ namespace utils
 class Parser
 {
 	public:
-		explicit Parser(std::istream &istream);
+		using Position = std::stringstream::pos_type;
 
-		void setFileName(std::string fileName);
-		const std::string &fileName() const;
+		struct Coordinate
+		{
+			std::string sectionName;
+			size_t row;
+			size_t column;
+		};
 
-		void resetPosition();
+		struct StreamDelimiter
+		{
+			Position position;
+			std::string sectionName;
+		};
 
-		size_t row() const;
-		size_t column() const;
+	public:
+		explicit Parser();
+		explicit Parser(std::string streamName, std::istream &istream);
+
+		void readStream(std::string streamName, std::istream &istream);
+		void readFile(const boost::filesystem::path &path);
+
+		void reset();
+		void seek(Position position);
+		Position position() const;
+		Coordinate coordinate() const;
 
 		void setCaseSensitive(bool isCaseInsensitive = true);
 
 		char currentCharacter() const;
 		void advance();
 		bool advanceIf(char expectedCharacter);
-		bool atEndOfFile() const;
+		bool atEndOfStream() const;
 
 		template<typename Type>
 		Type parse();
@@ -64,16 +84,11 @@ class Parser
 
 		uint64_t parseIntegerBody();
 
-		std::istream &m_istream;
-		std::string m_fileName;
-		std::istreambuf_iterator<char> m_position;
+		mutable std::stringstream m_stream;
 
-		size_t m_row;
-		size_t m_column;
+		std::vector<StreamDelimiter> m_streamDelimiters;
 
 		bool m_isCaseSensitive;
-
-		bool m_atEndOfFile;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -116,7 +131,7 @@ void Parser::skipWhiteSpace(WhiteSpacePredicate whiteSpacePredicate)
 {
 	checkStream();
 
-	while (!atEndOfFile() && whiteSpacePredicate(currentCharacter()))
+	while (!atEndOfStream() && whiteSpacePredicate(currentCharacter()))
 		advance();
 }
 

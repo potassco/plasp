@@ -28,7 +28,7 @@ class Description
 		const Domain &domain() const;
 
 	private:
-		Description(std::istream &istream);
+		Description();
 
 		void parseContent();
 		void parseSection();

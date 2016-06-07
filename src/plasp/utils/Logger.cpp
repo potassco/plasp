@@ -27,12 +27,16 @@ void Logger::setPedantic(bool isPedantic)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Logger::parserWarning(const Parser &parser, const std::string &text)
+void Logger::parserWarning(const Parser &parser, const std::string &message)
 {
 	if (m_isPedantic)
-		throw ParserWarning(parser, text);
+		throw ParserWarning(parser, message);
 
-	std::cerr << "Warning: " << parser.fileName() << ":" << parser.row() << ":" << parser.column() << " " << text << std::endl;
+	const auto coordinate = parser.coordinate();
+
+	std::cerr << "Warning: " << coordinate.sectionName << ":"
+		<< std::to_string(coordinate.row) + ":" + std::to_string(coordinate.column)
+		<< " " << message << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

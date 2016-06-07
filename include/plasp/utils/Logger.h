@@ -23,7 +23,7 @@ class Logger
 
 		void setPedantic(bool isPedantic = true);
 
-		void parserWarning(const Parser &parser, const std::string &text);
+		void parserWarning(const Parser &parser, const std::string &message);
 
 	private:
 		bool m_isPedantic;

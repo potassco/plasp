@@ -30,18 +30,11 @@ Description::Description()
 
 Description Description::fromStream(std::istream &istream)
 {
+	utils::Parser parser;
+	parser.readStream("std::cin", istream);
+
 	Description description;
-
-	utils::Parser parser(istream);
-
-	description.parseVersionSection(parser);
-	description.parseMetricSection(parser);
-	description.parseVariablesSection(parser);
-	description.parseMutexSection(parser);
-	description.parseInitialStateSection(parser);
-	description.parseGoalSection(parser);
-	description.parseOperatorSection(parser);
-	description.parseAxiomSection(parser);
+	description.parseContent(parser);
 
 	return description;
 }
@@ -53,9 +46,13 @@ Description Description::fromFile(const boost::filesystem::path &path)
 	if (!boost::filesystem::is_regular_file(path))
 		throw std::runtime_error("File does not exist: \"" + path.string() + "\"");
 
-	std::ifstream fileStream(path.string(), std::ios::in);
+	utils::Parser parser;
+	parser.readFile(path);
 
-	return Description::fromStream(fileStream);
+	Description description;
+	description.parseContent(parser);
+
+	return description;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -142,6 +139,20 @@ bool Description::usesConditionalEffects() const
 		});
 
 	return match != m_operators.cend();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Description::parseContent(utils::Parser &parser)
+{
+	parseVersionSection(parser);
+	parseMetricSection(parser);
+	parseVariablesSection(parser);
+	parseMutexSection(parser);
+	parseInitialStateSection(parser);
+	parseGoalSection(parser);
+	parseOperatorSection(parser);
+	parseAxiomSection(parser);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
