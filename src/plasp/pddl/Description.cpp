@@ -140,6 +140,12 @@ void Description::checkConsistency()
 	if (!m_domain->isDeclared())
 		throw ConsistencyException("No PDDL domain specified");
 
+	if (m_problem->hasRequirement(Requirement::Type::Typing)
+		&& !m_domain->hasRequirement(Requirement::Type::Typing))
+	{
+		throw ConsistencyException("PDDL problems may not add the \"typing\" requirement");
+	}
+
 	m_domain->checkConsistency();
 	m_problem->checkConsistency();
 }

@@ -344,6 +344,8 @@ void Domain::parseActionSection()
 
 void Domain::checkConsistency()
 {
+	// TODO: implement requirement declaration checking
+
 	// Verify that typing requirement is correctly declared if used
 	if (!m_primitiveTypes.empty() && !hasRequirement(Requirement::Type::Typing))
 	{

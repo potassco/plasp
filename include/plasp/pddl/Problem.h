@@ -31,6 +31,7 @@ class Problem
 		const std::string &name() const;
 
 		const Requirements &requirements() const;
+		bool hasRequirement(Requirement::Type requirementType) const;
 
 		expressions::Constants &objects();
 		const expressions::Constants &objects() const;
@@ -41,7 +42,6 @@ class Problem
 		void parseSection();
 
 		void parseRequirementSection();
-		bool hasRequirement(Requirement::Type requirementType) const;
 		void computeDerivedRequirements();
 
 		void parseDomainSection();
