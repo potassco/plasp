@@ -158,8 +158,10 @@ TEST_F(PDDLParserTests, ParseStorageDomain)
 		ASSERT_EQ(in.arguments()[0]->name(), "x");
 		const auto inArgument0Type = dynamic_cast<const expressions::Either *>(in.arguments()[0]->type());
 		ASSERT_EQ(inArgument0Type->arguments().size(), 2u);
-		ASSERT_EQ(dynamic_cast<const expressions::Reference<expressions::PrimitiveType> *>(inArgument0Type->arguments()[0].get())->value(), &storearea);
-		ASSERT_EQ(dynamic_cast<const expressions::Reference<expressions::PrimitiveType> *>(inArgument0Type->arguments()[1].get())->value(), &crate);
+		const auto inArgument0Type0 = dynamic_cast<const expressions::Reference<expressions::PrimitiveType> *>(inArgument0Type->arguments()[0].get())->value();
+		ASSERT_EQ(inArgument0Type0, &storearea);
+		const auto inArgument0Type1 = dynamic_cast<const expressions::Reference<expressions::PrimitiveType> *>(inArgument0Type->arguments()[1].get())->value();
+		ASSERT_EQ(inArgument0Type1, &crate);
 	}
 	catch (const std::exception &e)
 	{
