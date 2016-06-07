@@ -3,7 +3,7 @@ project(plasp CXX)
 
 find_package(Boost 1.55.0 COMPONENTS program_options iostreams system filesystem REQUIRED)
 
-set(CMAKE_CXX_FLAGS "-Wall -Wpedantic")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wpedantic")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 add_definitions(-std=c++14)
 
