@@ -137,32 +137,36 @@ const std::vector<std::unique_ptr<Action>> &Domain::actions() const
 
 void Domain::parseSection()
 {
-	m_context.parser.expect<std::string>("(");
-	m_context.parser.expect<std::string>(":");
+	auto &parser = m_context.parser;
 
-	const auto sectionIdentifier = m_context.parser.parseIdentifier(isIdentifier);
+	parser.expect<std::string>("(");
+	parser.expect<std::string>(":");
 
 	// TODO: check order of the sections
-	if (sectionIdentifier == "requirements")
+	if (parser.probe<std::string>("requirements"))
 		parseRequirementSection();
-	else if (sectionIdentifier == "types")
+	else if (parser.probe<std::string>("types"))
 		parseTypeSection();
-	else if (sectionIdentifier == "constants")
+	else if (parser.probe<std::string>("constants"))
 		parseConstantSection();
-	else if (sectionIdentifier == "predicates")
+	else if (parser.probe<std::string>("predicates"))
 		parsePredicateSection();
-	else if (sectionIdentifier == "action")
+	else if (parser.probe<std::string>("action"))
 		parseActionSection();
-	else if (sectionIdentifier == "functions"
-		|| sectionIdentifier == "constraints"
-		|| sectionIdentifier == "durative-action"
-		|| sectionIdentifier == "derived")
+	else if (parser.probe<std::string>("functions")
+		|| parser.probe<std::string>("constraints")
+		|| parser.probe<std::string>("durative-action")
+		|| parser.probe<std::string>("derived"))
 	{
+		const auto sectionIdentifier = parser.parseIdentifier(isIdentifier);
 		std::cout << "Skipping section " << sectionIdentifier << std::endl;
 		skipSection(m_context.parser);
 	}
 	else
+	{
+		const auto sectionIdentifier = parser.parseIdentifier(isIdentifier);
 		throw utils::ParserException(m_context.parser, "Unknown domain section \"" + sectionIdentifier + "\"");
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -245,10 +249,13 @@ void Domain::computeDerivedRequirements()
 
 void Domain::parseTypeSection()
 {
+	if (!hasRequirement(Requirement::Type::Typing))
+		throw utils::ParserException(m_context.parser, "Typing used but not declared as a requirement");
+
 	m_context.parser.skipWhiteSpace();
 
 	// Store types and their parent types
-	while (m_context.parser.currentCharacter() != ')')
+	while (!m_context.parser.probe(')'))
 	{
 		if (m_context.parser.currentCharacter() == '(')
 			throw utils::ParserException(m_context.parser, "Only primitive types are allowed in type section");
@@ -257,8 +264,6 @@ void Domain::parseTypeSection()
 
 		m_context.parser.skipWhiteSpace();
 	}
-
-	m_context.parser.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
