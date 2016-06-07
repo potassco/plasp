@@ -158,8 +158,7 @@ void Domain::parseSection()
 		|| parser.probe<std::string>("durative-action")
 		|| parser.probe<std::string>("derived"))
 	{
-		const auto sectionIdentifier = parser.parseIdentifier(isIdentifier);
-		std::cout << "Skipping section " << sectionIdentifier << std::endl;
+		std::cout << "Skipping section" << std::endl;
 		skipSection(m_context.parser);
 	}
 	else
