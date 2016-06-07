@@ -352,14 +352,31 @@ void Domain::checkConsistency()
 		m_requirements.push_back(Requirement(Requirement::Type::Typing));
 	}
 
-	// Verify that all variables and constants have types
+	// Verify that all variables and constants have types if and only if typing enabled
 	if (hasRequirement(Requirement::Type::Typing))
 	{
+		const auto acceptType =
+			[&](const auto *type)
+			{
+				return ((type == nullptr) != hasRequirement(Requirement::Type::Typing));
+			};
+
 		std::for_each(m_constants.cbegin(), m_constants.cend(),
 			[&](const auto &constant)
 			{
-				if (constant->type() == nullptr)
+				if (!acceptType(constant->type()))
 					throw ConsistencyException("Constant \"" + constant->name() + "\" has no type");
+			});
+
+		std::for_each(m_predicateDeclarations.cbegin(), m_predicateDeclarations.cend(),
+			[&](const auto &predicateDeclaration)
+			{
+				std::for_each(predicateDeclaration->arguments().cbegin(), predicateDeclaration->arguments().cend(),
+					[&](const auto &argument)
+					{
+						if (!acceptType(argument->type()))
+							throw ConsistencyException("Variable \"" + argument->name() + "\" has no type");
+					});
 			});
 	}
 
