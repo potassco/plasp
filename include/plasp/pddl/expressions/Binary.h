@@ -27,7 +27,8 @@ class Binary: public Expression
 
 	protected:
 		template<typename ExpressionParser>
-		void parse(Context &context, const Variables &parameters, ExpressionParser parseExpression);
+		void parse(Context &context, ExpressionContext &expressionContext,
+			ExpressionParser parseExpression);
 
 	private:
 		ExpressionPointer m_leftArgument;
@@ -37,12 +38,13 @@ class Binary: public Expression
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ExpressionParser>
-void Binary::parse(Context &context, const Variables &parameters, ExpressionParser parseExpression)
+void Binary::parse(Context &context, ExpressionContext &expressionContext,
+	ExpressionParser parseExpression)
 {
 	// Assume that expression identifier (imply, exists, etc.) is already parsed
 	// Parse arguments of the expression
-	m_leftArgument = parseExpression(context, parameters);
-	m_rightArgument = parseExpression(context, parameters);
+	m_leftArgument = parseExpression(context, expressionContext);
+	m_rightArgument = parseExpression(context, expressionContext);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

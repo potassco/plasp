@@ -2,10 +2,14 @@
 
 #include <algorithm>
 
+#include <boost/assert.hpp>
+
 #include <plasp/pddl/Context.h>
+#include <plasp/pddl/ExpressionContext.h>
 #include <plasp/pddl/ExpressionVisitor.h>
 #include <plasp/pddl/Identifier.h>
 #include <plasp/pddl/expressions/Either.h>
+#include <plasp/pddl/expressions/PrimitiveType.h>
 #include <plasp/pddl/expressions/Type.h>
 #include <plasp/utils/ParserException.h>
 
@@ -29,7 +33,7 @@ Variable::Variable()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-VariablePointer Variable::parseDeclaration(Context &context)
+void Variable::parseDeclaration(Context &context, Variables &parameters)
 {
 	context.parser.skipWhiteSpace();
 
@@ -42,17 +46,19 @@ VariablePointer Variable::parseDeclaration(Context &context)
 	// Flag variable for potentially upcoming type declaration
 	variable->setDirty();
 
-	return variable;
+	parameters.emplace_back(std::move(variable));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Variable::parseTypedDeclaration(Context &context, Variables &parameters)
+void Variable::parseTypedDeclaration(Context &context, ExpressionContext &expressionContext)
 {
-	// Parse and store variable itself
-	parameters.emplace_back(parseDeclaration(context));
+	auto &variables = expressionContext.parameters;
 
-	auto &parameter = parameters.back();
+	// Parse and store variable itself
+	parseDeclaration(context, variables);
+
+	auto &variable = variables.back();
 
 	context.parser.skipWhiteSpace();
 
@@ -66,14 +72,14 @@ void Variable::parseTypedDeclaration(Context &context, Variables &parameters)
 		[&](const auto *type)
 		{
 			// Set the argument type for all previously flagged arguments
-			std::for_each(parameters.begin(), parameters.end(),
-				[&](auto &parameter)
+			std::for_each(variables.begin(), variables.end(),
+				[&](auto &variable)
 				{
-					if (!parameter->isDirty())
+					if (!variable->isDirty())
 						return;
 
-					parameter->setType(type);
-					parameter->setDirty(false);
+					variable->setType(type);
+					variable->setDirty(false);
 				});
 		};
 
@@ -85,29 +91,31 @@ void Variable::parseTypedDeclaration(Context &context, Variables &parameters)
 		context.parser.expect<std::string>("(");
 		context.parser.expect<std::string>("either");
 
-		parameter->m_eitherExpression = Either::parse(context, parameters, parseExistingPrimitiveType);
+		variable->m_eitherExpression = Either::parse(context, expressionContext, parseExistingPrimitiveType);
 
 		context.parser.expect<std::string>(")");
 
-		setType(parameter->m_eitherExpression.get());
+		setType(variable->m_eitherExpression.get());
 		return;
 	}
 
 	// Parse primitive type
-	const auto *type = PrimitiveType::parseExisting(context);
+	const auto *type = PrimitiveType::parseAndFindOrCreate(context, expressionContext.domain);
 
 	setType(type);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const Variable *Variable::parseExisting(Context &context, const Variables &variables)
+const Variable *Variable::parseAndFind(Context &context, const ExpressionContext &expressionContext)
 {
 	context.parser.skipWhiteSpace();
 
 	context.parser.expect<std::string>("?");
 
 	const auto variableName = context.parser.parseIdentifier(isIdentifier);
+
+	const auto &variables = expressionContext.parameters;
 
 	const auto match = std::find_if(variables.cbegin(), variables.cend(),
 		[&](const auto &variable)
@@ -116,7 +124,7 @@ const Variable *Variable::parseExisting(Context &context, const Variables &varia
 		});
 
 	if (match == variables.cend())
-		throw utils::ParserException(context.parser, "Variable \"" + variableName + "\" used but never declared");
+		throw utils::ParserException(context.parser, "Parameter \"" + variableName + "\" used but never declared");
 
 	return match->get();
 }

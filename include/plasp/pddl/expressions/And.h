@@ -20,7 +20,7 @@ class And: public NAry
 {
 	public:
 		template<typename ExpressionParser>
-		static AndPointer parse(Context &context, const Variables &parameters,
+		static AndPointer parse(Context &context, ExpressionContext &expressionContext,
 			ExpressionParser parseExpression);
 
 	public:
@@ -33,12 +33,12 @@ class And: public NAry
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ExpressionParser>
-AndPointer And::parse(Context &context, const Variables &parameters,
+AndPointer And::parse(Context &context, ExpressionContext &expressionContext,
 	ExpressionParser parseExpression)
 {
 	auto expression = std::make_unique<And>(And());
 
-	expression->NAry::parse(context, parameters, parseExpression);
+	expression->NAry::parse(context, expressionContext, parseExpression);
 
 	if (expression->arguments().empty())
 		throw ConsistencyException("\"and\" expressions should not be empty");

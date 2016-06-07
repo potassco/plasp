@@ -23,37 +23,41 @@ namespace pddl
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 Domain::Domain(Context &context)
-:	m_context(context)
+:	m_context(context),
+	m_isDeclared{false}
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Domain Domain::fromPDDL(Context &context)
+void Domain::readPDDL()
 {
-	Domain domain(context);
+	m_name = m_context.parser.parseIdentifier(isIdentifier);
 
-	domain.m_name = context.parser.parseIdentifier(isIdentifier);
+	std::cout << "Parsing domain " << m_name << std::endl;
 
-	std::cout << "Parsing domain " << domain.m_name << std::endl;
-
-	context.parser.expect<std::string>(")");
+	m_context.parser.expect<std::string>(")");
 
 	while (true)
 	{
-		context.parser.skipWhiteSpace();
+		m_context.parser.skipWhiteSpace();
 
-		if (context.parser.currentCharacter() == ')')
+		if (m_context.parser.currentCharacter() == ')')
 			break;
 
-		domain.parseSection();
+		parseSection();
 	}
 
-	domain.computeDerivedRequirements();
+	computeDerivedRequirements();
 
-	domain.checkConsistency();
+	m_isDeclared = true;
+}
 
-	return domain;
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool Domain::isDeclared() const
+{
+	return m_isDeclared;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -72,30 +76,58 @@ const Requirements &Domain::requirements() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+expressions::PrimitiveTypes &Domain::types()
+{
+	return m_primitiveTypes;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 const expressions::PrimitiveTypes &Domain::types() const
 {
-	return m_context.primitiveTypes;
+	return m_primitiveTypes;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+expressions::Constants &Domain::constants()
+{
+	return m_constants;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const expressions::Constants &Domain::constants() const
 {
-	return m_context.constants;
+	return m_constants;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+expressions::PredicateDeclarations &Domain::predicates()
+{
+	return m_predicateDeclarations;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const expressions::PredicateDeclarations &Domain::predicates() const
 {
-	return m_context.predicateDeclarations;
+	return m_predicateDeclarations;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+std::vector<std::unique_ptr<Action>> &Domain::actions()
+{
+	return m_actions;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const std::vector<std::unique_ptr<Action>> &Domain::actions() const
 {
-	return m_context.actions;
+	return m_actions;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -242,7 +274,7 @@ void Domain::parseTypeSection()
 		if (m_context.parser.currentCharacter() == '(')
 			throw utils::ParserException(m_context.parser, "Only primitive types are allowed in type section");
 
-		expressions::PrimitiveType::parseTypedDeclaration(m_context);
+		expressions::PrimitiveType::parseTypedDeclaration(m_context, *this);
 
 		m_context.parser.skipWhiteSpace();
 	}
@@ -259,7 +291,7 @@ void Domain::parseConstantSection()
 	// Store constants
 	while (m_context.parser.currentCharacter() != ')')
 	{
-		expressions::Constant::parseTypedDeclaration(m_context, m_context.constants);
+		expressions::Constant::parseTypedDeclaration(m_context, *this);
 
 		m_context.parser.skipWhiteSpace();
 	}
@@ -276,7 +308,7 @@ void Domain::parsePredicateSection()
 	// Store predicates and their arguments
 	while (m_context.parser.currentCharacter() != ')')
 	{
-		expressions::PredicateDeclaration::parse(m_context);
+		expressions::PredicateDeclaration::parse(m_context, *this);
 
 		m_context.parser.skipWhiteSpace();
 	}
@@ -290,7 +322,7 @@ void Domain::parseActionSection()
 {
 	m_context.parser.skipWhiteSpace();
 
-	Action::parseDeclaration(m_context);
+	Action::parseDeclaration(m_context, *this);
 
 	m_context.parser.expect<std::string>(")");
 }
@@ -300,7 +332,7 @@ void Domain::parseActionSection()
 void Domain::checkConsistency()
 {
 	// Verify that typing requirement is correctly declared if used
-	if (!m_context.primitiveTypes.empty() && !hasRequirement(Requirement::Type::Typing))
+	if (!m_primitiveTypes.empty() && !hasRequirement(Requirement::Type::Typing))
 	{
 		throw ConsistencyException("Domain contains typing information but does not declare typing requirement");
 
@@ -308,7 +340,7 @@ void Domain::checkConsistency()
 	}
 
 	// Verify that all used types have been declared
-	std::for_each(m_context.primitiveTypes.cbegin(), m_context.primitiveTypes.cend(),
+	std::for_each(m_primitiveTypes.cbegin(), m_primitiveTypes.cend(),
 		[&](const auto &type)
 		{
 			if (!type->isDeclared())
@@ -316,7 +348,7 @@ void Domain::checkConsistency()
 		});
 
 	// Verify that all used constants have been declared
-	std::for_each(m_context.constants.cbegin(), m_context.constants.cend(),
+	std::for_each(m_constants.cbegin(), m_constants.cend(),
 		[&](const auto &constant)
 		{
 			if (!constant->isDeclared())
@@ -327,7 +359,7 @@ void Domain::checkConsistency()
 		});
 
 	// Verify that all used predicates have been declared
-	std::for_each(m_context.predicateDeclarations.cbegin(), m_context.predicateDeclarations.cend(),
+	std::for_each(m_predicateDeclarations.cbegin(), m_predicateDeclarations.cend(),
 		[&](const auto &predicate)
 		{
 			if (!predicate->isDeclared())

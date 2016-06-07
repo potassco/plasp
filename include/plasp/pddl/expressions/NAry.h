@@ -26,7 +26,7 @@ class NAry: public Expression
 
 	protected:
 		template<typename ExpressionParser>
-		void parse(Context &context, const Variables &parameters, ExpressionParser parseExpression);
+		void parse(Context &context, ExpressionContext &expressionContext, ExpressionParser parseExpression);
 
 	private:
 		Expressions m_arguments;
@@ -35,7 +35,7 @@ class NAry: public Expression
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ExpressionParser>
-void NAry::parse(Context &context, const Variables &parameters, ExpressionParser parseExpression)
+void NAry::parse(Context &context, ExpressionContext &expressionContext, ExpressionParser parseExpression)
 {
 	context.parser.skipWhiteSpace();
 
@@ -43,7 +43,7 @@ void NAry::parse(Context &context, const Variables &parameters, ExpressionParser
 	// Parse arguments of the expression
 	while (context.parser.currentCharacter() != ')')
 	{
-		m_arguments.emplace_back(parseExpression(context, parameters));
+		m_arguments.emplace_back(parseExpression(context, expressionContext));
 
 		context.parser.skipWhiteSpace();
 	}

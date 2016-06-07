@@ -3,6 +3,8 @@
 #include <algorithm>
 
 #include <plasp/pddl/Context.h>
+#include <plasp/pddl/Domain.h>
+#include <plasp/pddl/ExpressionContext.h>
 #include <plasp/pddl/Identifier.h>
 #include <plasp/pddl/expressions/Type.h>
 #include <plasp/utils/IO.h>
@@ -26,20 +28,21 @@ Action::Action(std::string name)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Action &Action::parseDeclaration(Context &context)
+void Action::parseDeclaration(Context &context, Domain &domain)
 {
 	const auto actionName = context.parser.parseIdentifier(isIdentifier);
 
 	auto action = std::make_unique<Action>(Action(actionName));
 
 	context.parser.expect<std::string>(":parameters");
-
 	context.parser.expect<std::string>("(");
+
+	ExpressionContext expressionContext(domain, action->m_parameters);
 
 	// Read parameters
 	while (context.parser.currentCharacter() != ')')
 	{
-		expressions::Variable::parseTypedDeclaration(context, action->m_parameters);
+		expressions::Variable::parseTypedDeclaration(context, expressionContext);
 
 		context.parser.skipWhiteSpace();
 	}
@@ -54,17 +57,15 @@ Action &Action::parseDeclaration(Context &context)
 		const auto sectionIdentifier = context.parser.parseIdentifier(isIdentifier);
 
 		if (sectionIdentifier == "precondition")
-			action->m_precondition = parsePreconditionExpression(context, action->m_parameters);
+			action->m_precondition = parsePreconditionExpression(context, expressionContext);
 		else if (sectionIdentifier == "effect")
-			action->m_effect = parseEffectExpression(context, action->m_parameters);
+			action->m_effect = parseEffectExpression(context, expressionContext);
 
 		context.parser.skipWhiteSpace();
 	}
 
 	// Store new action
-	context.actions.emplace_back(std::move(action));
-
-	return *context.actions.back();
+	expressionContext.domain.actions().emplace_back(std::move(action));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -1,6 +1,8 @@
 #include <plasp/pddl/expressions/Predicate.h>
 
 #include <plasp/pddl/Context.h>
+#include <plasp/pddl/Domain.h>
+#include <plasp/pddl/ExpressionContext.h>
 #include <plasp/pddl/ExpressionVisitor.h>
 #include <plasp/pddl/Identifier.h>
 #include <plasp/pddl/expressions/Constant.h>
@@ -27,7 +29,8 @@ Predicate::Predicate()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PredicatePointer Predicate::parse(std::string name, Context &context, const Variables &parameters)
+PredicatePointer Predicate::parse(std::string name, Context &context,
+	ExpressionContext &expressionContext)
 {
 	auto predicate = std::make_unique<Predicate>(Predicate());
 
@@ -41,14 +44,14 @@ PredicatePointer Predicate::parse(std::string name, Context &context, const Vari
 		// Parse variables
 		if (context.parser.currentCharacter() == '?')
 		{
-			const auto *variable = Variable::parseExisting(context, parameters);
+			const auto *variable = Variable::parseAndFind(context, expressionContext);
 			auto variableReference = std::make_unique<Reference<Variable>>(variable);
 			predicate->m_arguments.emplace_back(std::move(variableReference));
 		}
 		// Parse constants
 		else
 		{
-			const auto *constant = Constant::parseExisting(context);
+			const auto *constant = Constant::parseAndFind(context, expressionContext);
 			auto constantReference = std::make_unique<Reference<Constant>>(constant);
 			predicate->m_arguments.emplace_back(std::move(constantReference));
 		}

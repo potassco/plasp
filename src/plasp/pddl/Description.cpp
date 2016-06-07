@@ -31,6 +31,9 @@ Description Description::fromStream(std::istream &istream)
 {
 	Description description(istream);
 
+	description.m_domain = std::make_unique<Domain>(Domain(description.m_context));
+	description.m_problem = std::make_unique<Problem>(Problem(description.m_context, *description.m_domain));
+
 	while (true)
 	{
 		description.m_context.parser.skipWhiteSpace();
@@ -40,6 +43,8 @@ Description Description::fromStream(std::istream &istream)
 
 		description.parseContent();
 	}
+
+	description.checkConsistency();
 
 	return description;
 }
@@ -89,11 +94,33 @@ void Description::parseSection()
 	std::cout << "Parsing section " << sectionIdentifier << std::endl;
 
 	if (sectionIdentifier == "domain")
-		m_domain = std::make_unique<Domain>(Domain::fromPDDL(m_context));
+	{
+		BOOST_ASSERT(m_domain);
+
+		if (m_domain->isDeclared())
+			throw utils::ParserException(m_context.parser, "PDDL description may not contain two domains");
+
+		m_domain->readPDDL();
+	}
 	else if (sectionIdentifier == "problem")
-		m_problem = std::make_unique<Problem>(Problem::fromPDDL(m_context));
+	{
+		BOOST_ASSERT(m_problem);
+
+		if (m_problem->isDeclared())
+			throw utils::ParserException(m_context.parser, "PDDL description may currently not contain two problems");
+
+		m_problem->readPDDL();
+	}
 	else
 		throw utils::ParserException(m_context.parser, "Unknown PDDL section \"" + sectionIdentifier + "\"");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Description::checkConsistency()
+{
+	m_domain->checkConsistency();
+	m_problem->checkConsistency();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

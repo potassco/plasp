@@ -19,15 +19,25 @@ namespace pddl
 class Problem
 {
 	public:
-		static Problem fromPDDL(Context &context);
+		Problem(Context &context, Domain &domain);
 
-	public:
+		void readPDDL();
+
+		bool isDeclared() const;
+
+		Domain &domain();
+		const Domain &domain() const;
+
 		const std::string &name() const;
+
 		const Requirements &requirements() const;
 
-	private:
-		Problem(Context &context);
+		expressions::Constants &objects();
+		const expressions::Constants &objects() const;
 
+		void checkConsistency();
+
+	private:
 		void parseSection();
 
 		void parseRequirementSection();
@@ -36,9 +46,9 @@ class Problem
 
 		void parseObjectSection();
 
-		void checkConsistency();
-
 		Context &m_context;
+		Domain &m_domain;
+		bool m_isDeclared;
 
 		std::string m_name;
 		Requirements m_requirements;

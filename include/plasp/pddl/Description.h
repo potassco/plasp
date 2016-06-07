@@ -33,6 +33,8 @@ class Description
 		void parseContent();
 		void parseSection();
 
+		void checkConsistency();
+
 		utils::Parser m_parser;
 		Context m_context;
 

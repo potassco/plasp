@@ -5,7 +5,10 @@
 #include <boost/assert.hpp>
 
 #include <plasp/pddl/Context.h>
+#include <plasp/pddl/Domain.h>
+#include <plasp/pddl/ExpressionContext.h>
 #include <plasp/pddl/ExpressionVisitor.h>
+#include <plasp/pddl/Problem.h>
 #include <plasp/pddl/expressions/PrimitiveType.h>
 
 namespace plasp
@@ -50,7 +53,21 @@ ConstantPointer Constant::parseDeclaration(Context &context)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Constant::parseTypedDeclaration(Context &context, Constants &constants)
+void Constant::parseTypedDeclaration(Context &context, Domain &domain)
+{
+	parseTypedDeclaration(context, domain, domain.constants());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Constant::parseTypedDeclaration(Context &context, Problem &problem)
+{
+	parseTypedDeclaration(context, problem.domain(), problem.objects());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Constant::parseTypedDeclaration(Context &context, Domain &domain, Constants &constants)
 {
 	// Parse and store constant
 	constants.emplace_back(parseDeclaration(context));
@@ -67,7 +84,7 @@ void Constant::parseTypedDeclaration(Context &context, Constants &constants)
 		return;
 
 	// If existing, parse and store parent type
-	auto *type = PrimitiveType::parseExisting(context);
+	auto *type = PrimitiveType::parseAndFindOrCreate(context, domain);
 
 	// Assign parent type to all types that were previously flagged
 	std::for_each(constants.begin(), constants.end(),
@@ -83,21 +100,42 @@ void Constant::parseTypedDeclaration(Context &context, Constants &constants)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Constant *Constant::parseExisting(Context &context)
+Constant *Constant::parseAndFind(Context &context, const ExpressionContext &expressionContext)
 {
 	context.parser.skipWhiteSpace();
 
 	const auto constantName = context.parser.parseIdentifier(isIdentifier);
+
+	auto *constant = parseAndFind(constantName, expressionContext.domain.constants());
+
+	if (constant)
+		return constant;
+
+	if (expressionContext.problem)
+	{
+		constant = parseAndFind(constantName, expressionContext.problem->objects());
+
+		if (constant)
+			return constant;
+	}
+
+	throw utils::ParserException(context.parser, "Constant \"" + constantName + "\" used but never declared");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Constant *Constant::parseAndFind(const std::string &constantName, const Constants &constants)
+{
 	// TODO: use hash map
-	const auto match = std::find_if(context.constants.cbegin(), context.constants.cend(),
+	const auto match = std::find_if(constants.cbegin(), constants.cend(),
 		[&](const auto &constant)
 		{
 			return constant->name() == constantName;
 		});
-	const auto constantExists = (match != context.constants.cend());
+	const auto constantExists = (match != constants.cend());
 
 	if (!constantExists)
-		throw utils::ParserException(context.parser, "Constant \"" + constantName + "\" used but never declared");
+		return nullptr;
 
 	return match->get();
 }

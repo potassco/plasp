@@ -5,11 +5,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include <plasp/pddl/Action.h>
-#include <plasp/pddl/Expression.h>
-#include <plasp/pddl/expressions/Constant.h>
-#include <plasp/pddl/expressions/PredicateDeclaration.h>
-#include <plasp/pddl/expressions/PrimitiveType.h>
 #include <plasp/utils/Logger.h>
 
 namespace plasp
@@ -33,17 +28,6 @@ class Context
 
 		utils::Parser &parser;
 		utils::Logger logger;
-
-		expressions::PrimitiveTypes primitiveTypes;
-		//std::unordered_map<std::string, expressions::PrimitiveType *> primitiveTypesHashMap;
-
-		expressions::Constants constants;
-		//std::unordered_map<std::string, expressions::Constant *> constantsHashMap;
-
-		expressions::PredicateDeclarations predicateDeclarations;
-		//std::unordered_map<expressions::PredicateHashMapKey, expressions::Predicate *> predicatesHashMap;
-
-		std::vector<std::unique_ptr<Action>> actions;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

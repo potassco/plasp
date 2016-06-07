@@ -20,7 +20,7 @@ class Or: public NAry
 {
 	public:
 		template<typename ExpressionParser>
-		static OrPointer parse(Context &context, const Variables &parameters,
+		static OrPointer parse(Context &context, ExpressionContext &expressionContext,
 			ExpressionParser parseExpression);
 
 	public:
@@ -33,11 +33,12 @@ class Or: public NAry
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ExpressionParser>
-OrPointer Or::parse(Context &context, const Variables &parameters, ExpressionParser parseExpression)
+OrPointer Or::parse(Context &context, ExpressionContext &expressionContext,
+	ExpressionParser parseExpression)
 {
 	auto expression = std::make_unique<Or>(Or());
 
-	expression->NAry::parse(context, parameters, parseExpression);
+	expression->NAry::parse(context, expressionContext, parseExpression);
 
 	if (expression->arguments().empty())
 		throw ConsistencyException("\"or\" expressions should not be empty");

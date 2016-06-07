@@ -20,7 +20,7 @@ class Predicate: public Expression
 {
 	public:
 		static PredicatePointer parse(std::string name, Context &context,
-			const Variables &parameters);
+			ExpressionContext &expressionContext);
 
 	public:
 		void accept(ExpressionVisitor &expressionVisitor) const override;

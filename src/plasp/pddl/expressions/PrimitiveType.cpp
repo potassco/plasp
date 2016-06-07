@@ -5,6 +5,8 @@
 #include <boost/assert.hpp>
 
 #include <plasp/pddl/Context.h>
+#include <plasp/pddl/Domain.h>
+#include <plasp/pddl/ExpressionContext.h>
 #include <plasp/pddl/ExpressionVisitor.h>
 
 namespace plasp
@@ -21,65 +23,61 @@ namespace expressions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 PrimitiveType::PrimitiveType()
-:	m_isDirty{false},
+:	m_isDirty{true},
 	m_isDeclared{false}
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PrimitiveType *PrimitiveType::create(std::string name, Context &context)
+PrimitiveType::PrimitiveType(std::string name)
+:	m_isDirty{true},
+	m_isDeclared{false},
+	m_name{name}
 {
-	// Create new primitive type if not already existing
-	auto type = std::make_unique<PrimitiveType>(PrimitiveType());
-
-	type->m_name = name;
-
-	BOOST_ASSERT(!type->m_name.empty());
-
-	// Flag type for potentially upcoming parent type declaration
-	type->setDirty();
-
-	// TODO: Store constant in hash map
-	context.primitiveTypes.emplace_back(std::move(type));
-
-	return context.primitiveTypes.back().get();
+	BOOST_ASSERT(!m_name.empty());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PrimitiveType *PrimitiveType::parseDeclaration(Context &context)
+void PrimitiveType::parseDeclaration(Context &context, Domain &domain)
 {
+	auto &types = domain.types();
+
 	context.parser.skipWhiteSpace();
 
 	const auto typeName = context.parser.parseIdentifier(isIdentifier);
 
 	// TODO: use hash map
-	const auto match = std::find_if(context.primitiveTypes.cbegin(), context.primitiveTypes.cend(),
+	const auto match = std::find_if(types.cbegin(), types.cend(),
 		[&](const auto &primitiveType)
 		{
 			return primitiveType->name() == typeName;
 		});
 
 	// Return existing primitive type
-	if (match != context.primitiveTypes.cend())
+	if (match != types.cend())
 	{
 		auto *type = match->get();
 
 		type->setDirty();
 
-		return type;
+		return;
 	}
 
-	return create(typeName, context);
+	types.emplace_back(std::make_unique<PrimitiveType>(typeName));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void PrimitiveType::parseTypedDeclaration(Context &context)
+void PrimitiveType::parseTypedDeclaration(Context &context, Domain &domain)
 {
+	auto &types = domain.types();
+
 	// Parse and store type
-	auto *type = parseDeclaration(context);
+	parseDeclaration(context, domain);
+
+	auto *type = types.back().get();
 
 	// Flag type as correctly declared in the types section
 	type->setDeclared();
@@ -91,7 +89,7 @@ void PrimitiveType::parseTypedDeclaration(Context &context)
 		return;
 
 	// If existing, parse and store parent type
-	auto *parentType = parseExisting(context);
+	auto *parentType = parseAndFindOrCreate(context, domain);
 
 	parentType->setDirty(false);
 
@@ -99,7 +97,7 @@ void PrimitiveType::parseTypedDeclaration(Context &context)
 	parentType->setDeclared();
 
 	// Assign parent type to all types that were previously flagged
-	std::for_each(context.primitiveTypes.begin(), context.primitiveTypes.end(),
+	std::for_each(types.begin(), types.end(),
 		[&](auto &childType)
 		{
 			if (!childType->isDirty())
@@ -112,8 +110,10 @@ void PrimitiveType::parseTypedDeclaration(Context &context)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PrimitiveType *PrimitiveType::parseExisting(Context &context)
+PrimitiveType *PrimitiveType::parseAndFindOrCreate(Context &context, Domain &domain)
 {
+	auto &types = domain.types();
+
 	context.parser.skipWhiteSpace();
 
 	const auto typeName = context.parser.parseIdentifier(isIdentifier);
@@ -121,19 +121,22 @@ PrimitiveType *PrimitiveType::parseExisting(Context &context)
 	BOOST_ASSERT(!typeName.empty());
 
 	// TODO: use hash map
-	const auto match = std::find_if(context.primitiveTypes.cbegin(), context.primitiveTypes.cend(),
+	const auto match = std::find_if(types.cbegin(), types.cend(),
 		[&](const auto &primitiveType)
 		{
 			return primitiveType->name() == typeName;
 		});
 
-	if (match == context.primitiveTypes.cend())
+	if (match == types.cend())
 	{
 		// Primitive type "object" is implicitly declared
 		if (typeName != "object")
 			context.logger.parserWarning(context.parser, "Primitive type \"" + typeName + "\" used but never declared");
 
-		return create(typeName, context);
+		types.emplace_back(std::make_unique<expressions::PrimitiveType>(typeName));
+		types.back()->setDeclared();
+
+		return types.back().get();
 	}
 
 	auto *type = match->get();

@@ -21,7 +21,7 @@ class Not: public Expression
 {
 	public:
 		template<typename ExpressionParser>
-		static NotPointer parse(Context &context, const Variables &parameters,
+		static NotPointer parse(Context &context, ExpressionContext &expressionContext,
 			ExpressionParser parseExpression);
 
 	public:
@@ -38,7 +38,7 @@ class Not: public Expression
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ExpressionParser>
-NotPointer Not::parse(Context &context, const Variables &parameters,
+NotPointer Not::parse(Context &context, ExpressionContext &expressionContext,
 	ExpressionParser parseExpression)
 {
 	auto expression = std::make_unique<Not>(Not());
@@ -46,7 +46,7 @@ NotPointer Not::parse(Context &context, const Variables &parameters,
 	context.parser.skipWhiteSpace();
 
 	// Parse argument
-	expression->m_argument = parseExpression(context, parameters);
+	expression->m_argument = parseExpression(context, expressionContext);
 
 	return expression;
 }

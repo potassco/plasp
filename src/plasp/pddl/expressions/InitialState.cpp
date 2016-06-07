@@ -1,8 +1,10 @@
 #include <plasp/pddl/expressions/Type.h>
 
 #include <plasp/pddl/Context.h>
+#include <plasp/pddl/Identifier.h>
 #include <plasp/pddl/expressions/Predicate.h>
 #include <plasp/utils/IO.h>
+#include <plasp/utils/ParserException.h>
 
 namespace plasp
 {

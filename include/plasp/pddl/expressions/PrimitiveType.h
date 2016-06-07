@@ -22,12 +22,15 @@ namespace expressions
 class PrimitiveType: public Expression
 {
 	public:
-		static PrimitiveType *parseDeclaration(Context &context);
-		static void parseTypedDeclaration(Context &context);
+		static void parseDeclaration(Context &context, Domain &domain);
+		static void parseTypedDeclaration(Context &context, Domain &domain);
 
-		static PrimitiveType *parseExisting(Context &context);
+		static PrimitiveType *parseAndFindOrCreate(Context &context, Domain &domain);
 
 	public:
+		PrimitiveType();
+		PrimitiveType(std::string name);
+
 		void accept(ExpressionVisitor &expressionVisitor) const override;
 
 		const std::string &name() const;
@@ -36,11 +39,6 @@ class PrimitiveType: public Expression
 		bool isDeclared() const;
 
 	private:
-		static PrimitiveType *create(std::string name, Context &context);
-
-	private:
-		PrimitiveType();
-
 		void setDirty(bool isDirty = true);
 		bool isDirty() const;
 

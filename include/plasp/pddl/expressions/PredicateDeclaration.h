@@ -19,7 +19,7 @@ namespace expressions
 class PredicateDeclaration: public Expression
 {
 	public:
-		static void parse(Context &context);
+		static void parse(Context &context, Domain &domain);
 
 	public:
 		void accept(ExpressionVisitor &expressionVisitor) const override;
@@ -37,7 +37,7 @@ class PredicateDeclaration: public Expression
 		bool m_isDeclared;
 
 		std::string m_name;
-		Variables m_arguments;
+		Variables m_parameters;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

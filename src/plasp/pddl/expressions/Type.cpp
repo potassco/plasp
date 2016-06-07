@@ -1,6 +1,8 @@
 #include <plasp/pddl/expressions/Type.h>
 
 #include <plasp/pddl/Context.h>
+#include <plasp/pddl/ExpressionContext.h>
+#include <plasp/pddl/expressions/PrimitiveType.h>
 #include <plasp/pddl/expressions/Reference.h>
 
 namespace plasp
@@ -16,9 +18,9 @@ namespace expressions
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ExpressionPointer parseExistingPrimitiveType(Context &context, const Variables &parameters)
+ExpressionPointer parseExistingPrimitiveType(Context &context, ExpressionContext &expressionContext)
 {
-	auto primitiveType = PrimitiveType::parseExisting(context);
+	auto *primitiveType = PrimitiveType::parseAndFindOrCreate(context, expressionContext.domain);
 
 	return std::make_unique<Reference<PrimitiveType>>(primitiveType);
 }

@@ -17,7 +17,10 @@ namespace pddl
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Context;
+class Domain;
+class ExpressionContext;
 class ExpressionVisitor;
+class Problem;
 
 class Expression;
 using ExpressionPointer = std::unique_ptr<Expression>;
@@ -77,10 +80,11 @@ class Expression
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ExpressionPointer parsePreconditionExpression(Context &context,
-	const expressions::Variables &parameters);
-ExpressionPointer parseExpression(Context &context, const expressions::Variables &parameters);
+	ExpressionContext &expressionContext);
+ExpressionPointer parseExpression(Context &context, ExpressionContext &expressionContext);
 
-ExpressionPointer parseEffectExpression(Context &context, const expressions::Variables &parameters);
+ExpressionPointer parseEffectExpression(Context &context,
+	ExpressionContext &expressionContext);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -1,6 +1,8 @@
 #include <plasp/pddl/expressions/PredicateDeclaration.h>
 
 #include <plasp/pddl/Context.h>
+#include <plasp/pddl/Domain.h>
+#include <plasp/pddl/ExpressionContext.h>
 #include <plasp/pddl/ExpressionVisitor.h>
 #include <plasp/pddl/Identifier.h>
 #include <plasp/pddl/expressions/Constant.h>
@@ -27,7 +29,7 @@ PredicateDeclaration::PredicateDeclaration()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void PredicateDeclaration::parse(Context &context)
+void PredicateDeclaration::parse(Context &context, Domain &domain)
 {
 	context.parser.expect<std::string>("(");
 
@@ -40,18 +42,19 @@ void PredicateDeclaration::parse(Context &context)
 
 	context.parser.skipWhiteSpace();
 
+	ExpressionContext expressionContext(domain, predicate->m_parameters);
+
 	// Parse arguments
 	while (context.parser.currentCharacter() != ')')
 	{
-		expressions::Variable::parseTypedDeclaration(context, predicate->m_arguments);
+		expressions::Variable::parseTypedDeclaration(context, expressionContext);
 
 		context.parser.skipWhiteSpace();
 	}
 
 	context.parser.expect<std::string>(")");
 
-	// Store new predicate
-	context.predicateDeclarations.emplace_back(std::move(predicate));
+	domain.predicates().emplace_back(std::move(predicate));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -86,7 +89,7 @@ const std::string &PredicateDeclaration::name() const
 
 const Variables &PredicateDeclaration::arguments() const
 {
-	return m_arguments;
+	return m_parameters;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

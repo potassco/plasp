@@ -3,7 +3,9 @@
 #include <algorithm>
 
 #include <plasp/pddl/Identifier.h>
+#include <plasp/pddl/expressions/Constant.h>
 #include <plasp/utils/IO.h>
+#include <plasp/utils/ParserException.h>
 
 namespace plasp
 {
@@ -16,38 +18,57 @@ namespace pddl
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Problem::Problem(Context &context)
-:	m_context(context)
+Problem::Problem(Context &context, Domain &domain)
+:	m_context(context),
+	m_domain(domain),
+	m_isDeclared{false}
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Problem Problem::fromPDDL(Context &context)
+void Problem::readPDDL()
 {
-	Problem problem(context);
+	m_name = m_context.parser.parseIdentifier(isIdentifier);
 
-	problem.m_name = context.parser.parseIdentifier(isIdentifier);
+	std::cout << "Parsing problem " << m_name << std::endl;
 
-	std::cout << "Parsing problem " << problem.m_name << std::endl;
-
-	context.parser.expect<std::string>(")");
+	m_context.parser.expect<std::string>(")");
 
 	while (true)
 	{
-		context.parser.skipWhiteSpace();
+		m_context.parser.skipWhiteSpace();
 
-		if (context.parser.currentCharacter() == ')')
+		if (m_context.parser.currentCharacter() == ')')
 			break;
 
-		problem.parseSection();
+		parseSection();
 	}
 
-	problem.computeDerivedRequirements();
+	computeDerivedRequirements();
 
-	problem.checkConsistency();
+	m_isDeclared = true;
+}
 
-	return problem;
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool Problem::isDeclared() const
+{
+	return m_isDeclared;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Domain &Problem::domain()
+{
+	return m_domain;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const Domain &Problem::domain() const
+{
+	return m_domain;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -62,6 +83,20 @@ const std::string &Problem::name() const
 const Requirements &Problem::requirements() const
 {
 	return m_requirements;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+expressions::Constants &Problem::objects()
+{
+	return m_objects;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const expressions::Constants &Problem::objects() const
+{
+	return m_objects;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -203,7 +238,7 @@ void Problem::parseObjectSection()
 	// Store constants
 	while (m_context.parser.currentCharacter() != ')')
 	{
-		expressions::Constant::parseTypedDeclaration(m_context);
+		//expressions::Constant::parseTypedDeclaration(m_context);
 
 		m_context.parser.skipWhiteSpace();
 	}

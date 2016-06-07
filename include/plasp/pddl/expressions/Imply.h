@@ -20,7 +20,7 @@ class Imply: public Binary
 {
 	public:
 		template<typename ExpressionParser>
-		static ImplyPointer parse(Context &context, const Variables &parameters,
+		static ImplyPointer parse(Context &context, ExpressionContext &parameters,
 			ExpressionParser parseExpression);
 
 	public:
@@ -33,7 +33,7 @@ class Imply: public Binary
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ExpressionParser>
-ImplyPointer Imply::parse(Context &context, const Variables &parameters,
+ImplyPointer Imply::parse(Context &context, ExpressionContext &parameters,
 	ExpressionParser parseExpression)
 {
 	auto expression = std::make_unique<Imply>(Imply());

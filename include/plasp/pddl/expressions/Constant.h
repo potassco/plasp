@@ -22,10 +22,10 @@ namespace expressions
 class Constant: public Expression
 {
 	public:
-		static ConstantPointer parseDeclaration(Context &context);
-		static void parseTypedDeclaration(Context &context, Constants &constants);
+		static void parseTypedDeclaration(Context &context, Domain &domain);
+		static void parseTypedDeclaration(Context &context, Problem &problem);
 
-		static Constant *parseExisting(Context &context);
+		static Constant *parseAndFind(Context &context, const ExpressionContext &expressionContext);
 
 		// TODO: method for lazy creation if not existing
 
@@ -38,6 +38,11 @@ class Constant: public Expression
 		bool isDeclared() const;
 
 	private:
+		static ConstantPointer parseDeclaration(Context &context);
+		static void parseTypedDeclaration(Context &context, Domain &domain, Constants &constants);
+
+		static Constant *parseAndFind(const std::string &constantName, const Constants &constants);
+
 		Constant();
 
 		void setDirty(bool isDirty = true);

@@ -19,11 +19,9 @@ namespace expressions
 class Variable: public Expression
 {
 	public:
-		static VariablePointer parseDeclaration(Context &context);
+		static void parseTypedDeclaration(Context &context, ExpressionContext &expressionContext);
 
-		static void parseTypedDeclaration(Context &context, Variables &parameters);
-
-		static const Variable *parseExisting(Context &context, const Variables &variables);
+		static const Variable *parseAndFind(Context &context, const ExpressionContext &expressionContext);
 
 	public:
 		void accept(ExpressionVisitor &expressionVisitor) const override;
@@ -35,6 +33,9 @@ class Variable: public Expression
 		bool isDirty() const;
 
 		void setType(const Expression *type);
+
+	private:
+		static void parseDeclaration(Context &context, Variables &parameters);
 
 	private:
 		Variable();
