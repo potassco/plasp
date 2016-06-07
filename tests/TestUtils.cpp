@@ -21,6 +21,7 @@ TEST(UtilsTests, ParseSimple)
 	ASSERT_THROW(p.expect<std::string>("expected"), plasp::utils::ParserException);
 
 	// TODO: test case-insensitive input
+	// TODO: test probing
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -28,8 +28,6 @@ class Constant: public Expression
 
 		static Constant *parseAndFind(Context &context, const ExpressionContext &expressionContext);
 
-		// TODO: method for lazy creation if not existing
-
 	public:
 		void accept(ExpressionVisitor &expressionVisitor) const override;
 

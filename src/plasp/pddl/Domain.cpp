@@ -184,7 +184,7 @@ void Domain::parseRequirementSection()
 		m_context.parser.skipWhiteSpace();
 	}
 
-	// TODO: Do this check only once the problem is parsed
+	// TODO: do this check only once the problem is parsed
 	// If no requirements are specified, assume STRIPS
 	if (m_requirements.empty())
 		m_requirements.emplace_back(Requirement::Type::STRIPS);
@@ -310,14 +310,6 @@ void Domain::parseActionSection()
 
 void Domain::checkConsistency()
 {
-	// Verify that all used predicates have been declared
-	std::for_each(m_predicateDeclarations.cbegin(), m_predicateDeclarations.cend(),
-		[&](const auto &predicate)
-		{
-			if (!predicate->isDeclared())
-				throw ConsistencyException("Predicate \"" + predicate->name() + "\" used but never declared");
-		});
-
 	// Verify that constants are unique
 	// Verify that all primitive types are unique
 	// Check for case-sensitivity issues

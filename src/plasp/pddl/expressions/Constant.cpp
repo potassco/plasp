@@ -45,8 +45,6 @@ ConstantPointer Constant::parseDeclaration(Context &context)
 	// Flag constant for potentially upcoming type declaration
 	constant->setDirty();
 
-	// TODO: Store constant in hash map
-
 	return constant;
 }
 
@@ -141,12 +139,12 @@ Constant *Constant::parseAndFind(Context &context, const ExpressionContext &expr
 
 Constant *Constant::parseAndFind(const std::string &constantName, const Constants &constants)
 {
-	// TODO: use hash map
 	const auto match = std::find_if(constants.cbegin(), constants.cend(),
 		[&](const auto &constant)
 		{
 			return constant->name() == constantName;
 		});
+
 	const auto constantExists = (match != constants.cend());
 
 	if (!constantExists)

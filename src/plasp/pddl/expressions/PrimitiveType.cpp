@@ -46,7 +46,6 @@ void PrimitiveType::parseDeclaration(Context &context, Domain &domain)
 
 	const auto typeName = context.parser.parseIdentifier(isIdentifier);
 
-	// TODO: use hash map
 	const auto match = std::find_if(types.cbegin(), types.cend(),
 		[&](const auto &primitiveType)
 		{
@@ -113,7 +112,6 @@ PrimitiveType *PrimitiveType::parseAndFind(Context &context, Domain &domain)
 
 	BOOST_ASSERT(!typeName.empty());
 
-	// TODO: use hash map
 	const auto match = std::find_if(types.cbegin(), types.cend(),
 		[&](const auto &primitiveType)
 		{
