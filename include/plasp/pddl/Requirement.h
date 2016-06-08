@@ -56,8 +56,8 @@ class Requirement
 
 		Type type() const;
 
-		void printAsPDDL(std::ostream &ostream) const;
-		void printAsASP(std::ostream &ostream) const;
+		std::string toPDDL() const;
+		std::string toASP() const;
 
 	private:
 		Type m_type;

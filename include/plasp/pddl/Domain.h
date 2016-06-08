@@ -33,6 +33,7 @@ class Domain
 
 		const Requirements &requirements() const;
 		bool hasRequirement(Requirement::Type requirementType) const;
+		void checkRequirement(Requirement::Type requirementType) const;
 
 		expressions::PrimitiveTypes &types();
 		const expressions::PrimitiveTypes &types() const;

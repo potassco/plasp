@@ -101,24 +101,24 @@ Requirement::Type Requirement::type() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Requirement::printAsPDDL(std::ostream &ostream) const
+std::string Requirement::toPDDL() const
 {
 	const auto match = requirementTypesToPDDL.left.find(m_type);
 
 	BOOST_ASSERT(match != requirementTypesToPDDL.left.end());
 
-	ostream << match->second;
+	return match->second;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Requirement::printAsASP(std::ostream &ostream) const
+std::string Requirement::toASP() const
 {
 	const auto match = requirementTypesToASP.left.find(m_type);
 
 	BOOST_ASSERT(match != requirementTypesToASP.left.end());
 
-	ostream << match->second;
+	return match->second;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

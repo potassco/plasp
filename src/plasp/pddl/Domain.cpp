@@ -206,6 +206,16 @@ bool Domain::hasRequirement(Requirement::Type requirementType) const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void Domain::checkRequirement(Requirement::Type requirementType) const
+{
+	if (hasRequirement(requirementType))
+		return;
+
+	throw ConsistencyException("Requirement \"" + Requirement(requirementType).toPDDL() + "\" used but never declared");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void Domain::computeDerivedRequirements()
 {
 	const auto addRequirementUnique =

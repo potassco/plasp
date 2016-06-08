@@ -190,6 +190,18 @@ bool Problem::hasRequirement(Requirement::Type requirementType) const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void Problem::checkRequirement(Requirement::Type requirementType) const
+{
+	m_domain.checkRequirement(requirementType);
+
+	if (hasRequirement(requirementType))
+		return;
+
+	throw ConsistencyException("Requirement \"" + Requirement(requirementType).toPDDL() + "\" used but never declared");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void Problem::computeDerivedRequirements()
 {
 	const auto addRequirementUnique =
