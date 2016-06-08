@@ -15,275 +15,214 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class PDDLParserTests : public ::testing::Test
-{
-	protected:
-		PDDLParserTests()
-		:	m_blocksworldDomainFile(readFile("data/blocksworld-domain.pddl")),
-			m_storageDomainFile(readFile("data/storage-domain.pddl")),
-			m_whiteSpaceTestFile(readFile("data/white-space-test.pddl")),
-			m_woodworkingDomainFile(readFile("data/woodworking-domain.pddl"))
-		{
-		}
-
-		static std::stringstream readFile(const std::string &path)
-		{
-			std::ifstream fileStream(path, std::ios::in);
-
-			std::stringstream outputStream;
-
-			if (!fileStream.is_open())
-				throw std::runtime_error("Could not open file \"" + path + "\"");
-
-			outputStream << fileStream.rdbuf();
-
-			return outputStream;
-		}
-
-		std::stringstream m_blocksworldDomainFile;
-		std::stringstream m_storageDomainFile;
-		std::stringstream m_whiteSpaceTestFile;
-		std::stringstream m_woodworkingDomainFile;
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-TEST_F(PDDLParserTests, ParseBlocksWorldDomain)
+TEST(PDDLParserTests, ParseBlocksWorldDomain)
 {
 	using namespace plasp::pddl;
 
-	try
-	{
-		const auto description = Description::fromStream(m_blocksworldDomainFile);
+	const auto description = Description::fromFile("data/blocksworld-domain.pddl");
 
-		ASSERT_NO_THROW(description.domain());
+	ASSERT_NO_THROW(description.domain());
 
-		const auto &domain = description.domain();
+	const auto &domain = description.domain();
 
-		// Name
-		ASSERT_EQ(domain.name(), "blocks");
+	// Name
+	ASSERT_EQ(domain.name(), "blocks");
 
-		// Requirements
-		ASSERT_EQ(domain.requirements().size(), 2u);
-		ASSERT_EQ(domain.requirements()[0].type(), Requirement::Type::STRIPS);
-		ASSERT_EQ(domain.requirements()[1].type(), Requirement::Type::Typing);
+	// Requirements
+	ASSERT_EQ(domain.requirements().size(), 2u);
+	ASSERT_EQ(domain.requirements()[0].type(), Requirement::Type::STRIPS);
+	ASSERT_EQ(domain.requirements()[1].type(), Requirement::Type::Typing);
 
-		// Types
-		ASSERT_EQ(domain.types().size(), 1u);
+	// Types
+	ASSERT_EQ(domain.types().size(), 1u);
 
-		const auto &block = *domain.types()[0];
+	const auto &block = *domain.types()[0];
 
-		ASSERT_EQ(block.name(), "block");
-		ASSERT_EQ(block.parentTypes().size(), 0u);
+	ASSERT_EQ(block.name(), "block");
+	ASSERT_EQ(block.parentTypes().size(), 0u);
 
-		// Predicates
-		ASSERT_EQ(domain.predicates().size(), 5u);
+	// Predicates
+	ASSERT_EQ(domain.predicates().size(), 5u);
 
-		const auto &on = *domain.predicates()[0];
+	const auto &on = *domain.predicates()[0];
 
-		ASSERT_EQ(on.name(), "on");
-		ASSERT_EQ(on.arguments().size(), 2u);
-		ASSERT_EQ(on.arguments()[0]->name(), "x");
-		const auto *onArgument0Type = dynamic_cast<const expressions::PrimitiveType *>(on.arguments()[0]->type());
-		ASSERT_EQ(onArgument0Type, &block);
-		ASSERT_EQ(on.arguments()[1]->name(), "y");
-		const auto onArgument1Type = dynamic_cast<const expressions::PrimitiveType *>(on.arguments()[1]->type());
-		ASSERT_EQ(onArgument1Type, &block);
+	ASSERT_EQ(on.name(), "on");
+	ASSERT_EQ(on.arguments().size(), 2u);
+	ASSERT_EQ(on.arguments()[0]->name(), "x");
+	const auto *onArgument0Type = dynamic_cast<const expressions::PrimitiveType *>(on.arguments()[0]->type());
+	ASSERT_EQ(onArgument0Type, &block);
+	ASSERT_EQ(on.arguments()[1]->name(), "y");
+	const auto onArgument1Type = dynamic_cast<const expressions::PrimitiveType *>(on.arguments()[1]->type());
+	ASSERT_EQ(onArgument1Type, &block);
 
-		const auto &handempty = *domain.predicates()[3];
+	const auto &handempty = *domain.predicates()[3];
 
-		ASSERT_EQ(handempty.name(), "handempty");
-		ASSERT_TRUE(handempty.arguments().empty());
+	ASSERT_EQ(handempty.name(), "handempty");
+	ASSERT_TRUE(handempty.arguments().empty());
 
-		// Actions
-		ASSERT_EQ(domain.actions().size(), 4u);
+	// Actions
+	ASSERT_EQ(domain.actions().size(), 4u);
 
-		const auto &pickUp = *domain.actions()[0];
+	const auto &pickUp = *domain.actions()[0];
 
-		ASSERT_EQ(pickUp.name(), "pick-up");
-		ASSERT_EQ(pickUp.parameters().size(), 1u);
-		ASSERT_EQ(pickUp.parameters()[0]->name(), "x");
-		ASSERT_EQ(pickUp.parameters()[0]->type(), &block);
+	ASSERT_EQ(pickUp.name(), "pick-up");
+	ASSERT_EQ(pickUp.parameters().size(), 1u);
+	ASSERT_EQ(pickUp.parameters()[0]->name(), "x");
+	ASSERT_EQ(pickUp.parameters()[0]->type(), &block);
 
-		const auto &pickUpPre = dynamic_cast<const expressions::And &>(pickUp.precondition());
-		ASSERT_EQ(pickUpPre.arguments().size(), 3u);
-		const auto &pickUpPre0 = dynamic_cast<const expressions::Predicate &>(*pickUpPre.arguments()[0]);
-		ASSERT_EQ(pickUpPre0.name(), "clear");
-		ASSERT_EQ(pickUpPre0.arguments().size(), 1u);
-		const auto &pickUpPre00 = *dynamic_cast<const expressions::Reference<expressions::Variable> &>(*pickUpPre0.arguments()[0]).value();
-		ASSERT_EQ(pickUpPre00.name(), "x");
-		ASSERT_EQ(pickUpPre00.type(), &block);
-		ASSERT_EQ(&pickUpPre00, pickUp.parameters()[0].get());
-		const auto &pickUpPre2 = dynamic_cast<const expressions::Predicate &>(*pickUpPre.arguments()[2]);
-		ASSERT_EQ(pickUpPre2.name(), "handempty");
-		ASSERT_EQ(pickUpPre2.arguments().size(), 0u);
+	const auto &pickUpPre = dynamic_cast<const expressions::And &>(pickUp.precondition());
+	ASSERT_EQ(pickUpPre.arguments().size(), 3u);
+	const auto &pickUpPre0 = dynamic_cast<const expressions::Predicate &>(*pickUpPre.arguments()[0]);
+	ASSERT_EQ(pickUpPre0.name(), "clear");
+	ASSERT_EQ(pickUpPre0.arguments().size(), 1u);
+	const auto &pickUpPre00 = *dynamic_cast<const expressions::Reference<expressions::Variable> &>(*pickUpPre0.arguments()[0]).value();
+	ASSERT_EQ(pickUpPre00.name(), "x");
+	ASSERT_EQ(pickUpPre00.type(), &block);
+	ASSERT_EQ(&pickUpPre00, pickUp.parameters()[0].get());
+	const auto &pickUpPre2 = dynamic_cast<const expressions::Predicate &>(*pickUpPre.arguments()[2]);
+	ASSERT_EQ(pickUpPre2.name(), "handempty");
+	ASSERT_EQ(pickUpPre2.arguments().size(), 0u);
 
-		const auto &pickUpEff = dynamic_cast<const expressions::And &>(pickUp.effect());
-		ASSERT_EQ(pickUpEff.arguments().size(), 4u);
-		const auto &pickUpEff0 = dynamic_cast<const expressions::Not &>(*pickUpEff.arguments()[0]);
-		const auto &pickUpEff00 = dynamic_cast<const expressions::Predicate &>(pickUpEff0.argument());
-		ASSERT_EQ(pickUpEff00.name(), "ontable");
-		ASSERT_EQ(pickUpEff00.arguments().size(), 1u);
-		const auto &pickUpEff000 = *dynamic_cast<const expressions::Reference<expressions::Variable> &>(*pickUpEff00.arguments()[0]).value();
-		ASSERT_EQ(pickUpEff000.name(), "x");
-		ASSERT_EQ(pickUpEff000.type(), &block);
-	}
-	catch (const std::exception &e)
-	{
-		FAIL() << e.what();
-	}
+	const auto &pickUpEff = dynamic_cast<const expressions::And &>(pickUp.effect());
+	ASSERT_EQ(pickUpEff.arguments().size(), 4u);
+	const auto &pickUpEff0 = dynamic_cast<const expressions::Not &>(*pickUpEff.arguments()[0]);
+	const auto &pickUpEff00 = dynamic_cast<const expressions::Predicate &>(pickUpEff0.argument());
+	ASSERT_EQ(pickUpEff00.name(), "ontable");
+	ASSERT_EQ(pickUpEff00.arguments().size(), 1u);
+	const auto &pickUpEff000 = *dynamic_cast<const expressions::Reference<expressions::Variable> &>(*pickUpEff00.arguments()[0]).value();
+	ASSERT_EQ(pickUpEff000.name(), "x");
+	ASSERT_EQ(pickUpEff000.type(), &block);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST_F(PDDLParserTests, ParseStorageDomain)
+TEST(PDDLParserTests, ParseStorageDomain)
 {
 	using namespace plasp::pddl;
 
-	try
-	{
-		const auto description = plasp::pddl::Description::fromStream(m_storageDomainFile);
+	const auto description = plasp::pddl::Description::fromFile("data/storage-domain.pddl");
 
-		ASSERT_NO_THROW(description.domain());
+	ASSERT_NO_THROW(description.domain());
 
-		const auto &domain = description.domain();
+	const auto &domain = description.domain();
 
-		// Name
-		ASSERT_EQ(domain.name(), "storage-propositional");
+	// Name
+	ASSERT_EQ(domain.name(), "storage-propositional");
 
-		// Requirements
-		ASSERT_EQ(domain.requirements().size(), 1u);
-		ASSERT_EQ(domain.requirements()[0].type(), Requirement::Type::Typing);
+	// Requirements
+	ASSERT_EQ(domain.requirements().size(), 1u);
+	ASSERT_EQ(domain.requirements()[0].type(), Requirement::Type::Typing);
 
-		// Types
-		ASSERT_EQ(domain.types().size(), 10u);
+	// Types
+	ASSERT_EQ(domain.types().size(), 10u);
 
-		const auto &hoist = *domain.types()[0];
-		const auto &surface = *domain.types()[1];
-		const auto &area = *domain.types()[3];
-		const auto &object = *domain.types()[4];
-		const auto &storearea = *domain.types()[7];
-		const auto &crate = *domain.types()[9];
+	const auto &hoist = *domain.types()[0];
+	const auto &surface = *domain.types()[1];
+	const auto &area = *domain.types()[3];
+	const auto &object = *domain.types()[4];
+	const auto &storearea = *domain.types()[7];
+	const auto &crate = *domain.types()[9];
 
-		const auto &hoistParents = hoist.parentTypes();
-		ASSERT_EQ(hoistParents.size(), 1u);
-		ASSERT_TRUE(std::find(hoistParents.cbegin(), hoistParents.cend(), &object) != hoistParents.cend());
+	const auto &hoistParents = hoist.parentTypes();
+	ASSERT_EQ(hoistParents.size(), 1u);
+	ASSERT_TRUE(std::find(hoistParents.cbegin(), hoistParents.cend(), &object) != hoistParents.cend());
 
-		const auto &areaParents = area.parentTypes();
-		ASSERT_EQ(areaParents.size(), 2u);
-		ASSERT_TRUE(std::find(areaParents.cbegin(), areaParents.cend(), &object) != areaParents.cend());
-		ASSERT_TRUE(std::find(areaParents.cbegin(), areaParents.cend(), &surface) != areaParents.cend());
+	const auto &areaParents = area.parentTypes();
+	ASSERT_EQ(areaParents.size(), 2u);
+	ASSERT_TRUE(std::find(areaParents.cbegin(), areaParents.cend(), &object) != areaParents.cend());
+	ASSERT_TRUE(std::find(areaParents.cbegin(), areaParents.cend(), &surface) != areaParents.cend());
 
-		// Predicates
-		ASSERT_EQ(domain.predicates().size(), 8u);
+	// Predicates
+	ASSERT_EQ(domain.predicates().size(), 8u);
 
-		const auto &on = *domain.predicates()[5];
+	const auto &on = *domain.predicates()[5];
 
-		ASSERT_EQ(on.name(), "on");
-		ASSERT_EQ(on.arguments().size(), 2u);
-		ASSERT_EQ(on.arguments()[0]->name(), "c");
-		const auto onArgument0Type = dynamic_cast<const expressions::PrimitiveType *>(on.arguments()[0]->type());
-		ASSERT_EQ(onArgument0Type, &crate);
-		ASSERT_EQ(on.arguments()[1]->name(), "s");
-		const auto onArgument1Type = dynamic_cast<const expressions::PrimitiveType *>(on.arguments()[1]->type());
-		ASSERT_EQ(onArgument1Type, &storearea);
+	ASSERT_EQ(on.name(), "on");
+	ASSERT_EQ(on.arguments().size(), 2u);
+	ASSERT_EQ(on.arguments()[0]->name(), "c");
+	const auto onArgument0Type = dynamic_cast<const expressions::PrimitiveType *>(on.arguments()[0]->type());
+	ASSERT_EQ(onArgument0Type, &crate);
+	ASSERT_EQ(on.arguments()[1]->name(), "s");
+	const auto onArgument1Type = dynamic_cast<const expressions::PrimitiveType *>(on.arguments()[1]->type());
+	ASSERT_EQ(onArgument1Type, &storearea);
 
-		const auto &in = *domain.predicates()[1];
-		ASSERT_EQ(in.name(), "in");
-		ASSERT_EQ(in.arguments().size(), 2u);
-		ASSERT_EQ(in.arguments()[0]->name(), "x");
-		const auto inArgument0Type = dynamic_cast<const expressions::Either *>(in.arguments()[0]->type());
-		ASSERT_EQ(inArgument0Type->arguments().size(), 2u);
-		const auto inArgument0Type0 = dynamic_cast<const expressions::Reference<expressions::PrimitiveType> *>(inArgument0Type->arguments()[0].get())->value();
-		ASSERT_EQ(inArgument0Type0, &storearea);
-		const auto inArgument0Type1 = dynamic_cast<const expressions::Reference<expressions::PrimitiveType> *>(inArgument0Type->arguments()[1].get())->value();
-		ASSERT_EQ(inArgument0Type1, &crate);
+	const auto &in = *domain.predicates()[1];
+	ASSERT_EQ(in.name(), "in");
+	ASSERT_EQ(in.arguments().size(), 2u);
+	ASSERT_EQ(in.arguments()[0]->name(), "x");
+	const auto inArgument0Type = dynamic_cast<const expressions::Either *>(in.arguments()[0]->type());
+	ASSERT_EQ(inArgument0Type->arguments().size(), 2u);
+	const auto inArgument0Type0 = dynamic_cast<const expressions::Reference<expressions::PrimitiveType> *>(inArgument0Type->arguments()[0].get())->value();
+	ASSERT_EQ(inArgument0Type0, &storearea);
+	const auto inArgument0Type1 = dynamic_cast<const expressions::Reference<expressions::PrimitiveType> *>(inArgument0Type->arguments()[1].get())->value();
+	ASSERT_EQ(inArgument0Type1, &crate);
 
-		// Actions
-		ASSERT_EQ(domain.actions().size(), 5u);
+	// Actions
+	ASSERT_EQ(domain.actions().size(), 5u);
 
-		const auto &drop = *domain.actions()[1];
+	const auto &drop = *domain.actions()[1];
 
-		ASSERT_EQ(drop.name(), "drop");
-		ASSERT_EQ(drop.parameters().size(), 5u);
-		ASSERT_EQ(drop.parameters()[3]->name(), "a2");
-		ASSERT_EQ(drop.parameters()[3]->type(), &area);
+	ASSERT_EQ(drop.name(), "drop");
+	ASSERT_EQ(drop.parameters().size(), 5u);
+	ASSERT_EQ(drop.parameters()[3]->name(), "a2");
+	ASSERT_EQ(drop.parameters()[3]->type(), &area);
 
-		const auto &dropPre = dynamic_cast<const expressions::And &>(drop.precondition());
-		ASSERT_EQ(dropPre.arguments().size(), 5u);
-		const auto &dropPre2 = dynamic_cast<const expressions::Predicate &>(*dropPre.arguments()[2]);
-		ASSERT_EQ(dropPre2.name(), "lifting");
-		ASSERT_EQ(dropPre2.arguments().size(), 2u);
-		const auto &dropPre21 = *dynamic_cast<const expressions::Reference<expressions::Variable> &>(*dropPre2.arguments()[1]).value();
-		ASSERT_EQ(dropPre21.name(), "c");
-		ASSERT_EQ(dropPre21.type(), &crate);
+	const auto &dropPre = dynamic_cast<const expressions::And &>(drop.precondition());
+	ASSERT_EQ(dropPre.arguments().size(), 5u);
+	const auto &dropPre2 = dynamic_cast<const expressions::Predicate &>(*dropPre.arguments()[2]);
+	ASSERT_EQ(dropPre2.name(), "lifting");
+	ASSERT_EQ(dropPre2.arguments().size(), 2u);
+	const auto &dropPre21 = *dynamic_cast<const expressions::Reference<expressions::Variable> &>(*dropPre2.arguments()[1]).value();
+	ASSERT_EQ(dropPre21.name(), "c");
+	ASSERT_EQ(dropPre21.type(), &crate);
 
-		const auto &dropEff = dynamic_cast<const expressions::And &>(drop.effect());
-		ASSERT_EQ(dropEff.arguments().size(), 5u);
-		const auto &dropEff2 = dynamic_cast<const expressions::Not &>(*dropEff.arguments()[2]);
-		const auto &dropEff20 = dynamic_cast<const expressions::Predicate &>(dropEff2.argument());
-		ASSERT_EQ(dropEff20.name(), "clear");
-		ASSERT_EQ(dropEff20.arguments().size(), 1u);
-		const auto &dropEff200 = *dynamic_cast<const expressions::Reference<expressions::Variable> &>(*dropEff20.arguments()[0]).value();
-		ASSERT_EQ(dropEff200.name(), "a1");
-		ASSERT_EQ(dropEff200.type(), &storearea);
-	}
-	catch (const std::exception &e)
-	{
-		FAIL() << e.what();
-	}
+	const auto &dropEff = dynamic_cast<const expressions::And &>(drop.effect());
+	ASSERT_EQ(dropEff.arguments().size(), 5u);
+	const auto &dropEff2 = dynamic_cast<const expressions::Not &>(*dropEff.arguments()[2]);
+	const auto &dropEff20 = dynamic_cast<const expressions::Predicate &>(dropEff2.argument());
+	ASSERT_EQ(dropEff20.name(), "clear");
+	ASSERT_EQ(dropEff20.arguments().size(), 1u);
+	const auto &dropEff200 = *dynamic_cast<const expressions::Reference<expressions::Variable> &>(*dropEff20.arguments()[0]).value();
+	ASSERT_EQ(dropEff200.name(), "a1");
+	ASSERT_EQ(dropEff200.type(), &storearea);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST_F(PDDLParserTests, ParseConstants)
+TEST(PDDLParserTests, ParseConstants)
 {
 	using namespace plasp::pddl;
 
-	try
-	{
-		const auto description = Description::fromStream(m_woodworkingDomainFile);
+	const auto description = Description::fromFile("data/woodworking-domain.pddl");
 
-		ASSERT_NO_THROW(description.domain());
+	ASSERT_NO_THROW(description.domain());
 
-		const auto &domain = description.domain();
+	const auto &domain = description.domain();
 
-		// Name
-		ASSERT_EQ(domain.name(), "woodworking");
+	// Name
+	ASSERT_EQ(domain.name(), "woodworking");
 
-		// Types
-		const auto &acolour = *domain.types()[0];
-		const auto &surface = *domain.types()[4];
-		const auto &treatmentstatus = *domain.types()[5];
+	// Types
+	const auto &acolour = *domain.types()[0];
+	const auto &surface = *domain.types()[4];
+	const auto &treatmentstatus = *domain.types()[5];
 
-		// Constants
-		ASSERT_EQ(domain.constants().size(), 8u);
-		ASSERT_EQ(domain.constants()[0]->type(), &surface);
-		ASSERT_EQ(domain.constants()[2]->type(), &surface);
-		ASSERT_EQ(domain.constants()[3]->type(), &treatmentstatus);
-		ASSERT_EQ(domain.constants()[6]->type(), &treatmentstatus);
-		ASSERT_EQ(domain.constants()[7]->type(), &acolour);
+	// Constants
+	ASSERT_EQ(domain.constants().size(), 8u);
+	ASSERT_EQ(domain.constants()[0]->type(), &surface);
+	ASSERT_EQ(domain.constants()[2]->type(), &surface);
+	ASSERT_EQ(domain.constants()[3]->type(), &treatmentstatus);
+	ASSERT_EQ(domain.constants()[6]->type(), &treatmentstatus);
+	ASSERT_EQ(domain.constants()[7]->type(), &acolour);
 
-		// TODO: add test with constants in predicates
-	}
-	catch (const std::exception &e)
-	{
-		FAIL() << e.what();
-	}
+	// TODO: add test with constants in predicates
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST_F(PDDLParserTests, ParseWithWhiteSpace)
+TEST(PDDLParserTests, ParseWithWhiteSpace)
 {
 	using namespace plasp::pddl;
 
-	try
-	{
-		ASSERT_NO_THROW(Description::fromStream(m_whiteSpaceTestFile));
-	}
-	catch (const std::exception &e)
-	{
-		FAIL() << e.what();
-	}
+	ASSERT_NO_THROW(Description::fromFile("data/white-space-test.pddl"));
 }

@@ -45,6 +45,20 @@ Description Description::fromStream(std::istream &istream)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+Description Description::fromFile(const std::string &path)
+{
+	Description description;
+
+	description.m_parser.readFile(path);
+
+	description.parseContent();
+	description.checkConsistency();
+
+	return description;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 Description Description::fromFiles(const std::vector<std::string> &paths)
 {
 	BOOST_ASSERT(!paths.empty());
