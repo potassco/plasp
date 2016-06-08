@@ -1,7 +1,5 @@
 #include <plasp/sas/InitialState.h>
 
-#include <iostream>
-
 namespace plasp
 {
 namespace sas
