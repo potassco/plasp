@@ -51,12 +51,40 @@ PredicatePointer Predicate::parse(std::string name, Context &context,
 		// Parse constants
 		else
 		{
-			const auto *constant = Constant::parseAndFind(context, expressionContext);
+			const auto *constant = (expressionContext.problem == nullptr)
+				? Constant::parseAndFind(context, expressionContext.domain)
+				: Constant::parseAndFind(context, *expressionContext.problem);
 			auto constantReference = std::make_unique<Reference<Constant>>(constant);
 			predicate->m_arguments.emplace_back(std::move(constantReference));
 		}
 
 		context.parser.skipWhiteSpace();
+	}
+
+	// TODO: check that signature matches one of the declared ones
+
+	return predicate;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+PredicatePointer Predicate::parse(std::string name, Context &context, const Problem &problem)
+{
+	auto predicate = std::make_unique<Predicate>(Predicate());
+
+	predicate->m_name = name;
+
+	context.parser.skipWhiteSpace();
+
+	while (context.parser.currentCharacter() != ')')
+	{
+		if (context.parser.currentCharacter() == '?')
+			throw utils::ParserException(context.parser, "Variables not allowed in this context");
+
+		// Parse objects and constants
+		const auto *constant = Constant::parseAndFind(context, problem);
+		auto constantReference = std::make_unique<Reference<Constant>>(constant);
+		predicate->m_arguments.emplace_back(std::move(constantReference));
 	}
 
 	// TODO: check that signature matches one of the declared ones

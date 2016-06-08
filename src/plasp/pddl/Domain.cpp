@@ -11,6 +11,7 @@
 #include <plasp/pddl/expressions/Variable.h>
 #include <plasp/utils/IO.h>
 #include <plasp/utils/ParserException.h>
+#include <plasp/utils/ParserWarning.h>
 
 namespace plasp
 {
@@ -24,34 +25,128 @@ namespace pddl
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 Domain::Domain(Context &context)
-:	m_context(context)
+:	m_context(context),
+	m_requirementsPosition{-1},
+	m_typesPosition{-1},
+	m_constantsPosition{-1},
+	m_predicatesPosition{-1}
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Domain::readPDDL()
+void Domain::findSections()
 {
-	m_context.parser.expect<std::string>("(");
-	m_context.parser.expect<std::string>("define");
-	m_context.parser.expect<std::string>("(");
-	m_context.parser.expect<std::string>("domain");
+	auto &parser = m_context.parser;
+
+	parser.expect<std::string>("(");
+	parser.expect<std::string>("define");
+	parser.expect<std::string>("(");
+	parser.expect<std::string>("domain");
 
 	m_name = m_context.parser.parseIdentifier(isIdentifier);
 
+	std::cout << "Found domain " << m_name << std::endl;
+
+	parser.expect<std::string>(")");
+
+	const auto setSectionPosition =
+		[&](const std::string &sectionName, auto &sectionPosition, const auto value, bool unique = false)
+		{
+			if (unique && sectionPosition != -1)
+				throw utils::ParserException(parser, "Only one \":" + sectionName + "\" section allowed");
+
+			sectionPosition = value;
+		};
+
+	parser.skipWhiteSpace();
+
+	// Find sections
+	while (parser.currentCharacter() != ')')
+	{
+		const auto position = parser.position();
+
+		parser.expect<std::string>("(");
+		parser.expect<std::string>(":");
+
+		// Save the parser position of the individual sections for later parsing
+		if (parser.probe<std::string>("requirements"))
+			setSectionPosition("requirements", m_requirementsPosition, position, true);
+		else if (parser.probe<std::string>("types"))
+			setSectionPosition("types", m_typesPosition, position, true);
+		else if (parser.probe<std::string>("constants"))
+			setSectionPosition("constants", m_constantsPosition, position, true);
+		else if (parser.probe<std::string>("predicates"))
+			setSectionPosition("predicates", m_predicatesPosition, position, true);
+		else if (parser.probe<std::string>("action"))
+		{
+			m_actionPositions.emplace_back(-1);
+			setSectionPosition("action", m_actionPositions.back(), position);
+		}
+		else if (parser.probe<std::string>("functions")
+			|| parser.probe<std::string>("constraints")
+			|| parser.probe<std::string>("durative-action")
+			|| parser.probe<std::string>("derived"))
+		{
+			parser.seek(position);
+			m_context.logger.parserWarning(parser, "Section type currently unsupported");
+			parser.advance();
+		}
+		else
+		{
+			const auto sectionIdentifier = parser.parseIdentifier(isIdentifier);
+
+			parser.seek(position);
+			throw utils::ParserException(m_context.parser, "Unknown domain section \"" + sectionIdentifier + "\"");
+		}
+
+		// Skip section for now and parse it later
+		skipSection(parser);
+
+		parser.skipWhiteSpace();
+	}
+
+	parser.expect<std::string>(")");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Domain::parse()
+{
+	auto &parser = m_context.parser;
+
 	std::cout << "Parsing domain " << m_name << std::endl;
 
-	m_context.parser.expect<std::string>(")");
-
-	while (true)
+	if (m_requirementsPosition != -1)
 	{
-		m_context.parser.skipWhiteSpace();
-
-		if (m_context.parser.probe(')'))
-			break;
-
-		parseSection();
+		parser.seek(m_requirementsPosition);
+		parseRequirementSection();
 	}
+
+	if (m_typesPosition != -1)
+	{
+		parser.seek(m_typesPosition);
+		parseTypeSection();
+	}
+
+	if (m_constantsPosition != -1)
+	{
+		parser.seek(m_constantsPosition);
+		parseConstantSection();
+	}
+
+	if (m_predicatesPosition != -1)
+	{
+		parser.seek(m_predicatesPosition);
+		parsePredicateSection();
+	}
+
+	for (size_t i = 0; i < m_actionPositions.size(); i++)
+		if (m_actionPositions[i] != -1)
+		{
+			parser.seek(m_actionPositions[i]);
+			parseActionSection();
+		}
 
 	computeDerivedRequirements();
 }
@@ -81,14 +176,14 @@ const Requirements &Domain::requirements() const
 
 expressions::PrimitiveTypes &Domain::types()
 {
-	return m_primitiveTypes;
+	return m_types;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const expressions::PrimitiveTypes &Domain::types() const
 {
-	return m_primitiveTypes;
+	return m_types;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -109,14 +204,14 @@ const expressions::Constants &Domain::constants() const
 
 expressions::PredicateDeclarations &Domain::predicates()
 {
-	return m_predicateDeclarations;
+	return m_predicates;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const expressions::PredicateDeclarations &Domain::predicates() const
 {
-	return m_predicateDeclarations;
+	return m_predicates;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -135,52 +230,21 @@ const std::vector<std::unique_ptr<Action>> &Domain::actions() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Domain::parseSection()
+void Domain::parseRequirementSection()
 {
 	auto &parser = m_context.parser;
 
 	parser.expect<std::string>("(");
 	parser.expect<std::string>(":");
+	parser.expect<std::string>("requirements");
 
-	// TODO: check order of the sections
-	if (parser.probe<std::string>("requirements"))
-		parseRequirementSection();
-	else if (parser.probe<std::string>("types"))
-		parseTypeSection();
-	else if (parser.probe<std::string>("constants"))
-		parseConstantSection();
-	else if (parser.probe<std::string>("predicates"))
-		parsePredicateSection();
-	else if (parser.probe<std::string>("action"))
-		parseActionSection();
-	else if (parser.probe<std::string>("functions")
-		|| parser.probe<std::string>("constraints")
-		|| parser.probe<std::string>("durative-action")
-		|| parser.probe<std::string>("derived"))
+	while (parser.currentCharacter() != ')')
 	{
-		std::cout << "Skipping section" << std::endl;
-		skipSection(m_context.parser);
-	}
-	else
-	{
-		const auto sectionIdentifier = parser.parseIdentifier(isIdentifier);
-		throw utils::ParserException(m_context.parser, "Unknown domain section \"" + sectionIdentifier + "\"");
-	}
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void Domain::parseRequirementSection()
-{
-	m_context.parser.skipWhiteSpace();
-
-	while (m_context.parser.currentCharacter() != ')')
-	{
-		m_context.parser.expect<std::string>(":");
+		parser.expect<std::string>(":");
 
 		m_requirements.emplace_back(Requirement::parse(m_context));
 
-		m_context.parser.skipWhiteSpace();
+		parser.skipWhiteSpace();
 	}
 
 	// TODO: do this check only once the problem is parsed
@@ -188,7 +252,7 @@ void Domain::parseRequirementSection()
 	if (m_requirements.empty())
 		m_requirements.emplace_back(Requirement::Type::STRIPS);
 
-	m_context.parser.expect<std::string>(")");
+	parser.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -258,60 +322,82 @@ void Domain::computeDerivedRequirements()
 
 void Domain::parseTypeSection()
 {
+	auto &parser = m_context.parser;
+
+	parser.expect<std::string>("(");
+	parser.expect<std::string>(":");
+	parser.expect<std::string>("types");
+
 	checkRequirement(Requirement::Type::Typing);
 
-	m_context.parser.skipWhiteSpace();
+	parser.skipWhiteSpace();
 
 	// Store types and their parent types
-	while (!m_context.parser.probe(')'))
+	while (parser.currentCharacter() != ')')
 	{
-		if (m_context.parser.currentCharacter() == '(')
-			throw utils::ParserException(m_context.parser, "Only primitive types are allowed in type section");
+		if (parser.currentCharacter() == '(')
+			throw utils::ParserException(parser, "Only primitive types are allowed in type section");
 
 		expressions::PrimitiveType::parseTypedDeclaration(m_context, *this);
 
-		m_context.parser.skipWhiteSpace();
+		parser.skipWhiteSpace();
 	}
+
+	parser.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Domain::parseConstantSection()
 {
-	m_context.parser.skipWhiteSpace();
+	auto &parser = m_context.parser;
+
+	parser.expect<std::string>("(");
+	parser.expect<std::string>(":");
+	parser.expect<std::string>("constants");
 
 	// Store constants
 	expressions::Constant::parseTypedDeclarations(m_context, *this);
 
-	m_context.parser.expect<std::string>(")");
+	parser.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Domain::parsePredicateSection()
 {
-	m_context.parser.skipWhiteSpace();
+	auto &parser = m_context.parser;
+
+	parser.expect<std::string>("(");
+	parser.expect<std::string>(":");
+	parser.expect<std::string>("predicates");
+
+	parser.skipWhiteSpace();
 
 	// Store predicates and their arguments
-	while (m_context.parser.currentCharacter() != ')')
+	while (parser.currentCharacter() != ')')
 	{
 		expressions::PredicateDeclaration::parse(m_context, *this);
 
-		m_context.parser.skipWhiteSpace();
+		parser.skipWhiteSpace();
 	}
 
-	m_context.parser.expect<std::string>(")");
+	parser.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Domain::parseActionSection()
 {
-	m_context.parser.skipWhiteSpace();
+	auto &parser = m_context.parser;
+
+	parser.expect<std::string>("(");
+	parser.expect<std::string>(":");
+	parser.expect<std::string>("action");
 
 	Action::parseDeclaration(m_context, *this);
 
-	m_context.parser.expect<std::string>(")");
+	parser.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

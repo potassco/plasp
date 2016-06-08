@@ -3,6 +3,7 @@
 
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Expression.h>
+#include <plasp/pddl/InitialState.h>
 #include <plasp/pddl/Requirement.h>
 
 namespace plasp
@@ -21,7 +22,7 @@ class Problem
 	public:
 		Problem(Context &context, Domain &domain);
 
-		void readPDDL();
+		void parse();
 
 		bool isDeclared() const;
 
@@ -37,6 +38,9 @@ class Problem
 		expressions::Constants &objects();
 		const expressions::Constants &objects() const;
 
+		InitialState &initialState();
+		const InitialState &initialState() const;
+
 		void checkConsistency();
 
 	private:
@@ -49,6 +53,8 @@ class Problem
 
 		void parseObjectSection();
 
+		void parseInitialStateSection();
+
 		Context &m_context;
 		Domain &m_domain;
 		bool m_isDeclared;
@@ -57,6 +63,8 @@ class Problem
 		Requirements m_requirements;
 
 		expressions::Constants m_objects;
+
+		std::unique_ptr<InitialState> m_initialState;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -134,24 +134,37 @@ void Constant::parseTypedDeclarations(Context &context, Problem &problem)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Constant *Constant::parseAndFind(Context &context, const ExpressionContext &expressionContext)
+Constant *Constant::parseAndFind(Context &context, const Domain &domain)
 {
 	context.parser.skipWhiteSpace();
 
 	const auto constantName = context.parser.parseIdentifier(isIdentifier);
 
-	auto *constant = parseAndFind(constantName, expressionContext.domain.constants());
+	auto *constant = parseAndFind(constantName, domain.constants());
+
+	if (constant != nullptr)
+		return constant;
+
+	throw utils::ParserException(context.parser, "Constant \"" + constantName + "\" used but never declared");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Constant *Constant::parseAndFind(Context &context, const Problem &problem)
+{
+	context.parser.skipWhiteSpace();
+
+	const auto constantName = context.parser.parseIdentifier(isIdentifier);
+
+	auto *constant = parseAndFind(constantName, problem.domain().constants());
 
 	if (constant)
 		return constant;
 
-	if (expressionContext.problem)
-	{
-		constant = parseAndFind(constantName, expressionContext.problem->objects());
+	constant = parseAndFind(constantName, problem.objects());
 
-		if (constant)
-			return constant;
-	}
+	if (constant)
+		return constant;
 
 	throw utils::ParserException(context.parser, "Constant \"" + constantName + "\" used but never declared");
 }

@@ -27,7 +27,8 @@ class Constant: public Expression
 		static void parseTypedDeclaration(Context &context, Problem &problem);
 		static void parseTypedDeclarations(Context &context, Problem &problem);
 
-		static Constant *parseAndFind(Context &context, const ExpressionContext &expressionContext);
+		static Constant *parseAndFind(Context &context, const Domain &domain);
+		static Constant *parseAndFind(Context &context, const Problem &problem);
 
 	public:
 		void accept(ExpressionVisitor &expressionVisitor) const override;

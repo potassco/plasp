@@ -29,7 +29,7 @@ Problem::Problem(Context &context, Domain &domain)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Problem::readPDDL()
+void Problem::parse()
 {
 	m_context.parser.expect<std::string>("(");
 	m_context.parser.expect<std::string>("define");
@@ -122,8 +122,9 @@ void Problem::parseSection()
 		parseRequirementSection();
 	else if (parser.probe<std::string>("objects"))
 		parseObjectSection();
-	else if (parser.probe<std::string>("init")
-		|| parser.probe<std::string>("goal")
+	else if (parser.probe<std::string>("init"))
+		parseInitialStateSection();
+	else if (parser.probe<std::string>("goal")
 		|| parser.probe<std::string>("constraints")
 		|| parser.probe<std::string>("metric")
 		|| parser.probe<std::string>("length"))
@@ -251,6 +252,33 @@ void Problem::parseObjectSection()
 	expressions::Constant::parseTypedDeclarations(m_context, *this);
 
 	m_context.parser.expect<std::string>(")");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Problem::parseInitialStateSection()
+{
+	m_initialState = InitialState::parseDeclaration(m_context, *this);
+
+	m_context.parser.expect<std::string>(")");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+InitialState &Problem::initialState()
+{
+	BOOST_ASSERT(m_initialState);
+
+	return *m_initialState;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const InitialState &Problem::initialState() const
+{
+	BOOST_ASSERT(m_initialState);
+
+	return *m_initialState;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

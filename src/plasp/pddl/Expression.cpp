@@ -4,6 +4,7 @@
 #include <plasp/pddl/Domain.h>
 #include <plasp/pddl/ExpressionContext.h>
 #include <plasp/pddl/Identifier.h>
+#include <plasp/pddl/IO.h>
 #include <plasp/pddl/expressions/And.h>
 #include <plasp/pddl/expressions/Imply.h>
 #include <plasp/pddl/expressions/Not.h>
@@ -33,10 +34,10 @@ ExpressionPointer parsePredicate(Context &context, ExpressionContext &expression
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-[[noreturn]] void throwUnsupported(const utils::Parser &parser,
-	const std::string &expressionIdentifier)
+inline void warnUnsupported(Context &context, const std::string &expressionIdentifier)
 {
-	throw utils::ParserException(parser, "Expression type \"" + expressionIdentifier + "\" currently unsupported in this context");
+	context.logger.parserWarning(context.parser, "Expression type \"" + expressionIdentifier + "\" currently unsupported in this context");
+	skipSection(context.parser);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -58,7 +59,9 @@ ExpressionPointer parsePreconditionExpression(Context &context,
 	else if (expressionIdentifier == "forall"
 		|| expressionIdentifier == "preference")
 	{
-		throwUnsupported(context.parser, expressionIdentifier);
+		warnUnsupported(context, expressionIdentifier);
+
+		return nullptr;
 	}
 	else
 		expression = parseExpressionContent(expressionIdentifier, context, expressionContext);
@@ -116,7 +119,9 @@ ExpressionPointer parseExpressionContent(const std::string &expressionIdentifier
 		|| expressionIdentifier == ">="
 		|| expressionIdentifier == "<=")
 	{
-		throwUnsupported(context.parser, expressionIdentifier);
+		warnUnsupported(context, expressionIdentifier);
+
+		return nullptr;
 	}
 
 	auto &predicateDeclarations = expressionContext.domain.predicates();
@@ -132,7 +137,7 @@ ExpressionPointer parseExpressionContent(const std::string &expressionIdentifier
 	if (match != predicateDeclarations.cend())
 		return expressions::Predicate::parse(expressionIdentifier, context, expressionContext);
 
-	throw utils::ParserException(context.parser, "Expression \"" + expressionIdentifier + "\" not allowed in this context");
+	throw utils::ParserException(context.parser, "Unknown expression \"" + expressionIdentifier + "\"");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -150,7 +155,9 @@ ExpressionPointer parseEffectExpression(Context &context, ExpressionContext &exp
 	else if (expressionIdentifier == "forall"
 		|| expressionIdentifier == "when")
 	{
-		throwUnsupported(context.parser, expressionIdentifier);
+		warnUnsupported(context, expressionIdentifier);
+
+		return nullptr;
 	}
 	else
 		expression = parseEffectBodyExpressionContent(expressionIdentifier, context, expressionContext);
@@ -177,7 +184,9 @@ ExpressionPointer parseEffectBodyExpressionContent(const std::string &expression
 		|| expressionIdentifier == "increase"
 		|| expressionIdentifier == "decrease")
 	{
-		throwUnsupported(context.parser, expressionIdentifier);
+		warnUnsupported(context, expressionIdentifier);
+
+		return nullptr;
 	}
 
 	const auto &predicateDeclarations = expressionContext.domain.predicates();

@@ -21,6 +21,7 @@ class Predicate: public Expression
 	public:
 		static PredicatePointer parse(std::string name, Context &context,
 			ExpressionContext &expressionContext);
+		static PredicatePointer parse(std::string name, Context &context, const Problem &problem);
 
 	public:
 		void accept(ExpressionVisitor &expressionVisitor) const override;

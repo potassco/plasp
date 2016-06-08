@@ -106,12 +106,12 @@ void Description::parseContent()
 		throw ConsistencyException("No PDDL domain specified");
 
 	m_context.parser.seek(m_domainPosition);
-	m_domain->readPDDL();
+	m_domain->parse();
 
 	if (m_problemPosition != -1)
 	{
 		m_context.parser.seek(m_problemPosition);
-		m_problem->readPDDL();
+		m_problem->parse();
 	}
 }
 
@@ -119,41 +119,45 @@ void Description::parseContent()
 
 void Description::findSections()
 {
-	while (true)
+	auto &parser = m_context.parser;
+
+	parser.skipWhiteSpace();
+
+	while (!parser.atEndOfStream())
 	{
-		m_context.parser.skipWhiteSpace();
+		const auto position = parser.position();
 
-		if (m_context.parser.atEndOfStream())
-			return;
+		parser.expect<std::string>("(");
+		parser.expect<std::string>("define");
+		parser.expect<std::string>("(");
 
-		const auto position = m_context.parser.position();
-
-		m_context.parser.expect<std::string>("(");
-		m_context.parser.expect<std::string>("define");
-		m_context.parser.expect<std::string>("(");
-
-		if (m_context.parser.probe<std::string>("domain"))
+		if (parser.probe<std::string>("domain"))
 		{
 			if (m_domainPosition != -1)
-				throw utils::ParserException(m_context.parser, "PDDL description may not contain two domains");
+				throw utils::ParserException(parser, "PDDL description may not contain two domains");
 
 			m_domainPosition = position;
+
+			parser.seek(position);
+			m_domain->findSections();
 		}
 		else if (m_context.parser.probe<std::string>("problem"))
 		{
 			if (m_problemPosition != -1)
-				throw utils::ParserException(m_context.parser, "PDDL description may currently not contain two problems");
+				throw utils::ParserException(parser, "PDDL description may currently not contain two problems");
 
 			m_problemPosition = position;
+
+			skipSection(parser);
+			skipSection(parser);
 		}
 		else
 		{
-			const auto sectionIdentifier = m_context.parser.parse<std::string>();
-			throw utils::ParserException(m_context.parser, "Unknown PDDL section \"" + sectionIdentifier + "\"");
+			const auto sectionIdentifier = parser.parse<std::string>();
+			throw utils::ParserException(parser, "Unknown PDDL section \"" + sectionIdentifier + "\"");
 		}
 
-		skipSection(m_context.parser);
-		skipSection(m_context.parser);
+		m_context.parser.skipWhiteSpace();
 	}
 }
 

@@ -26,7 +26,8 @@ class Domain
 		Domain(Context &context);
 
 	public:
-		void readPDDL();
+		void findSections();
+		void parse();
 
 		void setName(std::string name);
 		const std::string &name() const;
@@ -66,10 +67,20 @@ class Domain
 		Context &m_context;
 
 		std::string m_name;
+
+		utils::Parser::Position m_requirementsPosition;
 		Requirements m_requirements;
-		expressions::PrimitiveTypes m_primitiveTypes;
+
+		utils::Parser::Position m_typesPosition;
+		expressions::PrimitiveTypes m_types;
+
+		utils::Parser::Position m_constantsPosition;
 		expressions::Constants m_constants;
-		expressions::PredicateDeclarations m_predicateDeclarations;
+
+		utils::Parser::Position m_predicatesPosition;
+		expressions::PredicateDeclarations m_predicates;
+
+		std::vector<utils::Parser::Position> m_actionPositions;
 		std::vector<std::unique_ptr<Action>> m_actions;
 };
 
