@@ -109,7 +109,8 @@ PrimitiveType *PrimitiveType::parseAndFind(Context &context, Domain &domain)
 
 	const auto typeName = context.parser.parseIdentifier(isIdentifier);
 
-	BOOST_ASSERT(!typeName.empty());
+	if (typeName.empty())
+		throw utils::ParserException(context.parser, "No type supplied");
 
 	const auto match = std::find_if(types.cbegin(), types.cend(),
 		[&](const auto &primitiveType)
