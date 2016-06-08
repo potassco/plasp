@@ -18,19 +18,11 @@ namespace pddl
 class ExpressionContext
 {
 	public:
-		ExpressionContext(Domain &domain, expressions::Variables &parameters)
-		:	domain(domain),
-			problem(nullptr),
-			parameters(parameters)
-		{
-		}
+		ExpressionContext(Domain &domain, expressions::Variables &parameters);
+		ExpressionContext(Domain &domain, Problem *problem, expressions::Variables &parameters);
 
-		ExpressionContext(Domain &domain, Problem *problem, expressions::Variables &parameters)
-		:	domain(domain),
-			problem{problem},
-			parameters(parameters)
-		{
-		}
+		bool hasRequirement(Requirement::Type requirementType) const;
+		void checkRequirement(Requirement::Type requirementType) const;
 
 		Domain &domain;
 		Problem *problem;

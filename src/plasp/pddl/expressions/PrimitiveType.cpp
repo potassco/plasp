@@ -80,8 +80,7 @@ void PrimitiveType::parseTypedDeclaration(Context &context, Domain &domain)
 	if (!context.parser.probe('-'))
 		return;
 
-	if (!domain.hasRequirement(Requirement::Type::Typing))
-		throw utils::ParserException(context.parser, "Typing used but not declared as a requirement");
+	domain.checkRequirement(Requirement::Type::Typing);
 
 	// If existing, parse and store parent type
 	auto *parentType = parseAndFind(context, domain);

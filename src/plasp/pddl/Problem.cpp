@@ -185,15 +185,16 @@ bool Problem::hasRequirement(Requirement::Type requirementType) const
 			return requirement.type() == requirementType;
 		});
 
-	return match != m_requirements.cend();
+	if (match != m_requirements.cend())
+		return true;
+
+	return m_domain.hasRequirement(requirementType);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Problem::checkRequirement(Requirement::Type requirementType) const
 {
-	m_domain.checkRequirement(requirementType);
-
 	if (hasRequirement(requirementType))
 		return;
 
@@ -256,14 +257,6 @@ void Problem::parseObjectSection()
 
 void Problem::checkConsistency()
 {
-	// Verify that all objects have types
-	if (hasRequirement(Requirement::Type::Typing) || m_domain.hasRequirement(Requirement::Type::Typing))
-		std::for_each(m_objects.cbegin(), m_objects.cend(),
-			[&](const auto &constant)
-			{
-				if (constant->type() == nullptr)
-					throw ConsistencyException("Object \"" + constant->name() + "\" has no type");
-			});
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

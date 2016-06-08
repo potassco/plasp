@@ -102,13 +102,13 @@ void Constant::parseTypedDeclarations(Context &context, Domain &domain)
 
 	// Check correct use of typing requirement
 	const auto typingUsed = (domain.constants().back()->type() != nullptr);
-	const auto typingDeclared = domain.hasRequirement(Requirement::Type::Typing);
 
-	if (!typingUsed && typingDeclared)
+	// If types are given, check that typing is a requirement
+	if (typingUsed)
+		domain.checkRequirement(Requirement::Type::Typing);
+	// If no types are given, check that typing is not a requirement
+	else if (domain.hasRequirement(Requirement::Type::Typing))
 		throw utils::ParserException(context.parser, "Constant has undeclared type");
-
-	if (typingUsed && !typingDeclared)
-		throw utils::ParserException(context.parser, "Typing used but not declared as a requirement");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -123,14 +123,13 @@ void Constant::parseTypedDeclarations(Context &context, Problem &problem)
 
 	// Check correct use of typing requirement
 	const auto typingUsed = (problem.objects().back()->type() != nullptr);
-	const auto typingDeclared = problem.domain().hasRequirement(Requirement::Type::Typing)
-		|| problem.hasRequirement(Requirement::Type::Typing);
 
-	if (!typingUsed && typingDeclared)
+	// If types are given, check that typing is a requirement
+	if (typingUsed)
+		problem.checkRequirement(Requirement::Type::Typing);
+	// If no types are given, check that typing is not a requirement
+	else if (problem.hasRequirement(Requirement::Type::Typing))
 		throw utils::ParserException(context.parser, "Constant has undeclared type");
-
-	if (typingUsed && !typingDeclared)
-		throw utils::ParserException(context.parser, "Typing used but not declared as a requirement");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

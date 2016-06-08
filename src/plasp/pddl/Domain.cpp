@@ -258,8 +258,7 @@ void Domain::computeDerivedRequirements()
 
 void Domain::parseTypeSection()
 {
-	if (!hasRequirement(Requirement::Type::Typing))
-		throw utils::ParserException(m_context.parser, "Typing used but not declared as a requirement");
+	checkRequirement(Requirement::Type::Typing);
 
 	m_context.parser.skipWhiteSpace();
 
