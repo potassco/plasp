@@ -217,6 +217,36 @@ TEST(PDDLParserTests, ParseStorageDomain)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+TEST(PDDLParserTests, ParseStorageProblem)
+{
+	const auto description = Description::fromFiles({"data/storage-domain.pddl", "data/storage-problem.pddl"});
+
+	ASSERT_NO_THROW(description.problem());
+
+	const auto &problem = description.problem();
+
+	// Name
+	ASSERT_EQ(problem.name(), "storage-1");
+	ASSERT_EQ(problem.domain().name(), "storage-propositional");
+
+	// Requirements
+	// TODO: compute domain vs. problem requirements correctly and check them
+
+	// Objects
+	ASSERT_EQ(problem.objects().size(), 7u);
+
+	ASSERT_EQ(problem.objects()[0]->name(), "depot0-1-1");
+	ASSERT_NE(problem.objects()[0]->type(), nullptr);
+	ASSERT_EQ(problem.objects()[0]->type()->name(), "storearea");
+	ASSERT_EQ(problem.objects()[6]->name(), "loadarea");
+	ASSERT_NE(problem.objects()[6]->type(), nullptr);
+	ASSERT_EQ(problem.objects()[6]->type()->name(), "transitarea");
+
+	// TODO: check initial state and goal
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 TEST(PDDLParserTests, ParseConstants)
 {
 	const auto description = Description::fromFile("data/woodworking-domain.pddl");
@@ -253,7 +283,8 @@ TEST(PDDLParserTests, ParseWithWhiteSpace)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLParserTests, ParseWithoutDomain)
+TEST(PDDLParserTests, ParseWrongDomain)
 {
 	ASSERT_THROW(Description::fromFile("data/blocksworld-problem.pddl"), plasp::pddl::ConsistencyException);
+	ASSERT_THROW(Description::fromFiles({"data/blocksworld-problem.pddl", "data/storage-domain.pddl"}), plasp::utils::ParserException);
 }
