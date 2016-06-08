@@ -13,12 +13,12 @@
 #include <plasp/pddl/expressions/PrimitiveType.h>
 #include <plasp/pddl/expressions/Reference.h>
 
+using namespace plasp::pddl;
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 TEST(PDDLParserTests, ParseBlocksWorldDomain)
 {
-	using namespace plasp::pddl;
-
 	const auto description = Description::fromFile("data/blocksworld-domain.pddl");
 
 	ASSERT_NO_THROW(description.domain());
@@ -96,10 +96,38 @@ TEST(PDDLParserTests, ParseBlocksWorldDomain)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+TEST(PDDLParserTests, ParseBlocksWorldProblem)
+{
+	const auto description = Description::fromFiles({"data/blocksworld-domain.pddl", "data/blocksworld-problem.pddl"});
+
+	ASSERT_NO_THROW(description.problem());
+
+	const auto &problem = description.problem();
+
+	// Name
+	ASSERT_EQ(problem.name(), "blocks-4-0");
+	ASSERT_EQ(problem.domain().name(), "blocks");
+
+	// Requirements
+	// TODO: compute domain vs. problem requirements correctly and check them
+
+	// Objects
+	ASSERT_EQ(problem.objects().size(), 4u);
+
+	ASSERT_EQ(problem.objects()[0]->name(), "d");
+	ASSERT_NE(problem.objects()[0]->type(), nullptr);
+	ASSERT_EQ(problem.objects()[0]->type()->name(), "block");
+	ASSERT_EQ(problem.objects()[3]->name(), "c");
+	ASSERT_NE(problem.objects()[3]->type(), nullptr);
+	ASSERT_EQ(problem.objects()[3]->type()->name(), "block");
+
+	// TODO: check initial state and goal
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 TEST(PDDLParserTests, ParseStorageDomain)
 {
-	using namespace plasp::pddl;
-
 	const auto description = plasp::pddl::Description::fromFile("data/storage-domain.pddl");
 
 	ASSERT_NO_THROW(description.domain());
@@ -191,8 +219,6 @@ TEST(PDDLParserTests, ParseStorageDomain)
 
 TEST(PDDLParserTests, ParseConstants)
 {
-	using namespace plasp::pddl;
-
 	const auto description = Description::fromFile("data/woodworking-domain.pddl");
 
 	ASSERT_NO_THROW(description.domain());
@@ -222,7 +248,12 @@ TEST(PDDLParserTests, ParseConstants)
 
 TEST(PDDLParserTests, ParseWithWhiteSpace)
 {
-	using namespace plasp::pddl;
-
 	ASSERT_NO_THROW(Description::fromFile("data/white-space-test.pddl"));
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TEST(PDDLParserTests, ParseWithoutDomain)
+{
+	ASSERT_THROW(Description::fromFile("data/blocksworld-problem.pddl"), plasp::pddl::ConsistencyException);
 }

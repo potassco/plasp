@@ -27,6 +27,7 @@ class Description
 
 	public:
 		const Domain &domain() const;
+		const Problem &problem() const;
 
 	private:
 		Description();
