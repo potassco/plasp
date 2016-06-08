@@ -123,7 +123,7 @@ void Variable::parseTypedDeclarations(Context &context, ExpressionContext &expre
 		expressionContext.checkRequirement(Requirement::Type::Typing);
 	// If no types are given, check that typing is not a requirement
 	else if (expressionContext.hasRequirement(Requirement::Type::Typing))
-		throw utils::ParserException(context.parser, "Constant has undeclared type");
+		throw utils::ParserException(context.parser, "Variable has undeclared type");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
