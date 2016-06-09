@@ -393,7 +393,7 @@ TEST(PDDLParserTests, DetectSyntaxErrors)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLParserTests, DetectIssues)
+TEST(PDDLParserTests, CheckIssues)
 {
 	// Check white space issues with constants and parsing unsupported sections
 	ASSERT_NO_THROW(Description::fromFile("data/issues/issue-1.pddl"));
