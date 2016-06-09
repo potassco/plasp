@@ -67,7 +67,8 @@ class Parser
 		template<typename Type>
 		bool probe(const Type &expectedValue);
 
-		bool probeIdentifier(const std::string &identifier);
+		template<class CharacterPredicate>
+		bool probeIdentifier(const std::string &identifier, CharacterPredicate characterPredicate);
 
 		template<typename Type>
 		void expect(const Type &expectedValue);
@@ -126,6 +127,14 @@ std::string Parser::parseIdentifier(CharacterPredicate characterPredicate)
 		{
 			return std::isspace(character);
 		});
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class CharacterPredicate>
+bool Parser::probeIdentifier(const std::string &expectedValue, CharacterPredicate characterPredicate)
+{
+	return probe<std::string>(expectedValue) && !characterPredicate(currentCharacter());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

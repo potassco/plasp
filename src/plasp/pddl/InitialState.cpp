@@ -45,9 +45,9 @@ std::unique_ptr<InitialState> InitialState::parseDeclaration(Context &context, c
 
 			const auto expressionIdentifierPosition = parser.position();
 
-			if (parser.probeIdentifier("at")
-				|| parser.probeIdentifier("=")
-				|| parser.probeIdentifier("not"))
+			if (parser.probeIdentifier("at", isIdentifier)
+				|| parser.probeIdentifier("=", isIdentifier)
+				|| parser.probeIdentifier("not", isIdentifier))
 			{
 				parser.seek(expressionIdentifierPosition);
 				const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);

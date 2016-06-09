@@ -284,13 +284,6 @@ bool Parser::probe<std::string>(const std::string &expectedValue)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Parser::probeIdentifier(const std::string &expectedValue)
-{
-	return probe<std::string>(expectedValue) && std::iswspace(currentCharacter());
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 template<>
 void Parser::expect<std::string>(const std::string &expectedValue)
 {

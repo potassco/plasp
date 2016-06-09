@@ -57,8 +57,8 @@ ExpressionPointer parsePreconditionExpression(Context &context,
 
 	const auto expressionIdentifierPosition = parser.position();
 
-	if (parser.probeIdentifier("forall")
-		|| parser.probeIdentifier("preference"))
+	if (parser.probeIdentifier("forall", isIdentifier)
+		|| parser.probeIdentifier("preference", isIdentifier))
 	{
 		// TODO: refactor
 		parser.seek(expressionIdentifierPosition);
@@ -102,19 +102,19 @@ ExpressionPointer parseExpression(Context &context, ExpressionContext &expressio
 
 	const auto expressionIdentifierPosition = parser.position();
 
-	if (parser.probeIdentifier("exists")
-		|| parser.probeIdentifier("forall")
-		|| parser.probeIdentifier("-")
-		|| parser.probeIdentifier("=")
-		|| parser.probeIdentifier("*")
-		|| parser.probeIdentifier("+")
-		|| parser.probeIdentifier("-")
-		|| parser.probeIdentifier("/")
-		|| parser.probeIdentifier(">")
-		|| parser.probeIdentifier("<")
-		|| parser.probeIdentifier("=")
-		|| parser.probeIdentifier(">=")
-		|| parser.probeIdentifier("<="))
+	if (parser.probeIdentifier("exists", isIdentifier)
+		|| parser.probeIdentifier("forall", isIdentifier)
+		|| parser.probeIdentifier("-", isIdentifier)
+		|| parser.probeIdentifier("=", isIdentifier)
+		|| parser.probeIdentifier("*", isIdentifier)
+		|| parser.probeIdentifier("+", isIdentifier)
+		|| parser.probeIdentifier("-", isIdentifier)
+		|| parser.probeIdentifier("/", isIdentifier)
+		|| parser.probeIdentifier(">", isIdentifier)
+		|| parser.probeIdentifier("<", isIdentifier)
+		|| parser.probeIdentifier("=", isIdentifier)
+		|| parser.probeIdentifier(">=", isIdentifier)
+		|| parser.probeIdentifier("<=", isIdentifier))
 	{
 		parser.seek(expressionIdentifierPosition);
 		const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);
@@ -152,8 +152,8 @@ ExpressionPointer parseEffectExpression(Context &context, ExpressionContext &exp
 
 	const auto expressionIdentifierPosition = parser.position();
 
-	if (parser.probeIdentifier("forall")
-		|| parser.probeIdentifier("when"))
+	if (parser.probeIdentifier("forall", isIdentifier)
+		|| parser.probeIdentifier("when", isIdentifier))
 	{
 		parser.seek(expressionIdentifierPosition);
 		const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);
@@ -191,12 +191,12 @@ ExpressionPointer parseEffectBodyExpression(Context &context, ExpressionContext 
 
 	const auto expressionIdentifierPosition = parser.position();
 
-	if (parser.probeIdentifier("=")
-		|| parser.probeIdentifier("assign")
-		|| parser.probeIdentifier("scale-up")
-		|| parser.probeIdentifier("scale-down")
-		|| parser.probeIdentifier("increase")
-		|| parser.probeIdentifier("decrease"))
+	if (parser.probeIdentifier("=", isIdentifier)
+		|| parser.probeIdentifier("assign", isIdentifier)
+		|| parser.probeIdentifier("scale-up", isIdentifier)
+		|| parser.probeIdentifier("scale-down", isIdentifier)
+		|| parser.probeIdentifier("increase", isIdentifier)
+		|| parser.probeIdentifier("decrease", isIdentifier))
 	{
 		parser.seek(expressionIdentifierPosition);
 		const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);

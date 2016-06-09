@@ -75,23 +75,23 @@ void Domain::findSections()
 		const auto sectionIdentifierPosition = parser.position();
 
 		// Save the parser position of the individual sections for later parsing
-		if (parser.probeIdentifier("requirements"))
+		if (parser.probeIdentifier("requirements", isIdentifier))
 			setSectionPosition("requirements", m_requirementsPosition, position, true);
-		else if (parser.probeIdentifier("types"))
+		else if (parser.probeIdentifier("types", isIdentifier))
 			setSectionPosition("types", m_typesPosition, position, true);
-		else if (parser.probeIdentifier("constants"))
+		else if (parser.probeIdentifier("constants", isIdentifier))
 			setSectionPosition("constants", m_constantsPosition, position, true);
-		else if (parser.probeIdentifier("predicates"))
+		else if (parser.probeIdentifier("predicates", isIdentifier))
 			setSectionPosition("predicates", m_predicatesPosition, position, true);
-		else if (parser.probeIdentifier("action"))
+		else if (parser.probeIdentifier("action", isIdentifier))
 		{
 			m_actionPositions.emplace_back(-1);
 			setSectionPosition("action", m_actionPositions.back(), position);
 		}
-		else if (parser.probeIdentifier("functions")
-			|| parser.probeIdentifier("constraints")
-			|| parser.probeIdentifier("durative-action")
-			|| parser.probeIdentifier("derived"))
+		else if (parser.probeIdentifier("functions", isIdentifier)
+			|| parser.probeIdentifier("constraints", isIdentifier)
+			|| parser.probeIdentifier("durative-action", isIdentifier)
+			|| parser.probeIdentifier("derived", isIdentifier))
 		{
 			parser.seek(sectionIdentifierPosition);
 

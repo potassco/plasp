@@ -3,6 +3,7 @@
 
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Expression.h>
+#include <plasp/pddl/Identifier.h>
 
 namespace plasp
 {
@@ -44,7 +45,7 @@ NotPointer Not::parse(Context &context, ExpressionContext &expressionContext,
 	const auto position = parser.position();
 
 	if (!parser.probe<std::string>("(")
-		|| !parser.probeIdentifier("not"))
+		|| !parser.probeIdentifier("not", isIdentifier))
 	{
 		parser.seek(position);
 		return nullptr;
