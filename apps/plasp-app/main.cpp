@@ -61,37 +61,34 @@ int main(int argc, char **argv)
 		return EXIT_SUCCESS;
 	}
 
+	plasp::utils::Parser parser;
+
+	parser.setCaseSensitive(false);
+
+	if (variablesMap.count("input"))
+	{
+		const auto &inputFiles = variablesMap["input"].as<std::vector<std::string>>();
+
+		std::for_each(inputFiles.cbegin(), inputFiles.cend(),
+			[&](const auto &inputFile)
+			{
+				parser.readFile(inputFile);
+			});
+	}
+	else
+		parser.readStream("std::cin", std::cin);
+
 	auto format = variablesMap["format"].as<std::string>();
 	std::transform(format.begin(), format.end(), format.begin(), ::tolower);
 
 	if (format == "sas")
 	{
-		if (variablesMap.count("input"))
-		{
-			const auto &inputFiles = variablesMap["input"].as<std::vector<std::string>>();
-			const auto sasDescription = plasp::sas::Description::fromFile(inputFiles.front());
-			const auto sasTranslator = plasp::sas::TranslatorASP(sasDescription);
-			sasTranslator.translate(std::cout);
-		}
-		else
-		{
-			const auto sasDescription = plasp::sas::Description::fromStream(std::cin);
-			const auto sasTranslator = plasp::sas::TranslatorASP(sasDescription);
-			sasTranslator.translate(std::cout);
-		}
+		const auto sasDescription = plasp::sas::Description::fromParser(std::move(parser));
+		const auto sasTranslator = plasp::sas::TranslatorASP(sasDescription);
+		sasTranslator.translate(std::cout);
 	}
 	else if (format == "pddl")
-	{
-		if (variablesMap.count("input"))
-		{
-			const auto &inputFiles = variablesMap["input"].as<std::vector<std::string>>();
-			const auto pddlDescription = plasp::pddl::Description::fromFiles(inputFiles);
-		}
-		else
-			const auto pddlDescription = plasp::pddl::Description::fromStream(std::cin);
-
-		//std::cout << pddlDescription << std::endl;
-	}
+		plasp::pddl::Description::fromParser(std::move(parser));
 
 	return EXIT_SUCCESS;
 }
