@@ -30,6 +30,8 @@ Description::Description()
 
 Description Description::fromParser(utils::Parser &&parser)
 {
+	parser.setCaseSensitive(true);
+
 	Description description;
 	description.parseContent(parser);
 

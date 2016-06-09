@@ -33,6 +33,8 @@ Description::Description()
 
 Description Description::fromParser(utils::Parser &&parser)
 {
+	parser.setCaseSensitive(false);
+
 	Description description;
 
 	description.m_parser = std::move(parser);

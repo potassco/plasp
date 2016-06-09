@@ -4,6 +4,7 @@
 
 #include <boost/program_options.hpp>
 
+#include <plasp/LanguageDetection.h>
 #include <plasp/pddl/Description.h>
 #include <plasp/sas/Description.h>
 #include <plasp/sas/TranslatorASP.h>
@@ -17,7 +18,7 @@ int main(int argc, char **argv)
 		("help,h", "Display this help message.")
 		("version,v", "Display version information.")
 		("input,i", po::value<std::vector<std::string>>(), "Specify the SAS input file.")
-		("format,f", po::value<std::string>()->default_value("SAS"), "Specify the file format (SAS or PDDL).");
+		("language,l", po::value<std::string>(), "Specify the input language (SAS or PDDL) explicitly (no automatic detection).");
 
 	po::positional_options_description positionalOptionsDescription;
 	positionalOptionsDescription.add("input", -1);
@@ -78,17 +79,34 @@ int main(int argc, char **argv)
 	else
 		parser.readStream("std::cin", std::cin);
 
-	auto format = variablesMap["format"].as<std::string>();
-	std::transform(format.begin(), format.end(), format.begin(), ::tolower);
+	const auto detectLanguage =
+		[&]()
+		{
+			if (variablesMap.count("language") == 0)
+				return plasp::detectLanguage(parser);
 
-	if (format == "sas")
+			const auto languageName = variablesMap["language"].as<std::string>();
+
+			return plasp::Language::fromString(languageName);
+		};
+
+	const auto language = detectLanguage();
+
+	if (language == plasp::Language::Type::Unknown)
+	{
+		std::cerr << "Error: Unknown input language" << std::endl << std::endl;
+		printHelp();
+		return EXIT_FAILURE;
+	}
+
+	if (language == plasp::Language::Type::PDDL)
+		plasp::pddl::Description::fromParser(std::move(parser));
+	else if (language == plasp::Language::Type::SAS)
 	{
 		const auto sasDescription = plasp::sas::Description::fromParser(std::move(parser));
 		const auto sasTranslator = plasp::sas::TranslatorASP(sasDescription);
 		sasTranslator.translate(std::cout);
 	}
-	else if (format == "pddl")
-		plasp::pddl::Description::fromParser(std::move(parser));
 
 	return EXIT_SUCCESS;
 }
