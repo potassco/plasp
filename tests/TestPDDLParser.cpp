@@ -293,7 +293,17 @@ TEST(PDDLParserTests, ParseStorageProblem)
 	ASSERT_NE(fact90.type(), nullptr);
 	ASSERT_EQ(fact90.type()->name(), "hoist");
 
-	// TODO: check goal
+	// Goal
+	const auto &goal = dynamic_cast<const expressions::And &>(problem.goal());
+
+	ASSERT_EQ(goal.arguments().size(), 1u);
+	const auto &goal0 = *dynamic_cast<expressions::Predicate *>(goal.arguments()[0].get());
+	ASSERT_EQ(goal0.name(), "in");
+	ASSERT_EQ(goal0.arguments().size(), 2u);
+	const auto &goal00 = *dynamic_cast<expressions::Reference<expressions::Constant> *>(goal0.arguments()[0].get())->value();
+	ASSERT_EQ(goal00.name(), "crate0");
+	const auto &goal01 = *dynamic_cast<expressions::Reference<expressions::Constant> *>(goal0.arguments()[1].get())->value();
+	ASSERT_EQ(goal01.name(), "depot0");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
