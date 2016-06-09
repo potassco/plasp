@@ -62,12 +62,12 @@ std::unique_ptr<InitialState> InitialState::parseDeclaration(Context &context, c
 			const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);
 
 			parser.seek(position);
-			throw utils::ParserException(context.parser, "Expression type \"" + expressionIdentifier + "\" unknown or not allowed in this context");
+			throw utils::ParserException(parser, "Expression type \"" + expressionIdentifier + "\" unknown or not allowed in this context");
 		};
 
 	parser.skipWhiteSpace();
 
-	while (context.parser.currentCharacter() != ')')
+	while (parser.currentCharacter() != ')')
 	{
 		ExpressionPointer expression;
 
