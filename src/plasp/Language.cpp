@@ -27,7 +27,7 @@ std::string Language::toString(Language::Type language)
 {
 	const auto match = languageNames.left.find(language);
 
-	if (match != languageNames.left.end())
+	if (match == languageNames.left.end())
 		return "Unknown";
 
 	return match->second;
@@ -39,7 +39,7 @@ Language::Type Language::fromString(const std::string &languageName)
 {
 	const auto match = languageNames.right.find(languageName);
 
-	if (match != languageNames.right.end())
+	if (match == languageNames.right.end())
 		return Language::Type::Unknown;
 
 	return match->second;
