@@ -344,7 +344,7 @@ TEST(PDDLParserTests, ParseWithWhiteSpace)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLParserTests, CheckWrongDomain)
+TEST(PDDLParserTests, DetectWrongDomain)
 {
 	ASSERT_THROW(Description::fromFile("data/blocksworld-problem.pddl"), ConsistencyException);
 	ASSERT_THROW(Description::fromFiles({"data/blocksworld-problem.pddl", "data/storage-domain.pddl"}), plasp::utils::ParserException);
@@ -352,7 +352,7 @@ TEST(PDDLParserTests, CheckWrongDomain)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLParserTests, CheckSyntaxErrors)
+TEST(PDDLParserTests, DetectSyntaxErrors)
 {
 	ASSERT_NO_THROW(Description::fromFile("data/pddl-syntax/domain-valid.pddl"));
 
@@ -393,7 +393,7 @@ TEST(PDDLParserTests, CheckSyntaxErrors)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLParserTests, CheckIssues)
+TEST(PDDLParserTests, DetectIssues)
 {
 	// Check white space issues with constants and parsing unsupported sections
 	ASSERT_NO_THROW(Description::fromFile("data/issues/issue-1.pddl"));
