@@ -40,6 +40,8 @@ class Problem
 		InitialState &initialState();
 		const InitialState &initialState() const;
 
+		const Expression &goal() const;
+
 		void checkConsistency();
 
 	private:
@@ -51,6 +53,8 @@ class Problem
 		void parseObjectSection();
 
 		void parseInitialStateSection();
+
+		void parseGoalSection();
 
 		Context &m_context;
 		Domain &m_domain;
@@ -67,6 +71,9 @@ class Problem
 
 		utils::Parser::Position m_initialStatePosition;
 		std::unique_ptr<InitialState> m_initialState;
+
+		utils::Parser::Position m_goalPosition;
+		ExpressionPointer m_goal;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

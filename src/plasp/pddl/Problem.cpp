@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include <plasp/pddl/Domain.h>
+#include <plasp/pddl/ExpressionContext.h>
 #include <plasp/pddl/Identifier.h>
 #include <plasp/pddl/IO.h>
 #include <plasp/pddl/expressions/Constant.h>
@@ -26,7 +27,8 @@ Problem::Problem(Context &context, Domain &domain)
 	m_domainPosition{-1},
 	m_requirementsPosition{-1},
 	m_objectsPosition{-1},
-	m_initialStatePosition{-1}
+	m_initialStatePosition{-1},
+	m_goalPosition{-1}
 {
 }
 
@@ -79,8 +81,9 @@ void Problem::findSections()
 			setSectionPosition("objects", m_objectsPosition, position, true);
 		else if (parser.probeIdentifier("init", isIdentifier))
 			setSectionPosition("init", m_initialStatePosition, position, true);
-		else if (parser.probeIdentifier("goal", isIdentifier)
-			|| parser.probeIdentifier("constraints", isIdentifier)
+		else if (parser.probeIdentifier("goal", isIdentifier))
+			setSectionPosition("goal", m_goalPosition, position, true);
+		else if (parser.probeIdentifier("constraints", isIdentifier)
 			|| parser.probeIdentifier("metric", isIdentifier)
 			|| parser.probeIdentifier("length", isIdentifier))
 		{
@@ -138,6 +141,12 @@ void Problem::parse()
 
 	parser.seek(m_initialStatePosition);
 	parseInitialStateSection();
+
+	if (m_goalPosition == -1)
+		throw ConsistencyException("Problem description does not specify a goal");
+
+	parser.seek(m_goalPosition);
+	parseGoalSection();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -332,6 +341,25 @@ void Problem::parseInitialStateSection()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void Problem::parseGoalSection()
+{
+	auto &parser = m_context.parser;
+
+	parser.expect<std::string>("(");
+	parser.expect<std::string>(":");
+	parser.expect<std::string>("goal");
+
+	expressions::Variables noParameters;
+
+	ExpressionContext expressionContext(m_domain, this, noParameters);
+
+	m_goal = parsePreconditionExpression(m_context, expressionContext);
+
+	parser.expect<std::string>(")");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 InitialState &Problem::initialState()
 {
 	BOOST_ASSERT(m_initialState);
@@ -346,6 +374,15 @@ const InitialState &Problem::initialState() const
 	BOOST_ASSERT(m_initialState);
 
 	return *m_initialState;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const Expression &Problem::goal() const
+{
+	BOOST_ASSERT(m_goal);
+
+	return *m_goal;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
