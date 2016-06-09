@@ -29,6 +29,7 @@ namespace sas
 class Description
 {
 	public:
+		static Description fromParser(utils::Parser &&parser);
 		static Description fromStream(std::istream &istream);
 		static Description fromFile(const boost::filesystem::path &path);
 

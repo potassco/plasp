@@ -21,6 +21,7 @@ namespace pddl
 class Description
 {
 	public:
+		static Description fromParser(utils::Parser &&parser);
 		static Description fromStream(std::istream &istream);
 		static Description fromFile(const std::string &path);
 		static Description fromFiles(const std::vector<std::string> &paths);

@@ -41,6 +41,29 @@ Parser::Parser(std::string streamName, std::istream &istream)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+Parser::Parser(Parser &&other)
+:	m_stream{std::move(other.m_stream)},
+	m_streamDelimiters{std::move(other.m_streamDelimiters)},
+	m_isCaseSensitive{other.m_isCaseSensitive}
+{
+	other.m_isCaseSensitive = true;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Parser &Parser::operator=(Parser &&other)
+{
+	m_stream = std::move(other.m_stream);
+	m_streamDelimiters = std::move(other.m_streamDelimiters);
+	m_isCaseSensitive = other.m_isCaseSensitive;
+
+	other.m_isCaseSensitive = true;
+
+	return *this;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void Parser::readStream(std::string streamName, std::istream &istream)
 {
 	// Store position of new section

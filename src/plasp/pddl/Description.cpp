@@ -31,6 +31,20 @@ Description::Description()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+Description Description::fromParser(utils::Parser &&parser)
+{
+	Description description;
+
+	description.m_parser = std::move(parser);
+
+	description.parseContent();
+	description.checkConsistency();
+
+	return description;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 Description Description::fromStream(std::istream &istream)
 {
 	Description description;

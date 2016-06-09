@@ -41,6 +41,13 @@ class Parser
 		explicit Parser();
 		explicit Parser(std::string streamName, std::istream &istream);
 
+		// Forbid copy construction/assignment
+		Parser(const Parser &other) = delete;
+		Parser &operator=(const Parser &other) = delete;
+
+		Parser(Parser &&other);
+		Parser &operator=(Parser &&other);
+
 		void readStream(std::string streamName, std::istream &istream);
 		void readFile(const boost::filesystem::path &path);
 
