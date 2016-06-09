@@ -69,14 +69,6 @@ int main(int argc, char **argv)
 		if (variablesMap.count("input"))
 		{
 			const auto &inputFiles = variablesMap["input"].as<std::vector<std::string>>();
-
-			if (inputFiles.size() > 1)
-			{
-				std::cerr << "Error: Only one input file allowed for SAS translation" << std::endl;
-				printHelp();
-				return EXIT_FAILURE;
-			}
-
 			const auto sasDescription = plasp::sas::Description::fromFile(inputFiles.front());
 			const auto sasTranslator = plasp::sas::TranslatorASP(sasDescription);
 			sasTranslator.translate(std::cout);
