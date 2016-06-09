@@ -121,7 +121,22 @@ TEST(PDDLParserTests, ParseBlocksWorldProblem)
 	ASSERT_NE(problem.objects()[3]->type(), nullptr);
 	ASSERT_EQ(problem.objects()[3]->type()->name(), "block");
 
-	// TODO: check initial state and goal
+	// Initial State
+	const auto &facts = problem.initialState().facts();
+
+	ASSERT_EQ(facts.size(), 9u);
+	const auto &fact0 = *dynamic_cast<const expressions::Predicate *>(facts[0].get());
+	ASSERT_EQ(fact0.name(), "clear");
+	ASSERT_EQ(fact0.arguments().size(), 1u);
+	const auto &fact00 = *dynamic_cast<const expressions::Reference<expressions::Constant> *>(fact0.arguments()[0].get())->value();
+	ASSERT_EQ(fact00.name(), "c");
+	ASSERT_NE(fact00.type(), nullptr);
+	ASSERT_EQ(fact00.type()->name(), "block");
+	const auto &fact8 = *dynamic_cast<const expressions::Predicate *>(facts[8].get());
+	ASSERT_EQ(fact8.name(), "handempty");
+	ASSERT_EQ(fact8.arguments().size(), 0u);
+
+	// TODO: check goal
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
