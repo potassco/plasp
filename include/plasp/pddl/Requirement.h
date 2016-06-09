@@ -46,7 +46,8 @@ class Requirement
 			TimedInitialLiterals,
 			Preferences,
 			Constraints,
-			ActionCosts
+			ActionCosts,
+			GoalUtilities
 		};
 
 		static Requirement parse(Context &context);

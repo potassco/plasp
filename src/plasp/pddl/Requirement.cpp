@@ -44,7 +44,8 @@ const RequirementTypeNames requirementTypesToPDDL = boost::assign::list_of<Requi
 	(Requirement::Type::TimedInitialLiterals, "timed-initial-literals")
 	(Requirement::Type::Preferences, "preferences")
 	(Requirement::Type::Constraints, "constraints")
-	(Requirement::Type::ActionCosts, "action-costs");
+	(Requirement::Type::ActionCosts, "action-costs")
+	(Requirement::Type::GoalUtilities, "goal-utilities");
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -69,7 +70,8 @@ const RequirementTypeNames requirementTypesToASP = boost::assign::list_of<Requir
 	(Requirement::Type::TimedInitialLiterals, "timedInitialLiterals")
 	(Requirement::Type::Preferences, "preferences")
 	(Requirement::Type::Constraints, "constraints")
-	(Requirement::Type::ActionCosts, "actionCosts");
+	(Requirement::Type::ActionCosts, "actionCosts")
+	(Requirement::Type::GoalUtilities, "goalUtilities");
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -88,6 +90,11 @@ Requirement Requirement::parse(Context &context)
 
 	if (match == requirementTypesToPDDL.right.end())
 		throw utils::ParserException(context.parser, "Unknown PDDL requirement \"" + requirementName + "\"");
+
+	const auto requirementType = match->second;
+
+	if (requirementType == Requirement::Type::GoalUtilities)
+		context.logger.parserWarning(context.parser, "Requirement \"goal-utilities\" is not part of the PDDL 3.1 specification");
 
 	return Requirement(match->second);
 }
