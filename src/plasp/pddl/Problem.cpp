@@ -51,7 +51,10 @@ void Problem::findSections()
 	[&](const std::string &sectionName, auto &sectionPosition, const auto value, bool unique = false)
 	{
 		if (unique && sectionPosition != -1)
+		{
+			parser.seek(value);
 			throw utils::ParserException(parser, "Only one \":" + sectionName + "\" section allowed");
+		}
 
 		sectionPosition = value;
 	};
