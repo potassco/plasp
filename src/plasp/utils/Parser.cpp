@@ -284,11 +284,18 @@ bool Parser::probe<std::string>(const std::string &expectedValue)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+bool Parser::probeIdentifier(const std::string &expectedValue)
+{
+	return probe<std::string>(expectedValue) && std::iswspace(currentCharacter());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template<>
 void Parser::expect<std::string>(const std::string &expectedValue)
 {
 	if (!probe<std::string>(expectedValue))
-		throw ParserException(*this, "Unexpected value, expected \"" + expectedValue + "\"");
+		throw ParserException(*this, "Expected \"" + expectedValue + "\"");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -322,7 +329,7 @@ template<>
 void Parser::expect<char>(const char &expectedValue)
 {
 	if (!probe<char>(expectedValue))
-		throw ParserException(*this, std::string("Unexpected value, expected \"") + expectedValue + "\"");
+		throw ParserException(*this, std::string("Expected \"") + expectedValue + "\"");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -417,7 +424,7 @@ template<>
 void Parser::expect<int64_t>(const int64_t &expectedValue)
 {
 	if (!probe<int64_t>(expectedValue))
-		throw ParserException(*this, "Unexpected value, expected \"" + std::to_string(expectedValue) + "\"");
+		throw ParserException(*this, "Expected \"" + std::to_string(expectedValue) + "\"");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -426,7 +433,7 @@ template<>
 void Parser::expect<uint64_t>(const uint64_t &expectedValue)
 {
 	if (!probe<uint64_t>(expectedValue))
-		throw ParserException(*this, "Unexpected value, expected \"" + std::to_string(expectedValue) + "\"");
+		throw ParserException(*this, "Expected \"" + std::to_string(expectedValue) + "\"");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -501,7 +508,7 @@ void Parser::expect<bool>(const bool &expectedValue)
 	const auto value = parse<bool>();
 
 	if (value != expectedValue)
-		throw ParserException(*this, "Unexpected value " + std::to_string(value) + ", expected " + std::to_string(expectedValue));
+		throw ParserException(*this, "Expected \"" + std::to_string(expectedValue) + "\"");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

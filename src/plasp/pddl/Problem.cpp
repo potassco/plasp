@@ -71,18 +71,18 @@ void Problem::findSections()
 		const auto sectionIdentifierPosition = parser.position();
 
 		// TODO: check order of the sections
-		if (parser.probe<std::string>("domain"))
+		if (parser.probeIdentifier("domain"))
 			setSectionPosition("domain", m_domainPosition, position, true);
-		else if (parser.probe<std::string>("requirements"))
+		else if (parser.probeIdentifier("requirements"))
 			setSectionPosition("requirements", m_requirementsPosition, position, true);
-		else if (parser.probe<std::string>("objects"))
+		else if (parser.probeIdentifier("objects"))
 			setSectionPosition("objects", m_objectsPosition, position, true);
-		else if (parser.probe<std::string>("init"))
+		else if (parser.probeIdentifier("init"))
 			setSectionPosition("init", m_initialStatePosition, position, true);
-		else if (parser.probe<std::string>("goal")
-			|| parser.probe<std::string>("constraints")
-			|| parser.probe<std::string>("metric")
-			|| parser.probe<std::string>("length"))
+		else if (parser.probeIdentifier("goal")
+			|| parser.probeIdentifier("constraints")
+			|| parser.probeIdentifier("metric")
+			|| parser.probeIdentifier("length"))
 		{
 			parser.seek(sectionIdentifierPosition);
 

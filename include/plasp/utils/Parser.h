@@ -67,6 +67,8 @@ class Parser
 		template<typename Type>
 		bool probe(const Type &expectedValue);
 
+		bool probeIdentifier(const std::string &identifier);
+
 		template<typename Type>
 		void expect(const Type &expectedValue);
 
