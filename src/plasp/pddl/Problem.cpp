@@ -23,45 +23,118 @@ namespace pddl
 Problem::Problem(Context &context, Domain &domain)
 :	m_context(context),
 	m_domain(domain),
-	m_isDeclared{false}
+	m_domainPosition{-1},
+	m_requirementsPosition{-1},
+	m_objectsPosition{-1},
+	m_initialStatePosition{-1}
 {
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Problem::findSections()
+{
+	auto &parser = m_context.parser;
+
+	parser.expect<std::string>("(");
+	parser.expect<std::string>("define");
+	parser.expect<std::string>("(");
+	parser.expect<std::string>("problem");
+
+	m_name = parser.parseIdentifier(isIdentifier);
+
+	std::cout << "Found problem " << m_name << std::endl;
+
+	parser.expect<std::string>(")");
+
+	const auto setSectionPosition =
+	[&](const std::string &sectionName, auto &sectionPosition, const auto value, bool unique = false)
+	{
+		if (unique && sectionPosition != -1)
+			throw utils::ParserException(parser, "Only one \":" + sectionName + "\" section allowed");
+
+		sectionPosition = value;
+	};
+
+	parser.skipWhiteSpace();
+
+	while (parser.currentCharacter() != ')')
+	{
+		const auto position = parser.position();
+
+		parser.expect<std::string>("(");
+		parser.expect<std::string>(":");
+
+		const auto sectionIdentifierPosition = parser.position();
+
+		// TODO: check order of the sections
+		if (parser.probe<std::string>("domain"))
+			setSectionPosition("domain", m_domainPosition, position, true);
+		else if (parser.probe<std::string>("requirements"))
+			setSectionPosition("requirements", m_requirementsPosition, position, true);
+		else if (parser.probe<std::string>("objects"))
+			setSectionPosition("objects", m_objectsPosition, position, true);
+		else if (parser.probe<std::string>("init"))
+			setSectionPosition("init", m_initialStatePosition, position, true);
+		else if (parser.probe<std::string>("goal")
+			|| parser.probe<std::string>("constraints")
+			|| parser.probe<std::string>("metric")
+			|| parser.probe<std::string>("length"))
+		{
+			parser.seek(sectionIdentifierPosition);
+
+			const auto sectionIdentifier = parser.parseIdentifier(isIdentifier);
+
+			m_context.logger.parserWarning(parser, "Section type \"" + sectionIdentifier + "\" currently unsupported");
+
+			parser.seek(sectionIdentifierPosition);
+		}
+		else
+		{
+			const auto sectionIdentifier = parser.parseIdentifier(isIdentifier);
+
+			parser.seek(position);
+			throw utils::ParserException(m_context.parser, "Unknown problem section \"" + sectionIdentifier + "\"");
+		}
+
+		// Skip section for now and parse it later
+		skipSection(parser);
+
+		parser.skipWhiteSpace();
+	}
+
+	parser.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Problem::parse()
 {
-	m_context.parser.expect<std::string>("(");
-	m_context.parser.expect<std::string>("define");
-	m_context.parser.expect<std::string>("(");
-	m_context.parser.expect<std::string>("problem");
+	auto &parser = m_context.parser;
 
-	m_name = m_context.parser.parseIdentifier(isIdentifier);
+	if (m_domainPosition == -1)
+		throw ConsistencyException("Problem description does not specify the corresponding domain");
 
-	std::cout << "Parsing problem " << m_name << std::endl;
+	parser.seek(m_domainPosition);
+	parseDomainSection();
 
-	m_context.parser.expect<std::string>(")");
-
-	while (true)
+	if (m_requirementsPosition != -1)
 	{
-		m_context.parser.skipWhiteSpace();
-
-		if (m_context.parser.currentCharacter() == ')')
-			break;
-
-		parseSection();
+		parser.seek(m_requirementsPosition);
+		parseRequirementSection();
 	}
 
-	computeDerivedRequirements();
+	if (m_objectsPosition != -1)
+	{
+		parser.seek(m_objectsPosition);
+		parseObjectSection();
+	}
 
-	m_isDeclared = true;
-}
+	if (m_initialStatePosition == -1)
+		throw ConsistencyException("Problem description does not specify an initial state");
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-bool Problem::isDeclared() const
-{
-	return m_isDeclared;
+	parser.seek(m_initialStatePosition);
+	parseInitialStateSection();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -108,64 +181,43 @@ const expressions::Constants &Problem::objects() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Problem::parseSection()
+void Problem::parseDomainSection()
 {
 	auto &parser = m_context.parser;
 
 	parser.expect<std::string>("(");
 	parser.expect<std::string>(":");
+	parser.expect<std::string>("domain");
 
-	// TODO: check order of the sections
-	if (parser.probe<std::string>("domain"))
-		parseDomainSection();
-	else if (parser.probe<std::string>("requirements"))
-		parseRequirementSection();
-	else if (parser.probe<std::string>("objects"))
-		parseObjectSection();
-	else if (parser.probe<std::string>("init"))
-		parseInitialStateSection();
-	else if (parser.probe<std::string>("goal")
-		|| parser.probe<std::string>("constraints")
-		|| parser.probe<std::string>("metric")
-		|| parser.probe<std::string>("length"))
-	{
-		std::cout << "Skipping section" << std::endl;
-		skipSection(m_context.parser);
-	}
-	else
-	{
-		const auto sectionIdentifier = parser.parseIdentifier(isIdentifier);
-		throw utils::ParserException(m_context.parser, "Unknown problem section \"" + sectionIdentifier + "\"");
-	}
-}
+	parser.skipWhiteSpace();
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void Problem::parseDomainSection()
-{
-	m_context.parser.skipWhiteSpace();
-
-	const auto domainName = m_context.parser.parseIdentifier(isIdentifier);
+	const auto domainName = parser.parseIdentifier(isIdentifier);
 
 	if (m_domain.name() != domainName)
-		throw utils::ParserException(m_context.parser, "Domains do not match (\"" + m_domain.name() + "\" and \"" + domainName + "\")");
+		throw utils::ParserException(parser, "Domains do not match (\"" + m_domain.name() + "\" and \"" + domainName + "\")");
 
-	m_context.parser.expect<std::string>(")");
+	parser.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Problem::parseRequirementSection()
 {
-	m_context.parser.skipWhiteSpace();
+	auto &parser = m_context.parser;
 
-	while (m_context.parser.currentCharacter() != ')')
+	parser.expect<std::string>("(");
+	parser.expect<std::string>(":");
+	parser.expect<std::string>("requirements");
+
+	parser.skipWhiteSpace();
+
+	while (parser.currentCharacter() != ')')
 	{
-		m_context.parser.expect<std::string>(":");
+		parser.expect<std::string>(":");
 
 		m_requirements.emplace_back(Requirement::parse(m_context));
 
-		m_context.parser.skipWhiteSpace();
+		parser.skipWhiteSpace();
 	}
 
 	// TODO: do this check only once the domain is parsed
@@ -173,7 +225,7 @@ void Problem::parseRequirementSection()
 	if (m_requirements.empty())
 		m_requirements.emplace_back(Requirement::Type::STRIPS);
 
-	m_context.parser.expect<std::string>(")");
+	parser.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -246,21 +298,33 @@ void Problem::computeDerivedRequirements()
 
 void Problem::parseObjectSection()
 {
-	m_context.parser.skipWhiteSpace();
+	auto &parser = m_context.parser;
+
+	parser.expect<std::string>("(");
+	parser.expect<std::string>(":");
+	parser.expect<std::string>("objects");
+
+	parser.skipWhiteSpace();
 
 	// Store constants
 	expressions::Constant::parseTypedDeclarations(m_context, *this);
 
-	m_context.parser.expect<std::string>(")");
+	parser.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Problem::parseInitialStateSection()
 {
+	auto &parser = m_context.parser;
+
+	parser.expect<std::string>("(");
+	parser.expect<std::string>(":");
+	parser.expect<std::string>("init");
+
 	m_initialState = InitialState::parseDeclaration(m_context, *this);
 
-	m_context.parser.expect<std::string>(")");
+	parser.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

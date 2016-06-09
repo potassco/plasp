@@ -22,9 +22,8 @@ class Problem
 	public:
 		Problem(Context &context, Domain &domain);
 
+		void findSections();
 		void parse();
-
-		bool isDeclared() const;
 
 		Domain &domain();
 		const Domain &domain() const;
@@ -44,8 +43,6 @@ class Problem
 		void checkConsistency();
 
 	private:
-		void parseSection();
-
 		void parseRequirementSection();
 		void computeDerivedRequirements();
 
@@ -57,13 +54,18 @@ class Problem
 
 		Context &m_context;
 		Domain &m_domain;
-		bool m_isDeclared;
 
 		std::string m_name;
+
+		utils::Parser::Position m_domainPosition;
+
+		utils::Parser::Position m_requirementsPosition;
 		Requirements m_requirements;
 
+		utils::Parser::Position m_objectsPosition;
 		expressions::Constants m_objects;
 
+		utils::Parser::Position m_initialStatePosition;
 		std::unique_ptr<InitialState> m_initialState;
 };
 

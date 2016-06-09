@@ -148,8 +148,8 @@ void Description::findSections()
 
 			m_problemPosition = position;
 
-			skipSection(parser);
-			skipSection(parser);
+			parser.seek(position);
+			m_problem->findSections();
 		}
 		else
 		{

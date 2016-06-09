@@ -69,6 +69,8 @@ void Domain::findSections()
 		parser.expect<std::string>("(");
 		parser.expect<std::string>(":");
 
+		const auto sectionIdentifierPosition = parser.position();
+
 		// Save the parser position of the individual sections for later parsing
 		if (parser.probe<std::string>("requirements"))
 			setSectionPosition("requirements", m_requirementsPosition, position, true);
@@ -88,9 +90,13 @@ void Domain::findSections()
 			|| parser.probe<std::string>("durative-action")
 			|| parser.probe<std::string>("derived"))
 		{
-			parser.seek(position);
-			m_context.logger.parserWarning(parser, "Section type currently unsupported");
-			parser.advance();
+			parser.seek(sectionIdentifierPosition);
+
+			const auto sectionIdentifier = parser.parseIdentifier(isIdentifier);
+
+			m_context.logger.parserWarning(parser, "Section type \"" + sectionIdentifier + "\" currently unsupported");
+
+			parser.seek(sectionIdentifierPosition);
 		}
 		else
 		{
