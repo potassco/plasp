@@ -257,7 +257,26 @@ TEST(PDDLParserTests, ParseStorageProblem)
 	ASSERT_NE(problem.objects()[6]->type(), nullptr);
 	ASSERT_EQ(problem.objects()[6]->type()->name(), "transitarea");
 
-	// TODO: check initial state and goal
+	// Initial State
+	const auto &facts = problem.initialState().facts();
+
+	ASSERT_EQ(facts.size(), 10u);
+	const auto &fact0 = *dynamic_cast<const expressions::Predicate *>(facts[0].get());
+	ASSERT_EQ(fact0.name(), "in");
+	ASSERT_EQ(fact0.arguments().size(), 2u);
+	const auto &fact01 = *dynamic_cast<const expressions::Reference<expressions::Constant> *>(fact0.arguments()[1].get())->value();
+	ASSERT_EQ(fact01.name(), "depot0");
+	ASSERT_NE(fact01.type(), nullptr);
+	ASSERT_EQ(fact01.type()->name(), "depot");
+	const auto &fact9 = *dynamic_cast<const expressions::Predicate *>(facts[9].get());
+	ASSERT_EQ(fact9.name(), "available");
+	ASSERT_EQ(fact9.arguments().size(), 1u);
+	const auto &fact90 = *dynamic_cast<const expressions::Reference<expressions::Constant> *>(fact9.arguments()[0].get())->value();
+	ASSERT_EQ(fact90.name(), "hoist0");
+	ASSERT_NE(fact90.type(), nullptr);
+	ASSERT_EQ(fact90.type()->name(), "hoist");
+
+	// TODO: check goal
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
