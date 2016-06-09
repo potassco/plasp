@@ -27,31 +27,54 @@ inline void warnUnsupported(Context &context, const std::string &expressionIdent
 
 std::unique_ptr<InitialState> InitialState::parseDeclaration(Context &context, const Problem &problem)
 {
+	auto &parser = context.parser;
+
 	auto initialState = std::make_unique<InitialState>(InitialState());
+
+	const auto parseInitialStateElement =
+		[&]()
+		{
+			ExpressionPointer expression;
+
+			if ((expression = expressions::Predicate::parse(context, problem)))
+				return expression;
+
+			const auto position = parser.position();
+
+			parser.expect<std::string>("(");
+
+			const auto expressionIdentifierPosition = parser.position();
+
+			if (parser.probeIdentifier("at")
+				|| parser.probeIdentifier("=")
+				|| parser.probeIdentifier("not"))
+			{
+				parser.seek(expressionIdentifierPosition);
+				const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);
+
+				parser.seek(position);
+				warnUnsupported(context, expressionIdentifier);
+
+				return ExpressionPointer();
+			}
+
+			parser.seek(expressionIdentifierPosition);
+			const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);
+
+			parser.seek(position);
+			throw utils::ParserException(context.parser, "Expression type \"" + expressionIdentifier + "\" unknown or not allowed in this context");
+		};
+
+	parser.skipWhiteSpace();
 
 	while (context.parser.currentCharacter() != ')')
 	{
-		context.parser.expect<std::string>("(");
-
 		ExpressionPointer expression;
 
-		const auto expressionIdentifier = context.parser.parseIdentifier(isIdentifier);
+		if ((expression = parseInitialStateElement()))
+			initialState->m_facts.emplace_back(std::move(expression));
 
-		if (expressionIdentifier == "at"
-			|| expressionIdentifier == "="
-			|| expressionIdentifier == "not")
-		{
-			warnUnsupported(context, expressionIdentifier);
-
-			continue;
-		}
-
-		// If none of the above types apply, the content is a predicate over constants and objects
-		initialState->m_facts.emplace_back(expressions::Predicate::parse(expressionIdentifier, context, problem));
-
-		context.parser.expect<std::string>(")");
-
-		context.parser.skipWhiteSpace();
+		parser.skipWhiteSpace();
 	}
 
 	return initialState;

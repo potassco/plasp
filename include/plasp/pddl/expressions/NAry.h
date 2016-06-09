@@ -19,14 +19,16 @@ namespace expressions
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template<class Derived>
 class NAry: public Expression
 {
 	public:
-		const Expressions &arguments() const;
-
-	protected:
 		template<typename ExpressionParser>
-		void parse(Context &context, ExpressionContext &expressionContext, ExpressionParser parseExpression);
+		static std::unique_ptr<Derived> parse(Context &context,
+			ExpressionContext &expressionContext, ExpressionParser parseExpression);
+
+	public:
+		const Expressions &arguments() const;
 
 	private:
 		Expressions m_arguments;
@@ -34,19 +36,49 @@ class NAry: public Expression
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template<class Derived>
 template<typename ExpressionParser>
-void NAry::parse(Context &context, ExpressionContext &expressionContext, ExpressionParser parseExpression)
+std::unique_ptr<Derived> NAry<Derived>::parse(Context &context,
+	ExpressionContext &expressionContext, ExpressionParser parseExpression)
 {
-	context.parser.skipWhiteSpace();
+	auto &parser = context.parser;
+
+	const auto position = parser.position();
+
+	if (!parser.probe<std::string>("(")
+		|| !parser.probeIdentifier(Derived::Identifier))
+	{
+		parser.seek(position);
+		return nullptr;
+	}
+
+	auto expression = std::make_unique<Derived>();
+
+	parser.skipWhiteSpace();
 
 	// Assume that expression identifier (and, or, etc.) is already parsed
 	// Parse arguments of the expression
-	while (context.parser.currentCharacter() != ')')
+	while (parser.currentCharacter() != ')')
 	{
-		m_arguments.emplace_back(parseExpression(context, expressionContext));
+		expression->m_arguments.emplace_back(parseExpression(context, expressionContext));
 
-		context.parser.skipWhiteSpace();
+		parser.skipWhiteSpace();
 	}
+
+	if (expression->m_arguments.empty())
+		context.logger.parserWarning(context.parser, "\"" + Derived::Identifier + "\" expressions should not be empty");
+
+	parser.expect<std::string>(")");
+
+	return expression;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Derived>
+const Expressions &NAry<Derived>::arguments() const
+{
+	return m_arguments;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -5,6 +5,7 @@
 #include <plasp/pddl/ExpressionContext.h>
 #include <plasp/pddl/ExpressionVisitor.h>
 #include <plasp/pddl/Identifier.h>
+#include <plasp/pddl/Problem.h>
 #include <plasp/pddl/expressions/Constant.h>
 #include <plasp/pddl/expressions/Reference.h>
 #include <plasp/pddl/expressions/Variable.h>
@@ -29,12 +30,36 @@ Predicate::Predicate()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PredicatePointer Predicate::parse(std::string name, Context &context,
-	ExpressionContext &expressionContext)
+PredicatePointer Predicate::parse(Context &context, ExpressionContext &expressionContext)
 {
+	auto &parser = context.parser;
+
+	const auto position = parser.position();
+
+	if (!parser.probe<std::string>("("))
+	{
+		parser.seek(position);
+		return nullptr;
+	}
+
+	const auto predicateName = parser.parseIdentifier(isIdentifier);
+	const auto &predicates = expressionContext.domain.predicates();
+
+	const auto matchingPredicate = std::find_if(predicates.cbegin(), predicates.cend(),
+		[&](const auto &predicate)
+		{
+			return predicate->name() == predicateName;
+		});
+
+	if (matchingPredicate == predicates.cend())
+	{
+		parser.seek(position);
+		return nullptr;
+	}
+
 	auto predicate = std::make_unique<Predicate>(Predicate());
 
-	predicate->m_name = name;
+	predicate->m_name = predicateName;
 
 	context.parser.skipWhiteSpace();
 
@@ -63,16 +88,43 @@ PredicatePointer Predicate::parse(std::string name, Context &context,
 
 	// TODO: check that signature matches one of the declared ones
 
+	parser.expect<std::string>(")");
+
 	return predicate;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PredicatePointer Predicate::parse(std::string name, Context &context, const Problem &problem)
+PredicatePointer Predicate::parse(Context &context, const Problem &problem)
 {
+	auto &parser = context.parser;
+
+	const auto position = parser.position();
+
+	if (!parser.probe<std::string>("("))
+	{
+		parser.seek(position);
+		return nullptr;
+	}
+
+	const auto predicateName = parser.parseIdentifier(isIdentifier);
+	const auto &predicates = problem.domain().predicates();
+
+	const auto matchingPredicate = std::find_if(predicates.cbegin(), predicates.cend(),
+		[&](const auto &predicate)
+		{
+			return predicate->name() == predicateName;
+		});
+
+	if (matchingPredicate == predicates.cend())
+	{
+		parser.seek(position);
+		return nullptr;
+	}
+
 	auto predicate = std::make_unique<Predicate>(Predicate());
 
-	predicate->m_name = name;
+	predicate->m_name = predicateName;
 
 	context.parser.skipWhiteSpace();
 

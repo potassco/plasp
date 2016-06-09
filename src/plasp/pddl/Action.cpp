@@ -42,9 +42,9 @@ void Action::parseDeclaration(Context &context, Domain &domain)
 	{
 		context.parser.expect<std::string>(":");
 
-		if (context.parser.probe<std::string>("precondition"))
+		if (context.parser.probeIdentifier("precondition"))
 			action->m_precondition = parsePreconditionExpression(context, expressionContext);
-		else if (context.parser.probe<std::string>("effect"))
+		else if (context.parser.probeIdentifier("effect"))
 			action->m_effect = parseEffectExpression(context, expressionContext);
 
 		context.parser.skipWhiteSpace();

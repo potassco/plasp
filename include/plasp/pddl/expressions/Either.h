@@ -16,35 +16,14 @@ namespace expressions
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class Either: public NAry
+class Either: public NAry<Either>
 {
 	public:
-		template<typename ExpressionParser>
-		static EitherPointer parse(Context &context, ExpressionContext &expressionContext,
-			ExpressionParser parseExpression);
+		static const std::string Identifier;
 
 	public:
 		void accept(ExpressionVisitor &expressionVisitor) const override;
-
-	private:
-		Either() = default;
 };
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<typename ExpressionParser>
-EitherPointer Either::parse(Context &context, ExpressionContext &expressionContext,
-	ExpressionParser parseExpression)
-{
-	auto expression = std::make_unique<Either>(Either());
-
-	expression->NAry::parse(context, expressionContext, parseExpression);
-
-	if (expression->arguments().empty())
-		throw ConsistencyException("\"and\" expressions should not be empty");
-
-	return expression;
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

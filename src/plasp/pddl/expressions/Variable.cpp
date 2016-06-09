@@ -65,6 +65,7 @@ void Variable::parseDeclaration(Context &context, Variables &parameters)
 
 void Variable::parseTypedDeclaration(Context &context, ExpressionContext &expressionContext)
 {
+	auto &parser = context.parser;
 	auto &variables = expressionContext.parameters;
 
 	// Parse and store variable itself
@@ -72,10 +73,10 @@ void Variable::parseTypedDeclaration(Context &context, ExpressionContext &expres
 
 	auto &variable = variables.back();
 
-	context.parser.skipWhiteSpace();
+	parser.skipWhiteSpace();
 
 	// Check if the variable has a type declaration
-	if (!context.parser.probe('-'))
+	if (!parser.probe('-'))
 		return;
 
 	const auto setType =
@@ -93,18 +94,11 @@ void Variable::parseTypedDeclaration(Context &context, ExpressionContext &expres
 				});
 		};
 
-	context.parser.skipWhiteSpace();
+	parser.skipWhiteSpace();
 
 	// Parse argument of "either" type (always begins with opening parenthesis)
-	if (context.parser.currentCharacter() == '(')
+	if ((variable->m_eitherExpression = Either::parse(context, expressionContext, parseExistingPrimitiveType)))
 	{
-		context.parser.expect<std::string>("(");
-		context.parser.expect<std::string>("either");
-
-		variable->m_eitherExpression = Either::parse(context, expressionContext, parseExistingPrimitiveType);
-
-		context.parser.expect<std::string>(")");
-
 		setType(variable->m_eitherExpression.get());
 		return;
 	}
@@ -119,8 +113,14 @@ void Variable::parseTypedDeclaration(Context &context, ExpressionContext &expres
 
 void Variable::parseTypedDeclarations(Context &context, ExpressionContext &expressionContext)
 {
-	while (context.parser.currentCharacter() != ')')
+	auto &parser = context.parser;
+
+	while (parser.currentCharacter() != ')')
+	{
 		parseTypedDeclaration(context, expressionContext);
+
+		parser.skipWhiteSpace();
+	}
 
 	if (expressionContext.parameters.empty())
 		return;
@@ -133,7 +133,7 @@ void Variable::parseTypedDeclarations(Context &context, ExpressionContext &expre
 		expressionContext.checkRequirement(Requirement::Type::Typing);
 	// If no types are given, check that typing is not a requirement
 	else if (expressionContext.hasRequirement(Requirement::Type::Typing))
-		throw utils::ParserException(context.parser, "Variable has undeclared type");
+		throw utils::ParserException(parser, "Variable has undeclared type");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

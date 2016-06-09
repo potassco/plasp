@@ -16,32 +16,14 @@ namespace expressions
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class Imply: public Binary
+class Imply: public Binary<Imply>
 {
 	public:
-		template<typename ExpressionParser>
-		static ImplyPointer parse(Context &context, ExpressionContext &parameters,
-			ExpressionParser parseExpression);
+		static const std::string Identifier;
 
 	public:
 		void accept(ExpressionVisitor &expressionVisitor) const override;
-
-	private:
-		Imply() = default;
 };
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<typename ExpressionParser>
-ImplyPointer Imply::parse(Context &context, ExpressionContext &parameters,
-	ExpressionParser parseExpression)
-{
-	auto expression = std::make_unique<Imply>(Imply());
-
-	expression->Binary::parse(context, parameters, parseExpression);
-
-	return expression;
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

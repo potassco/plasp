@@ -16,35 +16,14 @@ namespace expressions
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class And: public NAry
+class And: public NAry<And>
 {
 	public:
-		template<typename ExpressionParser>
-		static AndPointer parse(Context &context, ExpressionContext &expressionContext,
-			ExpressionParser parseExpression);
+		static const std::string Identifier;
 
 	public:
 		void accept(ExpressionVisitor &expressionVisitor) const override;
-
-	private:
-		And() = default;
 };
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<typename ExpressionParser>
-AndPointer And::parse(Context &context, ExpressionContext &expressionContext,
-	ExpressionParser parseExpression)
-{
-	auto expression = std::make_unique<And>(And());
-
-	expression->NAry::parse(context, expressionContext, parseExpression);
-
-	if (expression->arguments().empty())
-		context.logger.parserWarning(context.parser, "\"and\" expressions should not be empty");
-
-	return expression;
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
