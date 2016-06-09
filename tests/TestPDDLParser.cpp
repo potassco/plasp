@@ -285,6 +285,47 @@ TEST(PDDLParserTests, ParseWithWhiteSpace)
 
 TEST(PDDLParserTests, ParseWrongDomain)
 {
-	ASSERT_THROW(Description::fromFile("data/blocksworld-problem.pddl"), plasp::pddl::ConsistencyException);
+	ASSERT_THROW(Description::fromFile("data/blocksworld-problem.pddl"), ConsistencyException);
 	ASSERT_THROW(Description::fromFiles({"data/blocksworld-problem.pddl", "data/storage-domain.pddl"}), plasp::utils::ParserException);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TEST(PDDLParserTests, ParseSyntaxErrors)
+{
+	ASSERT_NO_THROW(Description::fromFile("data/pddl-syntax/domain-valid.pddl"));
+
+	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-expressions-1.pddl"));
+	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-expressions-2.pddl"));
+	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-expressions-3.pddl"));
+
+	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-expression-name-1.pddl"));
+	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-expression-name-2.pddl"));
+	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-expression-name-3.pddl"));
+
+	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-parentheses-1.pddl"));
+	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-parentheses-2.pddl"));
+	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-parentheses-3.pddl"));
+	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-parentheses-4.pddl"));
+	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-parentheses-5.pddl"));
+	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-parentheses-6.pddl"));
+	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-parentheses-7.pddl"));
+	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-parentheses-8.pddl"));
+
+	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-section-name-1.pddl"));
+	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-section-name-2.pddl"));
+	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-section-name-3.pddl"));
+	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-section-name-4.pddl"));
+	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-section-name-5.pddl"));
+	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-section-name-6.pddl"));
+	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-section-name-7.pddl"));
+
+	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-types-1.pddl"));
+	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-types-2.pddl"));
+	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-types-3.pddl"));
+	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-types-4.pddl"));
+
+	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-variables-1.pddl"));
+	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-variables-2.pddl"));
+	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-variables-3.pddl"));
 }
