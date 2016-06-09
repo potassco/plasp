@@ -55,6 +55,9 @@ std::unique_ptr<InitialState> InitialState::parseDeclaration(Context &context, c
 				parser.seek(position);
 				warnUnsupported(context, expressionIdentifier);
 
+				parser.seek(expressionIdentifierPosition);
+				skipSection(parser);
+
 				return ExpressionPointer();
 			}
 

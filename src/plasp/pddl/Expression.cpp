@@ -67,6 +67,7 @@ ExpressionPointer parsePreconditionExpression(Context &context,
 		parser.seek(position);
 		warnUnsupported(context, expressionIdentifier);
 
+		parser.seek(expressionIdentifierPosition);
 		skipSection(parser);
 
 		return nullptr;
@@ -121,6 +122,7 @@ ExpressionPointer parseExpression(Context &context, ExpressionContext &expressio
 		parser.seek(position);
 		warnUnsupported(context, expressionIdentifier);
 
+		parser.seek(expressionIdentifierPosition);
 		skipSection(parser);
 
 		return nullptr;
@@ -159,6 +161,7 @@ ExpressionPointer parseEffectExpression(Context &context, ExpressionContext &exp
 		parser.seek(position);
 		warnUnsupported(context, expressionIdentifier);
 
+		parser.seek(expressionIdentifierPosition);
 		skipSection(parser);
 
 		return nullptr;
@@ -201,6 +204,7 @@ ExpressionPointer parseEffectBodyExpression(Context &context, ExpressionContext 
 		parser.seek(position);
 		warnUnsupported(context, expressionIdentifier);
 
+		parser.seek(expressionIdentifierPosition);
 		skipSection(parser);
 
 		return nullptr;
