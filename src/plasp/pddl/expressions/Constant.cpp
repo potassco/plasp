@@ -94,8 +94,14 @@ void Constant::parseTypedDeclaration(Context &context, Domain &domain, Constants
 
 void Constant::parseTypedDeclarations(Context &context, Domain &domain)
 {
-	while (context.parser.currentCharacter() != ')')
+	auto &parser = context.parser;
+
+	while (parser.currentCharacter() != ')')
+	{
 		parseTypedDeclaration(context, domain);
+
+		parser.skipWhiteSpace();
+	}
 
 	if (domain.constants().empty())
 		return;
@@ -108,15 +114,21 @@ void Constant::parseTypedDeclarations(Context &context, Domain &domain)
 		domain.checkRequirement(Requirement::Type::Typing);
 	// If no types are given, check that typing is not a requirement
 	else if (domain.hasRequirement(Requirement::Type::Typing))
-		throw utils::ParserException(context.parser, "Constant has undeclared type");
+		throw utils::ParserException(parser, "Constant has undeclared type");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Constant::parseTypedDeclarations(Context &context, Problem &problem)
 {
+	auto &parser = context.parser;
+
 	while (context.parser.currentCharacter() != ')')
+	{
 		parseTypedDeclaration(context, problem);
+
+		parser.skipWhiteSpace();
+	}
 
 	if (problem.objects().empty())
 		return;
