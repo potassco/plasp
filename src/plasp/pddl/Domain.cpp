@@ -46,8 +46,6 @@ void Domain::findSections()
 
 	m_name = m_context.parser.parseIdentifier(isIdentifier);
 
-	std::cout << "Found domain " << m_name << std::endl;
-
 	parser.expect<std::string>(")");
 
 	const auto setSectionPosition =
@@ -123,8 +121,6 @@ void Domain::findSections()
 void Domain::parse()
 {
 	auto &parser = m_context.parser;
-
-	std::cout << "Parsing domain " << m_name << std::endl;
 
 	if (m_requirementsPosition != -1)
 	{

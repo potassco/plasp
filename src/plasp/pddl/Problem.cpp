@@ -45,8 +45,6 @@ void Problem::findSections()
 
 	m_name = parser.parseIdentifier(isIdentifier);
 
-	std::cout << "Found problem " << m_name << std::endl;
-
 	parser.expect<std::string>(")");
 
 	const auto setSectionPosition =
