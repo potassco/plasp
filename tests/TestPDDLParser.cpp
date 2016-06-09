@@ -136,7 +136,24 @@ TEST(PDDLParserTests, ParseBlocksWorldProblem)
 	ASSERT_EQ(fact8.name(), "handempty");
 	ASSERT_EQ(fact8.arguments().size(), 0u);
 
-	// TODO: check goal
+	// Goal
+	const auto &goal = dynamic_cast<const expressions::And &>(problem.goal());
+
+	ASSERT_EQ(goal.arguments().size(), 3u);
+	const auto &goal0 = *dynamic_cast<expressions::Predicate *>(goal.arguments()[0].get());
+	ASSERT_EQ(goal0.name(), "on");
+	ASSERT_EQ(goal0.arguments().size(), 2u);
+	const auto &goal00 = *dynamic_cast<expressions::Reference<expressions::Constant> *>(goal0.arguments()[0].get())->value();
+	ASSERT_EQ(goal00.name(), "d");
+	const auto &goal01 = *dynamic_cast<expressions::Reference<expressions::Constant> *>(goal0.arguments()[1].get())->value();
+	ASSERT_EQ(goal01.name(), "c");
+	const auto &goal2 = *dynamic_cast<expressions::Predicate *>(goal.arguments()[2].get());
+	ASSERT_EQ(goal2.name(), "on");
+	ASSERT_EQ(goal2.arguments().size(), 2u);
+	const auto &goal20 = *dynamic_cast<expressions::Reference<expressions::Constant> *>(goal2.arguments()[0].get())->value();
+	ASSERT_EQ(goal20.name(), "b");
+	const auto &goal21 = *dynamic_cast<expressions::Reference<expressions::Constant> *>(goal2.arguments()[1].get())->value();
+	ASSERT_EQ(goal21.name(), "a");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
