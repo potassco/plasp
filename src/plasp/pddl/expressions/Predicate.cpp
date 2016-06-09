@@ -141,6 +141,8 @@ PredicatePointer Predicate::parse(Context &context, const Problem &problem)
 
 	// TODO: check that signature matches one of the declared ones
 
+	parser.expect<std::string>(")");
+
 	return predicate;
 }
 
