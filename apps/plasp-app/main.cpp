@@ -18,7 +18,7 @@ int main(int argc, char **argv)
 		("help,h", "Display this help message.")
 		("version,v", "Display version information.")
 		("input,i", po::value<std::vector<std::string>>(), "Specify the SAS input file.")
-		("language,l", po::value<std::string>(), "Specify the input language (SAS or PDDL) explicitly (no automatic detection).");
+		("language,l", po::value<std::string>(), "Specify the input language (SAS or PDDL). Omit for automatic detection.");
 
 	po::positional_options_description positionalOptionsDescription;
 	positionalOptionsDescription.add("input", -1);
