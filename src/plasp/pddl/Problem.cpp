@@ -349,6 +349,7 @@ void Problem::parseGoalSection()
 	parser.expect<std::string>(":");
 	parser.expect<std::string>("goal");
 
+	// TODO: remove workaround
 	expressions::Variables noParameters;
 
 	ExpressionContext expressionContext(m_domain, this, noParameters);
