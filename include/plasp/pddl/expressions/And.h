@@ -41,7 +41,7 @@ AndPointer And::parse(Context &context, ExpressionContext &expressionContext,
 	expression->NAry::parse(context, expressionContext, parseExpression);
 
 	if (expression->arguments().empty())
-		throw ConsistencyException("\"and\" expressions should not be empty");
+		context.logger.parserWarning(context.parser, "\"and\" expressions should not be empty");
 
 	return expression;
 }
