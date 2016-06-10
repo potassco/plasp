@@ -400,4 +400,7 @@ TEST(PDDLParserTests, CheckIssues)
 
 	// Check white space issues with empty n-ary predicates
 	ASSERT_NO_THROW(Description::fromFile("data/issues/issue-2.pddl"));
+
+	// Check that comments are correctly ignored
+	ASSERT_NO_THROW(Description::fromFile("data/issues/issue-3.pddl"));
 }
