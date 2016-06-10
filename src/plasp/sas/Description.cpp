@@ -165,6 +165,11 @@ void Description::parseContent(utils::Parser &parser)
 	parseGoalSection(parser);
 	parseOperatorSection(parser);
 	parseAxiomSection(parser);
+
+	parser.skipWhiteSpace();
+
+	if (!parser.atEndOfStream())
+		throw utils::ParserException(parser, "Expected end of SAS description");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
