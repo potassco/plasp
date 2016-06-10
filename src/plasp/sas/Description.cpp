@@ -169,7 +169,7 @@ void Description::parseContent(utils::Parser &parser)
 	parser.skipWhiteSpace();
 
 	if (!parser.atEndOfStream())
-		throw utils::ParserException(parser, "Expected end of SAS description");
+		throw utils::ParserException(parser, "Expected end of SAS description (perhaps, input contains two SAS descriptions?)");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
