@@ -1,7 +1,5 @@
 #include <plasp/sas/TranslatorASP.h>
 
-#include <plasp/sas/TranslatorException.h>
-
 namespace plasp
 {
 namespace sas

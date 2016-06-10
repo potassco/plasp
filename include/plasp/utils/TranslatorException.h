@@ -1,12 +1,12 @@
-#ifndef __PLASP__SAS__TRANSLATOR_EXCEPTION_H
-#define __PLASP__SAS__TRANSLATOR_EXCEPTION_H
+#ifndef __PLASP__UTILS__TRANSLATOR_EXCEPTION_H
+#define __PLASP__UTILS__TRANSLATOR_EXCEPTION_H
 
 #include <exception>
 #include <string>
 
 namespace plasp
 {
-namespace sas
+namespace utils
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@ class TranslatorException: public std::exception
 		const char *what() const throw()
 		{
 			if (m_message.empty())
-				return "Unspecified error while translating SAS description";
+				return "Unspecified error while translating description";
 
 			return m_message.c_str();
 		}
