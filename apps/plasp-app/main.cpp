@@ -6,6 +6,7 @@
 
 #include <plasp/LanguageDetection.h>
 #include <plasp/pddl/Description.h>
+#include <plasp/pddl/TranslatorASP.h>
 #include <plasp/sas/Description.h>
 #include <plasp/sas/TranslatorASP.h>
 
@@ -102,12 +103,16 @@ int main(int argc, char **argv)
 		}
 
 		if (language == plasp::Language::Type::PDDL)
-			plasp::pddl::Description::fromParser(std::move(parser));
+		{
+			const auto description = plasp::pddl::Description::fromParser(std::move(parser));
+			const auto translator = plasp::pddl::TranslatorASP(description);
+			translator.translate(std::cout);
+		}
 		else if (language == plasp::Language::Type::SAS)
 		{
-			const auto sasDescription = plasp::sas::Description::fromParser(std::move(parser));
-			const auto sasTranslator = plasp::sas::TranslatorASP(sasDescription);
-			sasTranslator.translate(std::cout);
+			const auto description = plasp::sas::Description::fromParser(std::move(parser));
+			const auto translator = plasp::sas::TranslatorASP(description);
+			translator.translate(std::cout);
 		}
 	}
 	catch (const std::exception &e)
