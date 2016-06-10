@@ -62,50 +62,59 @@ int main(int argc, char **argv)
 		return EXIT_SUCCESS;
 	}
 
-	plasp::utils::Parser parser;
-
-	parser.setCaseSensitive(false);
-
-	if (variablesMap.count("input"))
+	try
 	{
-		const auto &inputFiles = variablesMap["input"].as<std::vector<std::string>>();
+		plasp::utils::Parser parser;
 
-		std::for_each(inputFiles.cbegin(), inputFiles.cend(),
-			[&](const auto &inputFile)
-			{
-				parser.readFile(inputFile);
-			});
-	}
-	else
-		parser.readStream("std::cin", std::cin);
+		parser.setCaseSensitive(false);
 
-	const auto detectLanguage =
-		[&]()
+		if (variablesMap.count("input"))
 		{
-			if (variablesMap.count("language") == 0)
-				return plasp::detectLanguage(parser);
+			const auto &inputFiles = variablesMap["input"].as<std::vector<std::string>>();
 
-			const auto languageName = variablesMap["language"].as<std::string>();
+			std::for_each(inputFiles.cbegin(), inputFiles.cend(),
+				[&](const auto &inputFile)
+				{
+					parser.readFile(inputFile);
+				});
+		}
+		else
+			parser.readStream("std::cin", std::cin);
 
-			return plasp::Language::fromString(languageName);
-		};
+		const auto detectLanguage =
+			[&]()
+			{
+				if (variablesMap.count("language") == 0)
+					return plasp::detectLanguage(parser);
 
-	const auto language = detectLanguage();
+				const auto languageName = variablesMap["language"].as<std::string>();
 
-	if (language == plasp::Language::Type::Unknown)
+				return plasp::Language::fromString(languageName);
+			};
+
+		const auto language = detectLanguage();
+
+		if (language == plasp::Language::Type::Unknown)
+		{
+			std::cerr << "Error: Unknown input language" << std::endl << std::endl;
+			printHelp();
+			return EXIT_FAILURE;
+		}
+
+		if (language == plasp::Language::Type::PDDL)
+			plasp::pddl::Description::fromParser(std::move(parser));
+		else if (language == plasp::Language::Type::SAS)
+		{
+			const auto sasDescription = plasp::sas::Description::fromParser(std::move(parser));
+			const auto sasTranslator = plasp::sas::TranslatorASP(sasDescription);
+			sasTranslator.translate(std::cout);
+		}
+	}
+	catch (const std::exception &e)
 	{
-		std::cerr << "Error: Unknown input language" << std::endl << std::endl;
+		std::cerr << "Error: " << e.what() << std::endl << std::endl;
 		printHelp();
 		return EXIT_FAILURE;
-	}
-
-	if (language == plasp::Language::Type::PDDL)
-		plasp::pddl::Description::fromParser(std::move(parser));
-	else if (language == plasp::Language::Type::SAS)
-	{
-		const auto sasDescription = plasp::sas::Description::fromParser(std::move(parser));
-		const auto sasTranslator = plasp::sas::TranslatorASP(sasDescription);
-		sasTranslator.translate(std::cout);
 	}
 
 	return EXIT_SUCCESS;
