@@ -40,28 +40,23 @@ void TranslatorASP::translateDomain(std::ostream &ostream) const
 	const auto &domain = m_description.domain();
 
 	// Types
-	ostream << "% types" << std::endl;
+	ostream << "% types";
 
 	const auto &types = domain.types();
 
 	std::for_each(types.cbegin(), types.cend(),
 		[&](const auto &type)
 		{
+			ostream << std::endl;
+
 			ostream << "type(" << type->name() << ")." << std::endl;
-		});
 
-	// Type inheritance
-	ostream << std::endl << "% type inheritance" << std::endl;
-
-	std::for_each(types.cbegin(), types.cend(),
-		[&](const auto &type)
-		{
 			const auto &parentTypes = type->parentTypes();
 
 			std::for_each(parentTypes.cbegin(), parentTypes.cend(),
 				[&](const auto &parentType)
 				{
-					ostream << "inheritsFrom(type(" << type->name() << "), type(" << parentType->name() << "))." << std::endl;
+					ostream << "inherits(type(" << type->name() << "), type(" << parentType->name() << "))." << std::endl;
 				});
 		});
 }
