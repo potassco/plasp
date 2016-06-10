@@ -28,6 +28,8 @@ class Description
 
 	public:
 		const Domain &domain() const;
+
+		bool containsProblem() const;
 		const Problem &problem() const;
 
 	private:
