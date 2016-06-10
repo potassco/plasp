@@ -26,16 +26,16 @@ Description::Description()
 	m_problemPosition{-1},
 	m_problem{std::make_unique<Problem>(Problem(m_context, *m_domain))}
 {
-	m_parser.setCaseSensitive(false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 Description Description::fromParser(utils::Parser &&parser)
 {
-	parser.setCaseSensitive(false);
-
 	Description description;
+
+	parser.setCaseSensitive(false);
+	parser.removeComments(";", "\n", false);
 
 	description.m_parser = std::move(parser);
 
@@ -53,6 +53,9 @@ Description Description::fromStream(std::istream &istream)
 
 	description.m_parser.readStream("std::cin", istream);
 
+	description.m_parser.setCaseSensitive(false);
+	description.m_parser.removeComments(";", "\n", false);
+
 	description.parseContent();
 	description.checkConsistency();
 
@@ -66,6 +69,9 @@ Description Description::fromFile(const std::string &path)
 	Description description;
 
 	description.m_parser.readFile(path);
+
+	description.m_parser.setCaseSensitive(false);
+	description.m_parser.removeComments(";", "\n", false);
 
 	description.parseContent();
 	description.checkConsistency();
@@ -86,6 +92,9 @@ Description Description::fromFiles(const std::vector<std::string> &paths)
 		{
 			description.m_parser.readFile(path);
 		});
+
+	description.m_parser.setCaseSensitive(false);
+	description.m_parser.removeComments(";", "\n", false);
 
 	description.parseContent();
 	description.checkConsistency();

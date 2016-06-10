@@ -62,6 +62,8 @@ class Parser
 		void advance();
 		bool atEndOfStream() const;
 
+		void removeComments(const std::string &startSequence, const std::string &endSequence, bool removeEnd);
+
 		template<typename Type>
 		Type parse();
 

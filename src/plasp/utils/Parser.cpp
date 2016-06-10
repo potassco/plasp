@@ -276,11 +276,10 @@ std::string Parser::parse<std::string>()
 template<>
 bool Parser::probe<std::string>(const std::string &expectedValue)
 {
-	BOOST_ASSERT(!std::isspace(expectedValue[0]));
-
 	const auto previousPosition = position();
 
-	skipWhiteSpace();
+	if (!std::iswspace(expectedValue.front()))
+		skipWhiteSpace();
 
 	const auto match = std::find_if(expectedValue.cbegin(), expectedValue.cend(),
 		[&](const auto &expectedCharacter)
@@ -525,6 +524,76 @@ void Parser::expect<bool>(const bool &expectedValue)
 
 	if (value != expectedValue)
 		throw ParserException(*this, "Expected \"" + std::to_string(expectedValue) + "\"");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Parser::removeComments(const std::string &startSequence, const std::string &endSequence, bool removeEnd)
+{
+	const auto inPosition = m_stream.tellg();
+	const auto outPosition = m_stream.tellp();
+
+	m_stream.seekg(0);
+
+	const auto removeRange =
+		[&](const auto &start, const auto &end)
+		{
+			BOOST_ASSERT(start != -1);
+
+			m_stream.clear();
+			m_stream.seekp(start);
+			m_stream.seekg(start);
+
+			auto position = start;
+
+			while (end == -1 || position < end)
+			{
+				m_stream.ignore(1);
+
+				if (atEndOfStream())
+					return;
+
+				m_stream.put(' ');
+				position += static_cast<std::streamoff>(1);
+			}
+		};
+
+	while (!atEndOfStream())
+	{
+		Position startPosition = m_stream.tellg();
+
+		while (!atEndOfStream())
+		{
+			startPosition = m_stream.tellg();
+
+			if (probe(startSequence))
+				break;
+
+			advance();
+		}
+
+		Position endPosition = m_stream.tellg();
+
+		while (!atEndOfStream())
+		{
+			endPosition = m_stream.tellg();
+
+			if (probe(endSequence))
+				break;
+
+			advance();
+		}
+
+		if (removeEnd)
+			endPosition = m_stream.tellg();
+
+		removeRange(startPosition, endPosition);
+	}
+
+	m_stream.clear();
+
+	m_stream.seekg(inPosition);
+	m_stream.seekp(outPosition);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

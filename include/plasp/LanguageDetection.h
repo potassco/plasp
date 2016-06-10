@@ -15,18 +15,28 @@ namespace plasp
 
 Language::Type detectLanguage(utils::Parser &parser)
 {
-	// PDDL contains sections starting with "(define"
-	if (parser.probe<std::string>("(") && parser.probe<std::string>("define"))
-	{
-		parser.seek(std::ios::beg);
-		return Language::Type::PDDL;
-	}
+	parser.setCaseSensitive(false);
+	parser.skipWhiteSpace();
 
 	// SAS begins with "begin_version"
 	if (parser.probe<std::string>("begin"))
 	{
 		parser.seek(std::ios::beg);
 		return Language::Type::SAS;
+	}
+
+	// Skip potential PDDL comments
+	while (parser.currentCharacter() == ';')
+	{
+		parser.skipLine();
+		parser.skipWhiteSpace();
+	}
+
+	// PDDL contains sections starting with "(define"
+	if (parser.probe<std::string>("(") && parser.probe<std::string>("define"))
+	{
+		parser.seek(std::ios::beg);
+		return Language::Type::PDDL;
 	}
 
 	parser.seek(std::ios::beg);

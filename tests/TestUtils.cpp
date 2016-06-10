@@ -177,6 +177,57 @@ TEST(UtilsTests, ParserPosition)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+TEST(UtilsTests, ParserRemoveComments)
+{
+	std::stringstream s1("; comment at beginning\ntest1; comment in between\ntest2; comment at end");
+	plasp::utils::Parser p1("input", s1);
+
+	p1.removeComments(";", "\n", false);
+
+	plasp::utils::Parser::Coordinate c;
+
+	ASSERT_NO_THROW(p1.expect<std::string>("test1"));
+
+	c = p1.coordinate();
+	ASSERT_EQ(c.row, 2u);
+	ASSERT_EQ(c.column, 6u);
+
+	ASSERT_NO_THROW(p1.expect<std::string>("test2"));
+
+	c = p1.coordinate();
+	ASSERT_EQ(c.row, 3u);
+	ASSERT_EQ(c.column, 6u);
+
+	p1.skipWhiteSpace();
+
+	ASSERT_TRUE(p1.atEndOfStream());
+
+	std::stringstream s2("test;");
+	plasp::utils::Parser p2("input", s2);
+
+	p2.removeComments(";", "\n", false);
+
+	ASSERT_NO_THROW(p2.expect<std::string>("test"));
+
+	p2.skipWhiteSpace();
+
+	ASSERT_TRUE(p2.atEndOfStream());
+
+	std::stringstream s3("/* comment at start */ test1 /* comment in between */ test2 /*");
+	plasp::utils::Parser p3("input", s3);
+
+	p3.removeComments("/*", "*/", true);
+
+	ASSERT_NO_THROW(p3.expect<std::string>("test1"));
+	ASSERT_NO_THROW(p3.expect<std::string>("test2"));
+
+	p3.skipWhiteSpace();
+
+	ASSERT_TRUE(p3.atEndOfStream());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 TEST(UtilsTests, EscapeASP)
 {
 	const std::string predicate = "action(stack_on(block-1, block-2, value@3, value@4))";
