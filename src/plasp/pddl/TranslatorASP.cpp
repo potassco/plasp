@@ -40,47 +40,53 @@ void TranslatorASP::translateDomain(std::ostream &ostream) const
 	const auto &domain = m_description.domain();
 
 	// Types
-	ostream << std::endl;
-	ostream << "% types";
+	if (!domain.types().empty())
+	{
+		ostream << std::endl;
+		ostream << "% types";
 
-	const auto &types = domain.types();
+		const auto &types = domain.types();
 
-	std::for_each(types.cbegin(), types.cend(),
-		[&](const auto &type)
-		{
-			ostream << std::endl;
+		std::for_each(types.cbegin(), types.cend(),
+			[&](const auto &type)
+			{
+				ostream << std::endl;
 
-			ostream << "type(" << type->name() << ")." << std::endl;
+				ostream << "type(" << type->name() << ")." << std::endl;
 
-			const auto &parentTypes = type->parentTypes();
+				const auto &parentTypes = type->parentTypes();
 
-			std::for_each(parentTypes.cbegin(), parentTypes.cend(),
-				[&](const auto &parentType)
-				{
-					ostream << "inherits(type(" << type->name() << "), type(" << parentType->name() << "))." << std::endl;
-				});
-		});
+				std::for_each(parentTypes.cbegin(), parentTypes.cend(),
+					[&](const auto &parentType)
+					{
+						ostream << "inherits(type(" << type->name() << "), type(" << parentType->name() << "))." << std::endl;
+					});
+			});
+	}
 
 	// Constants
-	ostream << std::endl;
-	ostream << "% constants";
+	if (!domain.constants().empty())
+	{
+		ostream << std::endl;
+		ostream << "% constants";
 
-	const auto &constants = domain.constants();
+		const auto &constants = domain.constants();
 
-	std::for_each(constants.cbegin(), constants.cend(),
-		[&](const auto &constant)
-		{
-			ostream << std::endl;
+		std::for_each(constants.cbegin(), constants.cend(),
+			[&](const auto &constant)
+			{
+				ostream << std::endl;
 
-			ostream << "constant(" << constant->name() << ")." << std::endl;
+				ostream << "constant(" << constant->name() << ")." << std::endl;
 
-			const auto *type = constant->type();
+				const auto *type = constant->type();
 
-			if (type == nullptr)
-				return;
+				if (type == nullptr)
+					return;
 
-			ostream << "hasType(constant(" << constant->name() << "), type(" << type->name() << "))." << std::endl;
-		});
+				ostream << "hasType(constant(" << constant->name() << "), type(" << type->name() << "))." << std::endl;
+			});
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
