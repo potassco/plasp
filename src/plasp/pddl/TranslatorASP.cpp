@@ -177,7 +177,7 @@ void TranslatorASP::translatePredicates() const
 
 			m_ostream << "predicate(" << predicate->name();
 
-			translateVariables(predicate->arguments());
+			this->translateVariables(predicate->arguments());
 
 			m_ostream << ").";
 		});
@@ -200,7 +200,7 @@ void TranslatorASP::translateActions() const
 
 			m_ostream << "action(" << action->name();
 
-			translateVariables(action->parameters());
+			this->translateVariables(action->parameters());
 
 			m_ostream << ").";
 		});
