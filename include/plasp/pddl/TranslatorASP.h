@@ -27,6 +27,10 @@ class TranslatorASP
 		void checkSupport() const;
 
 		void translateDomain() const;
+		void translateTypes() const;
+		void translateConstants() const;
+		void translatePredicates() const;
+
 		void translateProblem() const;
 
 		const Description &m_description;

@@ -72,98 +72,119 @@ void TranslatorASP::translateDomain() const
 	if (!domain.types().empty())
 	{
 		m_ostream << std::endl;
-		m_ostream << "% types";
-
-		const auto &types = domain.types();
-
-		std::for_each(types.cbegin(), types.cend(),
-			[&](const auto &type)
-			{
-				m_ostream << std::endl;
-
-				m_ostream << "type(" << type->name() << ")." << std::endl;
-
-				const auto &parentTypes = type->parentTypes();
-
-				std::for_each(parentTypes.cbegin(), parentTypes.cend(),
-					[&](const auto &parentType)
-					{
-						m_ostream << "inherits(type(" << type->name() << "), type(" << parentType->name() << "))." << std::endl;
-					});
-			});
+		translateTypes();
 	}
 
 	// Constants
 	if (!domain.constants().empty())
 	{
 		m_ostream << std::endl;
-		m_ostream << "% constants";
-
-		const auto &constants = domain.constants();
-
-		std::for_each(constants.cbegin(), constants.cend(),
-			[&](const auto &constant)
-			{
-				m_ostream << std::endl;
-
-				m_ostream << "constant(" << constant->name() << ")." << std::endl;
-
-				const auto *type = constant->type();
-
-				if (type == nullptr)
-					return;
-
-				m_ostream << "hasType(constant(" << constant->name() << "), type(" << type->name() << "))." << std::endl;
-			});
+		translateConstants();
 	}
 
 	// Predicates
 	if (!domain.predicates().empty())
 	{
 		m_ostream << std::endl;
-		m_ostream << "% predicates";
-
-		const auto &predicates = domain.predicates();
-
-		std::for_each(predicates.cbegin(), predicates.cend(),
-			[&](const auto &predicate)
-			{
-				m_ostream << std::endl;
-
-				m_ostream << "predicate(" << predicate->name();
-
-				const auto &arguments = predicate->arguments();
-
-				if (arguments.empty())
-				{
-					m_ostream << ").";
-					return;
-				}
-
-				m_ostream << "(";
-
-				for (auto i = arguments.cbegin(); i != arguments.cend(); i++)
-				{
-					if (i != arguments.cbegin())
-						m_ostream << ", ";
-
-					m_ostream << utils::escapeASPVariable((*i)->name());
-				}
-
-				m_ostream << ")) :- ";
-
-				for (auto i = arguments.cbegin(); i != arguments.cend(); i++)
-				{
-					if (i != arguments.cbegin())
-						m_ostream << ", ";
-
-					const auto &type = *dynamic_cast<const expressions::PrimitiveType *>((*i)->type());
-					m_ostream << "hasType(" << utils::escapeASPVariable((*i)->name()) << ", type(" << type.name() << "))";
-				}
-
-				m_ostream << ".";
-			});
+		translatePredicates();
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void TranslatorASP::translateTypes() const
+{
+	m_ostream << "% types";
+
+	const auto &types = m_description.domain().types();
+
+	std::for_each(types.cbegin(), types.cend(),
+		[&](const auto &type)
+		{
+			m_ostream << std::endl;
+
+			m_ostream << "type(" << type->name() << ")." << std::endl;
+
+			const auto &parentTypes = type->parentTypes();
+
+			std::for_each(parentTypes.cbegin(), parentTypes.cend(),
+				[&](const auto &parentType)
+				{
+					m_ostream << "inherits(type(" << type->name() << "), type(" << parentType->name() << "))." << std::endl;
+				});
+		});
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void TranslatorASP::translateConstants() const
+{
+	m_ostream << "% constants";
+
+	const auto &constants = m_description.domain().constants();
+
+	std::for_each(constants.cbegin(), constants.cend(),
+		[&](const auto &constant)
+		{
+			m_ostream << std::endl;
+
+			m_ostream << "constant(" << constant->name() << ")." << std::endl;
+
+			const auto *type = constant->type();
+
+			if (type == nullptr)
+				return;
+
+			m_ostream << "hasType(constant(" << constant->name() << "), type(" << type->name() << "))." << std::endl;
+		});
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void TranslatorASP::translatePredicates() const
+{
+	m_ostream << "% predicates";
+
+	const auto &predicates = m_description.domain().predicates();
+
+	std::for_each(predicates.cbegin(), predicates.cend(),
+		[&](const auto &predicate)
+		{
+			m_ostream << std::endl;
+
+			m_ostream << "predicate(" << predicate->name();
+
+			const auto &arguments = predicate->arguments();
+
+			if (arguments.empty())
+			{
+				m_ostream << ").";
+				return;
+			}
+
+			m_ostream << "(";
+
+			for (auto i = arguments.cbegin(); i != arguments.cend(); i++)
+			{
+				if (i != arguments.cbegin())
+					m_ostream << ", ";
+
+				m_ostream << utils::escapeASPVariable((*i)->name());
+			}
+
+			m_ostream << ")) :- ";
+
+			for (auto i = arguments.cbegin(); i != arguments.cend(); i++)
+			{
+				if (i != arguments.cbegin())
+					m_ostream << ", ";
+
+				const auto &type = *dynamic_cast<const expressions::PrimitiveType *>((*i)->type());
+				m_ostream << "hasType(" << utils::escapeASPVariable((*i)->name()) << ", type(" << type.name() << "))";
+			}
+
+			m_ostream << ".";
+		});
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
