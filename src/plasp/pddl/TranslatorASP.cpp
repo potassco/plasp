@@ -1,5 +1,6 @@
 #include <plasp/pddl/TranslatorASP.h>
 
+#include <plasp/utils/IO.h>
 #include <plasp/utils/TranslatorException.h>
 
 namespace plasp
@@ -48,7 +49,11 @@ void TranslatorASP::translate(std::ostream &ostream) const
 	translateDomain(ostream);
 
 	if (m_description.containsProblem())
+	{
+		ostream << std::endl;
+
 		translateProblem(ostream);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -108,6 +113,54 @@ void TranslatorASP::translateDomain(std::ostream &ostream) const
 					return;
 
 				ostream << "hasType(constant(" << constant->name() << "), type(" << type->name() << "))." << std::endl;
+			});
+	}
+
+	// Predicates
+	if (!domain.predicates().empty())
+	{
+		ostream << std::endl;
+		ostream << "% predicates";
+
+		const auto &predicates = domain.predicates();
+
+		std::for_each(predicates.cbegin(), predicates.cend(),
+			[&](const auto &predicate)
+			{
+				ostream << std::endl;
+
+				ostream << "predicate(" << predicate->name();
+
+				const auto &arguments = predicate->arguments();
+
+				if (arguments.empty())
+				{
+					ostream << ").";
+					return;
+				}
+
+				ostream << "(";
+
+				for (auto i = arguments.cbegin(); i != arguments.cend(); i++)
+				{
+					if (i != arguments.cbegin())
+						ostream << ", ";
+
+					ostream << utils::escapeASPVariable((*i)->name());
+				}
+
+				ostream << ")) :- ";
+
+				for (auto i = arguments.cbegin(); i != arguments.cend(); i++)
+				{
+					if (i != arguments.cbegin())
+						ostream << ", ";
+
+					const auto &type = *dynamic_cast<const expressions::PrimitiveType *>((*i)->type());
+					ostream << "hasType(" << utils::escapeASPVariable((*i)->name()) << ", type(" << type.name() << "))";
+				}
+
+				ostream << ".";
 			});
 	}
 }
