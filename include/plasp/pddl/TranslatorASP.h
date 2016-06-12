@@ -30,6 +30,7 @@ class TranslatorASP
 		void translateTypes() const;
 		void translateConstants() const;
 		void translatePredicates() const;
+		void translateActions() const;
 
 		void translateProblem() const;
 

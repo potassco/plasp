@@ -39,6 +39,21 @@ void TranslatorASP::checkSupport() const
 						throw utils::TranslatorException("Only primitive types supported currently");
 				});
 		});
+
+	const auto &actions = m_description.domain().actions();
+
+	std::for_each(actions.cbegin(), actions.cend(),
+		[&](const auto &action)
+		{
+			const auto &parameters = action->parameters();
+
+			std::for_each(parameters.cbegin(), parameters.cend(),
+				[&](const auto &parameter)
+				{
+					if (parameter->type()->expressionType() != Expression::Type::PrimitiveType)
+						throw utils::TranslatorException("Only primitive types supported currently");
+				});
+		});
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -88,12 +103,20 @@ void TranslatorASP::translateDomain() const
 		m_ostream << std::endl;
 		translatePredicates();
 	}
+
+	// Actions
+	if (!domain.actions().empty())
+	{
+		m_ostream << std::endl;
+		translateActions();
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void TranslatorASP::translateTypes() const
 {
+	// TODO: escape ASP identifiers
 	m_ostream << "% types";
 
 	const auto &types = m_description.domain().types();
@@ -185,13 +208,65 @@ void TranslatorASP::translatePredicates() const
 
 			m_ostream << ".";
 		});
+
+	m_ostream << std::endl;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void TranslatorASP::translateActions() const
+{
+	m_ostream << "% actions";
+
+	const auto &actions = m_description.domain().actions();
+
+	std::for_each(actions.cbegin(), actions.cend(),
+		[&](const auto &action)
+		{
+			m_ostream << std::endl;
+
+			m_ostream << "action(" << action->name();
+
+			const auto &parameters = action->parameters();
+
+			if (parameters.empty())
+			{
+				m_ostream << ").";
+				return;
+			}
+
+			m_ostream << "(";
+
+			for (auto i = parameters.cbegin(); i != parameters.cend(); i++)
+			{
+				if (i != parameters.cbegin())
+					m_ostream << ", ";
+
+				m_ostream << utils::escapeASPVariable((*i)->name());
+			}
+
+			m_ostream << ")) :- ";
+
+			for (auto i = parameters.cbegin(); i != parameters.cend(); i++)
+			{
+				if (i != parameters.cbegin())
+					m_ostream << ", ";
+
+				const auto &type = *dynamic_cast<const expressions::PrimitiveType *>((*i)->type());
+				m_ostream << "hasType(" << utils::escapeASPVariable((*i)->name()) << ", type(" << type.name() << "))";
+			}
+
+			m_ostream << ".";
+		});
+
+	m_ostream << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void TranslatorASP::translateProblem() const
 {
-	m_ostream << std::endl
+	m_ostream
 		<< "%---------------------------------------" << std::endl
 		<< "% problem" << std::endl
 		<< "%---------------------------------------" << std::endl;
