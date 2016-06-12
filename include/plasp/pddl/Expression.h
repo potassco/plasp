@@ -74,7 +74,38 @@ using Variables = std::vector<VariablePointer>;
 class Expression
 {
 	public:
-		virtual void accept(ExpressionVisitor &expressionVisitor) const = 0;
+		enum class Type
+		{
+			And,
+			Binary,
+			Constant,
+			Either,
+			Imply,
+			Not,
+			Or,
+			PredicateDeclaration,
+			Predicate,
+			PrimitiveType,
+			Reference,
+			Variable
+		};
+
+	public:
+		virtual ~Expression() = default;
+
+		virtual Type expressionType() const = 0;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Derived>
+class ExpressionCRTP: public Expression
+{
+	public:
+		Type expressionType() const override final
+		{
+			return Derived::ExpressionType;
+		}
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

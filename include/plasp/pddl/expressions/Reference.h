@@ -4,7 +4,6 @@
 #include <boost/assert.hpp>
 
 #include <plasp/pddl/Expression.h>
-#include <plasp/pddl/ExpressionVisitor.h>
 #include <plasp/utils/Parser.h>
 
 namespace plasp
@@ -21,12 +20,12 @@ namespace expressions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Type>
-class Reference: public Expression
+class Reference: public ExpressionCRTP<Reference<Type>>
 {
 	public:
-		Reference(const Type *value);
+		static const Expression::Type ExpressionType = Expression::Type::Reference;
 
-		void accept(ExpressionVisitor &expressionVisitor) const override;
+		Reference(const Type *value);
 
 		const Type *value() const;
 
@@ -51,14 +50,6 @@ Reference<Type>::Reference(const Type *value)
 :	m_value{value}
 {
 	BOOST_ASSERT(m_value != nullptr);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<class Type>
-void Reference<Type>::accept(plasp::pddl::ExpressionVisitor &expressionVisitor) const
-{
-	expressionVisitor.visit(*m_value);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

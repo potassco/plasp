@@ -18,16 +18,16 @@ namespace expressions
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class Not: public Expression
+class Not: public ExpressionCRTP<Not>
 {
 	public:
+		static const Expression::Type ExpressionType = Expression::Type::Not;
+
 		template<typename ExpressionParser>
 		static NotPointer parse(Context &context, ExpressionContext &expressionContext,
 			ExpressionParser parseExpression);
 
 	public:
-		void accept(ExpressionVisitor &expressionVisitor) const override;
-
 		const Expression &argument() const;
 
 	private:

@@ -16,14 +16,14 @@ namespace expressions
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class PredicateDeclaration: public Expression
+class PredicateDeclaration: public ExpressionCRTP<PredicateDeclaration>
 {
 	public:
+		static const Expression::Type ExpressionType = Expression::Type::PredicateDeclaration;
+
 		static void parse(Context &context, Domain &domain);
 
 	public:
-		void accept(ExpressionVisitor &expressionVisitor) const override;
-
 		const std::string &name() const;
 		const Variables &arguments() const;
 

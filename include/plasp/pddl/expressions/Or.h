@@ -19,10 +19,9 @@ namespace expressions
 class Or: public NAry<Or>
 {
 	public:
-		static const std::string Identifier;
+		static const Expression::Type ExpressionType = Expression::Type::Or;
 
-	public:
-		void accept(ExpressionVisitor &expressionVisitor) const override;
+		static const std::string Identifier;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

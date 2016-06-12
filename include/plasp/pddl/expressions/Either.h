@@ -19,10 +19,9 @@ namespace expressions
 class Either: public NAry<Either>
 {
 	public:
-		static const std::string Identifier;
+		static const Expression::Type ExpressionType = Expression::Type::Either;
 
-	public:
-		void accept(ExpressionVisitor &expressionVisitor) const override;
+		static const std::string Identifier;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -19,9 +19,11 @@ namespace expressions
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class Constant: public Expression
+class Constant: public ExpressionCRTP<Constant>
 {
 	public:
+		static const Expression::Type ExpressionType = Expression::Type::Constant;
+
 		static void parseTypedDeclaration(Context &context, Domain &domain);
 		static void parseTypedDeclarations(Context &context, Domain &domain);
 		static void parseTypedDeclaration(Context &context, Problem &problem);
@@ -31,8 +33,6 @@ class Constant: public Expression
 		static Constant *parseAndFind(Context &context, const Problem &problem);
 
 	public:
-		void accept(ExpressionVisitor &expressionVisitor) const override;
-
 		const std::string &name() const;
 		const PrimitiveType *type() const;
 

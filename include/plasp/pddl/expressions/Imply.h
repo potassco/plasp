@@ -19,10 +19,9 @@ namespace expressions
 class Imply: public Binary<Imply>
 {
 	public:
-		static const std::string Identifier;
+		static const Expression::Type ExpressionType = Expression::Type::Imply;
 
-	public:
-		void accept(ExpressionVisitor &expressionVisitor) const override;
+		static const std::string Identifier;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

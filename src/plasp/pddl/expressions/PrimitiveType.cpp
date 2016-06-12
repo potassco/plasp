@@ -7,7 +7,6 @@
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Domain.h>
 #include <plasp/pddl/ExpressionContext.h>
-#include <plasp/pddl/ExpressionVisitor.h>
 
 namespace plasp
 {
@@ -136,13 +135,6 @@ PrimitiveType *PrimitiveType::parseAndFind(Context &context, Domain &domain)
 	type->setDirty();
 
 	return type;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void PrimitiveType::accept(plasp::pddl::ExpressionVisitor &expressionVisitor) const
-{
-	expressionVisitor.visit(*this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

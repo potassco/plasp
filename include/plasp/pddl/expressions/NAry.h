@@ -21,7 +21,7 @@ namespace expressions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived>
-class NAry: public Expression
+class NAry: public ExpressionCRTP<Derived>
 {
 	public:
 		template<typename ExpressionParser>

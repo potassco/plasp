@@ -19,9 +19,11 @@ namespace expressions
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class PrimitiveType: public Expression
+class PrimitiveType: public ExpressionCRTP<PrimitiveType>
 {
 	public:
+		static const Expression::Type ExpressionType = Expression::Type::PrimitiveType;
+
 		static void parseDeclaration(Context &context, Domain &domain);
 		static void parseTypedDeclaration(Context &context, Domain &domain);
 
@@ -30,8 +32,6 @@ class PrimitiveType: public Expression
 	public:
 		PrimitiveType();
 		PrimitiveType(std::string name);
-
-		void accept(ExpressionVisitor &expressionVisitor) const override;
 
 		const std::string &name() const;
 		const std::vector<const PrimitiveType *> &parentTypes() const;

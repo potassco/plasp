@@ -3,7 +3,6 @@
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Domain.h>
 #include <plasp/pddl/ExpressionContext.h>
-#include <plasp/pddl/ExpressionVisitor.h>
 #include <plasp/pddl/Identifier.h>
 #include <plasp/pddl/expressions/Constant.h>
 #include <plasp/pddl/expressions/Reference.h>
@@ -50,13 +49,6 @@ void PredicateDeclaration::parse(Context &context, Domain &domain)
 	context.parser.expect<std::string>(")");
 
 	domain.predicates().emplace_back(std::move(predicate));
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void PredicateDeclaration::accept(plasp::pddl::ExpressionVisitor &expressionVisitor) const
-{
-	expressionVisitor.visit(*this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

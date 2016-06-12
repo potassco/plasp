@@ -7,7 +7,6 @@
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Domain.h>
 #include <plasp/pddl/ExpressionContext.h>
-#include <plasp/pddl/ExpressionVisitor.h>
 #include <plasp/pddl/Identifier.h>
 #include <plasp/pddl/expressions/Either.h>
 #include <plasp/pddl/expressions/PrimitiveType.h>
@@ -158,13 +157,6 @@ const Variable *Variable::parseAndFind(Context &context, const ExpressionContext
 		throw utils::ParserException(context.parser, "Parameter \"" + variableName + "\" used but never declared");
 
 	return match->get();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void Variable::accept(plasp::pddl::ExpressionVisitor &expressionVisitor) const
-{
-	expressionVisitor.visit(*this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

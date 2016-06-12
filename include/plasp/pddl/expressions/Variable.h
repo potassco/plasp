@@ -16,9 +16,11 @@ namespace expressions
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class Variable: public Expression
+class Variable: public ExpressionCRTP<Variable>
 {
 	public:
+		static const Expression::Type ExpressionType = Expression::Type::Variable;
+
 		static void parseTypedDeclaration(Context &context, ExpressionContext &expressionContext);
 		static void parseTypedDeclarations(Context &context, ExpressionContext &expressionContext);
 
@@ -26,8 +28,6 @@ class Variable: public Expression
 			const ExpressionContext &expressionContext);
 
 	public:
-		void accept(ExpressionVisitor &expressionVisitor) const override;
-
 		const std::string &name() const;
 		const Expression *type() const;
 

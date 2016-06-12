@@ -7,7 +7,6 @@
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Domain.h>
 #include <plasp/pddl/ExpressionContext.h>
-#include <plasp/pddl/ExpressionVisitor.h>
 #include <plasp/pddl/Problem.h>
 #include <plasp/pddl/expressions/PrimitiveType.h>
 
@@ -197,13 +196,6 @@ Constant *Constant::parseAndFind(const std::string &constantName, const Constant
 		return nullptr;
 
 	return match->get();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void Constant::accept(plasp::pddl::ExpressionVisitor &expressionVisitor) const
-{
-	expressionVisitor.visit(*this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
