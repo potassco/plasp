@@ -19,20 +19,21 @@ namespace sas
 class TranslatorASP
 {
 	public:
-		explicit TranslatorASP(const Description &description);
+		explicit TranslatorASP(const Description &description, std::ostream &ostream);
 
-		void translate(std::ostream &ostream) const;
+		void translate() const;
 
 	private:
-		void translateRequirements(std::ostream &ostream) const;
-		void translateInitialState(std::ostream &ostream) const;
-		void translateGoal(std::ostream &ostream) const;
-		void translateVariables(std::ostream &ostream) const;
-		void translateActions(std::ostream &ostream) const;
-		void translateMutexes(std::ostream &ostream) const;
-		void translateAxiomRules(std::ostream &ostream) const;
+		void translateRequirements() const;
+		void translateInitialState() const;
+		void translateGoal() const;
+		void translateVariables() const;
+		void translateActions() const;
+		void translateMutexes() const;
+		void translateAxiomRules() const;
 
 		const Description &m_description;
+		std::ostream &m_ostream;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

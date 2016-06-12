@@ -112,8 +112,8 @@ int main(int argc, char **argv)
 		else if (language == plasp::Language::Type::SAS)
 		{
 			const auto description = plasp::sas::Description::fromParser(std::move(parser));
-			const auto translator = plasp::sas::TranslatorASP(description);
-			translator.translate(std::cout);
+			const auto translator = plasp::sas::TranslatorASP(description, std::cout);
+			translator.translate();
 		}
 	}
 	catch (const plasp::utils::ParserException &e)
