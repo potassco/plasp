@@ -106,8 +106,8 @@ int main(int argc, char **argv)
 		if (language == plasp::Language::Type::PDDL)
 		{
 			const auto description = plasp::pddl::Description::fromParser(std::move(parser));
-			const auto translator = plasp::pddl::TranslatorASP(description);
-			translator.translate(std::cout);
+			const auto translator = plasp::pddl::TranslatorASP(description, std::cout);
+			translator.translate();
 		}
 		else if (language == plasp::Language::Type::SAS)
 		{

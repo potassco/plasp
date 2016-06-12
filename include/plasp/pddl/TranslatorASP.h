@@ -19,17 +19,18 @@ namespace pddl
 class TranslatorASP
 {
 	public:
-		explicit TranslatorASP(const Description &description);
+		explicit TranslatorASP(const Description &description, std::ostream &ostream);
 
-		void translate(std::ostream &ostream) const;
+		void translate() const;
 
 	private:
 		void checkSupport() const;
 
-		void translateDomain(std::ostream &ostream) const;
-		void translateProblem(std::ostream &ostream) const;
+		void translateDomain() const;
+		void translateProblem() const;
 
 		const Description &m_description;
+		std::ostream &m_ostream;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

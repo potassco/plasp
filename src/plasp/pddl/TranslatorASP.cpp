@@ -14,8 +14,9 @@ namespace pddl
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TranslatorASP::TranslatorASP(const Description &description)
-:	m_description(description)
+TranslatorASP::TranslatorASP(const Description &description, std::ostream &ostream)
+:	m_description(description),
+	m_ostream(ostream)
 {
 }
 
@@ -42,25 +43,25 @@ void TranslatorASP::checkSupport() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void TranslatorASP::translate(std::ostream &ostream) const
+void TranslatorASP::translate() const
 {
 	checkSupport();
 
-	translateDomain(ostream);
+	translateDomain();
 
 	if (m_description.containsProblem())
 	{
-		ostream << std::endl;
+		m_ostream << std::endl;
 
-		translateProblem(ostream);
+		translateProblem();
 	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void TranslatorASP::translateDomain(std::ostream &ostream) const
+void TranslatorASP::translateDomain() const
 {
-	ostream
+	m_ostream
 		<< "%---------------------------------------" << std::endl
 		<< "% domain" << std::endl
 		<< "%---------------------------------------" << std::endl;
@@ -70,24 +71,24 @@ void TranslatorASP::translateDomain(std::ostream &ostream) const
 	// Types
 	if (!domain.types().empty())
 	{
-		ostream << std::endl;
-		ostream << "% types";
+		m_ostream << std::endl;
+		m_ostream << "% types";
 
 		const auto &types = domain.types();
 
 		std::for_each(types.cbegin(), types.cend(),
 			[&](const auto &type)
 			{
-				ostream << std::endl;
+				m_ostream << std::endl;
 
-				ostream << "type(" << type->name() << ")." << std::endl;
+				m_ostream << "type(" << type->name() << ")." << std::endl;
 
 				const auto &parentTypes = type->parentTypes();
 
 				std::for_each(parentTypes.cbegin(), parentTypes.cend(),
 					[&](const auto &parentType)
 					{
-						ostream << "inherits(type(" << type->name() << "), type(" << parentType->name() << "))." << std::endl;
+						m_ostream << "inherits(type(" << type->name() << "), type(" << parentType->name() << "))." << std::endl;
 					});
 			});
 	}
@@ -95,81 +96,81 @@ void TranslatorASP::translateDomain(std::ostream &ostream) const
 	// Constants
 	if (!domain.constants().empty())
 	{
-		ostream << std::endl;
-		ostream << "% constants";
+		m_ostream << std::endl;
+		m_ostream << "% constants";
 
 		const auto &constants = domain.constants();
 
 		std::for_each(constants.cbegin(), constants.cend(),
 			[&](const auto &constant)
 			{
-				ostream << std::endl;
+				m_ostream << std::endl;
 
-				ostream << "constant(" << constant->name() << ")." << std::endl;
+				m_ostream << "constant(" << constant->name() << ")." << std::endl;
 
 				const auto *type = constant->type();
 
 				if (type == nullptr)
 					return;
 
-				ostream << "hasType(constant(" << constant->name() << "), type(" << type->name() << "))." << std::endl;
+				m_ostream << "hasType(constant(" << constant->name() << "), type(" << type->name() << "))." << std::endl;
 			});
 	}
 
 	// Predicates
 	if (!domain.predicates().empty())
 	{
-		ostream << std::endl;
-		ostream << "% predicates";
+		m_ostream << std::endl;
+		m_ostream << "% predicates";
 
 		const auto &predicates = domain.predicates();
 
 		std::for_each(predicates.cbegin(), predicates.cend(),
 			[&](const auto &predicate)
 			{
-				ostream << std::endl;
+				m_ostream << std::endl;
 
-				ostream << "predicate(" << predicate->name();
+				m_ostream << "predicate(" << predicate->name();
 
 				const auto &arguments = predicate->arguments();
 
 				if (arguments.empty())
 				{
-					ostream << ").";
+					m_ostream << ").";
 					return;
 				}
 
-				ostream << "(";
+				m_ostream << "(";
 
 				for (auto i = arguments.cbegin(); i != arguments.cend(); i++)
 				{
 					if (i != arguments.cbegin())
-						ostream << ", ";
+						m_ostream << ", ";
 
-					ostream << utils::escapeASPVariable((*i)->name());
+					m_ostream << utils::escapeASPVariable((*i)->name());
 				}
 
-				ostream << ")) :- ";
+				m_ostream << ")) :- ";
 
 				for (auto i = arguments.cbegin(); i != arguments.cend(); i++)
 				{
 					if (i != arguments.cbegin())
-						ostream << ", ";
+						m_ostream << ", ";
 
 					const auto &type = *dynamic_cast<const expressions::PrimitiveType *>((*i)->type());
-					ostream << "hasType(" << utils::escapeASPVariable((*i)->name()) << ", type(" << type.name() << "))";
+					m_ostream << "hasType(" << utils::escapeASPVariable((*i)->name()) << ", type(" << type.name() << "))";
 				}
 
-				ostream << ".";
+				m_ostream << ".";
 			});
 	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void TranslatorASP::translateProblem(std::ostream &ostream) const
+void TranslatorASP::translateProblem() const
 {
-	ostream << std::endl
+	m_ostream << std::endl
 		<< "%---------------------------------------" << std::endl
 		<< "% problem" << std::endl
 		<< "%---------------------------------------" << std::endl;
