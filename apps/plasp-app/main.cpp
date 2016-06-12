@@ -9,6 +9,7 @@
 #include <plasp/pddl/TranslatorASP.h>
 #include <plasp/sas/Description.h>
 #include <plasp/sas/TranslatorASP.h>
+#include <plasp/utils/TranslatorException.h>
 
 int main(int argc, char **argv)
 {
@@ -114,6 +115,18 @@ int main(int argc, char **argv)
 			const auto translator = plasp::sas::TranslatorASP(description);
 			translator.translate(std::cout);
 		}
+	}
+	catch (const plasp::utils::ParserException &e)
+	{
+		std::cerr << "Parser error: " << e.what() << std::endl << std::endl;
+		printHelp();
+		return EXIT_FAILURE;
+	}
+	catch (const plasp::utils::TranslatorException &e)
+	{
+		std::cerr << "Translation error: " << e.what() << std::endl << std::endl;
+		printHelp();
+		return EXIT_FAILURE;
 	}
 	catch (const std::exception &e)
 	{
