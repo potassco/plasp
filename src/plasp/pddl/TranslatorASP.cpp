@@ -177,36 +177,9 @@ void TranslatorASP::translatePredicates() const
 
 			m_ostream << "predicate(" << predicate->name();
 
-			const auto &arguments = predicate->arguments();
+			translateVariables(predicate->arguments());
 
-			if (arguments.empty())
-			{
-				m_ostream << ").";
-				return;
-			}
-
-			m_ostream << "(";
-
-			for (auto i = arguments.cbegin(); i != arguments.cend(); i++)
-			{
-				if (i != arguments.cbegin())
-					m_ostream << ", ";
-
-				m_ostream << utils::escapeASPVariable((*i)->name());
-			}
-
-			m_ostream << ")) :- ";
-
-			for (auto i = arguments.cbegin(); i != arguments.cend(); i++)
-			{
-				if (i != arguments.cbegin())
-					m_ostream << ", ";
-
-				const auto &type = *dynamic_cast<const expressions::PrimitiveType *>((*i)->type());
-				m_ostream << "hasType(" << utils::escapeASPVariable((*i)->name()) << ", type(" << type.name() << "))";
-			}
-
-			m_ostream << ".";
+			m_ostream << ").";
 		});
 
 	m_ostream << std::endl;
@@ -227,39 +200,45 @@ void TranslatorASP::translateActions() const
 
 			m_ostream << "action(" << action->name();
 
-			const auto &parameters = action->parameters();
+			translateVariables(action->parameters());
 
-			if (parameters.empty())
-			{
-				m_ostream << ").";
-				return;
-			}
-
-			m_ostream << "(";
-
-			for (auto i = parameters.cbegin(); i != parameters.cend(); i++)
-			{
-				if (i != parameters.cbegin())
-					m_ostream << ", ";
-
-				m_ostream << utils::escapeASPVariable((*i)->name());
-			}
-
-			m_ostream << ")) :- ";
-
-			for (auto i = parameters.cbegin(); i != parameters.cend(); i++)
-			{
-				if (i != parameters.cbegin())
-					m_ostream << ", ";
-
-				const auto &type = *dynamic_cast<const expressions::PrimitiveType *>((*i)->type());
-				m_ostream << "hasType(" << utils::escapeASPVariable((*i)->name()) << ", type(" << type.name() << "))";
-			}
-
-			m_ostream << ".";
+			m_ostream << ").";
 		});
 
 	m_ostream << std::endl;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void TranslatorASP::translateVariables(const expressions::Variables &variables) const
+{
+	if (variables.empty())
+		return;
+
+	m_ostream << "(";
+
+	for (auto i = variables.cbegin(); i != variables.cend(); i++)
+	{
+		if (i != variables.cbegin())
+			m_ostream << ", ";
+
+		const auto &variable = *dynamic_cast<const expressions::Variable *>(i->get());
+
+		m_ostream << utils::escapeASPVariable(variable.name());
+	}
+
+	m_ostream << ")) :- ";
+
+	for (auto i = variables.cbegin(); i != variables.cend(); i++)
+	{
+		if (i != variables.cbegin())
+			m_ostream << ", ";
+
+		const auto &variable = *dynamic_cast<const expressions::Variable *>(i->get());
+		const auto &type = *dynamic_cast<const expressions::PrimitiveType *>(variable.type());
+
+		m_ostream << "hasType(" << utils::escapeASPVariable(variable.name()) << ", type(" << type.name() << "))";
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
