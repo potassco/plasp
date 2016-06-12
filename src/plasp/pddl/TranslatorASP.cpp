@@ -20,8 +20,31 @@ TranslatorASP::TranslatorASP(const Description &description)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void TranslatorASP::checkSupport() const
+{
+	// Check for "either" types
+	const auto &predicates = m_description.domain().predicates();
+
+	std::for_each(predicates.cbegin(), predicates.cend(),
+		[&](const auto &predicate)
+		{
+			const auto &arguments = predicate->arguments();
+
+			std::for_each(arguments.cbegin(), arguments.cend(),
+				[&](const auto &parameter)
+				{
+					if (parameter->type()->expressionType() != Expression::Type::PrimitiveType)
+						throw utils::TranslatorException("Only primitive types supported currently");
+				});
+		});
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void TranslatorASP::translate(std::ostream &ostream) const
 {
+	checkSupport();
+
 	translateDomain(ostream);
 
 	if (m_description.containsProblem())
