@@ -11,7 +11,6 @@
 #include <plasp/pddl/expressions/Not.h>
 #include <plasp/pddl/expressions/Predicate.h>
 #include <plasp/pddl/expressions/PrimitiveType.h>
-#include <plasp/pddl/expressions/Reference.h>
 
 using namespace plasp::pddl;
 
@@ -49,11 +48,11 @@ TEST(PDDLParserTests, ParseBlocksWorldDomain)
 	ASSERT_EQ(on.name(), "on");
 	ASSERT_EQ(on.arguments().size(), 2u);
 	ASSERT_EQ(on.arguments()[0]->name(), "x");
-	const auto *onArgument0Type = dynamic_cast<const expressions::PrimitiveType *>(on.arguments()[0]->type());
-	ASSERT_EQ(onArgument0Type, &block);
+	const auto &onArgument0Type = dynamic_cast<const expressions::PrimitiveType &>(*on.arguments()[0]->type());
+	ASSERT_EQ(&onArgument0Type, &block);
 	ASSERT_EQ(on.arguments()[1]->name(), "y");
-	const auto onArgument1Type = dynamic_cast<const expressions::PrimitiveType *>(on.arguments()[1]->type());
-	ASSERT_EQ(onArgument1Type, &block);
+	const auto &onArgument1Type = dynamic_cast<const expressions::PrimitiveType &>(*on.arguments()[1]->type());
+	ASSERT_EQ(&onArgument1Type, &block);
 
 	const auto &handempty = *domain.predicates()[3];
 
@@ -75,7 +74,7 @@ TEST(PDDLParserTests, ParseBlocksWorldDomain)
 	const auto &pickUpPre0 = dynamic_cast<const expressions::Predicate &>(*pickUpPre.arguments()[0]);
 	ASSERT_EQ(pickUpPre0.name(), "clear");
 	ASSERT_EQ(pickUpPre0.arguments().size(), 1u);
-	const auto &pickUpPre00 = *dynamic_cast<const expressions::Reference<expressions::Variable> &>(*pickUpPre0.arguments()[0]).value();
+	const auto &pickUpPre00 = dynamic_cast<const expressions::Variable &>(*pickUpPre0.arguments()[0]);
 	ASSERT_EQ(pickUpPre00.name(), "x");
 	ASSERT_EQ(pickUpPre00.type(), &block);
 	ASSERT_EQ(&pickUpPre00, pickUp.parameters()[0].get());
@@ -86,10 +85,10 @@ TEST(PDDLParserTests, ParseBlocksWorldDomain)
 	const auto &pickUpEff = dynamic_cast<const expressions::And &>(*pickUp.effect());
 	ASSERT_EQ(pickUpEff.arguments().size(), 4u);
 	const auto &pickUpEff0 = dynamic_cast<const expressions::Not &>(*pickUpEff.arguments()[0]);
-	const auto &pickUpEff00 = dynamic_cast<const expressions::Predicate &>(pickUpEff0.argument());
+	const auto &pickUpEff00 = dynamic_cast<const expressions::Predicate &>(*pickUpEff0.argument());
 	ASSERT_EQ(pickUpEff00.name(), "ontable");
 	ASSERT_EQ(pickUpEff00.arguments().size(), 1u);
-	const auto &pickUpEff000 = *dynamic_cast<const expressions::Reference<expressions::Variable> &>(*pickUpEff00.arguments()[0]).value();
+	const auto &pickUpEff000 = dynamic_cast<const expressions::Variable &>(*pickUpEff00.arguments()[0]);
 	ASSERT_EQ(pickUpEff000.name(), "x");
 	ASSERT_EQ(pickUpEff000.type(), &block);
 }
@@ -125,14 +124,14 @@ TEST(PDDLParserTests, ParseBlocksWorldProblem)
 	const auto &facts = problem.initialState().facts();
 
 	ASSERT_EQ(facts.size(), 9u);
-	const auto &fact0 = *dynamic_cast<const expressions::Predicate *>(facts[0].get());
+	const auto &fact0 = dynamic_cast<const expressions::Predicate &>(*facts[0].get());
 	ASSERT_EQ(fact0.name(), "clear");
 	ASSERT_EQ(fact0.arguments().size(), 1u);
-	const auto &fact00 = *dynamic_cast<const expressions::Reference<expressions::Constant> *>(fact0.arguments()[0].get())->value();
+	const auto &fact00 = dynamic_cast<const expressions::Constant &>(*fact0.arguments()[0]);
 	ASSERT_EQ(fact00.name(), "c");
 	ASSERT_NE(fact00.type(), nullptr);
 	ASSERT_EQ(fact00.type()->name(), "block");
-	const auto &fact8 = *dynamic_cast<const expressions::Predicate *>(facts[8].get());
+	const auto &fact8 = dynamic_cast<const expressions::Predicate &>(*facts[8].get());
 	ASSERT_EQ(fact8.name(), "handempty");
 	ASSERT_EQ(fact8.arguments().size(), 0u);
 
@@ -140,19 +139,19 @@ TEST(PDDLParserTests, ParseBlocksWorldProblem)
 	const auto &goal = dynamic_cast<const expressions::And &>(problem.goal());
 
 	ASSERT_EQ(goal.arguments().size(), 3u);
-	const auto &goal0 = *dynamic_cast<expressions::Predicate *>(goal.arguments()[0].get());
+	const auto &goal0 = dynamic_cast<const expressions::Predicate &>(*goal.arguments()[0]);
 	ASSERT_EQ(goal0.name(), "on");
 	ASSERT_EQ(goal0.arguments().size(), 2u);
-	const auto &goal00 = *dynamic_cast<expressions::Reference<expressions::Constant> *>(goal0.arguments()[0].get())->value();
+	const auto &goal00 = dynamic_cast<const expressions::Constant &>(*goal0.arguments()[0]);
 	ASSERT_EQ(goal00.name(), "d");
-	const auto &goal01 = *dynamic_cast<expressions::Reference<expressions::Constant> *>(goal0.arguments()[1].get())->value();
+	const auto &goal01 = dynamic_cast<const expressions::Constant &>(*goal0.arguments()[1]);
 	ASSERT_EQ(goal01.name(), "c");
-	const auto &goal2 = *dynamic_cast<expressions::Predicate *>(goal.arguments()[2].get());
+	const auto &goal2 = dynamic_cast<const expressions::Predicate &>(*goal.arguments()[2]);
 	ASSERT_EQ(goal2.name(), "on");
 	ASSERT_EQ(goal2.arguments().size(), 2u);
-	const auto &goal20 = *dynamic_cast<expressions::Reference<expressions::Constant> *>(goal2.arguments()[0].get())->value();
+	const auto &goal20 = dynamic_cast<const expressions::Constant &>(*goal2.arguments()[0]);
 	ASSERT_EQ(goal20.name(), "b");
-	const auto &goal21 = *dynamic_cast<expressions::Reference<expressions::Constant> *>(goal2.arguments()[1].get())->value();
+	const auto &goal21 = dynamic_cast<const expressions::Constant &>(*goal2.arguments()[1]);
 	ASSERT_EQ(goal21.name(), "a");
 }
 
@@ -200,22 +199,22 @@ TEST(PDDLParserTests, ParseStorageDomain)
 	ASSERT_EQ(on.name(), "on");
 	ASSERT_EQ(on.arguments().size(), 2u);
 	ASSERT_EQ(on.arguments()[0]->name(), "c");
-	const auto onArgument0Type = dynamic_cast<const expressions::PrimitiveType *>(on.arguments()[0]->type());
-	ASSERT_EQ(onArgument0Type, &crate);
+	const auto &onArgument0Type = dynamic_cast<const expressions::PrimitiveType &>(*on.arguments()[0]->type());
+	ASSERT_EQ(&onArgument0Type, &crate);
 	ASSERT_EQ(on.arguments()[1]->name(), "s");
-	const auto onArgument1Type = dynamic_cast<const expressions::PrimitiveType *>(on.arguments()[1]->type());
-	ASSERT_EQ(onArgument1Type, &storearea);
+	const auto &onArgument1Type = dynamic_cast<const expressions::PrimitiveType &>(*on.arguments()[1]->type());
+	ASSERT_EQ(&onArgument1Type, &storearea);
 
 	const auto &in = *domain.predicates()[1];
 	ASSERT_EQ(in.name(), "in");
 	ASSERT_EQ(in.arguments().size(), 2u);
 	ASSERT_EQ(in.arguments()[0]->name(), "x");
-	const auto inArgument0Type = dynamic_cast<const expressions::Either *>(in.arguments()[0]->type());
-	ASSERT_EQ(inArgument0Type->arguments().size(), 2u);
-	const auto inArgument0Type0 = dynamic_cast<const expressions::Reference<expressions::PrimitiveType> *>(inArgument0Type->arguments()[0].get())->value();
-	ASSERT_EQ(inArgument0Type0, &storearea);
-	const auto inArgument0Type1 = dynamic_cast<const expressions::Reference<expressions::PrimitiveType> *>(inArgument0Type->arguments()[1].get())->value();
-	ASSERT_EQ(inArgument0Type1, &crate);
+	const auto &inArgument0Type = dynamic_cast<const expressions::Either &>(*in.arguments()[0]->type());
+	ASSERT_EQ(inArgument0Type.arguments().size(), 2u);
+	const auto &inArgument0Type0 = dynamic_cast<const expressions::PrimitiveType &>(*inArgument0Type.arguments()[0]);
+	ASSERT_EQ(&inArgument0Type0, &storearea);
+	const auto &inArgument0Type1 = dynamic_cast<const expressions::PrimitiveType &>(*inArgument0Type.arguments()[1]);
+	ASSERT_EQ(&inArgument0Type1, &crate);
 
 	// Actions
 	ASSERT_EQ(domain.actions().size(), 5u);
@@ -232,17 +231,17 @@ TEST(PDDLParserTests, ParseStorageDomain)
 	const auto &dropPre2 = dynamic_cast<const expressions::Predicate &>(*dropPre.arguments()[2]);
 	ASSERT_EQ(dropPre2.name(), "lifting");
 	ASSERT_EQ(dropPre2.arguments().size(), 2u);
-	const auto &dropPre21 = *dynamic_cast<const expressions::Reference<expressions::Variable> &>(*dropPre2.arguments()[1]).value();
+	const auto &dropPre21 = dynamic_cast<const expressions::Variable &>(*dropPre2.arguments()[1]);
 	ASSERT_EQ(dropPre21.name(), "c");
 	ASSERT_EQ(dropPre21.type(), &crate);
 
 	const auto &dropEff = dynamic_cast<const expressions::And &>(*drop.effect());
 	ASSERT_EQ(dropEff.arguments().size(), 5u);
 	const auto &dropEff2 = dynamic_cast<const expressions::Not &>(*dropEff.arguments()[2]);
-	const auto &dropEff20 = dynamic_cast<const expressions::Predicate &>(dropEff2.argument());
+	const auto &dropEff20 = dynamic_cast<const expressions::Predicate &>(*dropEff2.argument());
 	ASSERT_EQ(dropEff20.name(), "clear");
 	ASSERT_EQ(dropEff20.arguments().size(), 1u);
-	const auto &dropEff200 = *dynamic_cast<const expressions::Reference<expressions::Variable> &>(*dropEff20.arguments()[0]).value();
+	const auto &dropEff200 = dynamic_cast<const expressions::Variable &>(*dropEff20.arguments()[0]);
 	ASSERT_EQ(dropEff200.name(), "a1");
 	ASSERT_EQ(dropEff200.type(), &storearea);
 }
@@ -278,17 +277,17 @@ TEST(PDDLParserTests, ParseStorageProblem)
 	const auto &facts = problem.initialState().facts();
 
 	ASSERT_EQ(facts.size(), 10u);
-	const auto &fact0 = *dynamic_cast<const expressions::Predicate *>(facts[0].get());
+	const auto &fact0 = dynamic_cast<const expressions::Predicate &>(*facts[0].get());
 	ASSERT_EQ(fact0.name(), "in");
 	ASSERT_EQ(fact0.arguments().size(), 2u);
-	const auto &fact01 = *dynamic_cast<const expressions::Reference<expressions::Constant> *>(fact0.arguments()[1].get())->value();
+	const auto &fact01 = dynamic_cast<const expressions::Constant &>(*fact0.arguments()[1]);
 	ASSERT_EQ(fact01.name(), "depot0");
 	ASSERT_NE(fact01.type(), nullptr);
 	ASSERT_EQ(fact01.type()->name(), "depot");
-	const auto &fact9 = *dynamic_cast<const expressions::Predicate *>(facts[9].get());
+	const auto &fact9 = dynamic_cast<const expressions::Predicate &>(*facts[9].get());
 	ASSERT_EQ(fact9.name(), "available");
 	ASSERT_EQ(fact9.arguments().size(), 1u);
-	const auto &fact90 = *dynamic_cast<const expressions::Reference<expressions::Constant> *>(fact9.arguments()[0].get())->value();
+	const auto &fact90 = dynamic_cast<const expressions::Constant &>(*fact9.arguments()[0]);
 	ASSERT_EQ(fact90.name(), "hoist0");
 	ASSERT_NE(fact90.type(), nullptr);
 	ASSERT_EQ(fact90.type()->name(), "hoist");
@@ -297,12 +296,12 @@ TEST(PDDLParserTests, ParseStorageProblem)
 	const auto &goal = dynamic_cast<const expressions::And &>(problem.goal());
 
 	ASSERT_EQ(goal.arguments().size(), 1u);
-	const auto &goal0 = *dynamic_cast<expressions::Predicate *>(goal.arguments()[0].get());
+	const auto &goal0 = dynamic_cast<const expressions::Predicate &>(*goal.arguments()[0]);
 	ASSERT_EQ(goal0.name(), "in");
 	ASSERT_EQ(goal0.arguments().size(), 2u);
-	const auto &goal00 = *dynamic_cast<expressions::Reference<expressions::Constant> *>(goal0.arguments()[0].get())->value();
+	const auto &goal00 = dynamic_cast<const expressions::Constant &>(*goal0.arguments()[0]);
 	ASSERT_EQ(goal00.name(), "crate0");
-	const auto &goal01 = *dynamic_cast<expressions::Reference<expressions::Constant> *>(goal0.arguments()[1].get())->value();
+	const auto &goal01 = dynamic_cast<const expressions::Constant &>(*goal0.arguments()[1]);
 	ASSERT_EQ(goal01.name(), "depot0");
 }
 

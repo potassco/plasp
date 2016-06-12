@@ -28,10 +28,16 @@ class Not: public ExpressionCRTP<Not>
 			ExpressionParser parseExpression);
 
 	public:
-		const Expression &argument() const;
+		Not();
+
+		const Expression *argument() const;
 
 	private:
-		ExpressionPointer m_argument;
+		void setArgument(const Expression *argument);
+		void setArgument(ExpressionPointer &&argument);
+
+		const Expression *m_argument;
+		ExpressionPointer m_argumentStorage;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -56,7 +62,7 @@ NotPointer Not::parse(Context &context, ExpressionContext &expressionContext,
 	context.parser.skipWhiteSpace();
 
 	// Parse argument
-	expression->m_argument = parseExpression(context, expressionContext);
+	expression->setArgument(parseExpression(context, expressionContext));
 
 	parser.expect<std::string>(")");
 

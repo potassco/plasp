@@ -5,7 +5,6 @@
 #include <plasp/pddl/ExpressionContext.h>
 #include <plasp/pddl/Identifier.h>
 #include <plasp/pddl/expressions/Constant.h>
-#include <plasp/pddl/expressions/Reference.h>
 #include <plasp/pddl/expressions/Variable.h>
 
 namespace plasp

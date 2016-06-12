@@ -29,12 +29,16 @@ class Binary: public ExpressionCRTP<Derived>
 			ExpressionContext &expressionContext, ExpressionParser parseExpression);
 
 	public:
-		const Expression *leftArgument() const;
-		const Expression *rightArgument() const;
+		const std::array<const Expression *, 2> &arguments() const;
 
 	private:
-		ExpressionPointer m_leftArgument;
-		ExpressionPointer m_rightArgument;
+		template<size_t i>
+		void setArgument(const Expression *argument);
+		template<size_t i>
+		void setArgument(ExpressionPointer &&argument);
+	
+		std::array<const Expression *, 2> m_arguments;
+		std::array<ExpressionPointer, 2> m_argumentStorage;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -59,8 +63,8 @@ std::unique_ptr<Derived> Binary<Derived>::parse(Context &context,
 
 	// Assume that expression identifier (imply, exists, etc.) is already parsed
 	// Parse arguments of the expression
-	expression->m_leftArgument = parseExpression(context, expressionContext);
-	expression->m_rightArgument = parseExpression(context, expressionContext);
+	expression->setArgument<0>(parseExpression(context, expressionContext));
+	expression->setArgument<1>(parseExpression(context, expressionContext));
 
 	parser.expect<std::string>(")");
 
@@ -70,17 +74,33 @@ std::unique_ptr<Derived> Binary<Derived>::parse(Context &context,
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived>
-const Expression *Binary<Derived>::leftArgument() const
+template<size_t i>
+void Binary<Derived>::setArgument(const Expression *expression)
 {
-	return m_leftArgument.get();
+	static_assert(i <= 2, "Index out of range");
+
+	m_argumentStorage[i] = nullptr;
+	m_arguments[i] = expression;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived>
-const Expression *Binary<Derived>::rightArgument() const
+template<size_t i>
+void Binary<Derived>::setArgument(ExpressionPointer &&expression)
 {
-	return m_rightArgument.get();
+	static_assert(i <= 2, "Index out of range");
+
+	m_argumentStorage[i] = std::move(expression);
+	m_arguments[i] = m_argumentStorage[i].get();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Derived>
+const std::array<const Expression *, 2> &Binary<Derived>::arguments() const
+{
+	return m_arguments;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

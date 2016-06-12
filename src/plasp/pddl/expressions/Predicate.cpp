@@ -6,7 +6,6 @@
 #include <plasp/pddl/Identifier.h>
 #include <plasp/pddl/Problem.h>
 #include <plasp/pddl/expressions/Constant.h>
-#include <plasp/pddl/expressions/Reference.h>
 #include <plasp/pddl/expressions/Variable.h>
 
 namespace plasp
@@ -69,8 +68,7 @@ PredicatePointer Predicate::parse(Context &context, ExpressionContext &expressio
 		if (context.parser.currentCharacter() == '?')
 		{
 			const auto *variable = Variable::parseAndFind(context, expressionContext);
-			auto variableReference = std::make_unique<Reference<Variable>>(variable);
-			predicate->m_arguments.emplace_back(std::move(variableReference));
+			predicate->m_arguments.emplace_back(variable);
 		}
 		// Parse constants
 		else
@@ -78,8 +76,7 @@ PredicatePointer Predicate::parse(Context &context, ExpressionContext &expressio
 			const auto *constant = (expressionContext.problem == nullptr)
 				? Constant::parseAndFind(context, expressionContext.domain)
 				: Constant::parseAndFind(context, *expressionContext.problem);
-			auto constantReference = std::make_unique<Reference<Constant>>(constant);
-			predicate->m_arguments.emplace_back(std::move(constantReference));
+			predicate->m_arguments.emplace_back(constant);
 		}
 
 		context.parser.skipWhiteSpace();
@@ -134,8 +131,7 @@ PredicatePointer Predicate::parse(Context &context, const Problem &problem)
 
 		// Parse objects and constants
 		const auto *constant = Constant::parseAndFind(context, problem);
-		auto constantReference = std::make_unique<Reference<Constant>>(constant);
-		predicate->m_arguments.emplace_back(std::move(constantReference));
+		predicate->m_arguments.emplace_back(constant);
 	}
 
 	// TODO: check that signature matches one of the declared ones
@@ -168,7 +164,7 @@ const std::string &Predicate::name() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const Expressions &Predicate::arguments() const
+const std::vector<const Expression *> &Predicate::arguments() const
 {
 	return m_arguments;
 }

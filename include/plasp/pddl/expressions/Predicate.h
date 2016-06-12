@@ -26,7 +26,7 @@ class Predicate: public ExpressionCRTP<Predicate>
 
 	public:
 		const std::string &name() const;
-		const Expressions &arguments() const;
+		const std::vector<const Expression *> &arguments() const;
 
 		bool isDeclared() const;
 
@@ -38,7 +38,7 @@ class Predicate: public ExpressionCRTP<Predicate>
 		bool m_isDeclared;
 
 		std::string m_name;
-		Expressions m_arguments;
+		std::vector<const Expression *> m_arguments;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

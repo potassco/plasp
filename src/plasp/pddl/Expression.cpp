@@ -11,7 +11,6 @@
 #include <plasp/pddl/expressions/Or.h>
 #include <plasp/pddl/expressions/Predicate.h>
 #include <plasp/pddl/expressions/PredicateDeclaration.h>
-#include <plasp/pddl/expressions/Reference.h>
 #include <plasp/utils/IO.h>
 #include <plasp/utils/ParserException.h>
 

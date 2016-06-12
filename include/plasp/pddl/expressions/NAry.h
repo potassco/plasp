@@ -29,10 +29,14 @@ class NAry: public ExpressionCRTP<Derived>
 			ExpressionContext &expressionContext, ExpressionParser parseExpression);
 
 	public:
-		const Expressions &arguments() const;
+		const std::vector<const Expression *> &arguments() const;
 
 	private:
-		Expressions m_arguments;
+		void addArgument(const Expression *argument);
+		void addArgument(ExpressionPointer &&argument);
+	
+		std::vector<const Expression *> m_arguments;
+		Expressions m_argumentStorage;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -61,7 +65,7 @@ std::unique_ptr<Derived> NAry<Derived>::parse(Context &context,
 	// Parse arguments of the expression
 	while (parser.currentCharacter() != ')')
 	{
-		expression->m_arguments.emplace_back(parseExpression(context, expressionContext));
+		expression->addArgument(parseExpression(context, expressionContext));
 
 		parser.skipWhiteSpace();
 	}
@@ -77,7 +81,24 @@ std::unique_ptr<Derived> NAry<Derived>::parse(Context &context,
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived>
-const Expressions &NAry<Derived>::arguments() const
+void NAry<Derived>::addArgument(const Expression *argument)
+{
+	m_arguments.emplace_back(argument);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Derived>
+void NAry<Derived>::addArgument(ExpressionPointer &&argument)
+{
+	m_argumentStorage.emplace_back(std::move(argument));
+	m_arguments.emplace_back(m_argumentStorage.back().get());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Derived>
+const std::vector<const Expression *> &NAry<Derived>::arguments() const
 {
 	return m_arguments;
 }
