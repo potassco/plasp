@@ -27,8 +27,8 @@ class Action
 		const std::string &name() const;
 
 		const expressions::Variables &parameters() const;
-		const Expression &precondition() const;
-		const Expression &effect() const;
+		const Expression *precondition() const;
+		const Expression *effect() const;
 
 	private:
 		Action() = default;

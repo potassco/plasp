@@ -70,7 +70,7 @@ TEST(PDDLParserTests, ParseBlocksWorldDomain)
 	ASSERT_EQ(pickUp.parameters()[0]->name(), "x");
 	ASSERT_EQ(pickUp.parameters()[0]->type(), &block);
 
-	const auto &pickUpPre = dynamic_cast<const expressions::And &>(pickUp.precondition());
+	const auto &pickUpPre = dynamic_cast<const expressions::And &>(*pickUp.precondition());
 	ASSERT_EQ(pickUpPre.arguments().size(), 3u);
 	const auto &pickUpPre0 = dynamic_cast<const expressions::Predicate &>(*pickUpPre.arguments()[0]);
 	ASSERT_EQ(pickUpPre0.name(), "clear");
@@ -83,7 +83,7 @@ TEST(PDDLParserTests, ParseBlocksWorldDomain)
 	ASSERT_EQ(pickUpPre2.name(), "handempty");
 	ASSERT_EQ(pickUpPre2.arguments().size(), 0u);
 
-	const auto &pickUpEff = dynamic_cast<const expressions::And &>(pickUp.effect());
+	const auto &pickUpEff = dynamic_cast<const expressions::And &>(*pickUp.effect());
 	ASSERT_EQ(pickUpEff.arguments().size(), 4u);
 	const auto &pickUpEff0 = dynamic_cast<const expressions::Not &>(*pickUpEff.arguments()[0]);
 	const auto &pickUpEff00 = dynamic_cast<const expressions::Predicate &>(pickUpEff0.argument());
@@ -227,7 +227,7 @@ TEST(PDDLParserTests, ParseStorageDomain)
 	ASSERT_EQ(drop.parameters()[3]->name(), "a2");
 	ASSERT_EQ(drop.parameters()[3]->type(), &area);
 
-	const auto &dropPre = dynamic_cast<const expressions::And &>(drop.precondition());
+	const auto &dropPre = dynamic_cast<const expressions::And &>(*drop.precondition());
 	ASSERT_EQ(dropPre.arguments().size(), 5u);
 	const auto &dropPre2 = dynamic_cast<const expressions::Predicate &>(*dropPre.arguments()[2]);
 	ASSERT_EQ(dropPre2.name(), "lifting");
@@ -236,7 +236,7 @@ TEST(PDDLParserTests, ParseStorageDomain)
 	ASSERT_EQ(dropPre21.name(), "c");
 	ASSERT_EQ(dropPre21.type(), &crate);
 
-	const auto &dropEff = dynamic_cast<const expressions::And &>(drop.effect());
+	const auto &dropEff = dynamic_cast<const expressions::And &>(*drop.effect());
 	ASSERT_EQ(dropEff.arguments().size(), 5u);
 	const auto &dropEff2 = dynamic_cast<const expressions::Not &>(*dropEff.arguments()[2]);
 	const auto &dropEff20 = dynamic_cast<const expressions::Predicate &>(dropEff2.argument());

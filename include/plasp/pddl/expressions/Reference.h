@@ -19,6 +19,7 @@ namespace expressions
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// TODO: refactor without reference wrapper
 template<class Type>
 class Reference: public ExpressionCRTP<Reference<Type>>
 {
