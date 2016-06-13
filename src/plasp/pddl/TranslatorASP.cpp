@@ -127,7 +127,6 @@ void TranslatorASP::translate() const
 	if (m_description.containsProblem())
 	{
 		m_ostream << std::endl;
-
 		translateProblem();
 	}
 }
