@@ -34,7 +34,7 @@ class NAry: public ExpressionCRTP<Derived>
 	private:
 		void addArgument(const Expression *argument);
 		void addArgument(ExpressionPointer &&argument);
-	
+
 		std::vector<const Expression *> m_arguments;
 		Expressions m_argumentStorage;
 };
@@ -83,6 +83,9 @@ std::unique_ptr<Derived> NAry<Derived>::parse(Context &context,
 template<class Derived>
 void NAry<Derived>::addArgument(const Expression *argument)
 {
+	if (!argument)
+		return;
+
 	m_arguments.emplace_back(argument);
 }
 
@@ -91,6 +94,9 @@ void NAry<Derived>::addArgument(const Expression *argument)
 template<class Derived>
 void NAry<Derived>::addArgument(ExpressionPointer &&argument)
 {
+	if (!argument)
+		return;
+
 	m_argumentStorage.emplace_back(std::move(argument));
 	m_arguments.emplace_back(m_argumentStorage.back().get());
 }
