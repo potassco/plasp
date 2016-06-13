@@ -24,8 +24,6 @@ class TranslatorASP
 		void translate() const;
 
 	private:
-		void checkSupport() const;
-
 		void translateDomain() const;
 		void translateTypes() const;
 		void translateConstants() const;

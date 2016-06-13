@@ -27,110 +27,8 @@ TranslatorASP::TranslatorASP(const Description &description, std::ostream &ostre
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void TranslatorASP::checkSupport() const
-{
-	// Check for "either" types in predicate declarations
-	const auto &predicates = m_description.domain().predicates();
-
-	std::for_each(predicates.cbegin(), predicates.cend(),
-		[&](const auto &predicate)
-		{
-			const auto &arguments = predicate->arguments();
-
-			std::for_each(arguments.cbegin(), arguments.cend(),
-				[&](const auto &parameter)
-				{
-					if (parameter->type() == nullptr)
-						return;
-
-					if (parameter->type()->expressionType() != Expression::Type::PrimitiveType)
-						throw utils::TranslatorException("Only primitive types supported currently");
-				});
-		});
-
-	const auto &actions = m_description.domain().actions();
-
-	std::for_each(actions.cbegin(), actions.cend(),
-		[&](const auto &action)
-		{
-			const auto &parameters = action->parameters();
-
-			// Check for "either" types in action parameters
-			std::for_each(parameters.cbegin(), parameters.cend(),
-				[&](const auto &parameter)
-				{
-					if (parameter->type() == nullptr)
-						return;
-
-					if (parameter->type()->expressionType() != Expression::Type::PrimitiveType)
-						throw utils::TranslatorException("Only primitive types supported currently");
-				});
-
-			if (action->precondition())
-			{
-				// Check that all preconditions are "and" expressions or single predicates
-				if (action->precondition()->expressionType() != Expression::Type::And
-					&& action->precondition()->expressionType() != Expression::Type::Predicate)
-				{
-					throw utils::TranslatorException("Only \"and\" expressions and single predicates supported as action preconditions currently");
-				}
-
-				// Check that "and" expression in preconditions contains single predicates only
-				if (action->precondition()->expressionType() == Expression::Type::And)
-				{
-					const auto &precondition = dynamic_cast<const expressions::And &>(*action->precondition());
-					const auto &preconditionArguments = precondition.arguments();
-
-					std::for_each(preconditionArguments.cbegin(), preconditionArguments.cend(),
-						[&](const auto &argument)
-						{
-							if (argument->expressionType() != Expression::Type::Predicate
-								&& argument->expressionType() != Expression::Type::Not)
-							{
-								throw utils::TranslatorException("Only predicates supported in preconditions currently");
-							}
-						});
-				}
-			}
-
-			if (action->effect())
-			{
-				// Check that all effects are "and" expressions
-				if (action->effect()->expressionType() != Expression::Type::And
-					&& action->effect()->expressionType() != Expression::Type::Predicate)
-				{
-					throw utils::TranslatorException("Only \"and\" expressions and single predicates supported as action effects currently");
-				}
-
-				// Check that "and" expression in effect contains single predicates or negated predicates only
-				if (action->effect()->expressionType() == Expression::Type::And)
-				{
-					const auto &effect = dynamic_cast<const expressions::And &>(*action->effect());
-					const auto &effectArguments = effect.arguments();
-
-					std::for_each(effectArguments.cbegin(), effectArguments.cend(),
-						[&](const auto *argument)
-						{
-							if (argument->expressionType() == Expression::Type::Not)
-							{
-								const auto &notExpression = dynamic_cast<const expressions::Not &>(*argument);
-								argument = notExpression.argument();
-							}
-
-							if (argument->expressionType() != Expression::Type::Predicate)
-								throw utils::TranslatorException("Only predicates and negated predicates supported in effects currently");
-						});
-				}
-			}
-		});
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 void TranslatorASP::translate() const
 {
-	checkSupport();
-
 	translateDomain();
 
 	if (m_description.containsProblem())
@@ -326,6 +224,9 @@ void TranslatorASP::translateActions() const
 				// Assuming a conjunction
 				else
 				{
+					if (precondition.expressionType() != Expression::Type::And)
+						throw utils::TranslatorException("Only \"and\" expressions and (negated) predicates supported as action preconditions currently");
+
 					const auto &andExpression = dynamic_cast<const expressions::And &>(precondition);
 
 					std::for_each(andExpression.arguments().cbegin(), andExpression.arguments().cend(),
@@ -349,6 +250,9 @@ void TranslatorASP::translateActions() const
 				// Assuming a conjunction
 				else
 				{
+					if (effect.expressionType() != Expression::Type::And)
+						throw utils::TranslatorException("Only \"and\" expressions and (negated) predicates supported as action effects currently");
+
 					const auto &andExpression = dynamic_cast<const expressions::And &>(effect);
 
 					std::for_each(andExpression.arguments().cbegin(), andExpression.arguments().cend(),
@@ -377,7 +281,7 @@ void TranslatorASP::translateVariablesHead(const expressions::Variables &variabl
 		if (i != variables.cbegin())
 			m_ostream << ", ";
 
-		const auto &variable = *dynamic_cast<const expressions::Variable *>(i->get());
+		const auto &variable = **i;
 
 		m_ostream << utils::escapeASPVariable(variable.name());
 	}
@@ -399,10 +303,13 @@ void TranslatorASP::translateVariablesBody(const expressions::Variables &variabl
 		if (i != variables.cbegin())
 			m_ostream << ", ";
 
-		const auto &variable = *dynamic_cast<const expressions::Variable *>(i->get());
+		const auto &variable = **i;
 
 		if (variable.type() != nullptr)
 		{
+			if (variable.type()->expressionType() != Expression::Type::PrimitiveType)
+				throw utils::TranslatorException("Only primitive types supported currently");
+
 			const auto &type = *dynamic_cast<const expressions::PrimitiveType *>(variable.type());
 
 			m_ostream << "hasType(" << utils::escapeASPVariable(variable.name()) << ", type(" << type.name() << "))";
@@ -430,6 +337,8 @@ void TranslatorASP::translateLiteral(const Expression &literal) const
 		this->translatePredicate(predicate);
 		m_ostream << ", false";
 	}
+	else
+		throw utils::TranslatorException("Only primitive predicates and their negations supported as literals currently");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -466,7 +375,7 @@ void TranslatorASP::translatePredicate(const expressions::Predicate &predicate) 
 			m_ostream << utils::escapeASPVariable(variable.name());
 		}
 		else
-			throw utils::TranslatorException("Only variables and constants supported in predicates");
+			throw utils::TranslatorException("Only variables and constants supported in predicates currently");
 	}
 
 	m_ostream << "))";
