@@ -464,6 +464,10 @@ void TranslatorASP::translateProblem() const
 		m_ostream << std::endl;
 		translateObjects();
 	}
+
+	// Initial State
+	m_ostream << std::endl;
+	translateInitialState();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -488,6 +492,39 @@ void TranslatorASP::translateObjects() const
 
 			m_ostream << "hasType(object(" << object->name() << "), type(" << type->name() << "))." << std::endl;
 		});
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void TranslatorASP::translateInitialState() const
+{
+	m_ostream << "% initial state";
+
+	const auto &initialStateFacts = m_description.problem().initialState().facts();
+
+	std::for_each(initialStateFacts.cbegin(), initialStateFacts.cend(),
+		[&](const auto &fact)
+		{
+			m_ostream << std::endl << "initialState(";
+
+			// Translate single predicate
+			if (fact->expressionType() == Expression::Type::Predicate)
+				this->translatePredicate(dynamic_cast<const expressions::Predicate &>(*fact));
+			// Assuming that "not" expression may only contain a predicate
+			else if (fact->expressionType() == Expression::Type::Not)
+			{
+				const auto &notExpression = dynamic_cast<const expressions::Not &>(*fact);
+
+				if (notExpression.argument()->expressionType() != Expression::Type::Predicate)
+					throw utils::TranslatorException("Only negations of simple predicates supported in initial state currently");
+			}
+			else
+				throw utils::TranslatorException("Only predicates and their negations supported in initial state currently");
+
+			m_ostream << ").";
+		});
+
+	m_ostream << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

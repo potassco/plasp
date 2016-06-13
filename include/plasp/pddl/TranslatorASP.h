@@ -34,6 +34,7 @@ class TranslatorASP
 
 		void translateProblem() const;
 		void translateObjects() const;
+  		void translateInitialState() const;
 
 		void translateVariablesHead(const expressions::Variables &variables) const;
   		void translateVariablesBody(const expressions::Variables &variables) const;
