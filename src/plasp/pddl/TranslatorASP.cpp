@@ -185,15 +185,19 @@ void TranslatorASP::translateTypes() const
 		{
 			m_ostream << std::endl;
 
-			m_ostream << "type(" << type->name() << ")." << std::endl;
+			const auto typeName = utils::escapeASP(type->name());
+
+			m_ostream << "type(" << typeName << ")." << std::endl;
 
 			const auto &parentTypes = type->parentTypes();
 
 			std::for_each(parentTypes.cbegin(), parentTypes.cend(),
 				[&](const auto &parentType)
 				{
-					m_ostream << "inherits(type(" << type->name() << "), type(" << parentType->name() << "))." << std::endl;
-					m_ostream << "hasType(X, type(" << parentType->name() << ")) :- hasType(X, type(" << type->name() << "))." << std::endl;
+					const auto parentTypeName = utils::escapeASP(parentType->name());
+
+					m_ostream << "inherits(type(" << typeName << "), type(" << parentTypeName << "))." << std::endl;
+					m_ostream << "hasType(X, type(" << parentTypeName << ")) :- hasType(X, type(" << typeName << "))." << std::endl;
 				});
 		});
 }
@@ -211,14 +215,16 @@ void TranslatorASP::translateConstants() const
 		{
 			m_ostream << std::endl;
 
-			m_ostream << "constant(" << constant->name() << ")." << std::endl;
+			const auto constantName = utils::escapeASP(constant->name());
+
+			m_ostream << "constant(" << constantName << ")." << std::endl;
 
 			const auto *type = constant->type();
 
 			if (type == nullptr)
 				return;
 
-			m_ostream << "hasType(constant(" << constant->name() << "), type(" << type->name() << "))." << std::endl;
+			m_ostream << "hasType(constant(" << constantName << "), type(" << utils::escapeASP(type->name()) << "))." << std::endl;
 		});
 }
 
@@ -235,7 +241,7 @@ void TranslatorASP::translatePredicates() const
 		{
 			m_ostream << std::endl;
 
-			m_ostream << "predicate(" << predicate->name();
+			m_ostream << "predicate(" << utils::escapeASP(predicate->name());
 
 			this->translateVariablesHead(predicate->arguments());
 
@@ -260,7 +266,7 @@ void TranslatorASP::translateActions() const
 	const auto printActionName =
 		[&](const auto &action)
 		{
-			m_ostream << "action(" << action.name();
+			m_ostream << "action(" << utils::escapeASP(action.name());
 
 			this->translateVariablesHead(action.parameters());
 
@@ -416,7 +422,7 @@ void TranslatorASP::translateLiteral(const Expression &literal) const
 
 void TranslatorASP::translatePredicate(const expressions::Predicate &predicate) const
 {
-	m_ostream << "predicate(" << predicate.name();
+	m_ostream << "predicate(" << utils::escapeASP(predicate.name());
 
 	const auto &arguments = predicate.arguments();
 
@@ -437,7 +443,7 @@ void TranslatorASP::translatePredicate(const expressions::Predicate &predicate) 
 		{
 			const auto &constant = dynamic_cast<const expressions::Constant &>(**i);
 
-			m_ostream << "constant(" << constant.name() << ")";
+			m_ostream << "constant(" << utils::escapeASP(constant.name()) << ")";
 		}
 		else if ((*i)->expressionType() == Expression::Type::Variable)
 		{
@@ -496,14 +502,16 @@ void TranslatorASP::translateObjects() const
 		{
 			m_ostream << std::endl;
 
-			m_ostream << "constant(" << object->name() << ")." << std::endl;
+			const auto objectName = utils::escapeASP(object->name());
+
+			m_ostream << "constant(" << objectName << ")." << std::endl;
 
 			const auto *type = object->type();
 
 			if (type == nullptr)
 				return;
 
-			m_ostream << "hasType(constant(" << object->name() << "), type(" << type->name() << "))." << std::endl;
+			m_ostream << "hasType(constant(" << objectName << "), type(" << utils::escapeASP(type->name()) << "))." << std::endl;
 		});
 }
 
