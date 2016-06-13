@@ -1,5 +1,7 @@
 #include <plasp/pddl/TranslatorASP.h>
 
+#include <boost/assert.hpp>
+
 #include <plasp/pddl/expressions/And.h>
 #include <plasp/pddl/expressions/Not.h>
 #include <plasp/pddl/expressions/Predicate.h>
@@ -451,6 +453,41 @@ void TranslatorASP::translateProblem() const
 		<< "%---------------------------------------" << std::endl
 		<< "% problem" << std::endl
 		<< "%---------------------------------------" << std::endl;
+
+	BOOST_ASSERT(m_description.containsProblem());
+
+	const auto &problem = m_description.problem();
+
+	// Objects
+	if (!problem.objects().empty())
+	{
+		m_ostream << std::endl;
+		translateObjects();
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void TranslatorASP::translateObjects() const
+{
+	m_ostream << "% objects";
+
+	const auto &objects = m_description.problem().objects();
+
+	std::for_each(objects.cbegin(), objects.cend(),
+		[&](const auto &object)
+		{
+			m_ostream << std::endl;
+
+			m_ostream << "object(" << object->name() << ")." << std::endl;
+
+			const auto *type = object->type();
+
+			if (type == nullptr)
+				return;
+
+			m_ostream << "hasType(object(" << object->name() << "), type(" << type->name() << "))." << std::endl;
+		});
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
