@@ -36,7 +36,7 @@ class Binary: public ExpressionCRTP<Derived>
 		void setArgument(const Expression *argument);
 		template<size_t i>
 		void setArgument(ExpressionPointer &&argument);
-	
+
 		std::array<const Expression *, 2> m_arguments;
 		std::array<ExpressionPointer, 2> m_argumentStorage;
 };
@@ -63,8 +63,8 @@ std::unique_ptr<Derived> Binary<Derived>::parse(Context &context,
 
 	// Assume that expression identifier (imply, exists, etc.) is already parsed
 	// Parse arguments of the expression
-	expression->setArgument<0>(parseExpression(context, expressionContext));
-	expression->setArgument<1>(parseExpression(context, expressionContext));
+	expression->Binary<Derived>::setArgument<0>(parseExpression(context, expressionContext));
+	expression->Binary<Derived>::setArgument<1>(parseExpression(context, expressionContext));
 
 	parser.expect<std::string>(")");
 

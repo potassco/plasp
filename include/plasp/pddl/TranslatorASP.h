@@ -34,7 +34,9 @@ class TranslatorASP
 
 		void translateProblem() const;
 
-		void translateVariables(const expressions::Variables &variables) const;
+		void translateVariablesHead(const expressions::Variables &variables) const;
+  		void translateVariablesBody(const expressions::Variables &variables) const;
+		void translatePredicate(const expressions::Predicate &predicate) const;
 
 		const Description &m_description;
 		std::ostream &m_ostream;
