@@ -20,7 +20,7 @@ int main(int argc, char **argv)
 	description.add_options()
 		("help,h", "Display this help message.")
 		("version,v", "Display version information.")
-		("input,i", po::value<std::vector<std::string>>(), "Specify the SAS input file.")
+		("input,i", po::value<std::vector<std::string>>(), "Specify the PDDL or SAS input file.")
 		("language,l", po::value<std::string>(), "Specify the input language (SAS or PDDL). Omit for automatic detection.")
 		("warning-level", po::value<std::string>()->default_value("normal"), "Specify whether to output warnings normally (normal), to treat them as critical errors (error), or to ignore them (ignore).");
 
