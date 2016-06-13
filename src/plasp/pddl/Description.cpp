@@ -23,8 +23,7 @@ Description::Description()
 :	m_context(m_parser),
 	m_domainPosition{-1},
 	m_domain{std::make_unique<Domain>(Domain(m_context))},
-	m_problemPosition{-1},
-	m_problem{std::make_unique<Problem>(Problem(m_context, *m_domain))}
+	m_problemPosition{-1}
 {
 }
 
@@ -177,6 +176,8 @@ void Description::findSections()
 		{
 			if (m_problemPosition != -1)
 				throw utils::ParserException(parser, "PDDL description may currently not contain two problems");
+
+			m_problem = std::make_unique<Problem>(Problem(m_context, *m_domain));
 
 			m_problemPosition = position;
 
