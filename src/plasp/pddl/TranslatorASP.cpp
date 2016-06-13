@@ -194,6 +194,7 @@ void TranslatorASP::translateTypes() const
 				[&](const auto &parentType)
 				{
 					m_ostream << "inherits(type(" << type->name() << "), type(" << parentType->name() << "))." << std::endl;
+					m_ostream << "hasType(X, type(" << parentType->name() << ")) :- hasType(X, type(" << type->name() << "))." << std::endl;
 				});
 		});
 }
