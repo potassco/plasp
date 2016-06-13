@@ -20,7 +20,6 @@ namespace pddl
 inline void warnUnsupported(Context &context, const std::string &expressionIdentifier)
 {
 	context.logger.parserWarning(context.parser, "Expression type \"" + expressionIdentifier + "\" currently unsupported in this context");
-	skipSection(context.parser);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
