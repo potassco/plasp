@@ -21,12 +21,15 @@ namespace pddl
 class Description
 {
 	public:
-		static Description fromParser(utils::Parser &&parser);
+		static Description fromContext(Context &&context);
 		static Description fromStream(std::istream &istream);
 		static Description fromFile(const std::string &path);
 		static Description fromFiles(const std::vector<std::string> &paths);
 
 	public:
+		Context &context();
+		const Context &context() const;
+
 		const Domain &domain() const;
 
 		bool containsProblem() const;
@@ -35,12 +38,11 @@ class Description
 	private:
 		Description();
 
-		void parseContent();
+		void parse();
 		void findSections();
 
 		void checkConsistency();
 
-		utils::Parser m_parser;
 		Context m_context;
 
 		utils::Parser::Position m_domainPosition;

@@ -9,6 +9,7 @@
 #include <plasp/pddl/TranslatorASP.h>
 #include <plasp/sas/Description.h>
 #include <plasp/sas/TranslatorASP.h>
+#include <plasp/utils/ParserWarning.h>
 #include <plasp/utils/TranslatorException.h>
 
 int main(int argc, char **argv)
@@ -20,7 +21,8 @@ int main(int argc, char **argv)
 		("help,h", "Display this help message.")
 		("version,v", "Display version information.")
 		("input,i", po::value<std::vector<std::string>>(), "Specify the SAS input file.")
-		("language,l", po::value<std::string>(), "Specify the input language (SAS or PDDL). Omit for automatic detection.");
+		("language,l", po::value<std::string>(), "Specify the input language (SAS or PDDL). Omit for automatic detection.")
+		("warning-level", po::value<std::string>()->default_value("normal"), "Specify whether to output warnings normally (normal), to treat them as critical errors (error), or to ignore them (ignore).");
 
 	po::positional_options_description positionalOptionsDescription;
 	positionalOptionsDescription.add("input", -1);
@@ -64,6 +66,14 @@ int main(int argc, char **argv)
 		return EXIT_SUCCESS;
 	}
 
+	const auto handleException =
+		[&](const auto &messagePrefix, const auto &exception)
+		{
+			std::cerr << messagePrefix << ": " << exception.what() << std::endl << std::endl;
+			printHelp();
+			return EXIT_FAILURE;
+		};
+
 	try
 	{
 		plasp::utils::Parser parser;
@@ -105,7 +115,16 @@ int main(int argc, char **argv)
 
 		if (language == plasp::Language::Type::PDDL)
 		{
-			const auto description = plasp::pddl::Description::fromParser(std::move(parser));
+			auto context = plasp::pddl::Context(std::move(parser));
+
+			const auto warningLevel = variablesMap["warning-level"].as<std::string>();
+
+			if (warningLevel == "error")
+				context.logger.setWarningLevel(plasp::utils::Logger::WarningLevel::Error);
+			else if (warningLevel == "ignore")
+				context.logger.setWarningLevel(plasp::utils::Logger::WarningLevel::Ignore);
+
+			const auto description = plasp::pddl::Description::fromContext(std::move(context));
 			const auto translator = plasp::pddl::TranslatorASP(description, std::cout);
 			translator.translate();
 		}
@@ -118,21 +137,19 @@ int main(int argc, char **argv)
 	}
 	catch (const plasp::utils::ParserException &e)
 	{
-		std::cerr << "Parser error: " << e.what() << std::endl << std::endl;
-		printHelp();
-		return EXIT_FAILURE;
+		handleException("Parser error", e);
+	}
+	catch (const plasp::utils::ParserWarning &e)
+	{
+		handleException("Parser warning", e);
 	}
 	catch (const plasp::utils::TranslatorException &e)
 	{
-		std::cerr << "Translation error: " << e.what() << std::endl << std::endl;
-		printHelp();
-		return EXIT_FAILURE;
+		handleException("Translation error", e);
 	}
 	catch (const std::exception &e)
 	{
-		std::cerr << "Error: " << e.what() << std::endl << std::endl;
-		printHelp();
-		return EXIT_FAILURE;
+		handleException("Error", e);
 	}
 
 	return EXIT_SUCCESS;

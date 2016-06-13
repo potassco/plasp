@@ -21,12 +21,42 @@ namespace pddl
 class Context
 {
 	public:
-		Context(utils::Parser &parser)
-		:	parser(parser)
+		Context() = default;
+
+		explicit Context(utils::Parser &&parser)
+		:	parser{std::move(parser)}
 		{
 		}
 
-		utils::Parser &parser;
+		explicit Context(utils::Logger &&logger)
+		:	logger{std::move(logger)}
+		{
+		}
+
+		explicit Context(utils::Parser &&parser, utils::Logger &&logger)
+		:	parser{std::move(parser)},
+			logger{std::move(logger)}
+		{
+		}
+
+		Context(const Context &other) = delete;
+		Context &operator=(const Context &other) = delete;
+
+		Context(Context &&other)
+		:	parser(std::move(other.parser)),
+			logger(std::move(other.logger))
+		{
+		}
+
+		Context &operator=(Context &&other)
+		{
+			parser = std::move(other.parser);
+			logger = std::move(other.logger);
+
+			return *this;
+		}
+
+		utils::Parser parser;
 		utils::Logger logger;
 };
 

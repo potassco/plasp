@@ -19,14 +19,28 @@ namespace utils
 class Logger
 {
 	public:
+		enum class WarningLevel
+		{
+			Normal,
+			Error,
+			Ignore
+		};
+
+	public:
 		Logger();
 
-		void setPedantic(bool isPedantic = true);
+		Logger(const Logger &other);
+		Logger &operator=(const Logger &other);
+
+		Logger(Logger &&other);
+		Logger &operator=(Logger &&other);
+
+		void setWarningLevel(WarningLevel warningLevel);
 
 		void parserWarning(const Parser &parser, const std::string &message);
 
 	private:
-		bool m_isPedantic;
+		WarningLevel m_warningLevel;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

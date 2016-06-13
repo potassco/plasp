@@ -14,22 +14,59 @@ namespace utils
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 Logger::Logger()
-:	m_isPedantic{false}
+:	m_warningLevel{Logger::WarningLevel::Normal}
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Logger::setPedantic(bool isPedantic)
+Logger::Logger(const Logger &other)
+:	m_warningLevel{other.m_warningLevel}
 {
-	m_isPedantic = isPedantic;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Logger &Logger::operator=(const Logger &other)
+{
+	m_warningLevel = other.m_warningLevel;
+
+	return *this;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Logger::Logger(Logger &&other)
+:	m_warningLevel{other.m_warningLevel}
+{
+	other.m_warningLevel = WarningLevel::Normal;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Logger &Logger::operator=(Logger &&other)
+{
+	m_warningLevel = other.m_warningLevel;
+	other.m_warningLevel = WarningLevel::Normal;
+
+	return *this;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Logger::setWarningLevel(WarningLevel warningLevel)
+{
+	m_warningLevel = warningLevel;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Logger::parserWarning(const Parser &parser, const std::string &message)
 {
-	if (m_isPedantic)
+	if (m_warningLevel == WarningLevel::Ignore)
+		return;
+
+	if (m_warningLevel == WarningLevel::Error)
 		throw ParserWarning(parser, message);
 
 	const auto coordinate = parser.coordinate();

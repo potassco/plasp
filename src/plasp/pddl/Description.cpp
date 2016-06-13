@@ -20,8 +20,7 @@ namespace pddl
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 Description::Description()
-:	m_context(m_parser),
-	m_domainPosition{-1},
+:	m_domainPosition{-1},
 	m_domain{std::make_unique<Domain>(Domain(m_context))},
 	m_problemPosition{-1}
 {
@@ -29,17 +28,12 @@ Description::Description()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Description Description::fromParser(utils::Parser &&parser)
+Description Description::fromContext(Context &&context)
 {
 	Description description;
 
-	parser.setCaseSensitive(false);
-	parser.removeComments(";", "\n", false);
-
-	description.m_parser = std::move(parser);
-
-	description.parseContent();
-	description.checkConsistency();
+	description.m_context = std::move(context);
+	description.parse();
 
 	return description;
 }
@@ -50,13 +44,8 @@ Description Description::fromStream(std::istream &istream)
 {
 	Description description;
 
-	description.m_parser.readStream("std::cin", istream);
-
-	description.m_parser.setCaseSensitive(false);
-	description.m_parser.removeComments(";", "\n", false);
-
-	description.parseContent();
-	description.checkConsistency();
+	description.m_context.parser.readStream("std::cin", istream);
+	description.parse();
 
 	return description;
 }
@@ -67,13 +56,8 @@ Description Description::fromFile(const std::string &path)
 {
 	Description description;
 
-	description.m_parser.readFile(path);
-
-	description.m_parser.setCaseSensitive(false);
-	description.m_parser.removeComments(";", "\n", false);
-
-	description.parseContent();
-	description.checkConsistency();
+	description.m_context.parser.readFile(path);
+	description.parse();
 
 	return description;
 }
@@ -89,16 +73,26 @@ Description Description::fromFiles(const std::vector<std::string> &paths)
 	std::for_each(paths.cbegin(), paths.cend(),
 		[&](const auto &path)
 		{
-			description.m_parser.readFile(path);
+			description.m_context.parser.readFile(path);
 		});
 
-	description.m_parser.setCaseSensitive(false);
-	description.m_parser.removeComments(";", "\n", false);
-
-	description.parseContent();
-	description.checkConsistency();
+	description.parse();
 
 	return description;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Context &Description::context()
+{
+	return m_context;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const Context &Description::context() const
+{
+	return m_context;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -128,22 +122,29 @@ const Problem &Description::problem() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Description::parseContent()
+void Description::parse()
 {
+	auto &parser = m_context.parser;
+
+	parser.setCaseSensitive(false);
+	parser.removeComments(";", "\n", false);
+
 	// First, determine the locations of domain and problem
 	findSections();
 
 	if (m_domainPosition == -1)
 		throw ConsistencyException("No PDDL domain specified");
 
-	m_context.parser.seek(m_domainPosition);
+	parser.seek(m_domainPosition);
 	m_domain->parse();
 
 	if (m_problemPosition != -1)
 	{
-		m_context.parser.seek(m_problemPosition);
+		parser.seek(m_problemPosition);
 		m_problem->parse();
 	}
+
+	checkConsistency();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
