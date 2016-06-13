@@ -530,9 +530,17 @@ void Parser::expect<bool>(const bool &expectedValue)
 
 bool Parser::probeNumber()
 {
+	const auto previousPosition = position();
+
+	skipWhiteSpace();
+
 	while (!std::iswspace(currentCharacter()))
 		if (!std::isdigit(currentCharacter()))
+		{
+			seek(previousPosition);
+
 			return false;
+		}
 
 	return true;
 }

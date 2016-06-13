@@ -62,6 +62,9 @@ class PrimitiveType;
 using PrimitiveTypePointer = std::unique_ptr<PrimitiveType>;
 using PrimitiveTypes = std::vector<PrimitiveTypePointer>;
 
+class Unsupported;
+using UnsupportedPointer = std::unique_ptr<Unsupported>;
+
 class Variable;
 using VariablePointer = std::unique_ptr<Variable>;
 using Variables = std::vector<VariablePointer>;
@@ -85,6 +88,7 @@ class Expression
 			PredicateDeclaration,
 			Predicate,
 			PrimitiveType,
+			Unsupported,
 			Variable
 		};
 

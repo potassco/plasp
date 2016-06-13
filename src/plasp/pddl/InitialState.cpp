@@ -7,6 +7,7 @@
 #include <plasp/pddl/Problem.h>
 #include <plasp/pddl/expressions/At.h>
 #include <plasp/pddl/expressions/Predicate.h>
+#include <plasp/pddl/expressions/Unsupported.h>
 #include <plasp/utils/ParserException.h>
 
 namespace plasp
@@ -20,13 +21,6 @@ namespace pddl
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline void warnUnsupported(Context &context, const std::string &expressionIdentifier)
-{
-	context.logger.parserWarning(context.parser, "Expression type \"" + expressionIdentifier + "\" currently unsupported in this context");
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 std::unique_ptr<InitialState> InitialState::parseDeclaration(Context &context,
 	ExpressionContext &expressionContext)
 {
@@ -35,7 +29,7 @@ std::unique_ptr<InitialState> InitialState::parseDeclaration(Context &context,
 	auto initialState = std::make_unique<InitialState>(InitialState());
 
 	const auto parseInitialStateElement =
-		[&]()
+		[&]() -> ExpressionPointer
 		{
 			ExpressionPointer expression;
 
@@ -58,12 +52,7 @@ std::unique_ptr<InitialState> InitialState::parseDeclaration(Context &context,
 				const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);
 
 				parser.seek(position);
-				warnUnsupported(context, expressionIdentifier);
-
-				parser.seek(expressionIdentifierPosition);
-				skipSection(parser);
-
-				return ExpressionPointer();
+				return expressions::Unsupported::parse(context);
 			}
 
 			parser.seek(expressionIdentifierPosition);

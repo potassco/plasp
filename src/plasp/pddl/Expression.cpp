@@ -11,6 +11,7 @@
 #include <plasp/pddl/expressions/Or.h>
 #include <plasp/pddl/expressions/Predicate.h>
 #include <plasp/pddl/expressions/PredicateDeclaration.h>
+#include <plasp/pddl/expressions/Unsupported.h>
 #include <plasp/utils/IO.h>
 #include <plasp/utils/ParserException.h>
 
@@ -27,13 +28,6 @@ namespace pddl
 
 ExpressionPointer parseEffectBodyExpression(Context &context, ExpressionContext &expressionContext);
 ExpressionPointer parsePredicate(Context &context, ExpressionContext &expressionContext);
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-inline void warnUnsupported(Context &context, const std::string &expressionIdentifier)
-{
-	context.logger.parserWarning(context.parser, "Expression type \"" + expressionIdentifier + "\" currently unsupported in this context");
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -63,12 +57,7 @@ ExpressionPointer parsePreconditionExpression(Context &context,
 		const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);
 
 		parser.seek(position);
-		warnUnsupported(context, expressionIdentifier);
-
-		parser.seek(expressionIdentifierPosition);
-		skipSection(parser);
-
-		return nullptr;
+		return expressions::Unsupported::parse(context);
 	}
 
 	parser.seek(position);
@@ -118,12 +107,7 @@ ExpressionPointer parseExpression(Context &context, ExpressionContext &expressio
 		const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);
 
 		parser.seek(position);
-		warnUnsupported(context, expressionIdentifier);
-
-		parser.seek(expressionIdentifierPosition);
-		skipSection(parser);
-
-		return nullptr;
+		return expressions::Unsupported::parse(context);
 	}
 
 	parser.seek(expressionIdentifierPosition);
@@ -157,12 +141,7 @@ ExpressionPointer parseEffectExpression(Context &context, ExpressionContext &exp
 		const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);
 
 		parser.seek(position);
-		warnUnsupported(context, expressionIdentifier);
-
-		parser.seek(expressionIdentifierPosition);
-		skipSection(parser);
-
-		return nullptr;
+		return expressions::Unsupported::parse(context);
 	}
 
 	parser.seek(position);
@@ -200,12 +179,7 @@ ExpressionPointer parseEffectBodyExpression(Context &context, ExpressionContext 
 		const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);
 
 		parser.seek(position);
-		warnUnsupported(context, expressionIdentifier);
-
-		parser.seek(expressionIdentifierPosition);
-		skipSection(parser);
-
-		return nullptr;
+		return expressions::Unsupported::parse(context);
 	}
 
 	parser.seek(expressionIdentifierPosition);
@@ -255,7 +229,8 @@ ExpressionPointer parseAtomicFormula(Context &context, ExpressionContext &expres
 
 	const auto position = parser.position();
 
-	parser.expect<std::string>("(");
+	if (!parser.probe<std::string>("("))
+		return nullptr;
 
 	const auto expressionIdentifierPosition = parser.position();
 
@@ -265,14 +240,10 @@ ExpressionPointer parseAtomicFormula(Context &context, ExpressionContext &expres
 		const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);
 
 		parser.seek(position);
-		warnUnsupported(context, expressionIdentifier);
-
-		parser.seek(expressionIdentifierPosition);
-		skipSection(parser);
-
-		return nullptr;
+		return expressions::Unsupported::parse(context);
 	}
 
+	parser.seek(position);
 	return nullptr;
 }
 
