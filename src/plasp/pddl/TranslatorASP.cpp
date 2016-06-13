@@ -333,6 +333,29 @@ void TranslatorASP::translateActions() const
 				}
 			}
 
+			// Effect
+			if (action->effect())
+			{
+				const auto &effect = *action->effect();
+
+				if (effect.expressionType() == Expression::Type::Predicate
+					|| effect.expressionType() == Expression::Type::Not)
+				{
+					translateLiteral("postcondition", effect);
+				}
+				// Assuming a conjunction
+				else
+				{
+					const auto &andExpression = dynamic_cast<const expressions::And &>(effect);
+
+					std::for_each(andExpression.arguments().cbegin(), andExpression.arguments().cend(),
+						[&](const auto *argument)
+						{
+							translateLiteral("postcondition", *argument);
+						});
+				}
+			}
+
 			m_ostream << std::endl;
 		});
 }
