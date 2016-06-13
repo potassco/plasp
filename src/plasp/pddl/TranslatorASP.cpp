@@ -84,8 +84,11 @@ void TranslatorASP::checkSupport() const
 					std::for_each(preconditionArguments.cbegin(), preconditionArguments.cend(),
 						[&](const auto &argument)
 						{
-							if (argument->expressionType() != Expression::Type::Predicate)
+							if (argument->expressionType() != Expression::Type::Predicate
+								&& argument->expressionType() != Expression::Type::Not)
+							{
 								throw utils::TranslatorException("Only predicates supported in preconditions currently");
+							}
 						});
 				}
 			}

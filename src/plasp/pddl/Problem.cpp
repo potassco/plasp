@@ -332,7 +332,11 @@ void Problem::parseInitialStateSection()
 	parser.expect<std::string>(":");
 	parser.expect<std::string>("init");
 
-	m_initialState = InitialState::parseDeclaration(m_context, *this);
+	// TODO: remove workaround
+	expressions::Variables noParameters;
+	ExpressionContext expressionContext(m_domain, this, noParameters);
+
+	m_initialState = InitialState::parseDeclaration(m_context, expressionContext);
 
 	parser.expect<std::string>(")");
 }
@@ -349,7 +353,6 @@ void Problem::parseGoalSection()
 
 	// TODO: remove workaround
 	expressions::Variables noParameters;
-
 	ExpressionContext expressionContext(m_domain, this, noParameters);
 
 	m_goal = parsePreconditionExpression(m_context, expressionContext);

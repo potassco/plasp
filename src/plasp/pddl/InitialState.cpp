@@ -1,8 +1,11 @@
 #include <plasp/pddl/InitialState.h>
 
 #include <plasp/pddl/Context.h>
+#include <plasp/pddl/ExpressionContext.h>
 #include <plasp/pddl/Identifier.h>
 #include <plasp/pddl/IO.h>
+#include <plasp/pddl/Problem.h>
+#include <plasp/pddl/expressions/At.h>
 #include <plasp/pddl/expressions/Predicate.h>
 #include <plasp/utils/ParserException.h>
 
@@ -24,7 +27,8 @@ inline void warnUnsupported(Context &context, const std::string &expressionIdent
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::unique_ptr<InitialState> InitialState::parseDeclaration(Context &context, const Problem &problem)
+std::unique_ptr<InitialState> InitialState::parseDeclaration(Context &context,
+	ExpressionContext &expressionContext)
 {
 	auto &parser = context.parser;
 
@@ -35,8 +39,12 @@ std::unique_ptr<InitialState> InitialState::parseDeclaration(Context &context, c
 		{
 			ExpressionPointer expression;
 
-			if ((expression = expressions::Predicate::parse(context, problem)))
+			// TODO: do not allow negative initial state literals
+			if ((expression = parseLiteral(context, expressionContext))
+				|| (expression = expressions::At::parse(context, expressionContext, parseLiteral)))
+			{
 				return expression;
+			}
 
 			const auto position = parser.position();
 
@@ -44,9 +52,7 @@ std::unique_ptr<InitialState> InitialState::parseDeclaration(Context &context, c
 
 			const auto expressionIdentifierPosition = parser.position();
 
-			if (parser.probeIdentifier("at", isIdentifier)
-				|| parser.probeIdentifier("=", isIdentifier)
-				|| parser.probeIdentifier("not", isIdentifier))
+			if (parser.probeIdentifier("=", isIdentifier))
 			{
 				parser.seek(expressionIdentifierPosition);
 				const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);

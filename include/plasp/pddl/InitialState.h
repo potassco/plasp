@@ -17,7 +17,8 @@ namespace pddl
 class InitialState
 {
 	public:
-		static std::unique_ptr<InitialState> parseDeclaration(Context &context, const Problem &problem);
+		static std::unique_ptr<InitialState> parseDeclaration(Context &context,
+			ExpressionContext &expressionContext);
 
 	public:
 		const Expressions &facts() const;

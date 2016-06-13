@@ -31,6 +31,9 @@ namespace expressions
 class And;
 using AndPointer = std::unique_ptr<And>;
 
+class At;
+using AtPointer = std::unique_ptr<At>;
+
 class Constant;
 using ConstantPointer = std::unique_ptr<Constant>;
 using Constants = std::vector<ConstantPointer>;
@@ -72,6 +75,7 @@ class Expression
 		enum class Type
 		{
 			And,
+			At,
 			Binary,
 			Constant,
 			Either,
@@ -103,6 +107,9 @@ class ExpressionCRTP: public Expression
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ExpressionPointer parseLiteral(Context &context, ExpressionContext &expressionContext);
+ExpressionPointer parseAtomicFormula(Context &context, ExpressionContext &expressionContext);
 
 ExpressionPointer parsePreconditionExpression(Context &context,
 	ExpressionContext &expressionContext);

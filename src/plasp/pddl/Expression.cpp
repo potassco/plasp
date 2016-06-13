@@ -229,5 +229,54 @@ ExpressionPointer parsePredicate(Context &context, ExpressionContext &expression
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+ExpressionPointer parseLiteral(Context &context, ExpressionContext &expressionContext)
+{
+	ExpressionPointer expression;
+
+	if ((expression = parseAtomicFormula(context, expressionContext))
+		|| (expression = expressions::Not::parse(context, expressionContext, parseAtomicFormula)))
+	{
+		return expression;
+	}
+
+	return nullptr;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ExpressionPointer parseAtomicFormula(Context &context, ExpressionContext &expressionContext)
+{
+	auto &parser = context.parser;
+
+	ExpressionPointer expression;
+
+	if ((expression = expressions::Predicate::parse(context, expressionContext)))
+		return expression;
+
+	const auto position = parser.position();
+
+	parser.expect<std::string>("(");
+
+	const auto expressionIdentifierPosition = parser.position();
+
+	if (parser.probeIdentifier("=", isIdentifier))
+	{
+		parser.seek(expressionIdentifierPosition);
+		const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);
+
+		parser.seek(position);
+		warnUnsupported(context, expressionIdentifier);
+
+		parser.seek(expressionIdentifierPosition);
+		skipSection(parser);
+
+		return nullptr;
+	}
+
+	return nullptr;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 }
 }

@@ -528,6 +528,17 @@ void Parser::expect<bool>(const bool &expectedValue)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+bool Parser::probeNumber()
+{
+	while (!std::iswspace(currentCharacter()))
+		if (!std::isdigit(currentCharacter()))
+			return false;
+
+	return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void Parser::removeComments(const std::string &startSequence, const std::string &endSequence, bool removeEnd)
 {
 	const auto inPosition = m_stream.tellg();
