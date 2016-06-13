@@ -64,7 +64,7 @@ void TranslatorASP::checkSupport() const
 			{
 				// Check that all preconditions are "and" expressions or single predicates
 				if (action->precondition()->expressionType() != Expression::Type::And
-				    && action->precondition()->expressionType() != Expression::Type::Predicate)
+					&& action->precondition()->expressionType() != Expression::Type::Predicate)
 				{
 					throw utils::TranslatorException("Only \"and\" expressions and single predicates supported as action preconditions currently");
 				}
@@ -88,7 +88,7 @@ void TranslatorASP::checkSupport() const
 			{
 				// Check that all effects are "and" expressions
 				if (action->effect()->expressionType() != Expression::Type::And
-				    && action->effect()->expressionType() != Expression::Type::Predicate)
+					&& action->effect()->expressionType() != Expression::Type::Predicate)
 				{
 					throw utils::TranslatorException("Only \"and\" expressions and single predicates supported as action effects currently");
 				}
@@ -270,15 +270,6 @@ void TranslatorASP::translateActions() const
 	std::for_each(actions.cbegin(), actions.cend(),
 		[&](const auto &action)
 		{
-			m_ostream << std::endl;
-
-			// Name
-			printActionName(*action);
-
-			this->translateVariablesBody(action->parameters());
-
-			m_ostream << ".";
-
 			const auto translateLiteral =
 				[&](const auto &ruleHead, const auto &literal)
 				{
@@ -289,21 +280,7 @@ void TranslatorASP::translateActions() const
 
 					m_ostream << ", ";
 
-					// Translate single predicate
-					if (literal.expressionType() == Expression::Type::Predicate)
-					{
-						this->translatePredicate(dynamic_cast<const expressions::Predicate &>(literal));
-						m_ostream << ", true";
-					}
-					// Assuming that "not" expression may only contain a predicate
-					else if (literal.expressionType() == Expression::Type::Not)
-					{
-						const auto &notExpression = dynamic_cast<const expressions::Not &>(literal);
-						const auto &predicate = dynamic_cast<const expressions::Predicate &>(*notExpression.argument());
-
-						this->translatePredicate(predicate);
-						m_ostream << ", false";
-					}
+					this->translateLiteral(literal);
 
 					m_ostream << ") :- ";
 
@@ -311,6 +288,15 @@ void TranslatorASP::translateActions() const
 
 					m_ostream << ".";
 				};
+
+			m_ostream << std::endl;
+
+			// Name
+			printActionName(*action);
+
+			this->translateVariablesBody(action->parameters());
+
+			m_ostream << ".";
 
 			// Precondition
 			if (action->precondition())
@@ -407,6 +393,27 @@ void TranslatorASP::translateVariablesBody(const expressions::Variables &variabl
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void TranslatorASP::translateLiteral(const Expression &literal) const
+{
+	// Translate single predicate
+	if (literal.expressionType() == Expression::Type::Predicate)
+	{
+		this->translatePredicate(dynamic_cast<const expressions::Predicate &>(literal));
+		m_ostream << ", true";
+	}
+	// Assuming that "not" expression may only contain a predicate
+	else if (literal.expressionType() == Expression::Type::Not)
+	{
+		const auto &notExpression = dynamic_cast<const expressions::Not &>(literal);
+		const auto &predicate = dynamic_cast<const expressions::Predicate &>(*notExpression.argument());
+
+		this->translatePredicate(predicate);
+		m_ostream << ", false";
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void TranslatorASP::translatePredicate(const expressions::Predicate &predicate) const
 {
 	m_ostream << "predicate(" << predicate.name();
@@ -449,12 +456,12 @@ void TranslatorASP::translatePredicate(const expressions::Predicate &predicate) 
 
 void TranslatorASP::translateProblem() const
 {
+	BOOST_ASSERT(m_description.containsProblem());
+
 	m_ostream
 		<< "%---------------------------------------" << std::endl
 		<< "% problem" << std::endl
 		<< "%---------------------------------------" << std::endl;
-
-	BOOST_ASSERT(m_description.containsProblem());
 
 	const auto &problem = m_description.problem();
 
@@ -468,12 +475,18 @@ void TranslatorASP::translateProblem() const
 	// Initial State
 	m_ostream << std::endl;
 	translateInitialState();
+
+	// Goal
+	m_ostream << std::endl;
+	translateGoal();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void TranslatorASP::translateObjects() const
 {
+	BOOST_ASSERT(m_description.containsProblem());
+
 	m_ostream << "% objects";
 
 	const auto &objects = m_description.problem().objects();
@@ -483,14 +496,14 @@ void TranslatorASP::translateObjects() const
 		{
 			m_ostream << std::endl;
 
-			m_ostream << "object(" << object->name() << ")." << std::endl;
+			m_ostream << "constant(" << object->name() << ")." << std::endl;
 
 			const auto *type = object->type();
 
 			if (type == nullptr)
 				return;
 
-			m_ostream << "hasType(object(" << object->name() << "), type(" << type->name() << "))." << std::endl;
+			m_ostream << "hasType(constant(" << object->name() << "), type(" << type->name() << "))." << std::endl;
 		});
 }
 
@@ -498,6 +511,8 @@ void TranslatorASP::translateObjects() const
 
 void TranslatorASP::translateInitialState() const
 {
+	BOOST_ASSERT(m_description.containsProblem());
+
 	m_ostream << "% initial state";
 
 	const auto &initialStateFacts = m_description.problem().initialState().facts();
@@ -523,6 +538,45 @@ void TranslatorASP::translateInitialState() const
 
 			m_ostream << ").";
 		});
+
+	m_ostream << std::endl;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void TranslatorASP::translateGoal() const
+{
+	BOOST_ASSERT(m_description.containsProblem());
+
+	m_ostream << "% goal";
+
+	const auto &goal = m_description.problem().goal();
+
+	if (goal.expressionType() == Expression::Type::Predicate
+		|| goal.expressionType() == Expression::Type::Not)
+	{
+		m_ostream << std::endl << "goal(";
+
+		translateLiteral(goal);
+
+		m_ostream << ").";
+	}
+	else if (goal.expressionType() == Expression::Type::And)
+	{
+		const auto &andExpression = dynamic_cast<const expressions::And &>(goal);
+
+		std::for_each(andExpression.arguments().cbegin(), andExpression.arguments().cend(),
+			[&](const auto *argument)
+			{
+				m_ostream << std::endl << "goal(";
+
+				this->translateLiteral(*argument);
+
+				m_ostream << ").";
+			});
+	}
+	else
+		throw utils::TranslatorException("Only single predicates, their negations, and conjunctions are currently supported in the goal");
 
 	m_ostream << std::endl;
 }

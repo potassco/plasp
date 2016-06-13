@@ -34,10 +34,12 @@ class TranslatorASP
 
 		void translateProblem() const;
 		void translateObjects() const;
-  		void translateInitialState() const;
+		void translateInitialState() const;
+		void translateGoal() const;
 
 		void translateVariablesHead(const expressions::Variables &variables) const;
-  		void translateVariablesBody(const expressions::Variables &variables) const;
+		void translateVariablesBody(const expressions::Variables &variables) const;
+		void translateLiteral(const Expression &literal) const;
 		void translatePredicate(const expressions::Predicate &predicate) const;
 
 		const Description &m_description;
