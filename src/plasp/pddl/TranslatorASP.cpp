@@ -40,6 +40,9 @@ void TranslatorASP::checkSupport() const
 			std::for_each(arguments.cbegin(), arguments.cend(),
 				[&](const auto &parameter)
 				{
+					if (parameter->type() == nullptr)
+						return;
+
 					if (parameter->type()->expressionType() != Expression::Type::PrimitiveType)
 						throw utils::TranslatorException("Only primitive types supported currently");
 				});
@@ -56,6 +59,9 @@ void TranslatorASP::checkSupport() const
 			std::for_each(parameters.cbegin(), parameters.cend(),
 				[&](const auto &parameter)
 				{
+					if (parameter->type() == nullptr)
+						return;
+
 					if (parameter->type()->expressionType() != Expression::Type::PrimitiveType)
 						throw utils::TranslatorException("Only primitive types supported currently");
 				});
@@ -391,9 +397,14 @@ void TranslatorASP::translateVariablesBody(const expressions::Variables &variabl
 			m_ostream << ", ";
 
 		const auto &variable = *dynamic_cast<const expressions::Variable *>(i->get());
-		const auto &type = *dynamic_cast<const expressions::PrimitiveType *>(variable.type());
 
-		m_ostream << "hasType(" << utils::escapeASPVariable(variable.name()) << ", type(" << type.name() << "))";
+		if (variable.type() != nullptr)
+		{
+			const auto &type = *dynamic_cast<const expressions::PrimitiveType *>(variable.type());
+
+			m_ostream << "hasType(" << utils::escapeASPVariable(variable.name()) << ", type(" << type.name() << "))";
+		}
+		// TODO: handle untyped variables
 	}
 }
 
