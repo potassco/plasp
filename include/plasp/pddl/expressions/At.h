@@ -85,6 +85,8 @@ AtPointer At::parse(Context &context, ExpressionContext &expressionContext,
 
 	auto expression = std::make_unique<At>(At());
 
+	expression->m_timePoint = timePoint;
+
 	context.parser.skipWhiteSpace();
 
 	// Parse argument
