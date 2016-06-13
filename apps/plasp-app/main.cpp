@@ -71,7 +71,7 @@ int main(int argc, char **argv)
 		{
 			std::cerr << messagePrefix << ": " << exception.what() << std::endl << std::endl;
 			printHelp();
-			return EXIT_FAILURE;
+			exit(EXIT_FAILURE);
 		};
 
 	try
