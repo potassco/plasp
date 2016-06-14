@@ -85,7 +85,7 @@ void TranslatorASP::translateTypes() const
 
 	if (types.empty())
 	{
-		m_ostream << std::endl << "type(object)." << std::endl;
+		m_ostream << "type(object)." << std::endl;
 		return;
 	}
 
