@@ -25,40 +25,70 @@ enum class StandardStream
 
 class LogStream
 {
+	public:
+		enum class ColorPolicy
+		{
+			Never,
+			Auto,
+			Always
+		};
+
 	private:
 		using CharacterType = std::ostream::char_type;
 		using TraitsType = std::ostream::traits_type;
 
 	public:
 		LogStream(StandardStream standardStream)
-		:	m_standardStream{standardStream}
+		:	m_standardStream{standardStream},
+			m_colorPolicy{ColorPolicy::Never}
 		{
 		}
 
 		LogStream(const LogStream &other)
-		:	m_standardStream{other.m_standardStream}
+		:	m_standardStream{other.m_standardStream},
+			m_colorPolicy{ColorPolicy::Never}
 		{
 		}
 
 		LogStream &operator=(const LogStream &other)
 		{
 			m_standardStream = other.m_standardStream;
+			m_colorPolicy = other.m_colorPolicy;
+
 			return *this;
 		}
 
 		LogStream(LogStream &&other)
-		:	m_standardStream{other.m_standardStream}
+		:	m_standardStream{other.m_standardStream},
+			m_colorPolicy{other.m_colorPolicy}
 		{
+			other.m_colorPolicy = ColorPolicy::Never;
 		}
 
 		LogStream &operator=(LogStream &&other)
 		{
 			m_standardStream = other.m_standardStream;
+			m_colorPolicy = other.m_colorPolicy;
+
+			other.m_colorPolicy = ColorPolicy::Never;
+
 			return *this;
+		}
+
+		void setColorPolicy(ColorPolicy colorPolicy)
+		{
+			m_colorPolicy = colorPolicy;
 		}
 
 		bool supportsColor() const
 		{
+			if (m_colorPolicy == ColorPolicy::Never)
+				return false;
+
+			if (m_colorPolicy == ColorPolicy::Always)
+				return true;
+
+			// Autodetect by checking whether output goes to a terminal
 			const auto fileDescriptor =
 				(m_standardStream == utils::StandardStream::Out)
 				? STDOUT_FILENO
@@ -95,6 +125,7 @@ class LogStream
 
 	private:
 		StandardStream m_standardStream;
+		ColorPolicy m_colorPolicy;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

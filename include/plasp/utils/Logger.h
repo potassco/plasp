@@ -41,6 +41,7 @@ class Logger
 		LogStream &errorStream();
 
 		void setWarningLevel(WarningLevel warningLevel);
+		void setColorPolicy(LogStream::ColorPolicy colorPolicy);
 
 		void logError(const std::string &message);
 		void logError(const Parser::Coordinate &coordinate, const std::string &message);

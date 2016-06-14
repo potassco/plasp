@@ -43,8 +43,8 @@ Logger &Logger::operator=(const Logger &other)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 Logger::Logger(Logger &&other)
-:	m_outputStream{other.m_outputStream},
-	m_errorStream{other.m_errorStream},
+:	m_outputStream{std::move(other.m_outputStream)},
+	m_errorStream{std::move(other.m_errorStream)},
 	m_warningLevel{other.m_warningLevel}
 {
 	other.m_warningLevel = WarningLevel::Normal;
@@ -54,9 +54,10 @@ Logger::Logger(Logger &&other)
 
 Logger &Logger::operator=(Logger &&other)
 {
-	m_outputStream = other.m_outputStream;
-	m_errorStream = other.m_errorStream;
+	m_outputStream = std::move(other.m_outputStream);
+	m_errorStream = std::move(other.m_errorStream);
 	m_warningLevel = other.m_warningLevel;
+
 	other.m_warningLevel = WarningLevel::Normal;
 
 	return *this;
@@ -81,6 +82,14 @@ LogStream &Logger::errorStream()
 void Logger::setWarningLevel(WarningLevel warningLevel)
 {
 	m_warningLevel = warningLevel;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Logger::setColorPolicy(LogStream::ColorPolicy colorPolicy)
+{
+	m_outputStream.setColorPolicy(colorPolicy);
+	m_errorStream.setColorPolicy(colorPolicy);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

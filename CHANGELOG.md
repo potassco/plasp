@@ -11,6 +11,7 @@ Features:
 * new command-line option `--language` to explicitly specify input language
 * new command-line option `--warning-level` to treat warnings as errors or to ignore warnings
 * supports colorized output
+* new command-line option `--color` to autodetect, enable, or disable color output
 
 Bug Fixes:
 

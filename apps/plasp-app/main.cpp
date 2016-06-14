@@ -22,7 +22,8 @@ int main(int argc, char **argv)
 		("version,v", "Display version information.")
 		("input,i", po::value<std::vector<std::string>>(), "Specify the PDDL or SAS input file.")
 		("language,l", po::value<std::string>(), "Specify the input language (SAS or PDDL). Omit for automatic detection.")
-		("warning-level", po::value<std::string>()->default_value("normal"), "Specify whether to output warnings normally (normal), to treat them as critical errors (error), or to ignore them (ignore).");
+		("warning-level", po::value<std::string>()->default_value("normal"), "Specify whether to output warnings normally (normal), to treat them as critical errors (error), or to ignore them (ignore).")
+		("color", po::value<std::string>()->default_value("auto"), "Specify whether to colorize the output (always, never, or auto).");
 
 	po::positional_options_description positionalOptionsDescription;
 	positionalOptionsDescription.add("input", -1);
@@ -38,6 +39,8 @@ int main(int argc, char **argv)
 			std::cout << description;
 		};
 
+	plasp::utils::Logger logger;
+
 	try
 	{
 		po::store(po::command_line_parser(argc, argv)
@@ -49,7 +52,8 @@ int main(int argc, char **argv)
 	}
 	catch (const po::error &e)
 	{
-		std::cerr << "Error: " << e.what() << std::endl << std::endl;
+		logger.logError(e.what());
+		std::cout << std::endl;
 		printHelp();
 		return EXIT_FAILURE;
 	}
@@ -65,6 +69,22 @@ int main(int argc, char **argv)
 		std::cout << "plasp version 3.0.0" << std::endl;
 		return EXIT_SUCCESS;
 	}
+
+	const auto warningLevel = variablesMap["warning-level"].as<std::string>();
+
+	if (warningLevel == "error")
+		logger.setWarningLevel(plasp::utils::Logger::WarningLevel::Error);
+	else if (warningLevel == "ignore")
+		logger.setWarningLevel(plasp::utils::Logger::WarningLevel::Ignore);
+
+	const auto colorPolicy = variablesMap["color"].as<std::string>();
+
+	if (colorPolicy == "auto")
+		logger.setColorPolicy(plasp::utils::LogStream::ColorPolicy::Auto);
+	else if (colorPolicy == "never")
+		logger.setColorPolicy(plasp::utils::LogStream::ColorPolicy::Never);
+	else if (colorPolicy == "always")
+		logger.setColorPolicy(plasp::utils::LogStream::ColorPolicy::Always);
 
 	try
 	{
@@ -100,7 +120,6 @@ int main(int argc, char **argv)
 
 		if (language == plasp::Language::Type::Unknown)
 		{
-			plasp::utils::Logger logger;
 			logger.logError("unknown input language");
 			std::cout << std::endl;
 			printHelp();
@@ -109,24 +128,15 @@ int main(int argc, char **argv)
 
 		if (language == plasp::Language::Type::PDDL)
 		{
-			auto context = plasp::pddl::Context(std::move(parser));
-
-			const auto warningLevel = variablesMap["warning-level"].as<std::string>();
-
-			if (warningLevel == "error")
-				context.logger.setWarningLevel(plasp::utils::Logger::WarningLevel::Error);
-			else if (warningLevel == "ignore")
-				context.logger.setWarningLevel(plasp::utils::Logger::WarningLevel::Ignore);
-
+			auto context = plasp::pddl::Context(std::move(parser), std::move(logger));
 			auto description = plasp::pddl::Description::fromContext(std::move(context));
 			const auto translator = plasp::pddl::TranslatorASP(description, description.context().logger.outputStream());
 			translator.translate();
 		}
 		else if (language == plasp::Language::Type::SAS)
 		{
-			plasp::utils::LogStream logStream(plasp::utils::StandardStream::Out);
 			const auto description = plasp::sas::Description::fromParser(std::move(parser));
-			const auto translator = plasp::sas::TranslatorASP(description, logStream);
+			const auto translator = plasp::sas::TranslatorASP(description, logger.outputStream());
 			translator.translate();
 		}
 	}
