@@ -42,6 +42,21 @@ $ plasp domain.pddl problem.pddl > instance.lp
 $ clingo encodings/pddl-meta-sequential-incremental.lp instance.lp
 ```
 
+### Command-Line Interface
+
+```bash
+$ plasp [files] [options]
+```
+
+`[files]` may be omitted, in which case the input is read from `std::cin`.
+The `[options]` are listed below:
+
+| **option**                        | **explanation**                                                                                                                   |
+|-----------------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
+| `-l` [ `--language` ]             | Specify the input language (`SAS` or `PDDL`). Omit for automatic detection.                                                       |
+| `--warning-level` arg (=`normal`) | Specify whether to output warnings normally (`normal`), to treat them as critical errors (`error`), or to ignore them (`ignore`). |
+| `--color` arg (=`auto`)           | Specify whether to colorize the output (`always`, `never`, or `auto`).                                                            |
+
 ## Building
 
 `plasp` requires a C++14 compiler (preferrably GCC ≥ 6.1 or clang ≥ 3.8), the `boost` libraries (≥ 1.55), and CMake for building.
