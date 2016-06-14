@@ -10,6 +10,11 @@ Features:
 * automatic language detection for PDDL and SAS
 * new command-line option `--language` to explicitly specify input language
 * new command-line option `--warning-level` to treat warnings as errors or to ignore warnings
+* supports colorized output
+
+Bug Fixes:
+
+* fixes bug in translation of SAS axiom rules
 
 ## 3.0.0 (2016-05-24)
 

@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include <plasp/utils/LogStream.h>
 #include <plasp/utils/Parser.h>
 
 namespace plasp
@@ -44,9 +45,9 @@ struct Value
 	public:
 		Value negated() const;
 
-		void printAsSAS(std::ostream &ostream) const;
-		void printAsASP(std::ostream &ostream) const;
-		void printAsASPPredicate(std::ostream &ostream) const;
+		void printAsSAS(utils::LogStream &outputStream) const;
+		void printAsASP(utils::LogStream &outputStream) const;
+		void printAsASPPredicate(utils::LogStream &outputStream) const;
 
 		Sign sign() const;
 		const std::string &name() const;

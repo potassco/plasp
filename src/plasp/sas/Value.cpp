@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include <plasp/sas/Variable.h>
+#include <plasp/utils/Formatting.h>
 #include <plasp/utils/IO.h>
 #include <plasp/utils/ParserException.h>
 
@@ -127,42 +128,42 @@ const std::string &Value::name() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Value::printAsASP(std::ostream &ostream) const
+void Value::printAsASP(utils::LogStream &outputStream) const
 {
 	if (m_sign == Value::Sign::Negative)
-		ostream << "not ";
+		outputStream << utils::Keyword("not") << " ";
 
-	ostream << utils::escapeASP(m_name);
+	outputStream << utils::escapeASP(m_name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Value::printAsASPPredicate(std::ostream &ostream) const
+void Value::printAsASPPredicate(utils::LogStream &outputStream) const
 {
 	// TODO: do not compare by value
 	if (*this == Value::None)
 	{
-		ostream << "value(none)";
+		outputStream << utils::Keyword("value") << "(" << utils::Keyword("none") << ")";
 		return;
 	}
 
-	ostream << "value(" << utils::escapeASP(m_name) << ", "
-		<< (m_sign == Sign::Positive ? "true" : "false") << ")";
+	outputStream << utils::Keyword("value") << "(" << utils::escapeASP(m_name) << ", "
+		<< (m_sign == Sign::Positive ? utils::Keyword("true") : utils::Keyword("false")) << ")";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Value::printAsSAS(std::ostream &ostream) const
+void Value::printAsSAS(utils::LogStream &outputStream) const
 {
 	if (m_sign == Value::Sign::Positive)
-		ostream << "Atom ";
+		outputStream << "Atom ";
 	else
-		ostream << "NegatedAtom ";
+		outputStream << "NegatedAtom ";
 
-	ostream << m_name;
+	outputStream << m_name;
 
 	if (!m_hasArguments)
-		ostream << "()";
+		outputStream << "()";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

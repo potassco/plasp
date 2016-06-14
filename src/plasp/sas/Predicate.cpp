@@ -68,43 +68,43 @@ const Predicate::Arguments &Predicate::arguments() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Predicate::printAsSAS(std::ostream &ostream) const
+void Predicate::printAsSAS(utils::LogStream &outputStream) const
 {
 	if (m_arguments.empty())
 	{
-		ostream << m_name;
+		outputStream << m_name;
 		return;
 	}
 
 	for (size_t i = 0; i < m_arguments.size(); i++)
 	{
 		if (i > 0)
-			ostream << " ";
+			outputStream << " ";
 
-		ostream << m_arguments[i];
+		outputStream << m_arguments[i];
 	}
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Predicate::printAsASP(std::ostream &ostream) const
+void Predicate::printAsASP(utils::LogStream &outputStream) const
 {
 	if (m_arguments.empty())
 	{
-		ostream << utils::escapeASP(m_name);
+		outputStream << utils::escapeASP(m_name);
 		return;
 	}
 
-	ostream << utils::escapeASP(m_name) << "(";
+	outputStream << utils::escapeASP(m_name) << "(";
 
 	for (size_t i = 0; i < m_arguments.size(); i++)
 	{
 		if (i > 0)
-			ostream << ", ";
+			outputStream << ", ";
 
-		ostream << utils::escapeASP(m_arguments[i]);
+		outputStream << utils::escapeASP(m_arguments[i]);
 	}
 
-	ostream << ")";
+	outputStream << ")";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

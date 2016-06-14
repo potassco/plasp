@@ -8,6 +8,7 @@
 #include <plasp/sas/Effect.h>
 #include <plasp/sas/Predicate.h>
 #include <plasp/sas/Variable.h>
+#include <plasp/utils/LogStream.h>
 #include <plasp/utils/Parser.h>
 
 namespace plasp
@@ -35,7 +36,7 @@ class Operator
 		static Operator fromSAS(utils::Parser &parser, const Variables &variables);
 
 	public:
-		void printPredicateAsASP(std::ostream &ostream) const;
+		void printPredicateAsASP(utils::LogStream &ostream) const;
 
 		const Predicate &predicate() const;
 		const Conditions &preconditions() const;

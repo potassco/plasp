@@ -9,6 +9,7 @@
 #include <plasp/pddl/TranslatorASP.h>
 #include <plasp/sas/Description.h>
 #include <plasp/sas/TranslatorASP.h>
+#include <plasp/utils/LogStream.h>
 #include <plasp/utils/TranslatorException.h>
 
 int main(int argc, char **argv)
@@ -123,8 +124,9 @@ int main(int argc, char **argv)
 		}
 		else if (language == plasp::Language::Type::SAS)
 		{
+			plasp::utils::LogStream logStream(plasp::utils::StandardStream::Out);
 			const auto description = plasp::sas::Description::fromParser(std::move(parser));
-			const auto translator = plasp::sas::TranslatorASP(description, std::cout);
+			const auto translator = plasp::sas::TranslatorASP(description, logStream);
 			translator.translate();
 		}
 	}

@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#include <plasp/utils/Formatting.h>
 #include <plasp/utils/IO.h>
 #include <plasp/utils/ParserException.h>
 
@@ -51,9 +52,9 @@ Variable Variable::fromSAS(utils::Parser &parser)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Variable::printNameAsASPPredicate(std::ostream &ostream) const
+void Variable::printNameAsASPPredicate(utils::LogStream &outputStream) const
 {
-	ostream << "variable(" << utils::escapeASP(m_name) << ")";
+	outputStream << utils::Keyword("variable") << "(" << utils::escapeASP(m_name) << ")";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

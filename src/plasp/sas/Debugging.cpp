@@ -13,7 +13,7 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::ostream &operator <<(std::ostream &ostream, const Description &description)
+utils::LogStream &operator<<(utils::LogStream &ostream, const Description &description)
 {
 	// Metric section
 	ostream << "uses action costs: " << (description.usesActionCosts() ? "yes" : "no") << std::endl;

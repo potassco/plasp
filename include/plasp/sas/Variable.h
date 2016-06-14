@@ -6,6 +6,7 @@
 #include <vector>
 
 #include <plasp/sas/Value.h>
+#include <plasp/utils/LogStream.h>
 #include <plasp/utils/Parser.h>
 
 namespace plasp
@@ -31,7 +32,7 @@ class Variable
 		static const Variable &referenceFromSAS(utils::Parser &parser, const Variables &variables);
 
 	public:
-		void printNameAsASPPredicate(std::ostream &ostream) const;
+		void printNameAsASPPredicate(utils::LogStream &outputStream) const;
 
 		const std::string &name() const;
 		int axiomLayer() const;

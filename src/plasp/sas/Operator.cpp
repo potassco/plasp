@@ -4,6 +4,7 @@
 #include <limits>
 
 #include <plasp/sas/VariableTransition.h>
+#include <plasp/utils/Formatting.h>
 
 namespace plasp
 {
@@ -45,11 +46,11 @@ Operator Operator::fromSAS(utils::Parser &parser, const Variables &variables)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Operator::printPredicateAsASP(std::ostream &ostream) const
+void Operator::printPredicateAsASP(utils::LogStream &outputStream) const
 {
-	ostream << "action(";
-	m_predicate.printAsASP(ostream);
-	ostream << ")";
+	outputStream << utils::Keyword("action") << "(";
+	m_predicate.printAsASP(outputStream);
+	outputStream << ")";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include <plasp/utils/LogStream.h>
 #include <plasp/utils/Parser.h>
 
 namespace plasp
@@ -26,8 +27,8 @@ class Predicate
 		using Arguments = std::vector<std::string>;
 
 	public:
-		void printAsSAS(std::ostream &ostream) const;
-		void printAsASP(std::ostream &ostream) const;
+		void printAsSAS(utils::LogStream &outputStream) const;
+		void printAsASP(utils::LogStream &outputStream) const;
 
 		const std::string &name() const;
 		const Arguments &arguments() const;
