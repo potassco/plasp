@@ -244,7 +244,7 @@ LogStream &LogStream::operator<<(std::basic_ostream<CharacterType, TraitsType> &
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class CharacterType, class Traits, class Allocator>
-LogStream &operator<<(LogStream &stream, const std::basic_string<CharacterType, Traits, Allocator> &string)
+inline LogStream &operator<<(LogStream &stream, const std::basic_string<CharacterType, Traits, Allocator> &string)
 {
 	stream.ostream() << string;
 	return stream;

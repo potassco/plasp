@@ -52,7 +52,7 @@ struct Format
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-LogStream &operator<<(LogStream &stream, const Format &format)
+inline LogStream &operator<<(LogStream &stream, const Format &format)
 {
 	if (!stream.supportsColor())
 		return stream;
@@ -71,7 +71,7 @@ class ResetFormat
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-LogStream &operator<<(LogStream &stream, const ResetFormat &)
+inline LogStream &operator<<(LogStream &stream, const ResetFormat &)
 {
 	if (!stream.supportsColor())
 		return stream;
