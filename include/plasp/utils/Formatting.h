@@ -113,6 +113,26 @@ inline LogStream &operator<<(LogStream &stream, const Keyword &keyword)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+struct Number: public Token
+{
+	Number(const std::string &name)
+	:	Token(name)
+	{
+	}
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline LogStream &operator<<(LogStream &stream, const Number &number)
+{
+	return (stream
+		<< utils::Format(utils::Color::Yellow, utils::FontWeight::Bold)
+		<< number.name
+		<< utils::ResetFormat());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 struct Variable: public Token
 {
 	Variable(const std::string &name)
