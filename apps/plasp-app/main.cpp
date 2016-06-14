@@ -76,6 +76,15 @@ int main(int argc, char **argv)
 		logger.setWarningLevel(plasp::utils::Logger::WarningLevel::Error);
 	else if (warningLevel == "ignore")
 		logger.setWarningLevel(plasp::utils::Logger::WarningLevel::Ignore);
+	else if (warningLevel == "normal")
+		logger.setWarningLevel(plasp::utils::Logger::WarningLevel::Normal);
+	else
+	{
+		logger.logError("unknown warning level “" + warningLevel + "”");
+		std::cout << std::endl;
+		printHelp();
+		return EXIT_FAILURE;
+	}
 
 	const auto colorPolicy = variablesMap["color"].as<std::string>();
 
@@ -85,6 +94,13 @@ int main(int argc, char **argv)
 		logger.setColorPolicy(plasp::utils::LogStream::ColorPolicy::Never);
 	else if (colorPolicy == "always")
 		logger.setColorPolicy(plasp::utils::LogStream::ColorPolicy::Always);
+	else
+	{
+		logger.logError("unknown color policy “" + colorPolicy + "”");
+		std::cout << std::endl;
+		printHelp();
+		return EXIT_FAILURE;
+	}
 
 	try
 	{
