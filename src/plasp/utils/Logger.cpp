@@ -67,7 +67,7 @@ void Logger::exception(const std::string &errorType, const std::string &message)
 	if (isatty(STDERR_FILENO))
 	{
 		std::cerr
-			<< Format(Color::Red, FontWeight::Bold) << "error:"
+			<< Format(Color::Red, FontWeight::Bold) << errorType << ":"
 			<< ResetFormat() << " "
 			<< Format(Color::White, FontWeight::Bold) << message
 			<< ResetFormat() << std::endl;
