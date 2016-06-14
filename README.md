@@ -35,7 +35,7 @@ $ plasp output.sas
 
 ### Solving the Translated Instance
 
-The translated instance can now be solved incrementally with `clingo` and a meta encoding, for instance, `pddl-meta-sequential-incremental.lp`:
+The translated instance can finally be solved incrementally with `clingo` and a meta encoding, for instance, `pddl-meta-sequential-incremental.lp`:
 
 ```bash
 $ plasp domain.pddl problem.pddl > instance.lp
