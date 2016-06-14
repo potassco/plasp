@@ -79,7 +79,7 @@ void TranslatorASP::translateDomain() const
 
 void TranslatorASP::translateTypes() const
 {
-	m_ostream << "% types";
+	m_ostream << "% types" << std::endl;
 
 	const auto &types = m_description.domain().types();
 
@@ -92,8 +92,6 @@ void TranslatorASP::translateTypes() const
 	std::for_each(types.cbegin(), types.cend(),
 		[&](const auto &type)
 		{
-			m_ostream << std::endl;
-
 			const auto typeName = utils::escapeASP(type->name());
 
 			m_ostream << "type(" << typeName << ")." << std::endl;
