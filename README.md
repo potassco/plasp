@@ -6,36 +6,45 @@
 
 `plasp` 3 is in early development and not intended for productive use yet.
 
-As of now, `plasp` 3 experimentally supports the full [SAS Format](http://www.fast-downward.org/TranslatorOutputFormat) (as of version 3) used by [Fast Downward](http://www.fast-downward.org/).
+`plasp` 3 translates planning problem instances to ASP facts.
+`plasp` 3 supports the input languages [PDDL](https://helios.hud.ac.uk/scommv/IPC-14/software.html) (only basic features currently) and the [SAS](http://www.fast-downward.org/TranslatorOutputFormat) (full support of the current version 3), which is used by [Fast Downward](http://www.fast-downward.org/).
 
 Please get in touch with [Patrick Lühne](https://www.luehne.de) if you have any suggestions.
 
 ## Usage
 
-To translate an SAS file into ASP facts, call:
+### Translating PDDL to ASP Facts
+
+PDDL instances are translated to ASP facts as follows:
 
 ```bash
-$ plasp file.sas
+$ plasp domain.pddl problem.pddl
 ```
 
-For example, a PDDL instance can be solved as follows.
-First, use [Fast Downward](http://www.fast-downward.org/) to translate the files from PDDL to SAS:
+Alternatively, PDDL instances may first be translated to SAS, the output format of [Fast Downward](http://www.fast-downward.org/).
 
 ```bash
 $ ./fast-downward.py --translate --build=release64 domain.pddl instance.pddl
 ```
 
-This creates the file `output.sas`.
-The translated SAS instance can now be solved incrementally with `clingo` and the meta encoding `meta-sequential-incremental.lp`:
+This creates a file called `output.sas`, which may now be translated by `plasp`.
 
 ```bash
-$ plasp output.sas > instance.lp
-$ clingo encodings/meta-sequential-incremental.lp instance.lp
+$ plasp output.sas
+```
+
+### Solving the Translated Instance
+
+The translated instance can now be solved incrementally with `clingo` and a meta encoding, for instance, `pddl-meta-sequential-incremental.lp`:
+
+```bash
+$ plasp domain.pddl problem.pddl > instance.lp
+$ clingo encodings/pddl-meta-sequential-incremental.lp instance.lp
 ```
 
 ## Building
 
-`plasp` requires a C++14 compiler (preferrably GCC ≥ 6.1), the `boost` libraries (≥ 1.55), and CMake for building.
+`plasp` requires a C++14 compiler (preferrably GCC ≥ 6.1 or clang ≥ 3.8), the `boost` libraries (≥ 1.55), and CMake for building.
 
 ```bash
 $ git clone https://github.com/potassco/plasp.git
