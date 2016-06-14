@@ -41,8 +41,6 @@ class TranslatorASP
 
 		void printHeading1(const std::string &heading) const;
 		void printHeading2(const std::string &heading) const;
-		void printKeyword(const std::string &keyword) const;
-		void printVariable(const std::string &variable) const;
 
 		const Description &m_description;
 		utils::LogStream &m_outputStream;
