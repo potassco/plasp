@@ -50,11 +50,8 @@ void TranslatorASP::translateDomain() const
 	const auto &domain = m_description.domain();
 
 	// Types
-	if (!domain.types().empty())
-	{
-		m_ostream << std::endl;
-		translateTypes();
-	}
+	m_ostream << std::endl;
+	translateTypes();
 
 	// Constants
 	if (!domain.constants().empty())
@@ -82,10 +79,15 @@ void TranslatorASP::translateDomain() const
 
 void TranslatorASP::translateTypes() const
 {
-	// TODO: escape ASP identifiers
 	m_ostream << "% types";
 
 	const auto &types = m_description.domain().types();
+
+	if (types.empty())
+	{
+		m_ostream << std::endl << "type(object)." << std::endl;
+		return;
+	}
 
 	std::for_each(types.cbegin(), types.cend(),
 		[&](const auto &type)
@@ -245,21 +247,21 @@ void TranslatorASP::translateActions() const
 
 void TranslatorASP::translateConstants(const std::string &header, const expressions::Constants &constants) const
 {
-	m_ostream << "% " << header << std::endl;
+	m_ostream << "% " << header;
 
 	std::for_each(constants.cbegin(), constants.cend(),
 		[&](const auto &constant)
 		{
 			const auto constantName = utils::escapeASP(constant->name());
 
-			m_ostream << "constant(" << constantName << ")." << std::endl;
+			m_ostream << std::endl << "constant(" << constantName << ")." << std::endl;
 
 			const auto *type = constant->type();
 
-			if (type == nullptr)
-				return;
-
-			m_ostream << "hasType(constant(" << constantName << "), type(" << utils::escapeASP(type->name()) << "))." << std::endl;
+			if (type != nullptr)
+				m_ostream << "hasType(constant(" << constantName << "), type(" << utils::escapeASP(type->name()) << "))." << std::endl;
+			else
+				m_ostream << "hasType(constant(" << constantName << "), type(object))." << std::endl;
 		});
 }
 
@@ -279,12 +281,7 @@ void TranslatorASP::translateVariablesHead(const expressions::Variables &variabl
 
 		const auto &variable = **i;
 
-		// Handle typed variables
-		if (variable.type() != nullptr)
-			m_ostream << utils::escapeASPVariable(variable.name());
-		// Allow any constant if typing is disabled
-		else
-			m_ostream << "constant(" << utils::escapeASPVariable(variable.name()) << ")";
+		m_ostream << utils::escapeASPVariable(variable.name());
 	}
 
 	m_ostream << ")";
@@ -306,7 +303,6 @@ void TranslatorASP::translateVariablesBody(const expressions::Variables &variabl
 		if (i != variables.cbegin())
 			m_ostream << ", ";
 
-		// Handle typed variables
 		if (variable.type() != nullptr)
 		{
 			if (variable.type()->expressionType() != Expression::Type::PrimitiveType)
@@ -316,9 +312,8 @@ void TranslatorASP::translateVariablesBody(const expressions::Variables &variabl
 
 			m_ostream << "hasType(" << utils::escapeASPVariable(variable.name()) << ", type(" << type.name() << "))";
 		}
-		// Allow any constant if typing is disabled
 		else
-			m_ostream << "constant(" << utils::escapeASPVariable(variable.name()) << ")";
+			m_ostream << "hasType(" << utils::escapeASPVariable(variable.name()) << ", type(object))";
 	}
 }
 
