@@ -65,7 +65,7 @@ inline LogStream &operator<<(LogStream &stream, const Format &format)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class ResetFormat
+struct ResetFormat
 {
 };
 
@@ -77,6 +77,50 @@ inline LogStream &operator<<(LogStream &stream, const ResetFormat &)
 		return stream;
 
 	return (stream << "\033[0m");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct Keyword
+{
+	Keyword(const std::string &name)
+	:	name(name)
+	{
+	}
+
+	const std::string &name;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline LogStream &operator<<(LogStream &stream, const Keyword &keyword)
+{
+	return (stream
+		<< utils::Format(utils::Color::White, utils::FontWeight::Bold)
+		<< keyword.name
+		<< utils::ResetFormat());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct Variable
+{
+	Variable(const std::string &name)
+	:	name(name)
+	{
+	}
+
+	const std::string &name;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline LogStream &operator<<(LogStream &stream, const Variable &variable)
+{
+	return (stream
+		<< utils::Format(utils::Color::Green, utils::FontWeight::Bold)
+		<< variable.name
+		<< utils::ResetFormat());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -85,8 +85,7 @@ void TranslatorASP::translateTypes() const
 
 	if (types.empty())
 	{
-		printKeyword("type");
-		m_outputStream << "(object)." << std::endl;
+		m_outputStream << utils::Keyword("type") << "(object)." << std::endl;
 		return;
 	}
 
@@ -95,8 +94,7 @@ void TranslatorASP::translateTypes() const
 		{
 			const auto typeName = utils::escapeASP(type->name());
 
-			this->printKeyword("type");
-			m_outputStream << "(" << typeName << ")." << std::endl;
+			m_outputStream << utils::Keyword("type") << "(" << typeName << ")." << std::endl;
 
 			const auto &parentTypes = type->parentTypes();
 
@@ -105,25 +103,15 @@ void TranslatorASP::translateTypes() const
 				{
 					const auto parentTypeName = utils::escapeASP(parentType->name());
 
-					this->printKeyword("inherits");
-					m_outputStream << "(";
-					this->printKeyword("type");
-					m_outputStream << "(" << typeName << "), ";
-					this->printKeyword("type");
-					m_outputStream << "(" << parentTypeName << "))." << std::endl;
+					m_outputStream
+						<< utils::Keyword("inherits") << "(" << utils::Keyword("type")
+						<< "(" << typeName << "), " << utils::Keyword("type")
+						<< "(" << parentTypeName << "))." << std::endl
 
-					this->printKeyword("hasType");
-					m_outputStream << "(";
-					this->printVariable("X");
-					m_outputStream << ", ";
-					this->printKeyword("type");
-					m_outputStream << "(" << parentTypeName << ")) :- ";
-					this->printKeyword("hasType");
-					m_outputStream << "(";
-					this->printVariable("X");
-					m_outputStream << ", ";
-					this->printKeyword("type");
-					m_outputStream << "(" << typeName << "))." << std::endl;
+						<< utils::Keyword("hasType") << "(" << utils::Variable("X") << ", "
+						<< utils::Keyword("type") << "(" << parentTypeName << ")) :- "
+						<< utils::Keyword("hasType") << "(" << utils::Variable("X") << ", "
+						<< utils::Keyword("type") << "(" << typeName << "))." << std::endl;
 				});
 		});
 }
@@ -141,8 +129,7 @@ void TranslatorASP::translatePredicates() const
 		{
 			m_outputStream << std::endl;
 
-			this->printKeyword("predicate");
-			m_outputStream << "(" << utils::escapeASP(predicate->name());
+			m_outputStream << utils::Keyword("predicate") << "(" << utils::escapeASP(predicate->name());
 
 			this->translateVariablesHead(predicate->arguments());
 
@@ -167,8 +154,7 @@ void TranslatorASP::translateActions() const
 	const auto printActionName =
 		[&](const auto &action)
 		{
-			this->printKeyword("action");
-			m_outputStream << "(" << utils::escapeASP(action.name());
+			m_outputStream << utils::Keyword("action") << "(" << utils::escapeASP(action.name());
 
 			this->translateVariablesHead(action.parameters());
 
@@ -181,9 +167,7 @@ void TranslatorASP::translateActions() const
 			const auto translateLiteral =
 				[&](const auto &ruleHead, const auto &literal)
 				{
-					m_outputStream << std::endl;
-					this->printKeyword(ruleHead);
-					m_outputStream << "(";
+					m_outputStream << std::endl << utils::Keyword(ruleHead) << "(";
 
 					printActionName(*action);
 
@@ -274,29 +258,22 @@ void TranslatorASP::translateConstants(const std::string &heading, const express
 		{
 			const auto constantName = utils::escapeASP(constant->name());
 
-			m_outputStream << std::endl;
-			this->printKeyword("constant");
-			m_outputStream << "(" << constantName << ")." << std::endl;
+			m_outputStream << std::endl << utils::Keyword("constant")
+				<< "(" << constantName << ")." << std::endl;
 
 			const auto *type = constant->type();
 
 			if (type != nullptr)
 			{
-				this->printKeyword("hasType");
-				m_outputStream << "(";
-				this->printKeyword("constant");
-				m_outputStream << "(" << constantName << "), ";
-				this->printKeyword("type");
-				m_outputStream << "(" << utils::escapeASP(type->name()) << "))." << std::endl;
+				m_outputStream << utils::Keyword("hasType") << "("
+					<< utils::Keyword("constant") << "(" << constantName << "), "
+					<< utils::Keyword("hastype") << "(" << utils::escapeASP(type->name()) << "))." << std::endl;
 			}
 			else
 			{
-				this->printKeyword("hasType");
-				m_outputStream << "(";
-				this->printKeyword("constant");
-				m_outputStream << "(" << constantName << "), ";
-				this->printKeyword("type");
-				m_outputStream << "(object))." << std::endl;
+				m_outputStream << utils::Keyword("hasType") << "("
+					<< utils::Keyword("constant") << "(" << constantName << "), "
+					<< utils::Keyword("hastype") << "(object))." << std::endl;
 			}
 		});
 }
@@ -317,7 +294,7 @@ void TranslatorASP::translateVariablesHead(const expressions::Variables &variabl
 
 		const auto &variable = **i;
 
-		printVariable(utils::escapeASPVariable(variable.name()));
+		m_outputStream << utils::Variable(utils::escapeASPVariable(variable.name()));
 	}
 
 	m_outputStream << ")";
@@ -346,21 +323,15 @@ void TranslatorASP::translateVariablesBody(const expressions::Variables &variabl
 
 			const auto &type = *dynamic_cast<const expressions::PrimitiveType *>(variable.type());
 
-			printKeyword("hasType");
-			m_outputStream << "(";
-			printVariable(utils::escapeASPVariable(variable.name()));
-			m_outputStream << ", ";
-			printKeyword("type");
-			m_outputStream << "(" << type.name() << "))";
+			m_outputStream << utils::Keyword("hasType") << "("
+				<< utils::Variable(utils::escapeASPVariable(variable.name())) << ", "
+				<< utils::Keyword("type") << "(" << type.name() << "))";
 		}
 		else
 		{
-			printKeyword("hasType");
-			m_outputStream << "(";
-			printVariable(utils::escapeASPVariable(variable.name()));
-			m_outputStream << ", ";
-			printKeyword("type");
-			m_outputStream << "(object))";
+			m_outputStream << utils::Keyword("hasType") << "("
+				<< utils::Variable(utils::escapeASPVariable(variable.name())) << ", "
+				<< utils::Keyword("type") << "(object))";
 		}
 	}
 }
@@ -373,8 +344,7 @@ void TranslatorASP::translateLiteral(const Expression &literal) const
 	if (literal.expressionType() == Expression::Type::Predicate)
 	{
 		this->translatePredicate(dynamic_cast<const expressions::Predicate &>(literal));
-		m_outputStream << ", ";
-		printKeyword("true");
+		m_outputStream << ", " << utils::Keyword("true");
 	}
 	// Assuming that "not" expression may only contain a predicate
 	else if (literal.expressionType() == Expression::Type::Not)
@@ -383,8 +353,7 @@ void TranslatorASP::translateLiteral(const Expression &literal) const
 		const auto &predicate = dynamic_cast<const expressions::Predicate &>(*notExpression.argument());
 
 		this->translatePredicate(predicate);
-		m_outputStream << ", ";
-		printKeyword("false");
+		m_outputStream << ", " << utils::Keyword("false");
 	}
 	else
 		throw utils::TranslatorException("only primitive predicates and their negations supported as literals currently");
@@ -394,8 +363,7 @@ void TranslatorASP::translateLiteral(const Expression &literal) const
 
 void TranslatorASP::translatePredicate(const expressions::Predicate &predicate) const
 {
-	printKeyword("predicate");
-	m_outputStream << "(" << utils::escapeASP(predicate.name());
+	m_outputStream << utils::Keyword("predicate") << "(" << utils::escapeASP(predicate.name());
 
 	const auto &arguments = predicate.arguments();
 
@@ -416,14 +384,13 @@ void TranslatorASP::translatePredicate(const expressions::Predicate &predicate) 
 		{
 			const auto &constant = dynamic_cast<const expressions::Constant &>(**i);
 
-			printKeyword("constant");
-			m_outputStream << "(" << utils::escapeASP(constant.name()) << ")";
+			m_outputStream << utils::Keyword("constant") << "(" << utils::escapeASP(constant.name()) << ")";
 		}
 		else if ((*i)->expressionType() == Expression::Type::Variable)
 		{
 			const auto &variable = dynamic_cast<const expressions::Variable &>(**i);
 
-			printVariable(utils::escapeASPVariable(variable.name()));
+			m_outputStream << utils::Variable(utils::escapeASPVariable(variable.name()));
 		}
 		else
 			throw utils::TranslatorException("only variables and constants supported in predicates currently");
@@ -471,9 +438,7 @@ void TranslatorASP::translateInitialState() const
 	std::for_each(initialStateFacts.cbegin(), initialStateFacts.cend(),
 		[&](const auto &fact)
 		{
-			m_outputStream << std::endl;
-			this->printKeyword("initialState");
-			m_outputStream << "(";
+			m_outputStream << std::endl << utils::Keyword("initialState") << "(";
 
 			// Translate single predicate
 			if (fact->expressionType() == Expression::Type::Predicate)
@@ -508,9 +473,7 @@ void TranslatorASP::translateGoal() const
 	if (goal.expressionType() == Expression::Type::Predicate
 		|| goal.expressionType() == Expression::Type::Not)
 	{
-		m_outputStream << std::endl;
-		printKeyword("goal");
-		m_outputStream << "(";
+		m_outputStream << std::endl << utils::Keyword("goal") << "(";
 
 		translateLiteral(goal);
 
@@ -523,9 +486,7 @@ void TranslatorASP::translateGoal() const
 		std::for_each(andExpression.arguments().cbegin(), andExpression.arguments().cend(),
 			[&](const auto *argument)
 			{
-				m_outputStream << std::endl;
-				this->printKeyword("goal");
-				m_outputStream << "(";
+				m_outputStream << std::endl << utils::Keyword("goal") << "(";
 
 				this->translateLiteral(*argument);
 
@@ -558,26 +519,6 @@ void TranslatorASP::printHeading2(const std::string &heading) const
 	m_outputStream
 		<< utils::Format(utils::Color::Blue, utils::FontWeight::Bold)
 		<< "% " << heading
-		<< utils::ResetFormat();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void TranslatorASP::printKeyword(const std::string &keyword) const
-{
-	m_outputStream
-		<< utils::Format(utils::Color::White, utils::FontWeight::Bold)
-		<< keyword
-		<< utils::ResetFormat();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void TranslatorASP::printVariable(const std::string &variable) const
-{
-	m_outputStream
-		<< utils::Format(utils::Color::Green, utils::FontWeight::Bold)
-		<< variable
 		<< utils::ResetFormat();
 }
 
