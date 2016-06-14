@@ -1,6 +1,7 @@
 #include <plasp/utils/Logger.h>
 
 #include <plasp/utils/Formatting.h>
+#include <plasp/utils/LogStream.h>
 
 namespace plasp
 {
@@ -63,50 +64,29 @@ void Logger::setWarningLevel(WarningLevel warningLevel)
 
 void Logger::logError(const std::string &message)
 {
-	if (isatty(STDERR_FILENO))
-	{
-		std::cerr
-			<< Format(Color::Red, FontWeight::Bold) << "error:"
-			<< ResetFormat() << " "
-			<< Format(Color::White, FontWeight::Bold) << message
-			<< ResetFormat() << std::endl;
-	}
-	else
-	{
-		std::cerr
-			<< "error:"
-			<< " "
-			<< message
-			<< std::endl;
-	}
+	LogStream<StandardStream::Err> stream;
+
+	stream
+		<< Format(Color::Red, FontWeight::Bold) << "error:"
+		<< ResetFormat() << " "
+		<< Format(Color::White, FontWeight::Bold) << message
+		<< ResetFormat() << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Logger::logError(const Parser::Coordinate &coordinate, const std::string &message)
 {
-	if (isatty(STDERR_FILENO))
-	{
-		std::cerr
-			<< Format(Color::White, FontWeight::Bold) << coordinate.sectionName << ":"
-			<< std::to_string(coordinate.row) + ":" + std::to_string(coordinate.column) << ":"
-			<< ResetFormat() << " "
-			<< Format(Color::Red, FontWeight::Bold) << "error:"
-			<< ResetFormat() << " "
-			<< Format(Color::White, FontWeight::Bold) << message
-			<< ResetFormat() << std::endl;
-	}
-	else
-	{
-		std::cerr
-			<< coordinate.sectionName << ":"
-			<< std::to_string(coordinate.row) + ":" + std::to_string(coordinate.column) << ":"
-			<< " "
-			<< "error:"
-			<< " "
-			<< message
-			<< std::endl;
-	}
+	LogStream<StandardStream::Err> stream;
+
+	stream
+		<< Format(Color::White, FontWeight::Bold) << coordinate.sectionName << ":"
+		<< std::to_string(coordinate.row) + ":" + std::to_string(coordinate.column) << ":"
+		<< ResetFormat() << " "
+		<< Format(Color::Red, FontWeight::Bold) << "error:"
+		<< ResetFormat() << " "
+		<< Format(Color::White, FontWeight::Bold) << message
+		<< ResetFormat() << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -121,28 +101,16 @@ void Logger::logWarning(const Parser &parser, const std::string &message)
 
 	const auto coordinate = parser.coordinate();
 
-	if (isatty(STDERR_FILENO))
-	{
-		std::cerr
-			<< Format(Color::White, FontWeight::Bold) << coordinate.sectionName << ":"
-			<< std::to_string(coordinate.row) + ":" + std::to_string(coordinate.column) << ":"
-			<< ResetFormat() << " "
-			<< Format(Color::Magenta, FontWeight::Bold) << "warning:"
-			<< ResetFormat() << " "
-			<< Format(Color::White, FontWeight::Bold) << message
-			<< ResetFormat() << std::endl;
-	}
-	else
-	{
-		std::cerr
-			<< coordinate.sectionName << ":"
-			<< std::to_string(coordinate.row) + ":" + std::to_string(coordinate.column) << ":"
-			<< " "
-			<< "warning:"
-			<< " "
-			<< message
-			<< std::endl;
-	}
+	LogStream<StandardStream::Err> stream;
+
+	stream
+		<< Format(Color::White, FontWeight::Bold) << coordinate.sectionName << ":"
+		<< std::to_string(coordinate.row) + ":" + std::to_string(coordinate.column) << ":"
+		<< ResetFormat() << " "
+		<< Format(Color::Magenta, FontWeight::Bold) << "warning:"
+		<< ResetFormat() << " "
+		<< Format(Color::White, FontWeight::Bold) << message
+		<< ResetFormat() << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

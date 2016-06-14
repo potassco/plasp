@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include <unistd.h>
+#include <plasp/utils/LogStream.h>
 
 namespace plasp
 {
@@ -41,23 +41,27 @@ enum class FontWeight
 struct Format
 {
 	Format(Color color, FontWeight fontWeight = FontWeight::Normal)
-	:	color{color},
-		fontWeight{fontWeight}
+	:	m_color{color},
+		m_fontWeight{fontWeight}
 	{
 	}
 
-	Color color;
-	FontWeight fontWeight;
+	Color m_color;
+	FontWeight m_fontWeight;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::ostream &operator<<(std::ostream &ostream, const Format &format)
+template<StandardStream StandardStream>
+LogStream<StandardStream> &operator<<(LogStream<StandardStream> &stream, const Format &format)
 {
-	const auto fontWeightCode = static_cast<size_t>(format.fontWeight);
-	const auto colorCode = 30 + static_cast<size_t>(format.color);
+	if (!stream.supportsColor())
+		return stream;
 
-	return (ostream << "\033[" << fontWeightCode << ";" << colorCode << "m");
+	const auto fontWeightCode = static_cast<size_t>(format.m_fontWeight);
+	const auto colorCode = 30 + static_cast<size_t>(format.m_color);
+
+	return (stream << "\033[" << fontWeightCode << ";" << colorCode << "m");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -68,9 +72,13 @@ class ResetFormat
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::ostream &operator<<(std::ostream &ostream, const ResetFormat &)
+template<StandardStream StandardStream>
+LogStream<StandardStream> &operator<<(LogStream<StandardStream> &stream, const ResetFormat &)
 {
-	return (ostream << "\033[0m");
+	if (!stream.supportsColor())
+		return stream;
+
+	return (stream << "\033[0m");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
