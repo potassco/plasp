@@ -113,7 +113,7 @@ void Constant::parseTypedDeclarations(Context &context, Domain &domain)
 		domain.checkRequirement(Requirement::Type::Typing);
 	// If no types are given, check that typing is not a requirement
 	else if (domain.hasRequirement(Requirement::Type::Typing))
-		throw utils::ParserException(parser, "Constant has undeclared type");
+		throw utils::ParserException(parser, "constant has undeclared type");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -140,7 +140,7 @@ void Constant::parseTypedDeclarations(Context &context, Problem &problem)
 		problem.checkRequirement(Requirement::Type::Typing);
 	// If no types are given, check that typing is not a requirement
 	else if (problem.hasRequirement(Requirement::Type::Typing))
-		throw utils::ParserException(context.parser, "Constant has undeclared type");
+		throw utils::ParserException(context.parser, "constant has undeclared type");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -156,7 +156,7 @@ Constant *Constant::parseAndFind(Context &context, const Domain &domain)
 	if (constant != nullptr)
 		return constant;
 
-	throw utils::ParserException(context.parser, "Constant “" + constantName + "” used but never declared");
+	throw utils::ParserException(context.parser, "constant “" + constantName + "” used but never declared");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -177,7 +177,7 @@ Constant *Constant::parseAndFind(Context &context, const Problem &problem)
 	if (constant)
 		return constant;
 
-	throw utils::ParserException(context.parser, "Constant “" + constantName + "” used but never declared");
+	throw utils::ParserException(context.parser, "constant “" + constantName + "” used but never declared");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

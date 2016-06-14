@@ -133,7 +133,7 @@ void Description::parse()
 	findSections();
 
 	if (m_domainPosition == -1)
-		throw ConsistencyException("No PDDL domain specified");
+		throw ConsistencyException("no PDDL domain specified");
 
 	parser.seek(m_domainPosition);
 	m_domain->parse();
@@ -188,7 +188,7 @@ void Description::findSections()
 		else
 		{
 			const auto sectionIdentifier = parser.parse<std::string>();
-			throw utils::ParserException(parser, "Unknown PDDL section “" + sectionIdentifier + "”");
+			throw utils::ParserException(parser, "unknown PDDL section “" + sectionIdentifier + "”");
 		}
 
 		m_context.parser.skipWhiteSpace();

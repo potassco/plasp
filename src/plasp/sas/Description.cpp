@@ -169,7 +169,7 @@ void Description::parseContent(utils::Parser &parser)
 	parser.skipWhiteSpace();
 
 	if (!parser.atEndOfStream())
-		throw utils::ParserException(parser, "Expected end of SAS description (perhaps, input contains two SAS descriptions?)");
+		throw utils::ParserException(parser, "expected end of SAS description (perhaps, input contains two SAS descriptions?)");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -181,7 +181,7 @@ void Description::parseVersionSection(utils::Parser &parser) const
 	const auto formatVersion = parser.parse<size_t>();
 
 	if (formatVersion != 3)
-		throw utils::ParserException(parser, "Unsupported SAS format version (" + std::to_string(formatVersion) + ")");
+		throw utils::ParserException(parser, "unsupported SAS format version (" + std::to_string(formatVersion) + ")");
 
 	parser.expect<std::string>("end_version");
 }

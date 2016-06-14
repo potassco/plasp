@@ -109,7 +109,7 @@ PrimitiveType *PrimitiveType::parseAndFind(Context &context, Domain &domain)
 	const auto typeName = context.parser.parseIdentifier(isIdentifier);
 
 	if (typeName.empty())
-		throw utils::ParserException(context.parser, "No type supplied");
+		throw utils::ParserException(context.parser, "no type supplied");
 
 	const auto match = std::find_if(types.cbegin(), types.cend(),
 		[&](const auto &primitiveType)
@@ -122,11 +122,11 @@ PrimitiveType *PrimitiveType::parseAndFind(Context &context, Domain &domain)
 		// Only "object" is allowed as an implicit type
 		if (typeName == "object" || typeName == "objects")
 		{
-			context.logger.logWarning(context.parser, "Primitive type “" + typeName + "” should be declared");
+			context.logger.logWarning(context.parser, "primitive type “" + typeName + "” should be declared");
 			types.emplace_back(std::make_unique<expressions::PrimitiveType>(typeName));
 		}
 		else
-			throw utils::ParserException(context.parser, "Type “" + typeName + "” used but never declared");
+			throw utils::ParserException(context.parser, "type “" + typeName + "” used but never declared");
 
 		return types.back().get();
 	}

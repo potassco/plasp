@@ -89,12 +89,12 @@ Requirement Requirement::parse(Context &context)
 	const auto match = requirementTypesToPDDL.right.find(requirementName);
 
 	if (match == requirementTypesToPDDL.right.end())
-		throw utils::ParserException(context.parser, "Unknown PDDL requirement “" + requirementName + "”");
+		throw utils::ParserException(context.parser, "unknown PDDL requirement “" + requirementName + "”");
 
 	const auto requirementType = match->second;
 
 	if (requirementType == Requirement::Type::GoalUtilities)
-		context.logger.logWarning(context.parser, "Requirement “goal-utilities” is not part of the PDDL 3.1 specification");
+		context.logger.logWarning(context.parser, "requirement “goal-utilities” is not part of the PDDL 3.1 specification");
 
 	return Requirement(match->second);
 }

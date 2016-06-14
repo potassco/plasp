@@ -53,7 +53,7 @@ void Domain::findSections()
 			if (unique && sectionPosition != -1)
 			{
 				parser.seek(value);
-				throw utils::ParserException(parser, "Only one “:" + sectionName + "” section allowed");
+				throw utils::ParserException(parser, "only one “:" + sectionName + "” section allowed");
 			}
 
 			sectionPosition = value;
@@ -94,7 +94,7 @@ void Domain::findSections()
 
 			const auto sectionIdentifier = parser.parseIdentifier(isIdentifier);
 
-			m_context.logger.logWarning(parser, "Section type “" + sectionIdentifier + "” currently unsupported");
+			m_context.logger.logWarning(parser, "section type “" + sectionIdentifier + "” currently unsupported");
 
 			parser.seek(sectionIdentifierPosition);
 		}
@@ -103,7 +103,7 @@ void Domain::findSections()
 			const auto sectionIdentifier = parser.parseIdentifier(isIdentifier);
 
 			parser.seek(position);
-			throw utils::ParserException(m_context.parser, "Unknown domain section “" + sectionIdentifier + "”");
+			throw utils::ParserException(m_context.parser, "unknown domain section “" + sectionIdentifier + "”");
 		}
 
 		// Skip section for now and parse it later
@@ -279,7 +279,7 @@ void Domain::checkRequirement(Requirement::Type requirementType) const
 	if (hasRequirement(requirementType))
 		return;
 
-	throw ConsistencyException("Requirement “" + Requirement(requirementType).toPDDL() + "” used but never declared");
+	throw ConsistencyException("requirement “" + Requirement(requirementType).toPDDL() + "” used but never declared");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -340,7 +340,7 @@ void Domain::parseTypeSection()
 	while (parser.currentCharacter() != ')')
 	{
 		if (parser.currentCharacter() == '(')
-			throw utils::ParserException(parser, "Only primitive types are allowed in type section");
+			throw utils::ParserException(parser, "only primitive types are allowed in type section");
 
 		expressions::PrimitiveType::parseTypedDeclaration(m_context, *this);
 

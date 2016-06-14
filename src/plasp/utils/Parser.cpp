@@ -186,7 +186,7 @@ bool Parser::atEndOfStream() const
 void Parser::checkStream() const
 {
 	if (atEndOfStream())
-		throw ParserException(*this, "Reading past end of file");
+		throw ParserException(*this, "reading past end of file");
 
 	if (m_stream.fail())
 		throw ParserException(*this);
@@ -310,7 +310,7 @@ template<>
 void Parser::expect<std::string>(const std::string &expectedValue)
 {
 	if (!probe<std::string>(expectedValue))
-		throw ParserException(*this, "Expected “" + expectedValue + "”");
+		throw ParserException(*this, "expected “" + expectedValue + "”");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -344,7 +344,7 @@ template<>
 void Parser::expect<char>(const char &expectedValue)
 {
 	if (!probe<char>(expectedValue))
-		throw ParserException(*this, std::string("Expected “") + expectedValue + "”");
+		throw ParserException(*this, std::string("expected “") + expectedValue + "”");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -354,7 +354,7 @@ uint64_t Parser::parseIntegerBody()
 	checkStream();
 
 	if (!std::isdigit(currentCharacter()))
-		throw ParserException(*this, "Could not parse integer value");
+		throw ParserException(*this, "could not parse integer value");
 
 	uint64_t value = 0;
 
@@ -396,7 +396,7 @@ uint64_t Parser::parse<uint64_t>()
 	skipWhiteSpace();
 
 	if (currentCharacter() == '-')
-		throw ParserException(*this, "Expected unsigned integer, got signed one");
+		throw ParserException(*this, "expected unsigned integer, got signed one");
 
 	return parseIntegerBody();
 }
@@ -439,7 +439,7 @@ template<>
 void Parser::expect<int64_t>(const int64_t &expectedValue)
 {
 	if (!probe<int64_t>(expectedValue))
-		throw ParserException(*this, "Expected “" + std::to_string(expectedValue) + "”");
+		throw ParserException(*this, "expected “" + std::to_string(expectedValue) + "”");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -448,7 +448,7 @@ template<>
 void Parser::expect<uint64_t>(const uint64_t &expectedValue)
 {
 	if (!probe<uint64_t>(expectedValue))
-		throw ParserException(*this, "Expected “" + std::to_string(expectedValue) + "”");
+		throw ParserException(*this, "expected “" + std::to_string(expectedValue) + "”");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -512,7 +512,7 @@ bool Parser::parse<bool>()
 	if (probe('1'))
 		return true;
 
-	throw ParserException(*this, "Could not parse Boolean value");
+	throw ParserException(*this, "could not parse Boolean value");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -523,7 +523,7 @@ void Parser::expect<bool>(const bool &expectedValue)
 	const auto value = parse<bool>();
 
 	if (value != expectedValue)
-		throw ParserException(*this, "Expected “" + std::to_string(expectedValue) + "”");
+		throw ParserException(*this, "expected “" + std::to_string(expectedValue) + "”");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

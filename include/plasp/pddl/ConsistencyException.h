@@ -19,7 +19,7 @@ class ConsistencyException: public std::exception
 {
 	public:
 		explicit ConsistencyException()
-		:	ConsistencyException("Unspecified consistency error")
+		:	ConsistencyException("unspecified consistency error")
 		{
 		}
 
@@ -40,7 +40,7 @@ class ConsistencyException: public std::exception
 		const char *what() const throw()
 		{
 			if (m_message.empty())
-				return "Unspecified consistency error";
+				return "unspecified consistency error";
 
 			return m_message.c_str();
 		}

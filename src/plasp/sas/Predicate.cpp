@@ -46,7 +46,7 @@ Predicate Predicate::fromSAS(utils::Parser &parser)
 	}
 	catch (const std::exception &e)
 	{
-		throw utils::ParserException(parser, "Could not parse operator predicate");
+		throw utils::ParserException(parser, "could not parse operator predicate");
 	}
 
 	return predicate;

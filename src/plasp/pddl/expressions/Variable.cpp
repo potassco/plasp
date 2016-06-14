@@ -52,7 +52,7 @@ void Variable::parseDeclaration(Context &context, Variables &parameters)
 		});
 
 	if (match != parameters.cend())
-		throw utils::ParserException(context.parser, "Variable “" + variable->m_name + "” already declared in this scope");
+		throw utils::ParserException(context.parser, "variable “" + variable->m_name + "” already declared in this scope");
 
 	// Flag variable for potentially upcoming type declaration
 	variable->setDirty();
@@ -132,7 +132,7 @@ void Variable::parseTypedDeclarations(Context &context, ExpressionContext &expre
 		expressionContext.checkRequirement(Requirement::Type::Typing);
 	// If no types are given, check that typing is not a requirement
 	else if (expressionContext.hasRequirement(Requirement::Type::Typing))
-		throw utils::ParserException(parser, "Variable has undeclared type");
+		throw utils::ParserException(parser, "variable has undeclared type");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -154,7 +154,7 @@ const Variable *Variable::parseAndFind(Context &context, const ExpressionContext
 		});
 
 	if (match == variables.cend())
-		throw utils::ParserException(context.parser, "Parameter “" + variableName + "” used but never declared");
+		throw utils::ParserException(context.parser, "parameter “" + variableName + "” used but never declared");
 
 	return match->get();
 }

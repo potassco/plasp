@@ -21,7 +21,7 @@ class ParserException: public std::exception
 {
 	public:
 		explicit ParserException(const utils::Parser &parser)
-		:	ParserException(parser, "Unspecified parser error")
+		:	ParserException(parser, "unspecified parser error")
 		{
 		}
 

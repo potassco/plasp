@@ -114,7 +114,7 @@ ExpressionPointer parseExpression(Context &context, ExpressionContext &expressio
 	const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);
 
 	parser.seek(position);
-	throw utils::ParserException(context.parser, "Expression type “" + expressionIdentifier + "” unknown or not allowed in this context");
+	throw utils::ParserException(context.parser, "expression type “" + expressionIdentifier + "” unknown or not allowed in this context");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -186,7 +186,7 @@ ExpressionPointer parseEffectBodyExpression(Context &context, ExpressionContext 
 	const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);
 
 	parser.seek(position);
-	throw utils::ParserException(context.parser, "Expression type “" + expressionIdentifier + "” unknown or not allowed in this context");
+	throw utils::ParserException(context.parser, "expression type “" + expressionIdentifier + "” unknown or not allowed in this context");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -198,7 +198,7 @@ ExpressionPointer parsePredicate(Context &context, ExpressionContext &expression
 	if ((expression = expressions::Predicate::parse(context, expressionContext)))
 		return expression;
 
-	throw utils::ParserException(context.parser, "Expected predicate");
+	throw utils::ParserException(context.parser, "expected predicate");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

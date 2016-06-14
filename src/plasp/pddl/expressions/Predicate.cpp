@@ -127,7 +127,7 @@ PredicatePointer Predicate::parse(Context &context, const Problem &problem)
 	while (context.parser.currentCharacter() != ')')
 	{
 		if (context.parser.currentCharacter() == '?')
-			throw utils::ParserException(context.parser, "Variables not allowed in this context");
+			throw utils::ParserException(context.parser, "variables not allowed in this context");
 
 		// Parse objects and constants
 		const auto *constant = Constant::parseAndFind(context, problem);

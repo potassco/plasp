@@ -53,7 +53,7 @@ void Problem::findSections()
 		if (unique && sectionPosition != -1)
 		{
 			parser.seek(value);
-			throw utils::ParserException(parser, "Only one “:" + sectionName + "” section allowed");
+			throw utils::ParserException(parser, "only one “:" + sectionName + "” section allowed");
 		}
 
 		sectionPosition = value;
@@ -89,7 +89,7 @@ void Problem::findSections()
 
 			const auto sectionIdentifier = parser.parseIdentifier(isIdentifier);
 
-			m_context.logger.logWarning(parser, "Section type “" + sectionIdentifier + "” currently unsupported");
+			m_context.logger.logWarning(parser, "section type “" + sectionIdentifier + "” currently unsupported");
 
 			parser.seek(sectionIdentifierPosition);
 		}
@@ -98,7 +98,7 @@ void Problem::findSections()
 			const auto sectionIdentifier = parser.parseIdentifier(isIdentifier);
 
 			parser.seek(position);
-			throw utils::ParserException(m_context.parser, "Unknown problem section “" + sectionIdentifier + "”");
+			throw utils::ParserException(m_context.parser, "unknown problem section “" + sectionIdentifier + "”");
 		}
 
 		// Skip section for now and parse it later
@@ -117,7 +117,7 @@ void Problem::parse()
 	auto &parser = m_context.parser;
 
 	if (m_domainPosition == -1)
-		throw ConsistencyException("Problem description does not specify the corresponding domain");
+		throw ConsistencyException("problem description does not specify the corresponding domain");
 
 	parser.seek(m_domainPosition);
 	parseDomainSection();
@@ -135,13 +135,13 @@ void Problem::parse()
 	}
 
 	if (m_initialStatePosition == -1)
-		throw ConsistencyException("Problem description does not specify an initial state");
+		throw ConsistencyException("problem description does not specify an initial state");
 
 	parser.seek(m_initialStatePosition);
 	parseInitialStateSection();
 
 	if (m_goalPosition == -1)
-		throw ConsistencyException("Problem description does not specify a goal");
+		throw ConsistencyException("problem description does not specify a goal");
 
 	parser.seek(m_goalPosition);
 	parseGoalSection();
@@ -204,7 +204,7 @@ void Problem::parseDomainSection()
 	const auto domainName = parser.parseIdentifier(isIdentifier);
 
 	if (m_domain.name() != domainName)
-		throw utils::ParserException(parser, "Domains do not match (“" + m_domain.name() + "” and “" + domainName + "”)");
+		throw utils::ParserException(parser, "domains do not match (“" + m_domain.name() + "” and “" + domainName + "”)");
 
 	parser.expect<std::string>(")");
 }
@@ -261,7 +261,7 @@ void Problem::checkRequirement(Requirement::Type requirementType) const
 	if (hasRequirement(requirementType))
 		return;
 
-	throw ConsistencyException("Requirement “" + Requirement(requirementType).toPDDL() + "” used but never declared");
+	throw ConsistencyException("requirement “" + Requirement(requirementType).toPDDL() + "” used but never declared");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

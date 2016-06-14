@@ -63,7 +63,7 @@ const Variable &Variable::referenceFromSAS(utils::Parser &parser, const Variable
 	const auto variableID = parser.parse<size_t>();
 
 	if (variableID >= variables.size())
-		throw utils::ParserException(parser, "Variable index out of range (index " + std::to_string(variableID) + ")");
+		throw utils::ParserException(parser, "variable index out of range (index " + std::to_string(variableID) + ")");
 
 	return variables[variableID];
 }

@@ -221,7 +221,7 @@ void TranslatorASP::translateActions() const
 				else
 				{
 					if (precondition.expressionType() != Expression::Type::And)
-						throw utils::TranslatorException("Only “and” expressions and (negated) predicates supported as action preconditions currently");
+						throw utils::TranslatorException("only “and” expressions and (negated) predicates supported as action preconditions currently");
 
 					const auto &andExpression = dynamic_cast<const expressions::And &>(precondition);
 
@@ -247,7 +247,7 @@ void TranslatorASP::translateActions() const
 				else
 				{
 					if (effect.expressionType() != Expression::Type::And)
-						throw utils::TranslatorException("Only “and” expressions and (negated) predicates supported as action effects currently");
+						throw utils::TranslatorException("only “and” expressions and (negated) predicates supported as action effects currently");
 
 					const auto &andExpression = dynamic_cast<const expressions::And &>(effect);
 
@@ -342,7 +342,7 @@ void TranslatorASP::translateVariablesBody(const expressions::Variables &variabl
 		if (variable.type() != nullptr)
 		{
 			if (variable.type()->expressionType() != Expression::Type::PrimitiveType)
-				throw utils::TranslatorException("Only primitive types supported currently");
+				throw utils::TranslatorException("only primitive types supported currently");
 
 			const auto &type = *dynamic_cast<const expressions::PrimitiveType *>(variable.type());
 
@@ -387,7 +387,7 @@ void TranslatorASP::translateLiteral(const Expression &literal) const
 		printKeyword("false");
 	}
 	else
-		throw utils::TranslatorException("Only primitive predicates and their negations supported as literals currently");
+		throw utils::TranslatorException("only primitive predicates and their negations supported as literals currently");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -426,7 +426,7 @@ void TranslatorASP::translatePredicate(const expressions::Predicate &predicate) 
 			printVariable(utils::escapeASPVariable(variable.name()));
 		}
 		else
-			throw utils::TranslatorException("Only variables and constants supported in predicates currently");
+			throw utils::TranslatorException("only variables and constants supported in predicates currently");
 	}
 
 	m_outputStream << "))";
@@ -484,10 +484,10 @@ void TranslatorASP::translateInitialState() const
 				const auto &notExpression = dynamic_cast<const expressions::Not &>(*fact);
 
 				if (notExpression.argument()->expressionType() != Expression::Type::Predicate)
-					throw utils::TranslatorException("Only negations of simple predicates supported in initial state currently");
+					throw utils::TranslatorException("only negations of simple predicates supported in initial state currently");
 			}
 			else
-				throw utils::TranslatorException("Only predicates and their negations supported in initial state currently");
+				throw utils::TranslatorException("only predicates and their negations supported in initial state currently");
 
 			m_outputStream << ").";
 		});
@@ -533,7 +533,7 @@ void TranslatorASP::translateGoal() const
 			});
 	}
 	else
-		throw utils::TranslatorException("Only single predicates, their negations, and conjunctions are currently supported in the goal");
+		throw utils::TranslatorException("only single predicates, their negations, and conjunctions are currently supported in the goal");
 
 	m_outputStream << std::endl;
 }
