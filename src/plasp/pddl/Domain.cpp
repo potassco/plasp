@@ -11,7 +11,6 @@
 #include <plasp/pddl/expressions/Variable.h>
 #include <plasp/utils/IO.h>
 #include <plasp/utils/ParserException.h>
-#include <plasp/utils/ParserWarning.h>
 
 namespace plasp
 {

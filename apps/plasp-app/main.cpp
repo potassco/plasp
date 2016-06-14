@@ -135,12 +135,6 @@ int main(int argc, char **argv)
 		logger.logError(e.coordinate(), e.message());
 		return EXIT_FAILURE;
 	}
-	catch (const plasp::utils::ParserWarning &e)
-	{
-		plasp::utils::Logger logger;
-		logger.logError(e.coordinate(), e.message());
-		return EXIT_FAILURE;
-	}
 	catch (const plasp::utils::TranslatorException &e)
 	{
 		plasp::utils::Logger logger;

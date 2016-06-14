@@ -1,7 +1,6 @@
 #include <plasp/utils/Logger.h>
 
 #include <plasp/utils/Formatting.h>
-#include <plasp/utils/ParserWarning.h>
 
 namespace plasp
 {
@@ -118,7 +117,7 @@ void Logger::parserWarning(const Parser &parser, const std::string &message)
 		return;
 
 	if (m_warningLevel == WarningLevel::Error)
-		throw ParserWarning(parser, message);
+		throw ParserException(parser, message);
 
 	const auto coordinate = parser.coordinate();
 
