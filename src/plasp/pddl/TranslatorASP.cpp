@@ -267,13 +267,13 @@ void TranslatorASP::translateConstants(const std::string &heading, const express
 			{
 				m_outputStream << utils::Keyword("hasType") << "("
 					<< utils::Keyword("constant") << "(" << constantName << "), "
-					<< utils::Keyword("hastype") << "(" << utils::escapeASP(type->name()) << "))." << std::endl;
+					<< utils::Keyword("type") << "(" << utils::escapeASP(type->name()) << "))." << std::endl;
 			}
 			else
 			{
 				m_outputStream << utils::Keyword("hasType") << "("
 					<< utils::Keyword("constant") << "(" << constantName << "), "
-					<< utils::Keyword("hastype") << "(object))." << std::endl;
+					<< utils::Keyword("type") << "(object))." << std::endl;
 			}
 		});
 }
