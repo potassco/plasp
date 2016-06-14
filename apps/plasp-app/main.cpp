@@ -21,7 +21,7 @@ int main(int argc, char **argv)
 		("help,h", "Display this help message.")
 		("version,v", "Display version information.")
 		("input,i", po::value<std::vector<std::string>>(), "Specify the PDDL or SAS input file.")
-		("language,l", po::value<std::string>(), "Specify the input language (SAS or PDDL). Omit for automatic detection.")
+		("language,l", po::value<std::string>(), "Specify the input language (sas or pddl). Omit for automatic detection.")
 		("warning-level", po::value<std::string>()->default_value("normal"), "Specify whether to output warnings normally (normal), to treat them as critical errors (error), or to ignore them (ignore).")
 		("color", po::value<std::string>()->default_value("auto"), "Specify whether to colorize the output (always, never, or auto).");
 
@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 	const auto printHelp =
 		[&]()
 		{
-			std::cout << "Usage: plasp file [options]" << std::endl;
+			std::cout << "Usage: plasp [files] [options]" << std::endl;
 			std::cout << "Translate PDDL instances to ASP facts." << std::endl << std::endl;
 
 			std::cout << description;
@@ -76,6 +76,15 @@ int main(int argc, char **argv)
 		logger.setWarningLevel(plasp::utils::Logger::WarningLevel::Error);
 	else if (warningLevel == "ignore")
 		logger.setWarningLevel(plasp::utils::Logger::WarningLevel::Ignore);
+	else if (warningLevel == "normal")
+		logger.setWarningLevel(plasp::utils::Logger::WarningLevel::Normal);
+	else
+	{
+		logger.logError("unknown warning level “" + warningLevel + "”");
+		std::cout << std::endl;
+		printHelp();
+		return EXIT_FAILURE;
+	}
 
 	const auto colorPolicy = variablesMap["color"].as<std::string>();
 
@@ -85,6 +94,13 @@ int main(int argc, char **argv)
 		logger.setColorPolicy(plasp::utils::LogStream::ColorPolicy::Never);
 	else if (colorPolicy == "always")
 		logger.setColorPolicy(plasp::utils::LogStream::ColorPolicy::Always);
+	else
+	{
+		logger.logError("unknown color policy “" + colorPolicy + "”");
+		std::cout << std::endl;
+		printHelp();
+		return EXIT_FAILURE;
+	}
 
 	try
 	{

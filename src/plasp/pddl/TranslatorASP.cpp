@@ -325,7 +325,7 @@ void TranslatorASP::translateVariablesBody(const expressions::Variables &variabl
 
 			m_outputStream << utils::Keyword("hasType") << "("
 				<< utils::Variable(utils::escapeASPVariable(variable.name())) << ", "
-				<< utils::Keyword("type") << "(" << type.name() << "))";
+				<< utils::Keyword("type") << "(" << utils::escapeASP(type.name()) << "))";
 		}
 		else
 		{
