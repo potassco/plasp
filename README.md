@@ -6,8 +6,8 @@
 
 `plasp` 3 is in early development and not intended for productive use yet.
 
-`plasp` 3 translates planning problem instances to ASP facts.
-`plasp` 3 supports the input languages [PDDL](https://helios.hud.ac.uk/scommv/IPC-14/software.html) (only basic features currently) and the [SAS](http://www.fast-downward.org/TranslatorOutputFormat) (full support of the current version 3), which is used by [Fast Downward](http://www.fast-downward.org/).
+`plasp` translates planning problem instances to ASP facts.
+`plasp` 3 supports the input languages [PDDL 3.1](https://helios.hud.ac.uk/scommv/IPC-14/software.html) (only basic features currently) and [SAS](http://www.fast-downward.org/TranslatorOutputFormat) (full support of SAS 3), which is used by [Fast Downward](http://www.fast-downward.org/).
 
 Please get in touch with [Patrick Lühne](https://www.luehne.de) if you have any suggestions.
 
@@ -24,7 +24,7 @@ $ plasp domain.pddl problem.pddl
 Alternatively, PDDL instances may first be translated to SAS, the output format of [Fast Downward](http://www.fast-downward.org/).
 
 ```bash
-$ ./fast-downward.py --translate --build=release64 domain.pddl instance.pddl
+$ ./fast-downward.py --translate --build=release64 domain.pddl problem.pddl
 ```
 
 This creates a file called `output.sas`, which may now be translated by `plasp`.
