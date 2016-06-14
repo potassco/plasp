@@ -15,7 +15,7 @@ boost::iostreams::stream<boost::iostreams::null_sink> nullStream((boost::iostrea
 TEST(PDDLTranslationTests, CheckIssues)
 {
 	// Check that translating domains without typing information works
-	const auto description = Description::fromFile("data/issues/issue-4.pddl");
-	const auto translator = TranslatorASP(description, nullStream);
+	auto description = Description::fromFile("data/issues/issue-4.pddl");
+	const auto translator = TranslatorASP(description, description.context().logger.outputStream());
 	ASSERT_NO_THROW(translator.translate());
 }

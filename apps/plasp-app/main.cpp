@@ -117,8 +117,8 @@ int main(int argc, char **argv)
 			else if (warningLevel == "ignore")
 				context.logger.setWarningLevel(plasp::utils::Logger::WarningLevel::Ignore);
 
-			const auto description = plasp::pddl::Description::fromContext(std::move(context));
-			const auto translator = plasp::pddl::TranslatorASP(description, std::cout);
+			auto description = plasp::pddl::Description::fromContext(std::move(context));
+			const auto translator = plasp::pddl::TranslatorASP(description, description.context().logger.outputStream());
 			translator.translate();
 		}
 		else if (language == plasp::Language::Type::SAS)
