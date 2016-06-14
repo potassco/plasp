@@ -94,7 +94,7 @@ void Domain::findSections()
 
 			const auto sectionIdentifier = parser.parseIdentifier(isIdentifier);
 
-			m_context.logger.parserWarning(parser, "Section type “" + sectionIdentifier + "” currently unsupported");
+			m_context.logger.logWarning(parser, "Section type “" + sectionIdentifier + "” currently unsupported");
 
 			parser.seek(sectionIdentifierPosition);
 		}

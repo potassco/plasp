@@ -71,7 +71,7 @@ std::unique_ptr<Derived> NAry<Derived>::parse(Context &context,
 	}
 
 	if (expression->m_arguments.empty())
-		context.logger.parserWarning(context.parser, "“" + Derived::Identifier + "” expressions should not be empty");
+		context.logger.logWarning(context.parser, "“" + Derived::Identifier + "” expressions should not be empty");
 
 	parser.expect<std::string>(")");
 

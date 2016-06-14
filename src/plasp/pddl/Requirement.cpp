@@ -94,7 +94,7 @@ Requirement Requirement::parse(Context &context)
 	const auto requirementType = match->second;
 
 	if (requirementType == Requirement::Type::GoalUtilities)
-		context.logger.parserWarning(context.parser, "Requirement “goal-utilities” is not part of the PDDL 3.1 specification");
+		context.logger.logWarning(context.parser, "Requirement “goal-utilities” is not part of the PDDL 3.1 specification");
 
 	return Requirement(match->second);
 }

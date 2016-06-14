@@ -9,7 +9,6 @@
 #include <plasp/pddl/TranslatorASP.h>
 #include <plasp/sas/Description.h>
 #include <plasp/sas/TranslatorASP.h>
-#include <plasp/utils/ParserWarning.h>
 #include <plasp/utils/TranslatorException.h>
 
 int main(int argc, char **argv)

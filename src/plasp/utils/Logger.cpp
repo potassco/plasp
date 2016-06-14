@@ -111,7 +111,7 @@ void Logger::logError(const Parser::Coordinate &coordinate, const std::string &m
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Logger::parserWarning(const Parser &parser, const std::string &message)
+void Logger::logWarning(const Parser &parser, const std::string &message)
 {
 	if (m_warningLevel == WarningLevel::Ignore)
 		return;
