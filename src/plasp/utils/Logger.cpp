@@ -62,12 +62,12 @@ void Logger::setWarningLevel(WarningLevel warningLevel)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Logger::exception(const std::string &errorType, const std::string &message)
+void Logger::logError(const std::string &message)
 {
 	if (isatty(STDERR_FILENO))
 	{
 		std::cerr
-			<< Format(Color::Red, FontWeight::Bold) << errorType << ":"
+			<< Format(Color::Red, FontWeight::Bold) << "error:"
 			<< ResetFormat() << " "
 			<< Format(Color::White, FontWeight::Bold) << message
 			<< ResetFormat() << std::endl;
@@ -84,7 +84,7 @@ void Logger::exception(const std::string &errorType, const std::string &message)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Logger::parserException(const Parser::Coordinate &coordinate, const std::string &message)
+void Logger::logError(const Parser::Coordinate &coordinate, const std::string &message)
 {
 	if (isatty(STDERR_FILENO))
 	{

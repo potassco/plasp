@@ -38,8 +38,8 @@ class Logger
 
 		void setWarningLevel(WarningLevel warningLevel);
 
-		void exception(const std::string &errorType, const std::string &message);
-		void parserException(const Parser::Coordinate &coordinate, const std::string &message);
+		void logError(const std::string &message);
+		void logError(const Parser::Coordinate &coordinate, const std::string &message);
 		void parserWarning(const Parser &parser, const std::string &message);
 
 	private:
