@@ -81,14 +81,24 @@ inline LogStream &operator<<(LogStream &stream, const ResetFormat &)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct Keyword
+struct Token
 {
-	Keyword(const std::string &name)
+	Token(const std::string &name)
 	:	name(name)
 	{
 	}
 
 	const std::string &name;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct Keyword: public Token
+{
+	Keyword(const std::string &name)
+	:	Token(name)
+	{
+	}
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -103,14 +113,12 @@ inline LogStream &operator<<(LogStream &stream, const Keyword &keyword)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct Variable
+struct Variable: public Token
 {
 	Variable(const std::string &name)
-	:	name(name)
+	:	Token(name)
 	{
 	}
-
-	const std::string &name;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -122,6 +130,50 @@ inline LogStream &operator<<(LogStream &stream, const Variable &variable)
 		<< variable.name
 		<< utils::ResetFormat());
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct Heading1: public Token
+{
+	Heading1(const std::string &name)
+	:	Token(name)
+	{
+	}
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline LogStream &operator<<(LogStream &stream, const Heading1 &heading1)
+{
+	return (stream
+		<< utils::Format(utils::Color::Blue, utils::FontWeight::Bold)
+		<< "%---------------------------------------" << std::endl
+		<< "% " << heading1.name << std::endl
+		<< "%---------------------------------------"
+		<< utils::ResetFormat()
+		<< std::endl);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct Heading2: public Token
+{
+	Heading2(const std::string &name)
+	:	Token(name)
+	{
+	}
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline LogStream &operator<<(LogStream &stream, const Heading2 &heading2)
+{
+	return (stream
+		<< utils::Format(utils::Color::Blue, utils::FontWeight::Bold)
+		<< "% " << heading2.name
+		<< utils::ResetFormat());
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

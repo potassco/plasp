@@ -39,9 +39,6 @@ class TranslatorASP
 		void translateLiteral(const Expression &literal) const;
 		void translatePredicate(const expressions::Predicate &predicate) const;
 
-		void printHeading1(const std::string &heading) const;
-		void printHeading2(const std::string &heading) const;
-
 		const Description &m_description;
 		utils::LogStream &m_outputStream;
 };

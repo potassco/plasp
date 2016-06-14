@@ -43,7 +43,7 @@ void TranslatorASP::translate() const
 
 void TranslatorASP::translateDomain() const
 {
-	printHeading1("domain");
+	m_outputStream << utils::Heading1("domain");
 
 	const auto &domain = m_description.domain();
 
@@ -77,7 +77,7 @@ void TranslatorASP::translateDomain() const
 
 void TranslatorASP::translateTypes() const
 {
-	printHeading2("types");
+	m_outputStream << utils::Heading2("types");
 
 	m_outputStream << std::endl;
 
@@ -120,7 +120,7 @@ void TranslatorASP::translateTypes() const
 
 void TranslatorASP::translatePredicates() const
 {
-	printHeading2("predicates");
+	m_outputStream << utils::Heading2("predicates");
 
 	const auto &predicates = m_description.domain().predicates();
 
@@ -147,7 +147,7 @@ void TranslatorASP::translatePredicates() const
 
 void TranslatorASP::translateActions() const
 {
-	printHeading2("actions");
+	m_outputStream << utils::Heading2("actions");
 
 	const auto &actions = m_description.domain().actions();
 
@@ -251,7 +251,7 @@ void TranslatorASP::translateActions() const
 
 void TranslatorASP::translateConstants(const std::string &heading, const expressions::Constants &constants) const
 {
-	printHeading2(heading);
+	m_outputStream << utils::Heading2(heading);
 
 	std::for_each(constants.cbegin(), constants.cend(),
 		[&](const auto &constant)
@@ -405,7 +405,7 @@ void TranslatorASP::translateProblem() const
 {
 	BOOST_ASSERT(m_description.containsProblem());
 
-	printHeading1("problem");
+	m_outputStream << utils::Heading1("problem");
 
 	const auto &problem = m_description.problem();
 
@@ -431,7 +431,7 @@ void TranslatorASP::translateInitialState() const
 {
 	BOOST_ASSERT(m_description.containsProblem());
 
-	printHeading2("initial state");
+	m_outputStream << utils::Heading2("initial state");
 
 	const auto &initialStateFacts = m_description.problem().initialState().facts();
 
@@ -466,7 +466,7 @@ void TranslatorASP::translateGoal() const
 {
 	BOOST_ASSERT(m_description.containsProblem());
 
-	printHeading2("goal");
+	m_outputStream << utils::Heading2("goal");
 
 	const auto &goal = m_description.problem().goal();
 
@@ -497,29 +497,6 @@ void TranslatorASP::translateGoal() const
 		throw utils::TranslatorException("only single predicates, their negations, and conjunctions are currently supported in the goal");
 
 	m_outputStream << std::endl;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void TranslatorASP::printHeading1(const std::string &heading) const
-{
-	m_outputStream
-		<< utils::Format(utils::Color::Blue, utils::FontWeight::Bold)
-		<< "%---------------------------------------" << std::endl
-		<< "% " << heading << std::endl
-		<< "%---------------------------------------"
-		<< utils::ResetFormat()
-		<< std::endl;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void TranslatorASP::printHeading2(const std::string &heading) const
-{
-	m_outputStream
-		<< utils::Format(utils::Color::Blue, utils::FontWeight::Bold)
-		<< "% " << heading
-		<< utils::ResetFormat();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
