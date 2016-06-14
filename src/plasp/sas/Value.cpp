@@ -74,7 +74,7 @@ Value Value::fromSAS(utils::Parser &parser)
 	else if (sasSign == "NegatedAtom")
 		value.m_sign = Value::Sign::Negative;
 	else
-		throw utils::ParserException(parser, "Invalid value sign \"" + sasSign + "\"");
+		throw utils::ParserException(parser, "Invalid value sign “" + sasSign + "”");
 
 	try
 	{

@@ -79,7 +79,7 @@ void Parser::readStream(std::string streamName, std::istream &istream)
 void Parser::readFile(const boost::filesystem::path &path)
 {
 	if (!boost::filesystem::is_regular_file(path))
-		throw std::runtime_error("File does not exist: \"" + path.string() + "\"");
+		throw std::runtime_error("File does not exist: “" + path.string() + "”");
 
 	std::ifstream fileStream(path.string(), std::ios::in);
 
@@ -310,7 +310,7 @@ template<>
 void Parser::expect<std::string>(const std::string &expectedValue)
 {
 	if (!probe<std::string>(expectedValue))
-		throw ParserException(*this, "Expected \"" + expectedValue + "\"");
+		throw ParserException(*this, "Expected “" + expectedValue + "”");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -344,7 +344,7 @@ template<>
 void Parser::expect<char>(const char &expectedValue)
 {
 	if (!probe<char>(expectedValue))
-		throw ParserException(*this, std::string("Expected \"") + expectedValue + "\"");
+		throw ParserException(*this, std::string("Expected “") + expectedValue + "”");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -439,7 +439,7 @@ template<>
 void Parser::expect<int64_t>(const int64_t &expectedValue)
 {
 	if (!probe<int64_t>(expectedValue))
-		throw ParserException(*this, "Expected \"" + std::to_string(expectedValue) + "\"");
+		throw ParserException(*this, "Expected “" + std::to_string(expectedValue) + "”");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -448,7 +448,7 @@ template<>
 void Parser::expect<uint64_t>(const uint64_t &expectedValue)
 {
 	if (!probe<uint64_t>(expectedValue))
-		throw ParserException(*this, "Expected \"" + std::to_string(expectedValue) + "\"");
+		throw ParserException(*this, "Expected “" + std::to_string(expectedValue) + "”");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -523,7 +523,7 @@ void Parser::expect<bool>(const bool &expectedValue)
 	const auto value = parse<bool>();
 
 	if (value != expectedValue)
-		throw ParserException(*this, "Expected \"" + std::to_string(expectedValue) + "\"");
+		throw ParserException(*this, "Expected “" + std::to_string(expectedValue) + "”");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -122,11 +122,11 @@ PrimitiveType *PrimitiveType::parseAndFind(Context &context, Domain &domain)
 		// Only "object" is allowed as an implicit type
 		if (typeName == "object" || typeName == "objects")
 		{
-			context.logger.parserWarning(context.parser, "Primitive type \"" + typeName + "\" should be declared");
+			context.logger.parserWarning(context.parser, "Primitive type “" + typeName + "” should be declared");
 			types.emplace_back(std::make_unique<expressions::PrimitiveType>(typeName));
 		}
 		else
-			throw utils::ParserException(context.parser, "Type \"" + typeName + "\" used but never declared");
+			throw utils::ParserException(context.parser, "Type “" + typeName + "” used but never declared");
 
 		return types.back().get();
 	}

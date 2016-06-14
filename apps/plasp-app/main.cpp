@@ -66,14 +66,6 @@ int main(int argc, char **argv)
 		return EXIT_SUCCESS;
 	}
 
-	const auto handleException =
-		[&](const auto &messagePrefix, const auto &exception)
-		{
-			std::cerr << messagePrefix << ": " << exception.what() << std::endl << std::endl;
-			printHelp();
-			exit(EXIT_FAILURE);
-		};
-
 	try
 	{
 		plasp::utils::Parser parser;
@@ -108,7 +100,9 @@ int main(int argc, char **argv)
 
 		if (language == plasp::Language::Type::Unknown)
 		{
-			std::cerr << "Error: Unknown input language" << std::endl << std::endl;
+			plasp::utils::Logger logger;
+			logger.exception("error", "unknown input language");
+			std::cout << std::endl;
 			printHelp();
 			return EXIT_FAILURE;
 		}
@@ -137,19 +131,27 @@ int main(int argc, char **argv)
 	}
 	catch (const plasp::utils::ParserException &e)
 	{
-		handleException("Parser error", e);
+		plasp::utils::Logger logger;
+		logger.parserException(e.coordinate(), e.message());
+		return EXIT_FAILURE;
 	}
 	catch (const plasp::utils::ParserWarning &e)
 	{
-		handleException("Parser warning", e);
+		plasp::utils::Logger logger;
+		logger.parserException(e.coordinate(), e.message());
+		return EXIT_FAILURE;
 	}
 	catch (const plasp::utils::TranslatorException &e)
 	{
-		handleException("Translation error", e);
+		plasp::utils::Logger logger;
+		logger.exception("translation error", e.what());
+		return EXIT_FAILURE;
 	}
 	catch (const std::exception &e)
 	{
-		handleException("Error", e);
+		plasp::utils::Logger logger;
+		logger.exception("unexpected error", e.what());
+		return EXIT_FAILURE;
 	}
 
 	return EXIT_SUCCESS;

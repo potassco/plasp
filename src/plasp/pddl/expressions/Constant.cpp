@@ -156,7 +156,7 @@ Constant *Constant::parseAndFind(Context &context, const Domain &domain)
 	if (constant != nullptr)
 		return constant;
 
-	throw utils::ParserException(context.parser, "Constant \"" + constantName + "\" used but never declared");
+	throw utils::ParserException(context.parser, "Constant “" + constantName + "” used but never declared");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -177,7 +177,7 @@ Constant *Constant::parseAndFind(Context &context, const Problem &problem)
 	if (constant)
 		return constant;
 
-	throw utils::ParserException(context.parser, "Constant \"" + constantName + "\" used but never declared");
+	throw utils::ParserException(context.parser, "Constant “" + constantName + "” used but never declared");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

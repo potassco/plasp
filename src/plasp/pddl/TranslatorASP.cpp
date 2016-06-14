@@ -225,7 +225,7 @@ void TranslatorASP::translateActions() const
 				else
 				{
 					if (precondition.expressionType() != Expression::Type::And)
-						throw utils::TranslatorException("Only \"and\" expressions and (negated) predicates supported as action preconditions currently");
+						throw utils::TranslatorException("Only “and” expressions and (negated) predicates supported as action preconditions currently");
 
 					const auto &andExpression = dynamic_cast<const expressions::And &>(precondition);
 
@@ -251,7 +251,7 @@ void TranslatorASP::translateActions() const
 				else
 				{
 					if (effect.expressionType() != Expression::Type::And)
-						throw utils::TranslatorException("Only \"and\" expressions and (negated) predicates supported as action effects currently");
+						throw utils::TranslatorException("Only “and” expressions and (negated) predicates supported as action effects currently");
 
 					const auto &andExpression = dynamic_cast<const expressions::And &>(effect);
 

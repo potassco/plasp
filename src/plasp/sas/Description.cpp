@@ -56,7 +56,7 @@ Description Description::fromStream(std::istream &istream)
 Description Description::fromFile(const boost::filesystem::path &path)
 {
 	if (!boost::filesystem::is_regular_file(path))
-		throw std::runtime_error("File does not exist: \"" + path.string() + "\"");
+		throw std::runtime_error("File does not exist: “" + path.string() + "”");
 
 	utils::Parser parser;
 	parser.readFile(path);

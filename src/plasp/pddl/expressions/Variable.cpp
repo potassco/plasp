@@ -52,7 +52,7 @@ void Variable::parseDeclaration(Context &context, Variables &parameters)
 		});
 
 	if (match != parameters.cend())
-		throw utils::ParserException(context.parser, "Variable \"" + variable->m_name + "\" already declared in this scope");
+		throw utils::ParserException(context.parser, "Variable “" + variable->m_name + "” already declared in this scope");
 
 	// Flag variable for potentially upcoming type declaration
 	variable->setDirty();
@@ -154,7 +154,7 @@ const Variable *Variable::parseAndFind(Context &context, const ExpressionContext
 		});
 
 	if (match == variables.cend())
-		throw utils::ParserException(context.parser, "Parameter \"" + variableName + "\" used but never declared");
+		throw utils::ParserException(context.parser, "Parameter “" + variableName + "” used but never declared");
 
 	return match->get();
 }

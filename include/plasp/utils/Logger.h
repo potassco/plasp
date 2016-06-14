@@ -4,6 +4,7 @@
 #include <string>
 
 #include <plasp/utils/Parser.h>
+#include <plasp/utils/ParserException.h>
 
 namespace plasp
 {
@@ -37,6 +38,8 @@ class Logger
 
 		void setWarningLevel(WarningLevel warningLevel);
 
+		void exception(const std::string &errorType, const std::string &message);
+		void parserException(const Parser::Coordinate &coordinate, const std::string &message);
 		void parserWarning(const Parser &parser, const std::string &message);
 
 	private:

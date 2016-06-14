@@ -27,7 +27,7 @@ class SASParserTests : public ::testing::Test
 			std::stringstream outputStream;
 
 			if (!fileStream.is_open())
-				throw std::runtime_error("Could not open file \"" + path + "\"");
+				throw std::runtime_error("Could not open file “" + path + "”");
 
 			outputStream << fileStream.rdbuf();
 

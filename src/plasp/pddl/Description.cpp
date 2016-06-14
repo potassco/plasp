@@ -188,7 +188,7 @@ void Description::findSections()
 		else
 		{
 			const auto sectionIdentifier = parser.parse<std::string>();
-			throw utils::ParserException(parser, "Unknown PDDL section \"" + sectionIdentifier + "\"");
+			throw utils::ParserException(parser, "Unknown PDDL section “" + sectionIdentifier + "”");
 		}
 
 		m_context.parser.skipWhiteSpace();

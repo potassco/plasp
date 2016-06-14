@@ -53,7 +53,7 @@ void Problem::findSections()
 		if (unique && sectionPosition != -1)
 		{
 			parser.seek(value);
-			throw utils::ParserException(parser, "Only one \":" + sectionName + "\" section allowed");
+			throw utils::ParserException(parser, "Only one “:" + sectionName + "” section allowed");
 		}
 
 		sectionPosition = value;
@@ -89,7 +89,7 @@ void Problem::findSections()
 
 			const auto sectionIdentifier = parser.parseIdentifier(isIdentifier);
 
-			m_context.logger.parserWarning(parser, "Section type \"" + sectionIdentifier + "\" currently unsupported");
+			m_context.logger.parserWarning(parser, "Section type “" + sectionIdentifier + "” currently unsupported");
 
 			parser.seek(sectionIdentifierPosition);
 		}
@@ -98,7 +98,7 @@ void Problem::findSections()
 			const auto sectionIdentifier = parser.parseIdentifier(isIdentifier);
 
 			parser.seek(position);
-			throw utils::ParserException(m_context.parser, "Unknown problem section \"" + sectionIdentifier + "\"");
+			throw utils::ParserException(m_context.parser, "Unknown problem section “" + sectionIdentifier + "”");
 		}
 
 		// Skip section for now and parse it later
@@ -204,7 +204,7 @@ void Problem::parseDomainSection()
 	const auto domainName = parser.parseIdentifier(isIdentifier);
 
 	if (m_domain.name() != domainName)
-		throw utils::ParserException(parser, "Domains do not match (\"" + m_domain.name() + "\" and \"" + domainName + "\")");
+		throw utils::ParserException(parser, "Domains do not match (“" + m_domain.name() + "” and “" + domainName + "”)");
 
 	parser.expect<std::string>(")");
 }
@@ -261,7 +261,7 @@ void Problem::checkRequirement(Requirement::Type requirementType) const
 	if (hasRequirement(requirementType))
 		return;
 
-	throw ConsistencyException("Requirement \"" + Requirement(requirementType).toPDDL() + "\" used but never declared");
+	throw ConsistencyException("Requirement “" + Requirement(requirementType).toPDDL() + "” used but never declared");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

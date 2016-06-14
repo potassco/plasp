@@ -31,10 +31,11 @@ class ParserException: public std::exception
 		}
 
 		explicit ParserException(const utils::Parser &parser, const std::string &message)
+		:	m_coordinate{parser.coordinate()},
+			m_message{message},
+			m_plainMessage{m_coordinate.sectionName + ":" + std::to_string(m_coordinate.row)
+				+ ":" + std::to_string(m_coordinate.column) + " " + m_message}
 		{
-			const auto coordinate = parser.coordinate();
-
-			m_message = coordinate.sectionName + ":" + std::to_string(coordinate.row) + ":" + std::to_string(coordinate.column) + " " + message;
 		}
 
 		~ParserException() throw()
@@ -43,14 +44,23 @@ class ParserException: public std::exception
 
 		const char *what() const throw()
 		{
-			if (m_message.empty())
-				return "Unspecified parser error";
+			return m_plainMessage.c_str();
+		}
 
-			return m_message.c_str();
+		const Parser::Coordinate &coordinate() const
+		{
+			return m_coordinate;
+		}
+
+		const std::string &message() const
+		{
+			return m_message;
 		}
 
 	private:
+		Parser::Coordinate m_coordinate;
 		std::string m_message;
+		std::string m_plainMessage;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

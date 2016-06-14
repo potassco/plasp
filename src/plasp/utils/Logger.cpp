@@ -1,5 +1,6 @@
 #include <plasp/utils/Logger.h>
 
+#include <plasp/utils/Formatting.h>
 #include <plasp/utils/ParserWarning.h>
 
 namespace plasp
@@ -61,6 +62,56 @@ void Logger::setWarningLevel(WarningLevel warningLevel)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void Logger::exception(const std::string &errorType, const std::string &message)
+{
+	if (isatty(STDERR_FILENO))
+	{
+		std::cerr
+			<< Format(Color::Red, FontWeight::Bold) << "error:"
+			<< ResetFormat() << " "
+			<< Format(Color::White, FontWeight::Bold) << message
+			<< ResetFormat() << std::endl;
+	}
+	else
+	{
+		std::cerr
+			<< "error:"
+			<< " "
+			<< message
+			<< std::endl;
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Logger::parserException(const Parser::Coordinate &coordinate, const std::string &message)
+{
+	if (isatty(STDERR_FILENO))
+	{
+		std::cerr
+			<< Format(Color::White, FontWeight::Bold) << coordinate.sectionName << ":"
+			<< std::to_string(coordinate.row) + ":" + std::to_string(coordinate.column) << ":"
+			<< ResetFormat() << " "
+			<< Format(Color::Red, FontWeight::Bold) << "error:"
+			<< ResetFormat() << " "
+			<< Format(Color::White, FontWeight::Bold) << message
+			<< ResetFormat() << std::endl;
+	}
+	else
+	{
+		std::cerr
+			<< coordinate.sectionName << ":"
+			<< std::to_string(coordinate.row) + ":" + std::to_string(coordinate.column) << ":"
+			<< " "
+			<< "error:"
+			<< " "
+			<< message
+			<< std::endl;
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void Logger::parserWarning(const Parser &parser, const std::string &message)
 {
 	if (m_warningLevel == WarningLevel::Ignore)
@@ -71,9 +122,28 @@ void Logger::parserWarning(const Parser &parser, const std::string &message)
 
 	const auto coordinate = parser.coordinate();
 
-	std::cerr << "Warning: " << coordinate.sectionName << ":"
-		<< std::to_string(coordinate.row) + ":" + std::to_string(coordinate.column)
-		<< " " << message << std::endl;
+	if (isatty(STDERR_FILENO))
+	{
+		std::cerr
+			<< Format(Color::White, FontWeight::Bold) << coordinate.sectionName << ":"
+			<< std::to_string(coordinate.row) + ":" + std::to_string(coordinate.column) << ":"
+			<< ResetFormat() << " "
+			<< Format(Color::Magenta, FontWeight::Bold) << "warning:"
+			<< ResetFormat() << " "
+			<< Format(Color::White, FontWeight::Bold) << message
+			<< ResetFormat() << std::endl;
+	}
+	else
+	{
+		std::cerr
+			<< coordinate.sectionName << ":"
+			<< std::to_string(coordinate.row) + ":" + std::to_string(coordinate.column) << ":"
+			<< " "
+			<< "warning:"
+			<< " "
+			<< message
+			<< std::endl;
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
