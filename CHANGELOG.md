@@ -4,7 +4,7 @@
 
 Features:
 
-* supports input from std::cin
+* supports input from `std::cin`
 * basic support for parsing PDDL 3.1 domains and problems
 * limited support for translating PDDL 3.1 domains and problems to ASP facts
 * automatic language detection for PDDL and SAS

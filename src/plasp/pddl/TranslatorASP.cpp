@@ -50,17 +50,14 @@ void TranslatorASP::translateDomain() const
 	const auto &domain = m_description.domain();
 
 	// Types
-	if (!domain.types().empty())
-	{
-		m_ostream << std::endl;
-		translateTypes();
-	}
+	m_ostream << std::endl;
+	translateTypes();
 
 	// Constants
 	if (!domain.constants().empty())
 	{
 		m_ostream << std::endl;
-		translateConstants();
+		translateConstants("constants", domain.constants());
 	}
 
 	// Predicates
@@ -82,16 +79,19 @@ void TranslatorASP::translateDomain() const
 
 void TranslatorASP::translateTypes() const
 {
-	// TODO: escape ASP identifiers
-	m_ostream << "% types";
+	m_ostream << "% types" << std::endl;
 
 	const auto &types = m_description.domain().types();
+
+	if (types.empty())
+	{
+		m_ostream << "type(object)." << std::endl;
+		return;
+	}
 
 	std::for_each(types.cbegin(), types.cend(),
 		[&](const auto &type)
 		{
-			m_ostream << std::endl;
-
 			const auto typeName = utils::escapeASP(type->name());
 
 			m_ostream << "type(" << typeName << ")." << std::endl;
@@ -106,32 +106,6 @@ void TranslatorASP::translateTypes() const
 					m_ostream << "inherits(type(" << typeName << "), type(" << parentTypeName << "))." << std::endl;
 					m_ostream << "hasType(X, type(" << parentTypeName << ")) :- hasType(X, type(" << typeName << "))." << std::endl;
 				});
-		});
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void TranslatorASP::translateConstants() const
-{
-	m_ostream << "% constants";
-
-	const auto &constants = m_description.domain().constants();
-
-	std::for_each(constants.cbegin(), constants.cend(),
-		[&](const auto &constant)
-		{
-			m_ostream << std::endl;
-
-			const auto constantName = utils::escapeASP(constant->name());
-
-			m_ostream << "constant(" << constantName << ")." << std::endl;
-
-			const auto *type = constant->type();
-
-			if (type == nullptr)
-				return;
-
-			m_ostream << "hasType(constant(" << constantName << "), type(" << utils::escapeASP(type->name()) << "))." << std::endl;
 		});
 }
 
@@ -269,6 +243,28 @@ void TranslatorASP::translateActions() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void TranslatorASP::translateConstants(const std::string &header, const expressions::Constants &constants) const
+{
+	m_ostream << "% " << header;
+
+	std::for_each(constants.cbegin(), constants.cend(),
+		[&](const auto &constant)
+		{
+			const auto constantName = utils::escapeASP(constant->name());
+
+			m_ostream << std::endl << "constant(" << constantName << ")." << std::endl;
+
+			const auto *type = constant->type();
+
+			if (type != nullptr)
+				m_ostream << "hasType(constant(" << constantName << "), type(" << utils::escapeASP(type->name()) << "))." << std::endl;
+			else
+				m_ostream << "hasType(constant(" << constantName << "), type(object))." << std::endl;
+		});
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void TranslatorASP::translateVariablesHead(const expressions::Variables &variables) const
 {
 	if (variables.empty())
@@ -300,10 +296,10 @@ void TranslatorASP::translateVariablesBody(const expressions::Variables &variabl
 
 	for (auto i = variables.cbegin(); i != variables.cend(); i++)
 	{
+		const auto &variable = **i;
+
 		if (i != variables.cbegin())
 			m_ostream << ", ";
-
-		const auto &variable = **i;
 
 		if (variable.type() != nullptr)
 		{
@@ -314,7 +310,8 @@ void TranslatorASP::translateVariablesBody(const expressions::Variables &variabl
 
 			m_ostream << "hasType(" << utils::escapeASPVariable(variable.name()) << ", type(" << type.name() << "))";
 		}
-		// TODO: handle untyped variables
+		else
+			m_ostream << "hasType(" << utils::escapeASPVariable(variable.name()) << ", type(object))";
 	}
 }
 
@@ -398,7 +395,7 @@ void TranslatorASP::translateProblem() const
 	if (!problem.objects().empty())
 	{
 		m_ostream << std::endl;
-		translateObjects();
+		translateConstants("objects", problem.objects());
 	}
 
 	// Initial State
@@ -408,34 +405,6 @@ void TranslatorASP::translateProblem() const
 	// Goal
 	m_ostream << std::endl;
 	translateGoal();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void TranslatorASP::translateObjects() const
-{
-	BOOST_ASSERT(m_description.containsProblem());
-
-	m_ostream << "% objects";
-
-	const auto &objects = m_description.problem().objects();
-
-	std::for_each(objects.cbegin(), objects.cend(),
-		[&](const auto &object)
-		{
-			m_ostream << std::endl;
-
-			const auto objectName = utils::escapeASP(object->name());
-
-			m_ostream << "constant(" << objectName << ")." << std::endl;
-
-			const auto *type = object->type();
-
-			if (type == nullptr)
-				return;
-
-			m_ostream << "hasType(constant(" << objectName << "), type(" << utils::escapeASP(type->name()) << "))." << std::endl;
-		});
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
