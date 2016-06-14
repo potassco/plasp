@@ -34,7 +34,7 @@ class LogStream
 		bool supportsColor() const
 		{
 			const auto fileDescriptor =
-				(StandardStream == StandardStream::Out)
+				(StandardStream == utils::StandardStream::Out)
 				? STDOUT_FILENO
 				: STDERR_FILENO;
 
@@ -43,7 +43,7 @@ class LogStream
 
 		std::ostream &ostream()
 		{
-			return (StandardStream == StandardStream::Out)
+			return (StandardStream == utils::StandardStream::Out)
 				? std::cout
 				: std::cerr;
 		}
