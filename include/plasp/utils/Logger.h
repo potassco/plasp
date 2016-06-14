@@ -3,6 +3,7 @@
 
 #include <string>
 
+#include <plasp/utils/LogStream.h>
 #include <plasp/utils/Parser.h>
 #include <plasp/utils/ParserException.h>
 
@@ -36,6 +37,9 @@ class Logger
 		Logger(Logger &&other);
 		Logger &operator=(Logger &&other);
 
+		LogStream<StandardStream::Out> &outputStream();
+		LogStream<StandardStream::Err> &errorStream();
+
 		void setWarningLevel(WarningLevel warningLevel);
 
 		void logError(const std::string &message);
@@ -43,6 +47,9 @@ class Logger
 		void logWarning(const Parser &parser, const std::string &message);
 
 	private:
+		LogStream<StandardStream::Out> m_outputStream;
+		LogStream<StandardStream::Err> m_errorStream;
+
 		WarningLevel m_warningLevel;
 };
 

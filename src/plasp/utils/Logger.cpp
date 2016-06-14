@@ -1,7 +1,6 @@
 #include <plasp/utils/Logger.h>
 
 #include <plasp/utils/Formatting.h>
-#include <plasp/utils/LogStream.h>
 
 namespace plasp
 {
@@ -55,6 +54,20 @@ Logger &Logger::operator=(Logger &&other)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+LogStream<StandardStream::Out> &Logger::outputStream()
+{
+	return m_outputStream;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+LogStream<StandardStream::Err> &Logger::errorStream()
+{
+	return m_errorStream;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void Logger::setWarningLevel(WarningLevel warningLevel)
 {
 	m_warningLevel = warningLevel;
@@ -64,9 +77,7 @@ void Logger::setWarningLevel(WarningLevel warningLevel)
 
 void Logger::logError(const std::string &message)
 {
-	LogStream<StandardStream::Err> stream;
-
-	stream
+	m_errorStream
 		<< Format(Color::Red, FontWeight::Bold) << "error:"
 		<< ResetFormat() << " "
 		<< Format(Color::White, FontWeight::Bold) << message
@@ -77,9 +88,7 @@ void Logger::logError(const std::string &message)
 
 void Logger::logError(const Parser::Coordinate &coordinate, const std::string &message)
 {
-	LogStream<StandardStream::Err> stream;
-
-	stream
+	m_errorStream
 		<< Format(Color::White, FontWeight::Bold) << coordinate.sectionName << ":"
 		<< std::to_string(coordinate.row) + ":" + std::to_string(coordinate.column) << ":"
 		<< ResetFormat() << " "
@@ -101,9 +110,7 @@ void Logger::logWarning(const Parser &parser, const std::string &message)
 
 	const auto coordinate = parser.coordinate();
 
-	LogStream<StandardStream::Err> stream;
-
-	stream
+	m_errorStream
 		<< Format(Color::White, FontWeight::Bold) << coordinate.sectionName << ":"
 		<< std::to_string(coordinate.row) + ":" + std::to_string(coordinate.column) << ":"
 		<< ResetFormat() << " "
