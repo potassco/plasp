@@ -40,13 +40,13 @@ class LogStream
 	public:
 		LogStream(StandardStream standardStream)
 		:	m_standardStream{standardStream},
-			m_colorPolicy{ColorPolicy::Never}
+			m_colorPolicy{ColorPolicy::Auto}
 		{
 		}
 
 		LogStream(const LogStream &other)
 		:	m_standardStream{other.m_standardStream},
-			m_colorPolicy{ColorPolicy::Never}
+			m_colorPolicy{ColorPolicy::Auto}
 		{
 		}
 
@@ -62,7 +62,7 @@ class LogStream
 		:	m_standardStream{other.m_standardStream},
 			m_colorPolicy{other.m_colorPolicy}
 		{
-			other.m_colorPolicy = ColorPolicy::Never;
+			other.m_colorPolicy = ColorPolicy::Auto;
 		}
 
 		LogStream &operator=(LogStream &&other)
@@ -70,7 +70,7 @@ class LogStream
 			m_standardStream = other.m_standardStream;
 			m_colorPolicy = other.m_colorPolicy;
 
-			other.m_colorPolicy = ColorPolicy::Never;
+			other.m_colorPolicy = ColorPolicy::Auto;
 
 			return *this;
 		}
