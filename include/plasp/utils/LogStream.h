@@ -23,7 +23,6 @@ enum class StandardStream
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<StandardStream StandardStream>
 class LogStream
 {
 	private:
@@ -31,10 +30,37 @@ class LogStream
 		using TraitsType = std::ostream::traits_type;
 
 	public:
+		LogStream(StandardStream standardStream)
+		:	m_standardStream{standardStream}
+		{
+		}
+
+		LogStream(const LogStream &other)
+		:	m_standardStream{other.m_standardStream}
+		{
+		}
+
+		LogStream &operator=(const LogStream &other)
+		{
+			m_standardStream = other.m_standardStream;
+			return *this;
+		}
+
+		LogStream(LogStream &&other)
+		:	m_standardStream{other.m_standardStream}
+		{
+		}
+
+		LogStream &operator=(LogStream &&other)
+		{
+			m_standardStream = other.m_standardStream;
+			return *this;
+		}
+
 		bool supportsColor() const
 		{
 			const auto fileDescriptor =
-				(StandardStream == utils::StandardStream::Out)
+				(m_standardStream == utils::StandardStream::Out)
 				? STDOUT_FILENO
 				: STDERR_FILENO;
 
@@ -43,35 +69,37 @@ class LogStream
 
 		std::ostream &ostream()
 		{
-			return (StandardStream == utils::StandardStream::Out)
+			return (m_standardStream == utils::StandardStream::Out)
 				? std::cout
 				: std::cerr;
 		}
 
-		LogStream &operator<<(short value);
-		LogStream &operator<<(unsigned short value);
-		LogStream &operator<<(int value);
-		LogStream &operator<<(unsigned int value);
-		LogStream &operator<<(long value);
-		LogStream &operator<<(unsigned long value);
-		LogStream &operator<<(long long value);
-		LogStream &operator<<(unsigned long long value);
-		LogStream &operator<<(float value);
-		LogStream &operator<<(double value);
-		LogStream &operator<<(long double value);
-		LogStream &operator<<(bool value);
-		LogStream &operator<<(const void *value);
-		LogStream &operator<<(const char *value);
-		LogStream &operator<<(std::basic_streambuf<CharacterType, TraitsType> *sb);
-		LogStream &operator<<(std::ios_base &(*func)(std::ios_base &));
-		LogStream &operator<<(std::basic_ios<CharacterType, TraitsType> &(*func)(std::basic_ios<CharacterType, TraitsType> &));
-		LogStream &operator<<(std::basic_ostream<CharacterType, TraitsType> &(*func)(std::basic_ostream<CharacterType, TraitsType> &));
+		inline LogStream &operator<<(short value);
+		inline LogStream &operator<<(unsigned short value);
+		inline LogStream &operator<<(int value);
+		inline LogStream &operator<<(unsigned int value);
+		inline LogStream &operator<<(long value);
+		inline LogStream &operator<<(unsigned long value);
+		inline LogStream &operator<<(long long value);
+		inline LogStream &operator<<(unsigned long long value);
+		inline LogStream &operator<<(float value);
+		inline LogStream &operator<<(double value);
+		inline LogStream &operator<<(long double value);
+		inline LogStream &operator<<(bool value);
+		inline LogStream &operator<<(const void *value);
+		inline LogStream &operator<<(const char *value);
+		inline LogStream &operator<<(std::basic_streambuf<CharacterType, TraitsType> *sb);
+		inline LogStream &operator<<(std::ios_base &(*func)(std::ios_base &));
+		inline LogStream &operator<<(std::basic_ios<CharacterType, TraitsType> &(*func)(std::basic_ios<CharacterType, TraitsType> &));
+		inline LogStream &operator<<(std::basic_ostream<CharacterType, TraitsType> &(*func)(std::basic_ostream<CharacterType, TraitsType> &));
+
+	private:
+		StandardStream m_standardStream;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<StandardStream StandardStream>
-LogStream<StandardStream> &LogStream<StandardStream>::operator<<(short value)
+LogStream &LogStream::operator<<(short value)
 {
 	ostream() << value;
 	return *this;
@@ -79,8 +107,7 @@ LogStream<StandardStream> &LogStream<StandardStream>::operator<<(short value)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<StandardStream StandardStream>
-LogStream<StandardStream> &LogStream<StandardStream>::operator<<(unsigned short value)
+LogStream &LogStream::operator<<(unsigned short value)
 {
 	ostream() << value;
 	return *this;
@@ -88,8 +115,7 @@ LogStream<StandardStream> &LogStream<StandardStream>::operator<<(unsigned short 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<StandardStream StandardStream>
-LogStream<StandardStream> &LogStream<StandardStream>::operator<<(int value)
+LogStream &LogStream::operator<<(int value)
 {
 	ostream() << value;
 	return *this;
@@ -97,8 +123,7 @@ LogStream<StandardStream> &LogStream<StandardStream>::operator<<(int value)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<StandardStream StandardStream>
-LogStream<StandardStream> &LogStream<StandardStream>::operator<<(unsigned int value)
+LogStream &LogStream::operator<<(unsigned int value)
 {
 	ostream() << value;
 	return *this;
@@ -106,8 +131,7 @@ LogStream<StandardStream> &LogStream<StandardStream>::operator<<(unsigned int va
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<StandardStream StandardStream>
-LogStream<StandardStream> &LogStream<StandardStream>::operator<<(long value)
+LogStream &LogStream::operator<<(long value)
 {
 	ostream() << value;
 	return *this;
@@ -115,8 +139,7 @@ LogStream<StandardStream> &LogStream<StandardStream>::operator<<(long value)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<StandardStream StandardStream>
-LogStream<StandardStream> &LogStream<StandardStream>::operator<<(unsigned long value)
+LogStream &LogStream::operator<<(unsigned long value)
 {
 	ostream() << value;
 	return *this;
@@ -124,8 +147,7 @@ LogStream<StandardStream> &LogStream<StandardStream>::operator<<(unsigned long v
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<StandardStream StandardStream>
-LogStream<StandardStream> &LogStream<StandardStream>::operator<<(long long value)
+LogStream &LogStream::operator<<(long long value)
 {
 	ostream() << value;
 	return *this;
@@ -133,8 +155,7 @@ LogStream<StandardStream> &LogStream<StandardStream>::operator<<(long long value
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<StandardStream StandardStream>
-LogStream<StandardStream> &LogStream<StandardStream>::operator<<(unsigned long long value)
+LogStream &LogStream::operator<<(unsigned long long value)
 {
 	ostream() << value;
 	return *this;
@@ -142,8 +163,7 @@ LogStream<StandardStream> &LogStream<StandardStream>::operator<<(unsigned long l
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<StandardStream StandardStream>
-LogStream<StandardStream> &LogStream<StandardStream>::operator<<(float value)
+LogStream &LogStream::operator<<(float value)
 {
 	ostream() << value;
 	return *this;
@@ -151,8 +171,7 @@ LogStream<StandardStream> &LogStream<StandardStream>::operator<<(float value)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<StandardStream StandardStream>
-LogStream<StandardStream> &LogStream<StandardStream>::operator<<(double value)
+LogStream &LogStream::operator<<(double value)
 {
 	ostream() << value;
 	return *this;
@@ -160,8 +179,7 @@ LogStream<StandardStream> &LogStream<StandardStream>::operator<<(double value)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<StandardStream StandardStream>
-LogStream<StandardStream> &LogStream<StandardStream>::operator<<(long double value)
+LogStream &LogStream::operator<<(long double value)
 {
 	ostream() << value;
 	return *this;
@@ -169,8 +187,7 @@ LogStream<StandardStream> &LogStream<StandardStream>::operator<<(long double val
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<StandardStream StandardStream>
-LogStream<StandardStream> &LogStream<StandardStream>::operator<<(bool value)
+LogStream &LogStream::operator<<(bool value)
 {
 	ostream() << value;
 	return *this;
@@ -178,8 +195,7 @@ LogStream<StandardStream> &LogStream<StandardStream>::operator<<(bool value)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<StandardStream StandardStream>
-LogStream<StandardStream> &LogStream<StandardStream>::operator<<(const void *value)
+LogStream &LogStream::operator<<(const void *value)
 {
 	ostream() << value;
 	return *this;
@@ -187,8 +203,7 @@ LogStream<StandardStream> &LogStream<StandardStream>::operator<<(const void *val
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<StandardStream StandardStream>
-LogStream<StandardStream> &LogStream<StandardStream>::operator<<(const char *value)
+LogStream &LogStream::operator<<(const char *value)
 {
 	ostream() << value;
 	return *this;
@@ -196,8 +211,7 @@ LogStream<StandardStream> &LogStream<StandardStream>::operator<<(const char *val
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<StandardStream StandardStream>
-LogStream<StandardStream> &LogStream<StandardStream>::operator<<(std::basic_streambuf<CharacterType, TraitsType>* sb)
+LogStream &LogStream::operator<<(std::basic_streambuf<CharacterType, TraitsType>* sb)
 {
 	ostream() << sb;
 	return *this;
@@ -205,8 +219,7 @@ LogStream<StandardStream> &LogStream<StandardStream>::operator<<(std::basic_stre
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<StandardStream StandardStream>
-LogStream<StandardStream> &LogStream<StandardStream>::operator<<(std::ios_base &(*func)(std::ios_base &))
+LogStream &LogStream::operator<<(std::ios_base &(*func)(std::ios_base &))
 {
 	ostream() << func;
 	return *this;
@@ -214,8 +227,7 @@ LogStream<StandardStream> &LogStream<StandardStream>::operator<<(std::ios_base &
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<StandardStream StandardStream>
-LogStream<StandardStream> &LogStream<StandardStream>::operator<<(std::basic_ios<CharacterType, TraitsType> &(*func)(std::basic_ios<CharacterType, TraitsType> &))
+LogStream &LogStream::operator<<(std::basic_ios<CharacterType, TraitsType> &(*func)(std::basic_ios<CharacterType, TraitsType> &))
 {
 	ostream() << func;
 	return *this;
@@ -223,8 +235,7 @@ LogStream<StandardStream> &LogStream<StandardStream>::operator<<(std::basic_ios<
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<StandardStream StandardStream>
-LogStream<StandardStream> &LogStream<StandardStream>::operator<<(std::basic_ostream<CharacterType, TraitsType> &(*func)(std::basic_ostream<CharacterType, TraitsType> &))
+LogStream &LogStream::operator<<(std::basic_ostream<CharacterType, TraitsType> &(*func)(std::basic_ostream<CharacterType, TraitsType> &))
 {
 	ostream() << func;
 	return *this;
@@ -232,8 +243,8 @@ LogStream<StandardStream> &LogStream<StandardStream>::operator<<(std::basic_ostr
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<StandardStream StandardStream, class CharacterType, class Traits, class Allocator>
-LogStream<StandardStream> &operator<<(LogStream<StandardStream> &stream, const std::basic_string<CharacterType, Traits, Allocator> &string)
+template<class CharacterType, class Traits, class Allocator>
+LogStream &operator<<(LogStream &stream, const std::basic_string<CharacterType, Traits, Allocator> &string)
 {
 	stream.ostream() << string;
 	return stream;

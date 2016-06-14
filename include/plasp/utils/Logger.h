@@ -37,8 +37,8 @@ class Logger
 		Logger(Logger &&other);
 		Logger &operator=(Logger &&other);
 
-		LogStream<StandardStream::Out> &outputStream();
-		LogStream<StandardStream::Err> &errorStream();
+		LogStream &outputStream();
+		LogStream &errorStream();
 
 		void setWarningLevel(WarningLevel warningLevel);
 
@@ -47,8 +47,8 @@ class Logger
 		void logWarning(const Parser &parser, const std::string &message);
 
 	private:
-		LogStream<StandardStream::Out> m_outputStream;
-		LogStream<StandardStream::Err> m_errorStream;
+		LogStream m_outputStream;
+		LogStream m_errorStream;
 
 		WarningLevel m_warningLevel;
 };

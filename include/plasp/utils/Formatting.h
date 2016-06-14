@@ -52,8 +52,7 @@ struct Format
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<StandardStream StandardStream>
-LogStream<StandardStream> &operator<<(LogStream<StandardStream> &stream, const Format &format)
+LogStream &operator<<(LogStream &stream, const Format &format)
 {
 	if (!stream.supportsColor())
 		return stream;
@@ -72,8 +71,7 @@ class ResetFormat
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<StandardStream StandardStream>
-LogStream<StandardStream> &operator<<(LogStream<StandardStream> &stream, const ResetFormat &)
+LogStream &operator<<(LogStream &stream, const ResetFormat &)
 {
 	if (!stream.supportsColor())
 		return stream;

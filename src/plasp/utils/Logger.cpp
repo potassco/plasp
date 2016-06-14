@@ -14,14 +14,18 @@ namespace utils
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 Logger::Logger()
-:	m_warningLevel{Logger::WarningLevel::Normal}
+:	m_outputStream(StandardStream::Out),
+	m_errorStream(StandardStream::Err),
+	m_warningLevel{Logger::WarningLevel::Normal}
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 Logger::Logger(const Logger &other)
-:	m_warningLevel{other.m_warningLevel}
+:	m_outputStream{other.m_outputStream},
+	m_errorStream{other.m_errorStream},
+	m_warningLevel{other.m_warningLevel}
 {
 }
 
@@ -29,6 +33,8 @@ Logger::Logger(const Logger &other)
 
 Logger &Logger::operator=(const Logger &other)
 {
+	m_outputStream = other.m_outputStream;
+	m_errorStream = other.m_errorStream;
 	m_warningLevel = other.m_warningLevel;
 
 	return *this;
@@ -37,7 +43,9 @@ Logger &Logger::operator=(const Logger &other)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 Logger::Logger(Logger &&other)
-:	m_warningLevel{other.m_warningLevel}
+:	m_outputStream{other.m_outputStream},
+	m_errorStream{other.m_errorStream},
+	m_warningLevel{other.m_warningLevel}
 {
 	other.m_warningLevel = WarningLevel::Normal;
 }
@@ -46,6 +54,8 @@ Logger::Logger(Logger &&other)
 
 Logger &Logger::operator=(Logger &&other)
 {
+	m_outputStream = other.m_outputStream;
+	m_errorStream = other.m_errorStream;
 	m_warningLevel = other.m_warningLevel;
 	other.m_warningLevel = WarningLevel::Normal;
 
@@ -54,14 +64,14 @@ Logger &Logger::operator=(Logger &&other)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-LogStream<StandardStream::Out> &Logger::outputStream()
+LogStream &Logger::outputStream()
 {
 	return m_outputStream;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-LogStream<StandardStream::Err> &Logger::errorStream()
+LogStream &Logger::errorStream()
 {
 	return m_errorStream;
 }
