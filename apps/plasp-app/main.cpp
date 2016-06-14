@@ -144,7 +144,8 @@ int main(int argc, char **argv)
 
 		if (language == plasp::Language::Type::PDDL)
 		{
-			auto context = plasp::pddl::Context(std::move(parser), std::move(logger));
+			auto pddlLogger = logger;
+			auto context = plasp::pddl::Context(std::move(parser), std::move(pddlLogger));
 			auto description = plasp::pddl::Description::fromContext(std::move(context));
 			const auto translator = plasp::pddl::TranslatorASP(description, description.context().logger.outputStream());
 			translator.translate();
@@ -158,19 +159,16 @@ int main(int argc, char **argv)
 	}
 	catch (const plasp::utils::ParserException &e)
 	{
-		plasp::utils::Logger logger;
 		logger.logError(e.coordinate(), e.message());
 		return EXIT_FAILURE;
 	}
 	catch (const plasp::utils::TranslatorException &e)
 	{
-		plasp::utils::Logger logger;
 		logger.logError(e.what());
 		return EXIT_FAILURE;
 	}
 	catch (const std::exception &e)
 	{
-		plasp::utils::Logger logger;
 		logger.logError(e.what());
 		return EXIT_FAILURE;
 	}

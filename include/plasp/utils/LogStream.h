@@ -46,7 +46,7 @@ class LogStream
 
 		LogStream(const LogStream &other)
 		:	m_standardStream{other.m_standardStream},
-			m_colorPolicy{ColorPolicy::Auto}
+			m_colorPolicy{other.m_colorPolicy}
 		{
 		}
 
