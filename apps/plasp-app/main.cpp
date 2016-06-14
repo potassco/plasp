@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 	const auto printHelp =
 		[&]()
 		{
-			std::cout << "Usage: plasp file [options]" << std::endl;
+			std::cout << "Usage: plasp [files] [options]" << std::endl;
 			std::cout << "Translate PDDL instances to ASP facts." << std::endl << std::endl;
 
 			std::cout << description;
