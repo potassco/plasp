@@ -178,6 +178,17 @@ TEST(UtilsTests, ParserPosition)
 	ASSERT_EQ(p.position(), startPosition);
 	ASSERT_FALSE(p.atEndOfStream());
 
+	for (size_t i = 0; i < 5; i++)
+		p.advance();
+
+	ASSERT_EQ(p.position(), static_cast<std::istream::pos_type>(5));
+
+	p.seek(static_cast<std::istream::pos_type>(7));
+
+	ASSERT_EQ(p.position(), static_cast<std::istream::pos_type>(7));
+
+	ASSERT_NO_THROW(p.expect<std::string>("test1"));
+
 	// TODO: test parser with multiple sections
 }
 
