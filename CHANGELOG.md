@@ -2,6 +2,10 @@
 
 ## (unreleased)
 
+Bug Fixes:
+
+* fixes minor formatting issue with axiom rules
+
 ## 3.0.1 (2016-06-14)
 
 Features:

@@ -230,7 +230,7 @@ void TranslatorASP::translateMutexes() const
 
 void TranslatorASP::translateAxiomRules() const
 {
-	if (!m_description.usesActionCosts())
+	if (!m_description.usesAxiomRules())
 		return;
 
 	m_outputStream << std::endl;
