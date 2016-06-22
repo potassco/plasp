@@ -11,6 +11,8 @@ TEST(UtilsTests, ParseSimple)
 	std::stringstream s("identifier  5   \n-51\t 0 1 expected unexpected");
 	plasp::utils::Parser p("input", s);
 
+	ASSERT_TRUE(p.isCaseSensitive());
+
 	ASSERT_EQ(p.parse<std::string>(), "identifier");
 	ASSERT_EQ(p.parse<size_t>(), 5u);
 	ASSERT_EQ(p.parse<int>(), -51);

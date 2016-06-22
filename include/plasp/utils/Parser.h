@@ -57,6 +57,7 @@ class Parser
 		Coordinate coordinate() const;
 
 		void setCaseSensitive(bool isCaseInsensitive = true);
+		bool isCaseSensitive() const noexcept;
 
 		char currentCharacter() const;
 		void advance();
