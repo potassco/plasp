@@ -91,7 +91,7 @@ void Parser::readFile(const boost::filesystem::path &path)
 void Parser::reset()
 {
 	m_stream.clear();
-	seek(std::ios::beg);
+	seek(0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

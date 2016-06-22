@@ -21,7 +21,7 @@ Language::Type detectLanguage(utils::Parser &parser)
 	// SAS begins with "begin_version"
 	if (parser.probe<std::string>("begin"))
 	{
-		parser.seek(std::ios::beg);
+		parser.seek(0);
 		return Language::Type::SAS;
 	}
 
