@@ -91,6 +91,8 @@ TEST(UtilsTests, ParserPosition)
 	std::stringstream s("123 \n4\ntest1\n test2\ntest3 \ntest4\n\n\n\n");
 	plasp::utils::Parser p("input", s);
 
+	const auto startPosition = p.position();
+
 	plasp::utils::Parser::Coordinate c;
 
 	c = p.coordinate();
@@ -171,6 +173,10 @@ TEST(UtilsTests, ParserPosition)
 	ASSERT_EQ(c.row, 10u);
 	ASSERT_EQ(c.column, 1u);
 	ASSERT_TRUE(p.atEndOfStream());
+
+	p.reset();
+	ASSERT_EQ(p.position(), startPosition);
+	ASSERT_FALSE(p.atEndOfStream());
 
 	// TODO: test parser with multiple sections
 }
