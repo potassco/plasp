@@ -22,7 +22,7 @@ class PDDLParserPolicy
 			return std::tolower(c);
 		}
 
-		static bool isWhiteSpace(char c)
+		static bool isWhiteSpaceCharacter(char c)
 		{
 			return std::iswspace(c);
 		}

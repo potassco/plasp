@@ -22,7 +22,7 @@ class CaseSensitiveParserPolicy
 			return c;
 		}
 
-		static bool isWhiteSpace(char c)
+		static bool isWhiteSpaceCharacter(char c)
 		{
 			return std::iswspace(c);
 		}
@@ -43,7 +43,7 @@ class CaseInsensitiveParserPolicy
 			return std::tolower(c);
 		}
 
-		static bool isWhiteSpace(char c)
+		static bool isWhiteSpaceCharacter(char c)
 		{
 			return std::iswspace(c);
 		}

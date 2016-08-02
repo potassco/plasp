@@ -119,7 +119,7 @@ void Parser<ParserPolicy>::skipWhiteSpace()
 {
 	check();
 
-	while (!atEnd() && ParserPolicy::isWhiteSpace(currentCharacter()))
+	while (!atEnd() && ParserPolicy::isWhiteSpaceCharacter(currentCharacter()))
 		advance();
 }
 
@@ -229,7 +229,7 @@ bool Parser<ParserPolicy>::probeNumber()
 
 	skipWhiteSpace();
 
-	while (!ParserPolicy::isWhiteSpace(currentCharacter()))
+	while (!ParserPolicy::isWhiteSpaceCharacter(currentCharacter()))
 		if (!std::isdigit(currentCharacter()))
 		{
 			seek(previousPosition);
@@ -351,7 +351,7 @@ std::string Parser<ParserPolicy>::parseImpl(Tag<std::string>)
 
 	const auto startPosition = position();
 
-	while (!ParserPolicy::isWhiteSpace(currentCharacter()))
+	while (!ParserPolicy::isWhiteSpaceCharacter(currentCharacter()))
 		advance();
 
 	const auto endPosition = position();
@@ -475,7 +475,7 @@ bool Parser<ParserPolicy>::parseImpl(Tag<bool>)
 template<class ParserPolicy>
 bool Parser<ParserPolicy>::testImpl(const std::string &expectedValue)
 {
-	if (!ParserPolicy::isWhiteSpace(expectedValue.front()))
+	if (!ParserPolicy::isWhiteSpaceCharacter(expectedValue.front()))
 		skipWhiteSpace();
 
 	const auto match = std::find_if(expectedValue.cbegin(), expectedValue.cend(),
