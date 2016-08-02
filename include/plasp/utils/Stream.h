@@ -70,8 +70,7 @@ class Stream
 
 		void check() const;
 
-	// TODO: make protected again
-	//protected:
+	protected:
 		mutable std::stringstream m_stream;
 
 		std::vector<Delimiter> m_delimiters;

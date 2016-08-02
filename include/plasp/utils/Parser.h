@@ -33,6 +33,9 @@ struct Tag
 template<class ParserPolicy = CaseSensitiveParserPolicy>
 class Parser: public Stream, public ParserPolicy
 {
+	template<class OtherParserPolicy>
+	friend class Parser;
+
 	public:
 		explicit Parser();
 		explicit Parser(std::string streamName, std::istream &istream);
