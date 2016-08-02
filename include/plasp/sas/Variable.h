@@ -28,8 +28,8 @@ using Variables = std::vector<Variable>;
 class Variable
 {
 	public:
-		static Variable fromSAS(utils::Parser &parser);
-		static const Variable &referenceFromSAS(utils::Parser &parser, const Variables &variables);
+		static Variable fromSAS(utils::Parser<> &parser);
+		static const Variable &referenceFromSAS(utils::Parser<> &parser, const Variables &variables);
 
 	public:
 		void printNameAsASPPredicate(utils::LogStream &outputStream) const;

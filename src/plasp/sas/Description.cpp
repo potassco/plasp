@@ -28,10 +28,8 @@ Description::Description()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Description Description::fromParser(utils::Parser &&parser)
+Description Description::fromParser(utils::Parser<> &&parser)
 {
-	parser.setCaseSensitive(true);
-
 	Description description;
 	description.parseContent(parser);
 
@@ -42,8 +40,8 @@ Description Description::fromParser(utils::Parser &&parser)
 
 Description Description::fromStream(std::istream &istream)
 {
-	utils::Parser parser;
-	parser.readStream("std::cin", istream);
+	utils::Parser<> parser;
+	parser.read("std::cin", istream);
 
 	Description description;
 	description.parseContent(parser);
@@ -58,8 +56,8 @@ Description Description::fromFile(const boost::filesystem::path &path)
 	if (!boost::filesystem::is_regular_file(path))
 		throw std::runtime_error("File does not exist: “" + path.string() + "”");
 
-	utils::Parser parser;
-	parser.readFile(path);
+	utils::Parser<> parser;
+	parser.read(path);
 
 	Description description;
 	description.parseContent(parser);
@@ -155,7 +153,7 @@ bool Description::usesConditionalEffects() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Description::parseContent(utils::Parser &parser)
+void Description::parseContent(utils::Parser<> &parser)
 {
 	parseVersionSection(parser);
 	parseMetricSection(parser);
@@ -168,27 +166,27 @@ void Description::parseContent(utils::Parser &parser)
 
 	parser.skipWhiteSpace();
 
-	if (!parser.atEndOfStream())
-		throw utils::ParserException(parser, "expected end of SAS description (perhaps, input contains two SAS descriptions?)");
+	if (!parser.atEnd())
+		throw utils::ParserException(parser.coordinate(), "expected end of SAS description (perhaps, input contains two SAS descriptions?)");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Description::parseVersionSection(utils::Parser &parser) const
+void Description::parseVersionSection(utils::Parser<> &parser) const
 {
 	parser.expect<std::string>("begin_version");
 
 	const auto formatVersion = parser.parse<size_t>();
 
 	if (formatVersion != 3)
-		throw utils::ParserException(parser, "unsupported SAS format version (" + std::to_string(formatVersion) + ")");
+		throw utils::ParserException(parser.coordinate(), "unsupported SAS format version (" + std::to_string(formatVersion) + ")");
 
 	parser.expect<std::string>("end_version");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Description::parseMetricSection(utils::Parser &parser)
+void Description::parseMetricSection(utils::Parser<> &parser)
 {
 	parser.expect<std::string>("begin_metric");
 
@@ -199,7 +197,7 @@ void Description::parseMetricSection(utils::Parser &parser)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Description::parseVariablesSection(utils::Parser &parser)
+void Description::parseVariablesSection(utils::Parser<> &parser)
 {
 	const auto numberOfVariables = parser.parse<size_t>();
 	m_variables.reserve(numberOfVariables);
@@ -210,7 +208,7 @@ void Description::parseVariablesSection(utils::Parser &parser)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Description::parseMutexSection(utils::Parser &parser)
+void Description::parseMutexSection(utils::Parser<> &parser)
 {
 	const auto numberOfMutexGroups = parser.parse<size_t>();
 	m_mutexGroups.reserve(numberOfMutexGroups);
@@ -221,21 +219,21 @@ void Description::parseMutexSection(utils::Parser &parser)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Description::parseInitialStateSection(utils::Parser &parser)
+void Description::parseInitialStateSection(utils::Parser<> &parser)
 {
 	m_initialState = std::make_unique<InitialState>(InitialState::fromSAS(parser, m_variables));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Description::parseGoalSection(utils::Parser &parser)
+void Description::parseGoalSection(utils::Parser<> &parser)
 {
 	m_goal = std::make_unique<Goal>(Goal::fromSAS(parser, m_variables));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Description::parseOperatorSection(utils::Parser &parser)
+void Description::parseOperatorSection(utils::Parser<> &parser)
 {
 	const auto numberOfOperators = parser.parse<size_t>();
 	m_operators.reserve(numberOfOperators);
@@ -246,7 +244,7 @@ void Description::parseOperatorSection(utils::Parser &parser)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Description::parseAxiomSection(utils::Parser &parser)
+void Description::parseAxiomSection(utils::Parser<> &parser)
 {
 	const auto numberOfAxiomRules = parser.parse<size_t>();
 	m_axiomRules.reserve(numberOfAxiomRules);

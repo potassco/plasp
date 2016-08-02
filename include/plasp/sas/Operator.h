@@ -33,7 +33,7 @@ class Operator
 		using Condition = AssignedVariable;
 		using Conditions = AssignedVariables;
 
-		static Operator fromSAS(utils::Parser &parser, const Variables &variables);
+		static Operator fromSAS(utils::Parser<> &parser, const Variables &variables);
 
 	public:
 		void printPredicateAsASP(utils::LogStream &ostream) const;

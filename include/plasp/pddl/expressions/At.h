@@ -3,7 +3,6 @@
 
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Expression.h>
-#include <plasp/pddl/Identifier.h>
 
 namespace plasp
 {
@@ -57,8 +56,8 @@ AtPointer At::parse(Context &context, ExpressionContext &expressionContext,
 
 	const auto position = parser.position();
 
-	if (!parser.probe<std::string>("(")
-		|| !parser.probeIdentifier("at", isIdentifier))
+	if (!parser.testAndSkip<std::string>("(")
+		|| !parser.testIdentifierAndSkip("at"))
 	{
 		parser.seek(position);
 		return nullptr;
@@ -68,9 +67,9 @@ AtPointer At::parse(Context &context, ExpressionContext &expressionContext,
 
 	const auto timePointPosition = parser.position();
 
-	if (parser.probeIdentifier("start", isIdentifier))
+	if (parser.testIdentifierAndSkip("start"))
 		timePoint = TimePointStart;
-	else if (parser.probeIdentifier("end", isIdentifier))
+	else if (parser.testIdentifierAndSkip("end"))
 		timePoint = TimePointEnd;
 	else if (parser.probeNumber())
 	{

@@ -3,7 +3,6 @@
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Domain.h>
 #include <plasp/pddl/ExpressionContext.h>
-#include <plasp/pddl/Identifier.h>
 #include <plasp/pddl/expressions/Constant.h>
 #include <plasp/pddl/expressions/Variable.h>
 
@@ -33,7 +32,7 @@ void PredicateDeclaration::parse(Context &context, Domain &domain)
 
 	auto predicate = std::make_unique<PredicateDeclaration>(PredicateDeclaration());
 
-	predicate->m_name = context.parser.parseIdentifier(isIdentifier);
+	predicate->m_name = context.parser.parseIdentifier();
 
 	// Flag predicate as correctly declared in the types section
 	predicate->setDeclared();

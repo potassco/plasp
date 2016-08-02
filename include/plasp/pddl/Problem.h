@@ -4,6 +4,7 @@
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Expression.h>
 #include <plasp/pddl/InitialState.h>
+#include <plasp/pddl/Parser.h>
 #include <plasp/pddl/Requirement.h>
 
 namespace plasp
@@ -61,18 +62,18 @@ class Problem
 
 		std::string m_name;
 
-		utils::Parser::Position m_domainPosition;
+		utils::Stream::Position m_domainPosition;
 
-		utils::Parser::Position m_requirementsPosition;
+		utils::Stream::Position m_requirementsPosition;
 		Requirements m_requirements;
 
-		utils::Parser::Position m_objectsPosition;
+		utils::Stream::Position m_objectsPosition;
 		expressions::Constants m_objects;
 
-		utils::Parser::Position m_initialStatePosition;
+		utils::Stream::Position m_initialStatePosition;
 		std::unique_ptr<InitialState> m_initialState;
 
-		utils::Parser::Position m_goalPosition;
+		utils::Stream::Position m_goalPosition;
 		ExpressionPointer m_goal;
 };
 

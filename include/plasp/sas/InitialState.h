@@ -21,7 +21,7 @@ class InitialState
 		using Fact = AssignedVariable;
 		using Facts = AssignedVariables;
 
-		static InitialState fromSAS(utils::Parser &parser, const Variables &variables);
+		static InitialState fromSAS(utils::Parser<> &parser, const Variables &variables);
 
 	public:
 		const Facts &facts() const;

@@ -2,7 +2,6 @@
 #define __PLASP__PDDL__EXPRESSIONS__CONSTANT_H
 
 #include <plasp/pddl/Expression.h>
-#include <plasp/pddl/Identifier.h>
 #include <plasp/utils/Parser.h>
 #include <plasp/utils/ParserException.h>
 

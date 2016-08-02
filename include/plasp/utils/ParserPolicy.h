@@ -1,0 +1,62 @@
+#ifndef __PLASP__UTILS__PARSER_POLICY_H
+#define __PLASP__UTILS__PARSER_POLICY_H
+
+#include <iostream>
+
+namespace plasp
+{
+namespace utils
+{
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// ParserPolicy
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class CaseSensitiveParserPolicy
+{
+	public:
+		static constexpr char transformCharacter(char c) noexcept
+		{
+			return c;
+		}
+
+		static bool isWhiteSpace(char c)
+		{
+			return std::iswspace(c);
+		}
+
+		static bool isIdentifierCharacter(char c)
+		{
+			return std::isgraph(c);
+		}
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class CaseInsensitiveParserPolicy
+{
+	public:
+		static char transformCharacter(char c) noexcept
+		{
+			return std::tolower(c);
+		}
+
+		static bool isWhiteSpace(char c)
+		{
+			return std::iswspace(c);
+		}
+
+		static bool isIdentifierCharacter(char c)
+		{
+			return std::isgraph(c);
+		}
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+}
+}
+
+#endif

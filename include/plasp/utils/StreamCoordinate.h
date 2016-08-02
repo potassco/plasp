@@ -1,28 +1,25 @@
-#ifndef __PLASP__PDDL__IDENTIFIER_H
-#define __PLASP__PDDL__IDENTIFIER_H
+#ifndef __PLASP__UTILS__STREAM_COORDINATE_H
+#define __PLASP__UTILS__STREAM_COORDINATE_H
 
-#include <cctype>
+#include <string>
 
 namespace plasp
 {
-namespace pddl
+namespace utils
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// Identifier
+// StreamCoordinate
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const auto isIdentifier =
-	[](const auto character)
-	{
-		return character != '?'
-			&& character != '('
-			&& character != ')'
-			&& character != ';'
-			&& std::isgraph(character);
-	};
+struct StreamCoordinate
+{
+	std::string sectionName;
+	size_t row;
+	size_t column;
+};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

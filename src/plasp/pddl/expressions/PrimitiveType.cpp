@@ -43,7 +43,7 @@ void PrimitiveType::parseDeclaration(Context &context, Domain &domain)
 
 	context.parser.skipWhiteSpace();
 
-	const auto typeName = context.parser.parseIdentifier(isIdentifier);
+	const auto typeName = context.parser.parseIdentifier();
 
 	const auto match = std::find_if(types.cbegin(), types.cend(),
 		[&](const auto &primitiveType)
@@ -76,7 +76,7 @@ void PrimitiveType::parseTypedDeclaration(Context &context, Domain &domain)
 	context.parser.skipWhiteSpace();
 
 	// Check for type inheritance
-	if (!context.parser.probe('-'))
+	if (!context.parser.testAndSkip<char>('-'))
 		return;
 
 	domain.checkRequirement(Requirement::Type::Typing);
@@ -102,14 +102,16 @@ void PrimitiveType::parseTypedDeclaration(Context &context, Domain &domain)
 
 PrimitiveType *PrimitiveType::parseAndFind(Context &context, Domain &domain)
 {
+	auto &parser = context.parser;
+
 	auto &types = domain.types();
 
-	context.parser.skipWhiteSpace();
+	parser.skipWhiteSpace();
 
-	const auto typeName = context.parser.parseIdentifier(isIdentifier);
+	const auto typeName = parser.parseIdentifier();
 
 	if (typeName.empty())
-		throw utils::ParserException(context.parser, "no type supplied");
+		throw utils::ParserException(parser.coordinate(), "no type supplied");
 
 	const auto match = std::find_if(types.cbegin(), types.cend(),
 		[&](const auto &primitiveType)
@@ -122,11 +124,11 @@ PrimitiveType *PrimitiveType::parseAndFind(Context &context, Domain &domain)
 		// Only "object" is allowed as an implicit type
 		if (typeName == "object" || typeName == "objects")
 		{
-			context.logger.logWarning(context.parser, "primitive type “" + typeName + "” should be declared");
+			context.logger.logWarning(parser.coordinate(), "primitive type “" + typeName + "” should be declared");
 			types.emplace_back(std::make_unique<expressions::PrimitiveType>(typeName));
 		}
 		else
-			throw utils::ParserException(context.parser, "type “" + typeName + "” used but never declared");
+			throw utils::ParserException(parser.coordinate(), "type “" + typeName + "” used but never declared");
 
 		return types.back().get();
 	}

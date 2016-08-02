@@ -39,8 +39,8 @@ struct Value
 		static const Value Any;
 		static const Value None;
 
-		static Value fromSAS(utils::Parser &parser);
-		static const Value &referenceFromSAS(utils::Parser &parser, const Variable &variable);
+		static Value fromSAS(utils::Parser<> &parser);
+		static const Value &referenceFromSAS(utils::Parser<> &parser, const Variable &variable);
 
 	public:
 		Value negated() const;

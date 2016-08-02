@@ -26,7 +26,7 @@ using VariableTransitions = std::vector<VariableTransition>;
 class VariableTransition
 {
 	public:
-		static VariableTransition fromSAS(utils::Parser &parser, const Variables &variables);
+		static VariableTransition fromSAS(utils::Parser<> &parser, const Variables &variables);
 
 	public:
 		const Variable &variable() const;

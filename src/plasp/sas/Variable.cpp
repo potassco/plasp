@@ -24,7 +24,7 @@ Variable::Variable()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Variable Variable::fromSAS(utils::Parser &parser)
+Variable Variable::fromSAS(utils::Parser<> &parser)
 {
 	Variable variable;
 
@@ -42,7 +42,7 @@ Variable Variable::fromSAS(utils::Parser &parser)
 
 		// <none of those> values are only allowed at the end
 		if (j < numberOfValues - 1 && variable.m_values[j] == Value::None)
-			throw utils::ParserException(parser, "<none of those> value must be the last value of a variable");
+			throw utils::ParserException(parser.coordinate(), "<none of those> value must be the last value of a variable");
 	}
 
 	parser.expect<std::string>("end_variable");
@@ -59,12 +59,12 @@ void Variable::printNameAsASPPredicate(utils::LogStream &outputStream) const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const Variable &Variable::referenceFromSAS(utils::Parser &parser, const Variables &variables)
+const Variable &Variable::referenceFromSAS(utils::Parser<> &parser, const Variables &variables)
 {
 	const auto variableID = parser.parse<size_t>();
 
 	if (variableID >= variables.size())
-		throw utils::ParserException(parser, "variable index out of range (index " + std::to_string(variableID) + ")");
+		throw utils::ParserException(parser.coordinate(), "variable index out of range (index " + std::to_string(variableID) + ")");
 
 	return variables[variableID];
 }

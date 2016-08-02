@@ -3,7 +3,6 @@
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Domain.h>
 #include <plasp/pddl/ExpressionContext.h>
-#include <plasp/pddl/Identifier.h>
 #include <plasp/pddl/IO.h>
 #include <plasp/pddl/expressions/And.h>
 #include <plasp/pddl/expressions/Imply.h>
@@ -49,12 +48,12 @@ ExpressionPointer parsePreconditionExpression(Context &context,
 
 	const auto expressionIdentifierPosition = parser.position();
 
-	if (parser.probeIdentifier("forall", isIdentifier)
-		|| parser.probeIdentifier("preference", isIdentifier))
+	if (parser.testIdentifierAndSkip("forall")
+		|| parser.testIdentifierAndSkip("preference"))
 	{
 		// TODO: refactor
 		parser.seek(expressionIdentifierPosition);
-		const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);
+		const auto expressionIdentifier = parser.parseIdentifier();
 
 		parser.seek(position);
 		return expressions::Unsupported::parse(context);
@@ -89,32 +88,32 @@ ExpressionPointer parseExpression(Context &context, ExpressionContext &expressio
 
 	const auto expressionIdentifierPosition = parser.position();
 
-	if (parser.probeIdentifier("exists", isIdentifier)
-		|| parser.probeIdentifier("forall", isIdentifier)
-		|| parser.probeIdentifier("-", isIdentifier)
-		|| parser.probeIdentifier("=", isIdentifier)
-		|| parser.probeIdentifier("*", isIdentifier)
-		|| parser.probeIdentifier("+", isIdentifier)
-		|| parser.probeIdentifier("-", isIdentifier)
-		|| parser.probeIdentifier("/", isIdentifier)
-		|| parser.probeIdentifier(">", isIdentifier)
-		|| parser.probeIdentifier("<", isIdentifier)
-		|| parser.probeIdentifier("=", isIdentifier)
-		|| parser.probeIdentifier(">=", isIdentifier)
-		|| parser.probeIdentifier("<=", isIdentifier))
+	if (parser.testIdentifierAndSkip("exists")
+		|| parser.testIdentifierAndSkip("forall")
+		|| parser.testIdentifierAndSkip("-")
+		|| parser.testIdentifierAndSkip("=")
+		|| parser.testIdentifierAndSkip("*")
+		|| parser.testIdentifierAndSkip("+")
+		|| parser.testIdentifierAndSkip("-")
+		|| parser.testIdentifierAndSkip("/")
+		|| parser.testIdentifierAndSkip(">")
+		|| parser.testIdentifierAndSkip("<")
+		|| parser.testIdentifierAndSkip("=")
+		|| parser.testIdentifierAndSkip(">=")
+		|| parser.testIdentifierAndSkip("<="))
 	{
 		parser.seek(expressionIdentifierPosition);
-		const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);
+		const auto expressionIdentifier = parser.parseIdentifier();
 
 		parser.seek(position);
 		return expressions::Unsupported::parse(context);
 	}
 
 	parser.seek(expressionIdentifierPosition);
-	const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);
+	const auto expressionIdentifier = parser.parseIdentifier();
 
 	parser.seek(position);
-	throw utils::ParserException(context.parser, "expression type “" + expressionIdentifier + "” unknown or not allowed in this context");
+	throw utils::ParserException(parser.coordinate(), "expression type “" + expressionIdentifier + "” unknown or not allowed in this context");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -134,11 +133,11 @@ ExpressionPointer parseEffectExpression(Context &context, ExpressionContext &exp
 
 	const auto expressionIdentifierPosition = parser.position();
 
-	if (parser.probeIdentifier("forall", isIdentifier)
-		|| parser.probeIdentifier("when", isIdentifier))
+	if (parser.testIdentifierAndSkip("forall")
+		|| parser.testIdentifierAndSkip("when"))
 	{
 		parser.seek(expressionIdentifierPosition);
-		const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);
+		const auto expressionIdentifier = parser.parseIdentifier();
 
 		parser.seek(position);
 		return expressions::Unsupported::parse(context);
@@ -168,37 +167,39 @@ ExpressionPointer parseEffectBodyExpression(Context &context, ExpressionContext 
 
 	const auto expressionIdentifierPosition = parser.position();
 
-	if (parser.probeIdentifier("=", isIdentifier)
-		|| parser.probeIdentifier("assign", isIdentifier)
-		|| parser.probeIdentifier("scale-up", isIdentifier)
-		|| parser.probeIdentifier("scale-down", isIdentifier)
-		|| parser.probeIdentifier("increase", isIdentifier)
-		|| parser.probeIdentifier("decrease", isIdentifier))
+	if (parser.testIdentifierAndSkip("=")
+		|| parser.testIdentifierAndSkip("assign")
+		|| parser.testIdentifierAndSkip("scale-up")
+		|| parser.testIdentifierAndSkip("scale-down")
+		|| parser.testIdentifierAndSkip("increase")
+		|| parser.testIdentifierAndSkip("decrease"))
 	{
 		parser.seek(expressionIdentifierPosition);
-		const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);
+		const auto expressionIdentifier = parser.parseIdentifier();
 
 		parser.seek(position);
 		return expressions::Unsupported::parse(context);
 	}
 
 	parser.seek(expressionIdentifierPosition);
-	const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);
+	const auto expressionIdentifier = parser.parseIdentifier();
 
 	parser.seek(position);
-	throw utils::ParserException(context.parser, "expression type “" + expressionIdentifier + "” unknown or not allowed in this context");
+	throw utils::ParserException(parser.coordinate(), "expression type “" + expressionIdentifier + "” unknown or not allowed in this context");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ExpressionPointer parsePredicate(Context &context, ExpressionContext &expressionContext)
 {
+	auto &parser = context.parser;
+
 	ExpressionPointer expression;
 
 	if ((expression = expressions::Predicate::parse(context, expressionContext)))
 		return expression;
 
-	throw utils::ParserException(context.parser, "expected predicate");
+	throw utils::ParserException(parser.coordinate(), "expected predicate");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -229,15 +230,15 @@ ExpressionPointer parseAtomicFormula(Context &context, ExpressionContext &expres
 
 	const auto position = parser.position();
 
-	if (!parser.probe<std::string>("("))
+	if (!parser.testAndSkip<std::string>("("))
 		return nullptr;
 
 	const auto expressionIdentifierPosition = parser.position();
 
-	if (parser.probeIdentifier("=", isIdentifier))
+	if (parser.testIdentifierAndSkip("="))
 	{
 		parser.seek(expressionIdentifierPosition);
-		const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);
+		const auto expressionIdentifier = parser.parseIdentifier();
 
 		parser.seek(position);
 		return expressions::Unsupported::parse(context);

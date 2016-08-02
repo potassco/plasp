@@ -29,7 +29,7 @@ class Effect
 		using Condition = AssignedVariable;
 		using Conditions = AssignedVariables;
 
-		static Effect fromSAS(utils::Parser &parser, const Variables &variables, Conditions &preconditions);
+		static Effect fromSAS(utils::Parser<> &parser, const Variables &variables, Conditions &preconditions);
 
 	public:
 		const Conditions &conditions() const;

@@ -29,7 +29,7 @@ namespace sas
 class Description
 {
 	public:
-		static Description fromParser(utils::Parser &&parser);
+		static Description fromParser(utils::Parser<> &&parser);
 		static Description fromStream(std::istream &istream);
 		static Description fromFile(const boost::filesystem::path &path);
 
@@ -48,16 +48,16 @@ class Description
 	private:
 		Description();
 
-		void parseContent(utils::Parser &parser);
+		void parseContent(utils::Parser<> &parser);
 
-		void parseVersionSection(utils::Parser &parser) const;
-		void parseMetricSection(utils::Parser &parser);
-		void parseVariablesSection(utils::Parser &parser);
-		void parseMutexSection(utils::Parser &parser);
-		void parseInitialStateSection(utils::Parser &parser);
-		void parseGoalSection(utils::Parser &parser);
-		void parseOperatorSection(utils::Parser &parser);
-		void parseAxiomSection(utils::Parser &parser);
+		void parseVersionSection(utils::Parser<> &parser) const;
+		void parseMetricSection(utils::Parser<> &parser);
+		void parseVariablesSection(utils::Parser<> &parser);
+		void parseMutexSection(utils::Parser<> &parser);
+		void parseInitialStateSection(utils::Parser<> &parser);
+		void parseGoalSection(utils::Parser<> &parser);
+		void parseOperatorSection(utils::Parser<> &parser);
+		void parseAxiomSection(utils::Parser<> &parser);
 
 		bool m_usesActionCosts;
 

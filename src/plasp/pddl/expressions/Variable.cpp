@@ -7,7 +7,6 @@
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Domain.h>
 #include <plasp/pddl/ExpressionContext.h>
-#include <plasp/pddl/Identifier.h>
 #include <plasp/pddl/expressions/Either.h>
 #include <plasp/pddl/expressions/PrimitiveType.h>
 #include <plasp/pddl/expressions/Type.h>
@@ -36,13 +35,15 @@ Variable::Variable()
 
 void Variable::parseDeclaration(Context &context, Variables &parameters)
 {
-	context.parser.skipWhiteSpace();
+	auto &parser = context.parser;
 
-	context.parser.expect<std::string>("?");
+	parser.skipWhiteSpace();
+
+	parser.expect<std::string>("?");
 
 	auto variable = std::make_unique<Variable>(Variable());
 
-	variable->m_name = context.parser.parseIdentifier(isIdentifier);
+	variable->m_name = parser.parseIdentifier();
 
 	// Check if variable of that name already exists in the current scope
 	const auto match = std::find_if(parameters.cbegin(), parameters.cend(),
@@ -52,7 +53,7 @@ void Variable::parseDeclaration(Context &context, Variables &parameters)
 		});
 
 	if (match != parameters.cend())
-		throw utils::ParserException(context.parser, "variable “" + variable->m_name + "” already declared in this scope");
+		throw utils::ParserException(parser.coordinate(), "variable “" + variable->m_name + "” already declared in this scope");
 
 	// Flag variable for potentially upcoming type declaration
 	variable->setDirty();
@@ -75,7 +76,7 @@ void Variable::parseTypedDeclaration(Context &context, ExpressionContext &expres
 	parser.skipWhiteSpace();
 
 	// Check if the variable has a type declaration
-	if (!parser.probe('-'))
+	if (!parser.testAndSkip<char>('-'))
 		return;
 
 	const auto setType =
@@ -132,18 +133,20 @@ void Variable::parseTypedDeclarations(Context &context, ExpressionContext &expre
 		expressionContext.checkRequirement(Requirement::Type::Typing);
 	// If no types are given, check that typing is not a requirement
 	else if (expressionContext.hasRequirement(Requirement::Type::Typing))
-		throw utils::ParserException(parser, "variable has undeclared type");
+		throw utils::ParserException(parser.coordinate(), "variable has undeclared type");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const Variable *Variable::parseAndFind(Context &context, const ExpressionContext &expressionContext)
 {
-	context.parser.skipWhiteSpace();
+	auto &parser = context.parser;
 
-	context.parser.expect<std::string>("?");
+	parser.skipWhiteSpace();
 
-	const auto variableName = context.parser.parseIdentifier(isIdentifier);
+	parser.expect<std::string>("?");
+
+	const auto variableName = parser.parseIdentifier();
 
 	const auto &variables = expressionContext.parameters;
 
@@ -154,7 +157,7 @@ const Variable *Variable::parseAndFind(Context &context, const ExpressionContext
 		});
 
 	if (match == variables.cend())
-		throw utils::ParserException(context.parser, "parameter “" + variableName + "” used but never declared");
+		throw utils::ParserException(parser.coordinate(), "parameter “" + variableName + "” used but never declared");
 
 	return match->get();
 }

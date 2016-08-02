@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include <plasp/utils/Parser.h>
+#include <plasp/pddl/Parser.h>
 
 namespace plasp
 {
@@ -16,7 +16,7 @@ namespace pddl
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline void skipSection(utils::Parser &parser)
+inline void skipSection(Parser &parser)
 {
 	size_t openParentheses = 1;
 

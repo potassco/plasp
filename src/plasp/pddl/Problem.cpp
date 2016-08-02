@@ -4,7 +4,6 @@
 
 #include <plasp/pddl/Domain.h>
 #include <plasp/pddl/ExpressionContext.h>
-#include <plasp/pddl/Identifier.h>
 #include <plasp/pddl/IO.h>
 #include <plasp/pddl/expressions/Constant.h>
 #include <plasp/utils/IO.h>
@@ -43,7 +42,7 @@ void Problem::findSections()
 	parser.expect<std::string>("(");
 	parser.expect<std::string>("problem");
 
-	m_name = parser.parseIdentifier(isIdentifier);
+	m_name = parser.parseIdentifier();
 
 	parser.expect<std::string>(")");
 
@@ -53,7 +52,7 @@ void Problem::findSections()
 		if (unique && sectionPosition != -1)
 		{
 			parser.seek(value);
-			throw utils::ParserException(parser, "only one “:" + sectionName + "” section allowed");
+			throw utils::ParserException(parser.coordinate(), "only one “:" + sectionName + "” section allowed");
 		}
 
 		sectionPosition = value;
@@ -71,34 +70,34 @@ void Problem::findSections()
 		const auto sectionIdentifierPosition = parser.position();
 
 		// TODO: check order of the sections
-		if (parser.probeIdentifier("domain", isIdentifier))
+		if (parser.testIdentifierAndSkip("domain"))
 			setSectionPosition("domain", m_domainPosition, position, true);
-		else if (parser.probeIdentifier("requirements", isIdentifier))
+		else if (parser.testIdentifierAndSkip("requirements"))
 			setSectionPosition("requirements", m_requirementsPosition, position, true);
-		else if (parser.probeIdentifier("objects", isIdentifier))
+		else if (parser.testIdentifierAndSkip("objects"))
 			setSectionPosition("objects", m_objectsPosition, position, true);
-		else if (parser.probeIdentifier("init", isIdentifier))
+		else if (parser.testIdentifierAndSkip("init"))
 			setSectionPosition("init", m_initialStatePosition, position, true);
-		else if (parser.probeIdentifier("goal", isIdentifier))
+		else if (parser.testIdentifierAndSkip("goal"))
 			setSectionPosition("goal", m_goalPosition, position, true);
-		else if (parser.probeIdentifier("constraints", isIdentifier)
-			|| parser.probeIdentifier("metric", isIdentifier)
-			|| parser.probeIdentifier("length", isIdentifier))
+		else if (parser.testIdentifierAndSkip("constraints")
+			|| parser.testIdentifierAndSkip("metric")
+			|| parser.testIdentifierAndSkip("length"))
 		{
 			parser.seek(sectionIdentifierPosition);
 
-			const auto sectionIdentifier = parser.parseIdentifier(isIdentifier);
+			const auto sectionIdentifier = parser.parseIdentifier();
 
-			m_context.logger.logWarning(parser, "section type “" + sectionIdentifier + "” currently unsupported");
+			m_context.logger.logWarning(parser.coordinate(), "section type “" + sectionIdentifier + "” currently unsupported");
 
 			parser.seek(sectionIdentifierPosition);
 		}
 		else
 		{
-			const auto sectionIdentifier = parser.parseIdentifier(isIdentifier);
+			const auto sectionIdentifier = parser.parseIdentifier();
 
 			parser.seek(position);
-			throw utils::ParserException(m_context.parser, "unknown problem section “" + sectionIdentifier + "”");
+			throw utils::ParserException(parser.coordinate(), "unknown problem section “" + sectionIdentifier + "”");
 		}
 
 		// Skip section for now and parse it later
@@ -201,10 +200,10 @@ void Problem::parseDomainSection()
 
 	parser.skipWhiteSpace();
 
-	const auto domainName = parser.parseIdentifier(isIdentifier);
+	const auto domainName = parser.parseIdentifier();
 
 	if (m_domain.name() != domainName)
-		throw utils::ParserException(parser, "domains do not match (“" + m_domain.name() + "” and “" + domainName + "”)");
+		throw utils::ParserException(parser.coordinate(), "domains do not match (“" + m_domain.name() + "” and “" + domainName + "”)");
 
 	parser.expect<std::string>(")");
 }

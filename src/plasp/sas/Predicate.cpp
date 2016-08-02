@@ -18,7 +18,7 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Predicate Predicate::fromSAS(utils::Parser &parser)
+Predicate Predicate::fromSAS(utils::Parser<> &parser)
 {
 	Predicate predicate;
 
@@ -31,11 +31,12 @@ Predicate Predicate::fromSAS(utils::Parser &parser)
 		while (true)
 		{
 			// Parse arguments until reaching newline
-			parser.skipWhiteSpace(
+			// TODO: reimplement
+			/*parser.skipWhiteSpace(
 				[&](const auto character)
 				{
 					return character != '\n' && std::isspace(character);
-				});
+				});*/
 
 			if (parser.currentCharacter() == '\n')
 				break;
@@ -46,7 +47,7 @@ Predicate Predicate::fromSAS(utils::Parser &parser)
 	}
 	catch (const std::exception &e)
 	{
-		throw utils::ParserException(parser, "could not parse operator predicate");
+		throw utils::ParserException(parser.coordinate(), "could not parse operator predicate");
 	}
 
 	return predicate;

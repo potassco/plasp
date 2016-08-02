@@ -4,10 +4,11 @@
 #include <plasp/pddl/Action.h>
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Expression.h>
+#include <plasp/pddl/Parser.h>
+#include <plasp/pddl/Requirement.h>
 #include <plasp/pddl/expressions/Constant.h>
 #include <plasp/pddl/expressions/PredicateDeclaration.h>
 #include <plasp/pddl/expressions/PrimitiveType.h>
-#include <plasp/pddl/Requirement.h>
 
 namespace plasp
 {
@@ -68,19 +69,19 @@ class Domain
 
 		std::string m_name;
 
-		utils::Parser::Position m_requirementsPosition;
+		utils::Stream::Position m_requirementsPosition;
 		Requirements m_requirements;
 
-		utils::Parser::Position m_typesPosition;
+		utils::Stream::Position m_typesPosition;
 		expressions::PrimitiveTypes m_types;
 
-		utils::Parser::Position m_constantsPosition;
+		utils::Stream::Position m_constantsPosition;
 		expressions::Constants m_constants;
 
-		utils::Parser::Position m_predicatesPosition;
+		utils::Stream::Position m_predicatesPosition;
 		expressions::PredicateDeclarations m_predicates;
 
-		std::vector<utils::Parser::Position> m_actionPositions;
+		std::vector<utils::Stream::Position> m_actionPositions;
 		std::vector<std::unique_ptr<Action>> m_actions;
 };
 

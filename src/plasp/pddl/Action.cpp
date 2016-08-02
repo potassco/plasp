@@ -5,10 +5,8 @@
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Domain.h>
 #include <plasp/pddl/ExpressionContext.h>
-#include <plasp/pddl/Identifier.h>
 #include <plasp/pddl/expressions/Type.h>
 #include <plasp/utils/IO.h>
-#include <plasp/utils/ParserException.h>
 
 namespace plasp
 {
@@ -23,31 +21,33 @@ namespace pddl
 
 void Action::parseDeclaration(Context &context, Domain &domain)
 {
+	auto &parser = context.parser;
+
 	auto action = std::make_unique<Action>(Action());
 
-	action->m_name = context.parser.parseIdentifier(isIdentifier);
+	action->m_name = parser.parseIdentifier();
 
-	context.parser.expect<std::string>(":parameters");
-	context.parser.expect<std::string>("(");
+	parser.expect<std::string>(":parameters");
+	parser.expect<std::string>("(");
 
 	ExpressionContext expressionContext(domain, action->m_parameters);
 
 	// Read parameters
 	expressions::Variable::parseTypedDeclarations(context, expressionContext);
 
-	context.parser.expect<std::string>(")");
+	parser.expect<std::string>(")");
 
 	// Parse preconditions and effects
-	while (context.parser.currentCharacter() != ')')
+	while (!parser.testAndReturn(')'))
 	{
-		context.parser.expect<std::string>(":");
+		parser.expect<std::string>(":");
 
-		if (context.parser.probeIdentifier("precondition", isIdentifier))
+		if (parser.testIdentifierAndSkip("precondition"))
 			action->m_precondition = parsePreconditionExpression(context, expressionContext);
-		else if (context.parser.probeIdentifier("effect", isIdentifier))
+		else if (parser.testIdentifierAndSkip("effect"))
 			action->m_effect = parseEffectExpression(context, expressionContext);
 
-		context.parser.skipWhiteSpace();
+		parser.skipWhiteSpace();
 	}
 
 	// Store new action

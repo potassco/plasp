@@ -4,7 +4,6 @@
 #include <plasp/pddl/ConsistencyException.h>
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Expression.h>
-#include <plasp/pddl/Identifier.h>
 #include <plasp/pddl/expressions/Variable.h>
 
 namespace plasp
@@ -50,8 +49,8 @@ std::unique_ptr<Derived> NAry<Derived>::parse(Context &context,
 
 	const auto position = parser.position();
 
-	if (!parser.probe<std::string>("(")
-		|| !parser.probeIdentifier(Derived::Identifier, isIdentifier))
+	if (!parser.testAndSkip<std::string>("(")
+		|| !parser.testIdentifierAndSkip(Derived::Identifier))
 	{
 		parser.seek(position);
 		return nullptr;
@@ -71,7 +70,7 @@ std::unique_ptr<Derived> NAry<Derived>::parse(Context &context,
 	}
 
 	if (expression->m_arguments.empty())
-		context.logger.logWarning(context.parser, "“" + Derived::Identifier + "” expressions should not be empty");
+		context.logger.logWarning(parser.coordinate(), "“" + Derived::Identifier + "” expressions should not be empty");
 
 	parser.expect<std::string>(")");
 

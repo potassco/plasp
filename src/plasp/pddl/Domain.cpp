@@ -3,7 +3,6 @@
 #include <algorithm>
 
 #include <plasp/pddl/ConsistencyException.h>
-#include <plasp/pddl/Identifier.h>
 #include <plasp/pddl/IO.h>
 #include <plasp/pddl/expressions/Constant.h>
 #include <plasp/pddl/expressions/PredicateDeclaration.h>
@@ -43,7 +42,7 @@ void Domain::findSections()
 	parser.expect<std::string>("(");
 	parser.expect<std::string>("domain");
 
-	m_name = m_context.parser.parseIdentifier(isIdentifier);
+	m_name = m_context.parser.parseIdentifier();
 
 	parser.expect<std::string>(")");
 
@@ -53,7 +52,7 @@ void Domain::findSections()
 			if (unique && sectionPosition != -1)
 			{
 				parser.seek(value);
-				throw utils::ParserException(parser, "only one “:" + sectionName + "” section allowed");
+				throw utils::ParserException(parser.coordinate(), "only one “:" + sectionName + "” section allowed");
 			}
 
 			sectionPosition = value;
@@ -72,38 +71,38 @@ void Domain::findSections()
 		const auto sectionIdentifierPosition = parser.position();
 
 		// Save the parser position of the individual sections for later parsing
-		if (parser.probeIdentifier("requirements", isIdentifier))
+		if (parser.testIdentifierAndSkip("requirements"))
 			setSectionPosition("requirements", m_requirementsPosition, position, true);
-		else if (parser.probeIdentifier("types", isIdentifier))
+		else if (parser.testIdentifierAndSkip("types"))
 			setSectionPosition("types", m_typesPosition, position, true);
-		else if (parser.probeIdentifier("constants", isIdentifier))
+		else if (parser.testIdentifierAndSkip("constants"))
 			setSectionPosition("constants", m_constantsPosition, position, true);
-		else if (parser.probeIdentifier("predicates", isIdentifier))
+		else if (parser.testIdentifierAndSkip("predicates"))
 			setSectionPosition("predicates", m_predicatesPosition, position, true);
-		else if (parser.probeIdentifier("action", isIdentifier))
+		else if (parser.testIdentifierAndSkip("action"))
 		{
 			m_actionPositions.emplace_back(-1);
 			setSectionPosition("action", m_actionPositions.back(), position);
 		}
-		else if (parser.probeIdentifier("functions", isIdentifier)
-			|| parser.probeIdentifier("constraints", isIdentifier)
-			|| parser.probeIdentifier("durative-action", isIdentifier)
-			|| parser.probeIdentifier("derived", isIdentifier))
+		else if (parser.testIdentifierAndSkip("functions")
+			|| parser.testIdentifierAndSkip("constraints")
+			|| parser.testIdentifierAndSkip("durative-action")
+			|| parser.testIdentifierAndSkip("derived"))
 		{
 			parser.seek(sectionIdentifierPosition);
 
-			const auto sectionIdentifier = parser.parseIdentifier(isIdentifier);
+			const auto sectionIdentifier = parser.parseIdentifier();
 
-			m_context.logger.logWarning(parser, "section type “" + sectionIdentifier + "” currently unsupported");
+			m_context.logger.logWarning(parser.coordinate(), "section type “" + sectionIdentifier + "” currently unsupported");
 
 			parser.seek(sectionIdentifierPosition);
 		}
 		else
 		{
-			const auto sectionIdentifier = parser.parseIdentifier(isIdentifier);
+			const auto sectionIdentifier = parser.parseIdentifier();
 
 			parser.seek(position);
-			throw utils::ParserException(m_context.parser, "unknown domain section “" + sectionIdentifier + "”");
+			throw utils::ParserException(parser.coordinate(), "unknown domain section “" + sectionIdentifier + "”");
 		}
 
 		// Skip section for now and parse it later
@@ -340,7 +339,7 @@ void Domain::parseTypeSection()
 	while (parser.currentCharacter() != ')')
 	{
 		if (parser.currentCharacter() == '(')
-			throw utils::ParserException(parser, "only primitive types are allowed in type section");
+			throw utils::ParserException(parser.coordinate(), "only primitive types are allowed in type section");
 
 		expressions::PrimitiveType::parseTypedDeclaration(m_context, *this);
 

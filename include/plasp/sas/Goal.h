@@ -21,7 +21,7 @@ class Goal
 		using Fact = AssignedVariable;
 		using Facts = AssignedVariables;
 
-		static Goal fromSAS(utils::Parser &parser, const Variables &variables);
+		static Goal fromSAS(utils::Parser<> &parser, const Variables &variables);
 
 	public:
 		const Facts &facts() const;

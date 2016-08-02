@@ -37,7 +37,7 @@ ConstantPointer Constant::parseDeclaration(Context &context)
 
 	auto constant = std::make_unique<Constant>(Constant());
 
-	constant->m_name = context.parser.parseIdentifier(isIdentifier);
+	constant->m_name = context.parser.parseIdentifier();
 
 	BOOST_ASSERT(constant->m_name != "-");
 
@@ -71,7 +71,7 @@ void Constant::parseTypedDeclaration(Context &context, Domain &domain, Constants
 	context.parser.skipWhiteSpace();
 
 	// Check for typing information
-	if (!context.parser.probe('-'))
+	if (!context.parser.testAndSkip<char>('-'))
 		return;
 
 	// If existing, parse and store parent type
@@ -113,7 +113,7 @@ void Constant::parseTypedDeclarations(Context &context, Domain &domain)
 		domain.checkRequirement(Requirement::Type::Typing);
 	// If no types are given, check that typing is not a requirement
 	else if (domain.hasRequirement(Requirement::Type::Typing))
-		throw utils::ParserException(parser, "constant has undeclared type");
+		throw utils::ParserException(parser.coordinate(), "constant has undeclared type");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -140,32 +140,36 @@ void Constant::parseTypedDeclarations(Context &context, Problem &problem)
 		problem.checkRequirement(Requirement::Type::Typing);
 	// If no types are given, check that typing is not a requirement
 	else if (problem.hasRequirement(Requirement::Type::Typing))
-		throw utils::ParserException(context.parser, "constant has undeclared type");
+		throw utils::ParserException(parser.coordinate(), "constant has undeclared type");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 Constant *Constant::parseAndFind(Context &context, const Domain &domain)
 {
-	context.parser.skipWhiteSpace();
+	auto &parser = context.parser;
 
-	const auto constantName = context.parser.parseIdentifier(isIdentifier);
+	parser.skipWhiteSpace();
+
+	const auto constantName = parser.parseIdentifier();
 
 	auto *constant = parseAndFind(constantName, domain.constants());
 
 	if (constant != nullptr)
 		return constant;
 
-	throw utils::ParserException(context.parser, "constant “" + constantName + "” used but never declared");
+	throw utils::ParserException(parser.coordinate(), "constant “" + constantName + "” used but never declared");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 Constant *Constant::parseAndFind(Context &context, const Problem &problem)
 {
-	context.parser.skipWhiteSpace();
+	auto &parser = context.parser;
 
-	const auto constantName = context.parser.parseIdentifier(isIdentifier);
+	parser.skipWhiteSpace();
+
+	const auto constantName = parser.parseIdentifier();
 
 	auto *constant = parseAndFind(constantName, problem.domain().constants());
 
@@ -177,7 +181,7 @@ Constant *Constant::parseAndFind(Context &context, const Problem &problem)
 	if (constant)
 		return constant;
 
-	throw utils::ParserException(context.parser, "constant “" + constantName + "” used but never declared");
+	throw utils::ParserException(parser.coordinate(), "constant “" + constantName + "” used but never declared");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

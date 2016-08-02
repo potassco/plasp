@@ -3,7 +3,6 @@
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Domain.h>
 #include <plasp/pddl/ExpressionContext.h>
-#include <plasp/pddl/Identifier.h>
 #include <plasp/pddl/Problem.h>
 #include <plasp/pddl/expressions/Constant.h>
 #include <plasp/pddl/expressions/Variable.h>
@@ -34,13 +33,13 @@ PredicatePointer Predicate::parse(Context &context, ExpressionContext &expressio
 
 	const auto position = parser.position();
 
-	if (!parser.probe<std::string>("("))
+	if (!parser.testAndSkip<std::string>("("))
 	{
 		parser.seek(position);
 		return nullptr;
 	}
 
-	const auto predicateName = parser.parseIdentifier(isIdentifier);
+	const auto predicateName = parser.parseIdentifier();
 	const auto &predicates = expressionContext.domain.predicates();
 
 	const auto matchingPredicate = std::find_if(predicates.cbegin(), predicates.cend(),
@@ -97,13 +96,13 @@ PredicatePointer Predicate::parse(Context &context, const Problem &problem)
 
 	const auto position = parser.position();
 
-	if (!parser.probe<std::string>("("))
+	if (!parser.testAndSkip<std::string>("("))
 	{
 		parser.seek(position);
 		return nullptr;
 	}
 
-	const auto predicateName = parser.parseIdentifier(isIdentifier);
+	const auto predicateName = parser.parseIdentifier();
 	const auto &predicates = problem.domain().predicates();
 
 	const auto matchingPredicate = std::find_if(predicates.cbegin(), predicates.cend(),
@@ -122,12 +121,12 @@ PredicatePointer Predicate::parse(Context &context, const Problem &problem)
 
 	predicate->m_name = predicateName;
 
-	context.parser.skipWhiteSpace();
+	parser.skipWhiteSpace();
 
-	while (context.parser.currentCharacter() != ')')
+	while (parser.currentCharacter() != ')')
 	{
-		if (context.parser.currentCharacter() == '?')
-			throw utils::ParserException(context.parser, "variables not allowed in this context");
+		if (parser.currentCharacter() == '?')
+			throw utils::ParserException(parser.coordinate(), "variables not allowed in this context");
 
 		// Parse objects and constants
 		const auto *constant = Constant::parseAndFind(context, problem);

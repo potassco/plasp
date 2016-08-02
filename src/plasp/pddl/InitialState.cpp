@@ -2,7 +2,6 @@
 
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/ExpressionContext.h>
-#include <plasp/pddl/Identifier.h>
 #include <plasp/pddl/IO.h>
 #include <plasp/pddl/Problem.h>
 #include <plasp/pddl/expressions/At.h>
@@ -46,20 +45,20 @@ std::unique_ptr<InitialState> InitialState::parseDeclaration(Context &context,
 
 			const auto expressionIdentifierPosition = parser.position();
 
-			if (parser.probeIdentifier("=", isIdentifier))
+			if (parser.testIdentifierAndSkip("="))
 			{
 				parser.seek(expressionIdentifierPosition);
-				const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);
+				const auto expressionIdentifier = parser.parseIdentifier();
 
 				parser.seek(position);
 				return expressions::Unsupported::parse(context);
 			}
 
 			parser.seek(expressionIdentifierPosition);
-			const auto expressionIdentifier = parser.parseIdentifier(isIdentifier);
+			const auto expressionIdentifier = parser.parseIdentifier();
 
 			parser.seek(position);
-			throw utils::ParserException(parser, "expression type “" + expressionIdentifier + "” unknown or not allowed in this context");
+			throw utils::ParserException(parser.coordinate(), "expression type “" + expressionIdentifier + "” unknown or not allowed in this context");
 		};
 
 	parser.skipWhiteSpace();

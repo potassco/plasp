@@ -104,9 +104,7 @@ int main(int argc, char **argv)
 
 	try
 	{
-		plasp::utils::Parser parser;
-
-		parser.setCaseSensitive(false);
+		plasp::utils::Parser<plasp::utils::CaseInsensitiveParserPolicy> parser;
 
 		if (variablesMap.count("input"))
 		{
@@ -115,11 +113,11 @@ int main(int argc, char **argv)
 			std::for_each(inputFiles.cbegin(), inputFiles.cend(),
 				[&](const auto &inputFile)
 				{
-					parser.readFile(inputFile);
+					parser.read(inputFile);
 				});
 		}
 		else
-			parser.readStream("std::cin", std::cin);
+			parser.read("std::cin", std::cin);
 
 		const auto detectLanguage =
 			[&]()

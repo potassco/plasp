@@ -17,7 +17,7 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Operator Operator::fromSAS(utils::Parser &parser, const Variables &variables)
+Operator Operator::fromSAS(utils::Parser<> &parser, const Variables &variables)
 {
 	Operator operator_;
 

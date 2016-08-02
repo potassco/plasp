@@ -55,7 +55,7 @@ Value Value::negated() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Value Value::fromSAS(utils::Parser &parser)
+Value Value::fromSAS(utils::Parser<> &parser)
 {
 	const auto sasSign = parser.parse<std::string>();
 
@@ -75,12 +75,12 @@ Value Value::fromSAS(utils::Parser &parser)
 	else if (sasSign == "NegatedAtom")
 		value.m_sign = Value::Sign::Negative;
 	else
-		throw utils::ParserException(parser, "invalid value sign “" + sasSign + "”");
+		throw utils::ParserException(parser.coordinate(), "invalid value sign “" + sasSign + "”");
 
 	try
 	{
 		parser.skipWhiteSpace();
-		value.m_name = parser.getLine();
+		value.m_name = parser.parseLine();
 
 		// Remove trailing ()
 		if (value.m_name.find("()") != std::string::npos)
@@ -91,7 +91,7 @@ Value Value::fromSAS(utils::Parser &parser)
 	}
 	catch (const std::exception &e)
 	{
-		throw utils::ParserException(parser, std::string("could not parse variable value (") + e.what() + ")");
+		throw utils::ParserException(parser.coordinate(), std::string("could not parse variable value (") + e.what() + ")");
 	}
 
 	return value;
@@ -99,7 +99,7 @@ Value Value::fromSAS(utils::Parser &parser)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const Value &Value::referenceFromSAS(utils::Parser &parser, const Variable &variable)
+const Value &Value::referenceFromSAS(utils::Parser<> &parser, const Variable &variable)
 {
 	const auto valueID = parser.parse<int>();
 
@@ -107,7 +107,7 @@ const Value &Value::referenceFromSAS(utils::Parser &parser, const Variable &vari
 		return Value::Any;
 
 	if (valueID < 0 || static_cast<size_t>(valueID) >= variable.values().size())
-		throw utils::ParserException(parser, "value index out of range (variable " + variable.name() + ", index " + std::to_string(valueID) + ")");
+		throw utils::ParserException(parser.coordinate(), "value index out of range (variable " + variable.name() + ", index " + std::to_string(valueID) + ")");
 
 	return variable.values()[valueID];
 }

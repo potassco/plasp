@@ -4,8 +4,8 @@
 #include <string>
 
 #include <plasp/utils/LogStream.h>
-#include <plasp/utils/Parser.h>
 #include <plasp/utils/ParserException.h>
+#include <plasp/utils/StreamCoordinate.h>
 
 namespace plasp
 {
@@ -44,8 +44,8 @@ class Logger
 		void setColorPolicy(LogStream::ColorPolicy colorPolicy);
 
 		void logError(const std::string &message);
-		void logError(const Parser::Coordinate &coordinate, const std::string &message);
-		void logWarning(const Parser &parser, const std::string &message);
+		void logError(const StreamCoordinate &coordinate, const std::string &message);
+		void logWarning(const StreamCoordinate &parserCoordinate, const std::string &message);
 
 	private:
 		LogStream m_outputStream;

@@ -105,7 +105,7 @@ void Logger::logError(const std::string &message)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Logger::logError(const Parser::Coordinate &coordinate, const std::string &message)
+void Logger::logError(const StreamCoordinate &coordinate, const std::string &message)
 {
 	m_errorStream
 		<< Format(Color::White, FontWeight::Bold) << coordinate.sectionName << ":"
@@ -119,15 +119,13 @@ void Logger::logError(const Parser::Coordinate &coordinate, const std::string &m
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Logger::logWarning(const Parser &parser, const std::string &message)
+void Logger::logWarning(const StreamCoordinate &coordinate, const std::string &message)
 {
 	if (m_warningLevel == WarningLevel::Ignore)
 		return;
 
 	if (m_warningLevel == WarningLevel::Error)
-		throw ParserException(parser, message);
-
-	const auto coordinate = parser.coordinate();
+		throw ParserException(coordinate, message);
 
 	m_errorStream
 		<< Format(Color::White, FontWeight::Bold) << coordinate.sectionName << ":"

@@ -4,7 +4,7 @@
 #include <exception>
 #include <string>
 
-#include <plasp/utils/Parser.h>
+#include <plasp/utils/StreamCoordinate.h>
 
 namespace plasp
 {
@@ -20,18 +20,18 @@ namespace utils
 class ParserException: public std::exception
 {
 	public:
-		explicit ParserException(const utils::Parser &parser)
-		:	ParserException(parser, "unspecified parser error")
+		explicit ParserException(const StreamCoordinate &coordinate)
+		:	ParserException(coordinate, "unspecified parser error")
 		{
 		}
 
-		explicit ParserException(const utils::Parser &parser, const char *message)
-		:	ParserException(parser, static_cast<std::string>(message))
+		explicit ParserException(const StreamCoordinate &coordinate, const char *message)
+		:	ParserException(coordinate, static_cast<std::string>(message))
 		{
 		}
 
-		explicit ParserException(const utils::Parser &parser, const std::string &message)
-		:	m_coordinate{parser.coordinate()},
+		explicit ParserException(const StreamCoordinate &coordinate, const std::string &message)
+		:	m_coordinate{coordinate},
 			m_message{message},
 			m_plainMessage{m_coordinate.sectionName + ":" + std::to_string(m_coordinate.row)
 				+ ":" + std::to_string(m_coordinate.column) + " " + m_message}
@@ -47,7 +47,7 @@ class ParserException: public std::exception
 			return m_plainMessage.c_str();
 		}
 
-		const Parser::Coordinate &coordinate() const
+		const StreamCoordinate &coordinate() const
 		{
 			return m_coordinate;
 		}
@@ -58,7 +58,7 @@ class ParserException: public std::exception
 		}
 
 	private:
-		Parser::Coordinate m_coordinate;
+		StreamCoordinate m_coordinate;
 		std::string m_message;
 		std::string m_plainMessage;
 };

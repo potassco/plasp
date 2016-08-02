@@ -22,7 +22,7 @@ namespace sas
 class Predicate
 {
 	public:
-		static Predicate fromSAS(utils::Parser &parser);
+		static Predicate fromSAS(utils::Parser<> &parser);
 
 		using Arguments = std::vector<std::string>;
 

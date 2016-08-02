@@ -44,7 +44,7 @@ Description Description::fromStream(std::istream &istream)
 {
 	Description description;
 
-	description.m_context.parser.readStream("std::cin", istream);
+	description.m_context.parser.read("std::cin", istream);
 	description.parse();
 
 	return description;
@@ -56,7 +56,7 @@ Description Description::fromFile(const std::string &path)
 {
 	Description description;
 
-	description.m_context.parser.readFile(path);
+	description.m_context.parser.read(path);
 	description.parse();
 
 	return description;
@@ -73,7 +73,7 @@ Description Description::fromFiles(const std::vector<std::string> &paths)
 	std::for_each(paths.cbegin(), paths.cend(),
 		[&](const auto &path)
 		{
-			description.m_context.parser.readFile(path);
+			description.m_context.parser.read(path);
 		});
 
 	description.parse();
@@ -126,7 +126,6 @@ void Description::parse()
 {
 	auto &parser = m_context.parser;
 
-	parser.setCaseSensitive(false);
 	parser.removeComments(";", "\n", false);
 
 	// First, determine the locations of domain and problem
@@ -155,7 +154,7 @@ void Description::findSections()
 
 	parser.skipWhiteSpace();
 
-	while (!parser.atEndOfStream())
+	while (!parser.atEnd())
 	{
 		const auto position = parser.position();
 
@@ -163,20 +162,20 @@ void Description::findSections()
 		parser.expect<std::string>("define");
 		parser.expect<std::string>("(");
 
-		if (parser.probe<std::string>("domain"))
+		if (parser.testAndSkip<std::string>("domain"))
 		{
 			if (m_domainPosition != -1)
-				throw utils::ParserException(parser, "PDDL description may not contain two domains");
+				throw utils::ParserException(parser.coordinate(), "PDDL description may not contain two domains");
 
 			m_domainPosition = position;
 
 			parser.seek(position);
 			m_domain->findSections();
 		}
-		else if (m_context.parser.probe<std::string>("problem"))
+		else if (m_context.parser.testAndSkip<std::string>("problem"))
 		{
 			if (m_problemPosition != -1)
-				throw utils::ParserException(parser, "PDDL description may currently not contain two problems");
+				throw utils::ParserException(parser.coordinate(), "PDDL description may currently not contain two problems");
 
 			m_problem = std::make_unique<Problem>(Problem(m_context, *m_domain));
 
@@ -188,7 +187,7 @@ void Description::findSections()
 		else
 		{
 			const auto sectionIdentifier = parser.parse<std::string>();
-			throw utils::ParserException(parser, "unknown PDDL section “" + sectionIdentifier + "”");
+			throw utils::ParserException(parser.coordinate(), "unknown PDDL section “" + sectionIdentifier + "”");
 		}
 
 		m_context.parser.skipWhiteSpace();

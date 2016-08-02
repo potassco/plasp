@@ -29,7 +29,7 @@ class AxiomRule
 		using Condition = AssignedVariable;
 		using Conditions = AssignedVariables;
 
-		static AxiomRule fromSAS(utils::Parser &parser, const Variables &variables);
+		static AxiomRule fromSAS(utils::Parser<> &parser, const Variables &variables);
 
 	public:
 		const Conditions &conditions() const;

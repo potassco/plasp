@@ -1,6 +1,5 @@
 #include <plasp/pddl/expressions/Unsupported.h>
 
-#include <plasp/pddl/Identifier.h>
 #include <plasp/pddl/IO.h>
 
 namespace plasp
@@ -24,9 +23,9 @@ UnsupportedPointer Unsupported::parse(Context &context)
 
 	parser.expect<std::string>("(");
 
-	expression->m_type = parser.parseIdentifier(isIdentifier);
+	expression->m_type = parser.parseIdentifier();
 
-	context.logger.logWarning(context.parser, "expression type “" + expression->m_type + "” currently unsupported in this context");
+	context.logger.logWarning(parser.coordinate(), "expression type “" + expression->m_type + "” currently unsupported in this context");
 
 	skipSection(parser);
 

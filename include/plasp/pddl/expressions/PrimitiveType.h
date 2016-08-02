@@ -3,7 +3,6 @@
 
 #include <plasp/pddl/ConsistencyException.h>
 #include <plasp/pddl/Expression.h>
-#include <plasp/pddl/Identifier.h>
 #include <plasp/utils/ParserException.h>
 
 namespace plasp
