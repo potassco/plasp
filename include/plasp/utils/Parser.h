@@ -10,7 +10,6 @@
 
 #include <plasp/utils/ParserException.h>
 #include <plasp/utils/ParserPolicy.h>
-#include <plasp/utils/ParserTraits.h>
 #include <plasp/utils/Stream.h>
 #include <plasp/utils/StreamCoordinate.h>
 
