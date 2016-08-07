@@ -6,13 +6,10 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(UtilsTests, ParseSimple)
+TEST(UtilsTests, Parse)
 {
-	std::stringstream s("identifier  5   \n-51\t 0 1 expected unexpected");
+	std::stringstream s("  identifier  5   \n-51\t 0 1 100 200 -300 -400");
 	plasp::utils::Parser<> p("input", s);
-
-	// TODO: reimplement
-	//ASSERT_TRUE(p.isCaseSensitive());
 
 	ASSERT_EQ(p.parse<std::string>(), "identifier");
 	ASSERT_EQ(p.parse<size_t>(), 5u);
@@ -20,24 +17,53 @@ TEST(UtilsTests, ParseSimple)
 	ASSERT_EQ(p.parse<bool>(), false);
 	ASSERT_EQ(p.parse<bool>(), true);
 
-	ASSERT_NO_THROW(p.expect<std::string>("expected"));
-	ASSERT_THROW(p.expect<std::string>("expected"), plasp::utils::ParserException);
-
-	// TODO: test case-insensitive input
-	// TODO: test probing
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-TEST(UtilsTests, ParseUnsignedNumbers)
-{
-	std::stringstream s("100 200 -300 -400");
-	plasp::utils::Parser<> p("input", s);
-
 	ASSERT_EQ(p.parse<int>(), 100);
 	ASSERT_EQ(p.parse<size_t>(), 200u);
 	ASSERT_EQ(p.parse<int>(), -300);
 	ASSERT_THROW(p.parse<size_t>(), plasp::utils::ParserException);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TEST(UtilsTests, ParserExpect)
+{
+	std::stringstream s("  identifier  5   \n-51\t 0 1 100 200 -300 -400");
+	plasp::utils::Parser<> p("input", s);
+
+	ASSERT_NO_THROW(p.expect<std::string>("identifier"));
+	ASSERT_NO_THROW(p.expect<size_t>(5u));
+	ASSERT_NO_THROW(p.expect<int>(-51));
+	ASSERT_NO_THROW(p.expect<bool>(false));
+	ASSERT_NO_THROW(p.expect<bool>(true));
+
+	ASSERT_NO_THROW(p.expect<int>(100));
+	ASSERT_NO_THROW(p.expect<size_t>(200u));
+	ASSERT_NO_THROW(p.expect<int>(-300));
+	ASSERT_THROW(p.expect<size_t>(-400), plasp::utils::ParserException);
+
+	p.seek(0);
+	ASSERT_THROW(p.expect<std::string>("error"), plasp::utils::ParserException);
+
+	p.seek(14);
+	ASSERT_THROW(p.expect<size_t>(6u), plasp::utils::ParserException);
+
+	p.seek(17);
+	ASSERT_THROW(p.expect<int>(-50), plasp::utils::ParserException);
+
+	p.seek(24);
+	ASSERT_THROW(p.expect<bool>(true), plasp::utils::ParserException);
+
+	p.seek(26);
+	ASSERT_THROW(p.expect<bool>(false), plasp::utils::ParserException);
+
+	p.seek(28);
+	ASSERT_THROW(p.expect<int>(101), plasp::utils::ParserException);
+
+	p.seek(31);
+	ASSERT_THROW(p.expect<size_t>(201), plasp::utils::ParserException);
+
+	p.seek(34);
+	ASSERT_THROW(p.expect<int>(-299), plasp::utils::ParserException);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
