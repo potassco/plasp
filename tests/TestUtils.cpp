@@ -6,7 +6,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(UtilsTests, Parse)
+TEST(UtilsTests, ParserParse)
 {
 	std::stringstream s("  identifier  5   \n-51\t 0 1 100 200 -300 -400");
 	plasp::utils::Parser<> p("input", s);
@@ -64,6 +64,66 @@ TEST(UtilsTests, ParserExpect)
 
 	p.seek(34);
 	ASSERT_THROW(p.expect<int>(-299), plasp::utils::ParserException);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TEST(UtilsTests, ParserTest)
+{
+	std::stringstream s("  identifier  5   \n-51\t 0 1");
+	plasp::utils::Parser<> p("input", s);
+
+	plasp::utils::Parser<>::Position pos;
+
+	pos = p.position();
+	ASSERT_EQ(p.testAndReturn<std::string>("error"), false);
+	ASSERT_EQ(p.position(), pos);
+	ASSERT_EQ(p.testAndReturn<std::string>("identifier"), true);
+	ASSERT_EQ(p.position(), pos);
+	ASSERT_EQ(p.testAndSkip<std::string>("error"), false);
+	ASSERT_EQ(p.position(), pos);
+	ASSERT_EQ(p.testAndSkip<std::string>("identifier"), true);
+	ASSERT_EQ(p.position(), 12);
+
+	pos = p.position();
+	ASSERT_EQ(p.testAndReturn<size_t>(6u), false);
+	ASSERT_EQ(p.position(), pos);
+	ASSERT_EQ(p.testAndReturn<size_t>(5u), true);
+	ASSERT_EQ(p.position(), pos);
+	ASSERT_EQ(p.testAndSkip<size_t>(6u), false);
+	ASSERT_EQ(p.position(), pos);
+	ASSERT_EQ(p.testAndSkip<size_t>(5u), true);
+	ASSERT_EQ(p.position(), 15);
+
+	pos = p.position();
+	ASSERT_EQ(p.testAndReturn<int>(-50), false);
+	ASSERT_EQ(p.position(), pos);
+	ASSERT_EQ(p.testAndReturn<int>(-51), true);
+	ASSERT_EQ(p.position(), pos);
+	ASSERT_EQ(p.testAndSkip<int>(-50), false);
+	ASSERT_EQ(p.position(), pos);
+	ASSERT_EQ(p.testAndSkip<int>(-51), true);
+	ASSERT_EQ(p.position(), 22);
+
+	pos = p.position();
+	ASSERT_EQ(p.testAndReturn<bool>(true), false);
+	ASSERT_EQ(p.position(), pos);
+	ASSERT_EQ(p.testAndReturn<bool>(false), true);
+	ASSERT_EQ(p.position(), pos);
+	ASSERT_EQ(p.testAndSkip<bool>(true), false);
+	ASSERT_EQ(p.position(), pos);
+	ASSERT_EQ(p.testAndSkip<bool>(false), true);
+	ASSERT_EQ(p.position(), 25);
+
+	pos = p.position();
+	ASSERT_EQ(p.testAndReturn<bool>(false), false);
+	ASSERT_EQ(p.position(), pos);
+	ASSERT_EQ(p.testAndReturn<bool>(true), true);
+	ASSERT_EQ(p.position(), pos);
+	ASSERT_EQ(p.testAndSkip<bool>(false), false);
+	ASSERT_EQ(p.position(), pos);
+	ASSERT_EQ(p.testAndSkip<bool>(true), true);
+	ASSERT_EQ(p.position(), 27);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
