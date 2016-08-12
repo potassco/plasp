@@ -55,7 +55,7 @@ Variable Variable::fromSAS(utils::Parser<> &parser)
 
 void Variable::printNameAsASPPredicate(utils::LogStream &outputStream) const
 {
-	outputStream << utils::Keyword("variable") << "(" << utils::escapeASP(m_name) << ")";
+	outputStream << utils::Keyword("variable") << "(" << utils::Number(utils::escapeASP(m_name)) << ")";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
