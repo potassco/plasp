@@ -8,33 +8,33 @@
 #program base.
 
 % Establish initial state
-holds(Var, Val, 0) :- initialState(Var, Val).
+holds(Variable, Value, 0) :- initialState(Variable, Value).
 
 #program step(t).
 
 % Perform actions
-1 {occurs(action(A), t) : action(A)} 1.
+1 {occurs(Action, t) : action(Action)} 1.
 
 % Check preconditions
-:- occurs(A, t), precondition(A, Var, Val), not holds(Var, Val, t - 1).
+:- occurs(Action, t), precondition(Action, Variable, Value), not holds(Variable, Value, t - 1).
 
 % Apply effects
-caused(Var, Val, t) :- occurs(A, t), postcondition(A, _, Var, Val).
-modified(Var, t) :- caused(Var, Val, t).
+caused(Variable, Value, t) :- occurs(Action, t), postcondition(Action, _, Variable, Value).
+modified(Variable, t) :- caused(Variable, Value, t).
 
-holds(Var, Val, t) :- caused(Var, Val, t).
-holds(Var, Val, t) :- holds(Var, Val, t - 1), not modified(Var, t).
+holds(Variable, Value, t) :- caused(Variable, Value, t).
+holds(Variable, Value, t) :- holds(Variable, Value, t - 1), not modified(Variable, t).
 
 % Check that variables have unique values
-:- variable(X), Var = variable(X), not 1 {holds(Var, Val, t) : contains(Var, Val)} 1.
+:- variable(Variable), not 1 {holds(Variable, Value, t) : contains(Variable, Value)} 1.
 
 % Check mutexes
-:- mutexGroup(X), M = mutexGroup(X), not {holds(Var, Val, t) : contains(M, Var, Val)} 1.
+:- mutexGroup(MutexGroup), not {holds(Variable, Value, t) : contains(MutexGroup, Variable, Value)} 1.
 
 #program check(t).
 
 % Verify that goal is met
-:- query(t), goal(Var, Val), not holds(Var, Val, t).
+:- query(t), goal(Variable, Value), not holds(Variable, Value, t).
 
 #show query/1.
 #show occurs/2.
