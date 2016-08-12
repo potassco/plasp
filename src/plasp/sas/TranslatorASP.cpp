@@ -251,7 +251,12 @@ void TranslatorASP::translateAxiomRules() const
 			const auto axiomRuleID = std::to_string(currentAxiomRuleID);
 			currentAxiomRuleID++;
 
-			m_outputStream << std::endl << utils::Keyword("axiomRule") << "(" << utils::Number(axiomRuleID) << ")." << std::endl;
+			m_outputStream
+				<< std::endl
+				<< utils::Keyword("axiomRule") << "("
+				<< utils::Keyword("axiomRule") << "("
+				<< utils::Number(axiomRuleID)
+				<< "))." << std::endl;
 
 			const auto &conditions = axiomRule.conditions();
 
