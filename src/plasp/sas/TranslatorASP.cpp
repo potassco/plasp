@@ -210,7 +210,12 @@ void TranslatorASP::translateMutexes() const
 			const auto mutexGroupID = std::to_string(currentMutexGroupID);
 			currentMutexGroupID++;
 
-			m_outputStream << std::endl << utils::Keyword("mutexGroup") << "(" << utils::Number(mutexGroupID) << ")." << std::endl;
+			m_outputStream
+				<< std::endl
+				<< utils::Keyword("mutexGroup") << "("
+				<< utils::Keyword("mutexGroup") << "("
+				<< utils::Number(mutexGroupID)
+				<< "))." << std::endl;
 
 			const auto &facts = mutexGroup.facts();
 
