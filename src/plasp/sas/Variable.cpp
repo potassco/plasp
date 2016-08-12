@@ -29,6 +29,7 @@ Variable Variable::fromSAS(utils::Parser<> &parser)
 	Variable variable;
 
 	parser.expect<std::string>("begin_variable");
+	parser.expect<std::string>("var");
 
 	variable.m_name = parser.parse<std::string>();
 	variable.m_axiomLayer = parser.parse<int>();

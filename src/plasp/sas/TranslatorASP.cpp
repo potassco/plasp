@@ -107,9 +107,9 @@ void TranslatorASP::translateVariables() const
 
 			BOOST_ASSERT(!values.empty());
 
-			m_outputStream << std::endl;
+			m_outputStream << std::endl << utils::Keyword("variable") << "(";
 			variable.printNameAsASPPredicate(m_outputStream);
-			m_outputStream << "." << std::endl;
+			m_outputStream << ")." << std::endl;
 
 			std::for_each(values.cbegin(), values.cend(),
 				[&](const auto &value)
