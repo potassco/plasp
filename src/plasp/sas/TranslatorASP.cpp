@@ -136,9 +136,9 @@ void TranslatorASP::translateActions() const
 	std::for_each(operators.cbegin(), operators.cend(),
 		[&](const auto &operator_)
 		{
-			m_outputStream << std::endl;
+			m_outputStream << std::endl << utils::Keyword("action") << "(";
 			operator_.printPredicateAsASP(m_outputStream);
-			m_outputStream << "." << std::endl;
+			m_outputStream << ")." << std::endl;
 
 			const auto &preconditions = operator_.preconditions();
 
