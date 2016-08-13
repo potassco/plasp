@@ -35,8 +35,13 @@ void TranslatorASP::translate() const
 	translateActions();
 	m_outputStream << std::endl;
 	translateMutexes();
-	m_outputStream << std::endl;
-	translateAxiomRules();
+
+	if (m_description.usesAxiomRules())
+	{
+		m_outputStream << std::endl;
+		translateAxiomRules();
+	}
+
 	m_outputStream << std::endl;
 	translateInitialState();
 	m_outputStream << std::endl;
@@ -236,9 +241,6 @@ void TranslatorASP::translateMutexes() const
 
 void TranslatorASP::translateAxiomRules() const
 {
-	if (!m_description.usesAxiomRules())
-		return;
-
 	m_outputStream << utils::Heading2("axiom rules");
 
 	const auto &axiomRules = m_description.axiomRules();
