@@ -8,7 +8,7 @@ Features:
 
 Bug Fixes:
 
-* fixes minor formatting issue with axiom rules
+* fixes minor formatting issues in SAS translation
 
 ## 3.0.1 (2016-06-14)
 
