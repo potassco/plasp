@@ -48,7 +48,7 @@ When translating SAS or PDDL problems, `plasp` structures the translated ASP fac
 
 ## Feature Requirements
 
-Declares advanced features required by the input planning problem, such as conditional effects and axiom rules.
+This section declares advanced features required by the input planning problem, such as conditional effects and axiom rules.
 
 Feature requirements may be used in meta encodings to warn about unsupported features.
 
@@ -77,9 +77,9 @@ requiresFeature(actionCosts).
 requiresFeature(conditionalEffects).
 ```
 
-## Types (PDDL Only)
+## Types
 
-Specifies all object types used by the PDDL problem (only if typing is enabled).
+This section specifies all object types used by the problem (only with PDDL and if typing is enabled).
 
 ### Syntax
 
@@ -97,21 +97,25 @@ The following declares the type `type(block)` for later usage by the problem:
 type(type(block)).
 ```
 
-[Constants](#constants) may have associated types (here, `constant(a)`):
+## Constants/Objects
+
+These two sections specify domain-specific (global) constants and problem-specific (local) objects (such as the blocks in a Blocks World puzzle).
+
+Constants and objects are not distinguished by `plasp`.
+
+### Syntax
+
+syntax | description
+-------|------------
+`constant(constant(<constant name>)).` | declares the constant or object `constant(<constant name>)`
+`has(constant(<constant name>), type(<type name>)).` | declares constant or object `constant(<constant name>)` to be of type `type(<type name>)`
+
+### Example
+
+The following declares a constant `constant(a)` of [type](#types) `type(block)`:
 
 ```prolog
+% objects
 constant(constant(a)).
 has(constant(a), type(block)).
-```
-
-If there is typing information, [variables](#variables) are derived only for the allowed types (here, `variable(clear(X))` with `type(block)`):
-
-```prolog
-variable(variable(clear(X))) :- has(X, type(block)).
-```
-
-Similarly, [actions](#actions) are derived in a type-safe way (here, `action(stack(X, Y))` is only applicable to arguments of `type(block)`):
-
-```prolog
-action(action(stack(X, Y))) :- has(X, type(block)), has(Y, type(block)).
 ```
