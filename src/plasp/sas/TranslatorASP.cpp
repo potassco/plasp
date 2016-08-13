@@ -239,7 +239,6 @@ void TranslatorASP::translateAxiomRules() const
 	if (!m_description.usesAxiomRules())
 		return;
 
-	m_outputStream << std::endl;
 	m_outputStream << utils::Heading2("axiom rules");
 
 	const auto &axiomRules = m_description.axiomRules();
