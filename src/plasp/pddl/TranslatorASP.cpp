@@ -297,8 +297,11 @@ void TranslatorASP::translateConstants(const std::string &heading, const express
 		{
 			const auto constantName = utils::escapeASP(constant->name());
 
-			m_outputStream << std::endl << utils::Keyword("constant")
-				<< "(" << constantName << ")." << std::endl;
+			m_outputStream << std::endl
+				<< utils::Keyword("constant") << "("
+				<< utils::Keyword("constant") << "("
+				<< constantName
+				<< "))." << std::endl;
 
 			const auto *type = constant->type();
 
