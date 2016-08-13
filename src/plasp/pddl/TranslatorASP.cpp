@@ -224,7 +224,9 @@ void TranslatorASP::translateActions() const
 			m_outputStream << std::endl;
 
 			// Name
+			m_outputStream << utils::Keyword("action") << "(";
 			printActionName(*action);
+			m_outputStream << ")";
 
 			this->translateVariablesBody(action->parameters());
 
