@@ -202,6 +202,7 @@ void TranslatorASP::translateActions() const
 	std::for_each(actions.cbegin(), actions.cend(),
 		[&](const auto &action)
 		{
+			// TODO: rename
 			const auto translateLiteral =
 				[&](const auto &ruleHead, const auto &literal)
 				{
@@ -381,8 +382,13 @@ void TranslatorASP::translateLiteral(const Expression &literal) const
 	// Translate single predicate
 	if (literal.expressionType() == Expression::Type::Predicate)
 	{
-		this->translatePredicate(dynamic_cast<const expressions::Predicate &>(literal));
-		m_outputStream << ", " << utils::Keyword("true");
+		const auto &predicate = dynamic_cast<const expressions::Predicate &>(literal);
+
+		m_outputStream << utils::Keyword("variable") << "(";
+		this->translatePredicate(predicate);
+		m_outputStream << "), " << utils::Keyword("value") << "(";
+		this->translatePredicate(predicate);
+		m_outputStream << ", " << utils::Keyword("true") << ")";
 	}
 	// Assuming that "not" expression may only contain a predicate
 	else if (literal.expressionType() == Expression::Type::Not)
@@ -390,8 +396,11 @@ void TranslatorASP::translateLiteral(const Expression &literal) const
 		const auto &notExpression = dynamic_cast<const expressions::Not &>(literal);
 		const auto &predicate = dynamic_cast<const expressions::Predicate &>(*notExpression.argument());
 
+		m_outputStream << utils::Keyword("variable") << "(";
 		this->translatePredicate(predicate);
-		m_outputStream << ", " << utils::Keyword("false");
+		m_outputStream << "), " << utils::Keyword("value") << "(";
+		this->translatePredicate(predicate);
+		m_outputStream << ", " << utils::Keyword("false") << ")";
 	}
 	else
 		throw utils::TranslatorException("only primitive predicates and their negations supported as literals currently");
@@ -401,13 +410,12 @@ void TranslatorASP::translateLiteral(const Expression &literal) const
 
 void TranslatorASP::translatePredicate(const expressions::Predicate &predicate) const
 {
-	m_outputStream << utils::Keyword("predicate") << "(" << utils::escapeASP(predicate.name());
+	m_outputStream << utils::escapeASP(predicate.name());
 
 	const auto &arguments = predicate.arguments();
 
 	if (arguments.empty())
 	{
-		m_outputStream << ")";
 		return;
 	}
 
@@ -434,7 +442,7 @@ void TranslatorASP::translatePredicate(const expressions::Predicate &predicate) 
 			throw utils::TranslatorException("only variables and constants supported in predicates currently");
 	}
 
-	m_outputStream << "))";
+	m_outputStream << ")";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
