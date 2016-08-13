@@ -497,7 +497,15 @@ void TranslatorASP::translateInitialState() const
 
 			// Translate single predicate
 			if (fact->expressionType() == Expression::Type::Predicate)
-				this->translatePredicate(dynamic_cast<const expressions::Predicate &>(*fact));
+			{
+				const auto &predicate = dynamic_cast<const expressions::Predicate &>(*fact);
+
+				m_outputStream << utils::Keyword("variable") << "(";
+				this->translatePredicate(predicate);
+				m_outputStream << "), " << utils::Keyword("value") << "(";
+				this->translatePredicate(predicate);
+				m_outputStream << ", " << utils::Keyword("true") << ")";
+			}
 			// Assuming that "not" expression may only contain a predicate
 			else if (fact->expressionType() == Expression::Type::Not)
 			{
