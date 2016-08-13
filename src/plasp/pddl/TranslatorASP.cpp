@@ -85,7 +85,10 @@ void TranslatorASP::translateTypes() const
 
 	if (types.empty())
 	{
-		m_outputStream << utils::Keyword("type") << "(object)." << std::endl;
+		m_outputStream
+			<< utils::Keyword("type") << "("
+			<< utils::Keyword("type") << "(object))." << std::endl;
+
 		return;
 	}
 
@@ -94,7 +97,10 @@ void TranslatorASP::translateTypes() const
 		{
 			const auto typeName = utils::escapeASP(type->name());
 
-			m_outputStream << utils::Keyword("type") << "(" << typeName << ")." << std::endl;
+			m_outputStream
+				<< utils::Keyword("type") << "("
+				<< utils::Keyword("type") << "("
+				<< typeName << "))." << std::endl;
 
 			const auto &parentTypes = type->parentTypes();
 
