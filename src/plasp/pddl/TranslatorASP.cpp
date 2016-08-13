@@ -204,11 +204,15 @@ void TranslatorASP::translateActions() const
 		{
 			// TODO: rename
 			const auto translateLiteral =
-				[&](const auto &ruleHead, const auto &literal)
+				[&](const auto &ruleHead, const auto &literal, bool enumerateEffects = false)
 				{
 					m_outputStream << std::endl << utils::Keyword(ruleHead) << "(";
 
 					printActionName(*action);
+
+					// TODO: remove quirk
+					if (enumerateEffects)
+						m_outputStream << ", " << utils::Keyword("effect") << "(" << utils::Number("0") << ")";
 
 					m_outputStream << ", ";
 
@@ -266,7 +270,7 @@ void TranslatorASP::translateActions() const
 				if (effect.expressionType() == Expression::Type::Predicate
 					|| effect.expressionType() == Expression::Type::Not)
 				{
-					translateLiteral("postcondition", effect);
+					translateLiteral("postcondition", effect, true);
 				}
 				// Assuming a conjunction
 				else
@@ -279,7 +283,7 @@ void TranslatorASP::translateActions() const
 					std::for_each(andExpression.arguments().cbegin(), andExpression.arguments().cend(),
 						[&](const auto *argument)
 						{
-							translateLiteral("postcondition", *argument);
+							translateLiteral("postcondition", *argument, true);
 						});
 				}
 			}
