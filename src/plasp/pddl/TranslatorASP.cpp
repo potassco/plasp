@@ -126,7 +126,7 @@ void TranslatorASP::translateTypes() const
 
 void TranslatorASP::translatePredicates() const
 {
-	m_outputStream << utils::Heading2("predicates");
+	m_outputStream << utils::Heading2("variables");
 
 	const auto &predicates = m_description.domain().predicates();
 
