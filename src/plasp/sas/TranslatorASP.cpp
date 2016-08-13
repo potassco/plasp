@@ -23,13 +23,24 @@ TranslatorASP::TranslatorASP(const Description &description, utils::LogStream &o
 
 void TranslatorASP::translate() const
 {
-	translateRequirements();
-	translateInitialState();
-	translateGoal();
+	// TODO: remove double computation of requirements
+	if (m_description.hasRequirements())
+	{
+		translateRequirements();
+		m_outputStream << std::endl;
+	}
+
 	translateVariables();
+	m_outputStream << std::endl;
 	translateActions();
+	m_outputStream << std::endl;
 	translateMutexes();
+	m_outputStream << std::endl;
 	translateAxiomRules();
+	m_outputStream << std::endl;
+	translateInitialState();
+	m_outputStream << std::endl;
+	translateGoal();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -46,8 +57,6 @@ void TranslatorASP::translateRequirements() const
 
 	if (m_description.usesConditionalEffects())
 		m_outputStream << utils::Keyword("requiresFeature") << "(conditionalEffects)." << std::endl;
-
-	m_outputStream << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -67,8 +76,6 @@ void TranslatorASP::translateInitialState() const
 			fact.value().printAsASPPredicate(m_outputStream);
 			m_outputStream << ")." << std::endl;
 		});
-
-	m_outputStream << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -88,8 +95,6 @@ void TranslatorASP::translateGoal() const
 			fact.value().printAsASPPredicate(m_outputStream);
 			m_outputStream << ")." << std::endl;
 		});
-
-	m_outputStream << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -121,8 +126,6 @@ void TranslatorASP::translateVariables() const
 					m_outputStream << ")." << std::endl;
 				});
 		});
-
-	m_outputStream << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -190,8 +193,6 @@ void TranslatorASP::translateActions() const
 			operator_.printPredicateAsASP(m_outputStream);
 			m_outputStream << ", " << operator_.costs() << ")." << std::endl;
 		});
-
-	m_outputStream << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
