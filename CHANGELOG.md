@@ -2,6 +2,10 @@
 
 ## (unreleased)
 
+Features:
+
+* unified translation format for SAS and PDDL files
+
 Bug Fixes:
 
 * fixes minor formatting issue with axiom rules
