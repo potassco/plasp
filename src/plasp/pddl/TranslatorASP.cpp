@@ -153,7 +153,7 @@ void TranslatorASP::translatePredicates() const
 
 			printPredicateName(predicate);
 
-			m_outputStream << ", " << utils::Keyword(value) << ")";
+			m_outputStream << ", " << utils::Keyword(value) << "))";
 
 			this->translateVariablesBody(predicate->arguments());
 
