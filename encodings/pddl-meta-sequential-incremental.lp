@@ -3,29 +3,34 @@
 #program base.
 
 % Establish initial state
-holds(Predicate, 0) :- initialState(Predicate).
+holds(Variable, Value, 0) :- initialState(Variable, Value).
+holds(variable(Variable), value(Variable, false), 0) :- variable(variable(Variable)), {initialState(variable(Variable), _)} 0.
 
 #program step(t).
 
 % Perform actions
-1 {occurs(action(Action), t) : action(Action)} 1.
+1 {occurs(Action, t) : action(Action)} 1.
 
 % Check preconditions
-:- occurs(Action, t), precondition(Action, Predicate, true), not holds(Predicate, t - 1).
-:- occurs(Action, t), precondition(Action, Predicate, false), holds(Predicate, t - 1).
+:- occurs(Action, t), precondition(Action, Variable, Value), not holds(Variable, Value, t - 1).
 
 % Apply effects
-caused(Predicate, true, t) :- occurs(Action, t), postcondition(Action, Predicate, true).
-caused(Predicate, false, t) :- occurs(Action, t), postcondition(Action, Predicate, false).
+caused(Variable, Value, t) :- occurs(Action, t), postcondition(Action, _, Variable, Value).
+modified(Variable, t) :- caused(Variable, Value, t).
 
-holds(Predicate, t) :- caused(Predicate, true, t).
-holds(Predicate, t) :- holds(Predicate, t - 1), not caused(Predicate, false, t).
+holds(Variable, Value, t) :- caused(Variable, Value, t).
+holds(Variable, Value, t) :- holds(Variable, Value, t - 1), not modified(Variable, t).
+
+% Check that variables have unique values
+:- variable(Variable), not 1 {holds(Variable, Value, t) : contains(Variable, Value)} 1.
+
+% Check mutexes
+%:- mutexGroup(MutexGroup), not {holds(Variable, Value, t) : contains(MutexGroup, Variable, Value)} 1.
 
 #program check(t).
 
 % Verify that goal is met
-:- query(t), goal(Predicate, true), not holds(Predicate, t).
-:- query(t), goal(Predicate, false), holds(Predicate, t).
+:- query(t), goal(Variable, Value), not holds(Variable, Value, t).
 
 #show query/1.
 #show occurs/2.
