@@ -114,9 +114,9 @@ void TranslatorASP::translateTypes() const
 						<< "(" << typeName << "), " << utils::Keyword("type")
 						<< "(" << parentTypeName << "))." << std::endl
 
-						<< utils::Keyword("hasType") << "(" << utils::Variable("X") << ", "
+						<< utils::Keyword("has") << "(" << utils::Variable("X") << ", "
 						<< utils::Keyword("type") << "(" << parentTypeName << ")) :- "
-						<< utils::Keyword("hasType") << "(" << utils::Variable("X") << ", "
+						<< utils::Keyword("has") << "(" << utils::Variable("X") << ", "
 						<< utils::Keyword("type") << "(" << typeName << "))." << std::endl;
 				});
 		});
@@ -271,13 +271,13 @@ void TranslatorASP::translateConstants(const std::string &heading, const express
 
 			if (type != nullptr)
 			{
-				m_outputStream << utils::Keyword("hasType") << "("
+				m_outputStream << utils::Keyword("has") << "("
 					<< utils::Keyword("constant") << "(" << constantName << "), "
 					<< utils::Keyword("type") << "(" << utils::escapeASP(type->name()) << "))." << std::endl;
 			}
 			else
 			{
-				m_outputStream << utils::Keyword("hasType") << "("
+				m_outputStream << utils::Keyword("has") << "("
 					<< utils::Keyword("constant") << "(" << constantName << "), "
 					<< utils::Keyword("type") << "(object))." << std::endl;
 			}
@@ -329,13 +329,13 @@ void TranslatorASP::translateVariablesBody(const expressions::Variables &variabl
 
 			const auto &type = *dynamic_cast<const expressions::PrimitiveType *>(variable.type());
 
-			m_outputStream << utils::Keyword("hasType") << "("
+			m_outputStream << utils::Keyword("has") << "("
 				<< utils::Variable(utils::escapeASPVariable(variable.name())) << ", "
 				<< utils::Keyword("type") << "(" << utils::escapeASP(type.name()) << "))";
 		}
 		else
 		{
-			m_outputStream << utils::Keyword("hasType") << "("
+			m_outputStream << utils::Keyword("has") << "("
 				<< utils::Variable(utils::escapeASPVariable(variable.name())) << ", "
 				<< utils::Keyword("type") << "(object))";
 		}
