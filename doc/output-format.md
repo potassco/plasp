@@ -34,3 +34,42 @@ The following specifies that the input problem has the two requirements `actionC
 requiresFeature(actionCosts).
 requiresFeature(conditionalEffects).
 ```
+
+## Types (PDDL Only)
+
+Specifies all object types used by the PDDL problem (only if typing is enabled).
+
+### Syntax
+
+syntax | description
+-------|------------
+`type(type(<type name>)).` | declares the type `type(<type name>)`
+`has(<object>, type(<type name>)).` | declares `<object>` to be of type `type(<type name>)`
+
+### Example
+
+The following declares the type `type(block)` for later usage by the problem:
+
+```prolog
+% types
+type(type(block)).
+```
+
+[Constants](#constants) may have associated types (here, `constant(a)`):
+
+```prolog
+constant(constant(a)).
+has(constant(a), type(block)).
+```
+
+If there is typing information, [variables](#variables) are derived only for the allowed types (here, `variable(clear(X))` with `type(block)`):
+
+```prolog
+variable(variable(clear(X))) :- has(X, type(block)).
+```
+
+Similarly, [actions](#actions) are derived in a type-safe way (here, `action(stack(X, Y))` is only applicable to arguments of `type(block)`):
+
+```prolog
+action(action(stack(X, Y))) :- has(X, type(block)), has(Y, type(block)).
+```
