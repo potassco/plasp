@@ -130,23 +130,55 @@ void TranslatorASP::translatePredicates() const
 
 	const auto &predicates = m_description.domain().predicates();
 
-	std::for_each(predicates.cbegin(), predicates.cend(),
+	const auto printPredicateName =
 		[&](const auto &predicate)
 		{
-			m_outputStream << std::endl;
-
-			m_outputStream << utils::Keyword("predicate") << "(" << utils::escapeASP(predicate->name());
+			m_outputStream
+				<< utils::escapeASP(predicate->name());
 
 			this->translateVariablesHead(predicate->arguments());
+		};
 
-			m_outputStream << ")";
+	const auto printValueRule =
+		[&](const auto &predicate, const auto &value)
+		{
+			m_outputStream
+				<< utils::Keyword("contains") << "("
+				<< utils::Keyword("variable") << "(";
+
+			printPredicateName(predicate);
+
+			m_outputStream
+				<< "), " << utils::Keyword("value") << "(";
+
+			printPredicateName(predicate);
+
+			m_outputStream << ", " << utils::Keyword(value) << ")";
 
 			this->translateVariablesBody(predicate->arguments());
 
-			m_outputStream << ".";
-		});
+			m_outputStream << "." << std::endl;
+		};
 
-	m_outputStream << std::endl;
+	std::for_each(predicates.cbegin(), predicates.cend(),
+		[&](const auto &predicate)
+		{
+			m_outputStream
+				<< std::endl
+				<< utils::Keyword("variable") << "("
+				<< utils::Keyword("variable") << "(";
+
+			printPredicateName(predicate);
+
+			m_outputStream << "))";
+
+			this->translateVariablesBody(predicate->arguments());
+
+			m_outputStream << "." << std::endl;
+
+			printValueRule(predicate, "true");
+			printValueRule(predicate, "false");
+		});
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
