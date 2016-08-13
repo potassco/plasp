@@ -218,11 +218,11 @@ void TranslatorASP::translateActions() const
 
 					this->translateLiteral(literal);
 
-					m_outputStream << ") :- ";
+					m_outputStream << ") :- " << utils::Keyword("action") << "(";
 
 					printActionName(*action);
 
-					m_outputStream << ".";
+					m_outputStream << ").";
 				};
 
 			m_outputStream << std::endl;
