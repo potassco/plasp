@@ -10,7 +10,7 @@
 
 Declares advanced features required by the input planning problem, such as conditional effects and axiom rules.
 
-Feature requirements may be used in meta encodings to warn about features that are unsupported by the encoding.
+Feature requirements may be used in meta encodings to warn about unsupported features.
 
 syntax | description
 -------|------------
@@ -21,5 +21,5 @@ Currently, feature requirements are only recognized with SAS problems.
 SAS feature | description
 ------------|------------
 `actionCosts` | actions have associated costs
-`axiomRules` | immediate actions used, which are executed as soon as the preconditions are satisfied
+`axiomRules` | immediate actions are used, which are executed as soon as the preconditions are satisfied
 `conditionalEffects` | some effects of an action may have additional conditions
