@@ -86,7 +86,6 @@ This section specifies all object types used by the problem (only with PDDL and 
 syntax | description
 -------|------------
 `type(type(<type name>)).` | declares the type `type(<type name>)`
-`has(<object>, type(<type name>)).` | declares `<object>` to be of type `type(<type name>)`
 
 ### Example
 
@@ -108,7 +107,7 @@ Constants and objects are not distinguished by `plasp`.
 syntax | description
 -------|------------
 `constant(constant(<constant name>)).` | declares the constant or object `constant(<constant name>)`
-`has(constant(<constant name>), type(<type name>)).` | declares constant or object `constant(<constant name>)` to be of type `type(<type name>)`
+`has(constant(<constant name>), type(<type name>)).` | declares constant or object `constant(<constant name>)` to be of [type](#type) `type(<type name>)`
 
 ### Example
 
