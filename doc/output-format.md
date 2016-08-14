@@ -55,7 +55,7 @@ goal(variable(on(constant(a))), value(on(constant(a)), true)).
 requires(feature(<name>)).
 ```
 
-`plasp` recognizes and declares advanced features used by the input problem, such as conditional effects and [axiom rules](#axiom-rules) (currently only SAS).
+`plasp` recognizes and declares advanced features used by the input problem, such as conditional effects, [mutex groups](#mutex-groups) and [axiom rules](#axiom-rules) (currently only SAS).
 See the [full list of supported features](feature-requirements.md) for more information.
 
 The feature requirement predicates may be used in meta encodings to warn about unsupported features.
@@ -149,7 +149,7 @@ Constants are global for a domain, while objects are problem-specific.
 initialState(<variable>, <value>).
 ```
 
-The initial state contains all variable assignments that hold before executing any actions.
+The initial state contains all [variable](#variables) assignments that hold before executing any [actions](#actions).
 
 Note that with PDDL, the initial state might not assign values to all variables. Instead, unassigned values have to be assigned `false` manually.
 
@@ -172,7 +172,7 @@ mutexGroup(mutexGroup(<number>)).
 contains(<mutex group>, <variable>, <value>).
 ```
 
-SAS contains information about mutually exclusive [variable](#variable) assignments.
+SAS contains information about mutually exclusive [variable](#variables) assignments.
 That is, *at most one* variable assignment of each mutex group must be satisfied at all times.
 
 Mutex group facts are only present with SAS input programs and not PDDL.
@@ -193,7 +193,7 @@ precondition(<axiom rule>, <variable>, <value>).
 postcondition(<axiom rule>, <variable>, <value>).
 ```
 
-Axiom rules are similar to [actions](#actions) in that they modify variables if certain preconditions are satisfied.
+Axiom rules are similar to [actions](#actions) in that they modify [variables](#variables) if certain preconditions are satisfied.
 However, axiom rules must be applied *immediately* as soon as their preconditions are satisfied.
 
 Axiom rule facts are only present with SAS input programs and not PDDL.
