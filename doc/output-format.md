@@ -85,6 +85,8 @@ contains(<variable>, <value>).
 `plasp`’s variables represent the current state of the planning problem.
 Variables are linked to the problem's [objects](#constants-objects) and [constants](#constants-objects).
 
+`plasp`’s variables are multivalued, and each variable has exactly one value at each point in time.
+
 With SAS, variable names are numbers starting at 0, `variable(<number>)`.
 SAS variables are inherently multivalued, which results in two or more values of the form `value(<SAS predicate>, <bool>)` for each variable.
 
