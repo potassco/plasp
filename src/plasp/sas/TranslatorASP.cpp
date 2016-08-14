@@ -266,7 +266,7 @@ void TranslatorASP::translateAxiomRules() const
 			std::for_each(conditions.cbegin(), conditions.cend(),
 				[&](const auto &condition)
 				{
-					m_outputStream << utils::Keyword("condition") << "(" << utils::Keyword("axiomRule") << "(" << utils::Number(axiomRuleID) << "), ";
+					m_outputStream << utils::Keyword("precondition") << "(" << utils::Keyword("axiomRule") << "(" << utils::Number(axiomRuleID) << "), ";
 					condition.variable().printNameAsASPPredicate(m_outputStream);
 					m_outputStream << ", ";
 					condition.value().printAsASPPredicate(m_outputStream);
