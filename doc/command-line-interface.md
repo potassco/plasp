@@ -5,10 +5,11 @@ $ plasp [files] [options]
 ```
 
 `plasp` automatically detects the language of the input files.
-Multiple files may be provided in an arbitrary order.
 
-`[files]` may be omitted, in which case the input is read from `std::cin`.
-The `[options]` are listed below:
+Multiple files may be provided in an arbitrary order.
+`[files]` may also be omitted, in which case the input is read from `std::cin`.
+
+`plasp` supports the following options:
 
 | **option**                        | **explanation**                                                                                                                   |
 |-----------------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
