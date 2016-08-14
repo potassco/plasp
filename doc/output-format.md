@@ -145,3 +145,12 @@ initialState(<variable>, <value>).
 The initial state contains all variable assignments that hold before executing any actions.
 
 Note that with PDDL, the initial state might not assign values to all variables. Instead, unassigned values have to be assigned `false` manually.
+
+### Goal
+
+```prolog
+% specifies that <variable> shall obtain <value> in the end
+goal(<variable>, <value>).
+```
+
+The goal specifies all variable assignments that have to be fulfilled after executing the plan.
