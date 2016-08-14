@@ -88,7 +88,7 @@ SAS variables are inherently multivalued, which results in two or more values of
 
 With PDDL, Boolean variables are created from the PDDL predicates.
 Variables ared named after the PDDL predicates, `variable(<PDDL predicate>).`
-Each variable contains exactly two values (one true, one false) of the form `value(<PDDL predicate>, <bool>)`.
+Each variable contains exactly two values (one `true`, one `false`) of the form `value(<PDDL predicate>, <bool>)`.
 Note that with PDDL, variables and values are named identically.
 
 ### Actions
@@ -121,7 +121,7 @@ Conditional effects are currently only supported with SAS input problems.
 ### Constants/Objects
 
 ```prolog
-% define a <constant> or object
+% declares a <constant> or object
 constant(constant(<name>)).
 
 % specifies <constant> to be of type type(<name>)
@@ -132,3 +132,14 @@ Constants and objects are the entities that are affected by [actions](#actions),
 Constants are global for a domain, while objects are problem-specific.
 
 `plasp` does not distinguish between the two (modeling both as constants), as both are identically used static identifiers.
+
+### Initial State
+
+```prolog
+% initializes <variable> with a specific <value>
+initialState(<variable>, <value>).
+```
+
+The initial state contains all variable assignments that hold before executing any actions.
+
+Note that with PDDL, the initial state might not assign values to all variables. Instead, unassigned values have to be assigned `false` manually.
