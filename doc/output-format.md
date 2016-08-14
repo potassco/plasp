@@ -104,7 +104,7 @@ action(action(<name>)).
 % defines that as a precondition to <action>, <variable> must have value <value>
 precondition(<action>, <variable>, <value>).
 
-% defines that after executing <action>, <variable> is assigned <value>
+% defines that after applying <action>, <variable> is assigned <value>
 postcondition(<action>, effect(<number>), <variable>, <value>).
 
 % defines the condition of a conditional effect
@@ -175,5 +175,28 @@ contains(<mutex group>, <variable>, <value>).
 SAS contains information about mutually exclusive [variable](#variable) assignments.
 That is, *at most one* variable assignment of each mutex group must be satisfied at all times.
 
+Mutex group facts are only present with SAS input programs and not PDDL.
+
 Mutex groups contain essential information in order to find plans correctly.
 That is, if mutex groups are present in `plasp`’s output, they have to be accounted for appropriately.
+
+### Axiom Rules
+
+```prolog
+% declares an <axiom rule>
+axiomRule(axiomRule(<number>)).
+
+% defines that as a precondition to <axiom rule>, <variable> must have value <value>
+precondition(<axiom rule>, <variable>, <value>).
+
+% defines that after applying <axiom rule>, <variable> is assigned <value>
+postcondition(<axiom rule>, <variable>, <value>).
+```
+
+Axiom rules are similar to [actions](#actions) in that they modify variables if certain preconditions are satisfied.
+However, axiom rules must be applied *immediately* as soon as their preconditions are satisfied.
+
+Axiom rule facts are only present with SAS input programs and not PDDL.
+
+Axiom rules contain essential information in order to find plans correctly.
+That is, if axiom rules are present in `plasp`’s output, they have to be accounted for appropriately.
