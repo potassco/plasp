@@ -5,6 +5,7 @@
 Features:
 
 * unified translation format for SAS and PDDL files
+* documentation of `plasp`’s output format
 
 Bug Fixes:
 
