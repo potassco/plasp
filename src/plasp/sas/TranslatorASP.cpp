@@ -55,13 +55,13 @@ void TranslatorASP::translateRequirements() const
 	m_outputStream << utils::Heading2("feature requirements") << std::endl;
 
 	if (m_description.usesActionCosts())
-		m_outputStream << utils::Keyword("requiresFeature") << "(actionCosts)." << std::endl;
+		m_outputStream << utils::Keyword("requires") << "(" << utils::Keyword("feature") << "(actionCosts))." << std::endl;
 
 	if (m_description.usesAxiomRules())
-		m_outputStream << utils::Keyword("requiresFeature") << "(axiomRules)." << std::endl;
+		m_outputStream << utils::Keyword("requires") << "(" << utils::Keyword("feature") << "(axiomRules))." << std::endl;
 
 	if (m_description.usesConditionalEffects())
-		m_outputStream << utils::Keyword("requiresFeature") << "(conditionalEffects)." << std::endl;
+		m_outputStream << utils::Keyword("requires") << "(" << utils::Keyword("feature") << "(conditionalEffects))." << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
