@@ -172,7 +172,7 @@ mutexGroup(mutexGroup(<number>)).
 contains(<mutex group>, <variable>, <value>).
 ```
 
-SAS contains information about mutually exclusive variable assignments.
+SAS contains information about mutually exclusive [variable](#variable) assignments.
 That is, *at most one* variable assignment of each mutex group must be satisfied at all times.
 
 Mutex groups contain essential information in order to find plans correctly.
