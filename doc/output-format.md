@@ -107,6 +107,9 @@ postcondition(<action>, effect(<number>), <variable>, <value>).
 
 % defines the condition of a conditional effect
 precondition(effect(<number>), <variable>, <value>).
+
+% specifies the costs of applying <action>
+costs(<action>, <number>).
 ```
 
 Actions may require certain variables to have specific values in order to be executed.
@@ -119,6 +122,8 @@ The conditions of conditional effects are given by additional `precondition` fac
 Unconditional effects are identified with `effect(unconditional)`.
 
 Conditional effects are currently only supported with SAS input problems.
+
+Actions may also have costs required to apply them. Action costs are currently supported for SAS only.
 
 ### Constants/Objects
 
