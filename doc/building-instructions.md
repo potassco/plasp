@@ -33,7 +33,8 @@ $ git submodule init
 $ git submodule update
 ```
 
-Afterward, build and run the tests as follows:
+Afterward, enable the flag `BUILD_TESTS` in your CMake configuration.
+Finally, build and run the tests as follows:
 
 ```bash
 $ make run-tests
