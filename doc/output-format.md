@@ -4,7 +4,9 @@
 
 ## Overview
 
-Essentially, `plasp`’s output format consists of *variables* that are modified by *actions* whose preconditions are fulfilled.
+Essentially, `plasp`’s output format consists of [state variables](#variables) that are modified by [actions](#actions) if their preconditions are fulfilled.
+Variables reference [entities](#constants-objects) that are affected by the actions.
+As with PDDL, the objective is to achieve a specified [goal](#goal) starting from an [initial state](#initial-state).
 
 `plasp`’s variables correspond to the multivalued variables in SAS.
 PDDL predicates are turned into Boolean variables to make the output format consistent.
