@@ -66,34 +66,9 @@ If you want to write your own meta encoding for `plasp`’s output, the [simple 
 
 ## Building
 
-`plasp` requires a C++14 compiler (preferrably GCC ≥ 6.1 or clang ≥ 3.8), the `boost` libraries (≥ 1.55), and CMake for building.
+`plasp` requires `boost` and is built via CMake and a C++ compiler.
 
-```bash
-$ git clone https://github.com/potassco/plasp.git
-$ cd plasp
-$ mkdir -p build/release
-$ cd build/release
-$ cmake ../.. -DCMAKE_BUILD_TYPE=Release
-$ make
-```
-
-The built `plasp` binary is then located at `plasp/build/release/bin/plasp`.
-
-### Running the Tests
-
-`plasp` provides unit tests written using the [Google Test](https://github.com/google/googletest) framework.
-Before building and running the tests, make sure you have fetched the Google Test git submodule:
-
-```bash
-$ git submodule init
-$ git submodule update
-```
-
-Afterward, build and run the tests as follows:
-
-```bash
-$ make run-tests
-```
+See the [building instructions](doc/building-instructions.md) for more detail.
 
 ## Contributors
 
