@@ -161,3 +161,19 @@ goal(<variable>, <value>).
 ```
 
 The goal specifies all variable assignments that have to be fulfilled after executing the plan.
+
+### Mutex Groups
+
+```prolog
+% declares a <mutex group>
+mutexGroup(mutexGroup(<number>)).
+
+% adds the assignment of <variable> to <value> to a <mutex group>
+contains(<mutex group>, <variable>, <value>).
+```
+
+SAS contains information about mutually exclusive variable assignments.
+That is, *at most one* variable assignment of each mutex group must be satisfied at all times.
+
+Mutex groups contain essential information in order to find plans correctly.
+That is, if mutex groups are present in `plasp`’s output, they have to be accounted for appropriately.
