@@ -57,6 +57,13 @@ The `[options]` are listed below:
 | `--warning-level` arg (=`normal`) | Specify whether to output warnings normally (`normal`), to treat them as critical errors (`error`), or to ignore them (`ignore`). |
 | `--color` arg (=`auto`)           | Specify whether to colorize the output (`always`, `never`, or `auto`).                                                            |
 
+## Output Format
+
+`plasp` provides a uniform output format for SAS and PDDL input problems.
+See the [documentation of the output format](doc/output-format.md) for more details.
+
+If you want to write your own meta encoding for `plasp`’s output, the [simple example encoding](encodings/sequential-incremental.lp) gets you started.
+
 ## Building
 
 `plasp` requires a C++14 compiler (preferrably GCC ≥ 6.1 or clang ≥ 3.8), the `boost` libraries (≥ 1.55), and CMake for building.
