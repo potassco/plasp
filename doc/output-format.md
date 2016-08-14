@@ -87,3 +87,30 @@ With PDDL, Boolean variables are created from the PDDL predicates.
 Variables ared named after the PDDL predicates, `variable(<PDDL predicate>).`
 Each variable contains exactly two values (one true, one false) of the form `value(<PDDL predicate>, <bool>)`.
 Note that with PDDL, variables and values are named identically.
+
+### Actions
+
+```prolog
+% declares an <action>
+action(action(<name>)).
+
+% defines that as a precondition to <action>, <variable> must have value <value>
+precondition(<action>, <variable>, <value>).
+
+% defines that after executing <action>, <variable> is assigned <value>
+postcondition(<action>, effect(<number>), <variable>, <value>).
+
+% defines the condition of a conditional effect
+precondition(effect(<number>), <variable>, <value>).
+```
+
+Actions may require certain variables to have specific values in order to be executed.
+After applying an action, variables get new values according to the action's postconditions.
+
+Actions may have *conditional effects*, that is, certain postconditions are only applied if additional conditions are satisfied.
+For this reason, each conditional effect is uniquely identified with a predicate `effect(<number>)` as the second argument of the `postcondition` facts.
+The conditions of conditional effects are given by additional `precondition` facts that take the respective `effect(<number>)` predicates as the first argument.
+
+Unconditional effects are identified with `effect(unconditional)`.
+
+Conditional effects are currently only supported with SAS input problems.
