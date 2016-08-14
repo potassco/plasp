@@ -49,11 +49,13 @@ $ plasp [files] [options]
 ```
 
 `plasp` automatically detects the language of the input program.
+
 See [command-line interface](doc/command-line-interface.md) for more detail.
 
 ## Output Format
 
 `plasp` provides a uniform output format for SAS and PDDL input problems.
+
 See [output format](doc/output-format.md) for more detail.
 
 If you want to write your own meta encoding for `plasp`’s output, this [simple example encoding](encodings/sequential-incremental.lp) gets you started.
