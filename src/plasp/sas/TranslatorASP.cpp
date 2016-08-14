@@ -141,6 +141,8 @@ void TranslatorASP::translateActions() const
 
 	const auto &operators = m_description.operators();
 
+	size_t currentEffectID = 0;
+
 	std::for_each(operators.cbegin(), operators.cend(),
 		[&](const auto &operator_)
 		{
@@ -164,8 +166,6 @@ void TranslatorASP::translateActions() const
 
 			const auto &effects = operator_.effects();
 
-			size_t currentEffectID = 0;
-
 			std::for_each(effects.cbegin(), effects.cend(),
 				[&](const auto &effect)
 				{
@@ -186,13 +186,19 @@ void TranslatorASP::translateActions() const
 
 					m_outputStream << utils::Keyword("postcondition") << "(";
 					operator_.printPredicateAsASP(m_outputStream);
-					m_outputStream << ", " << utils::Keyword("effect") << "(" << utils::Number(std::to_string(currentEffectID)) << "), ";
+
+					if (conditions.empty())
+						m_outputStream << ", " << utils::Keyword("effect") << "(unconditional), ";
+					else
+					{
+						m_outputStream << ", " << utils::Keyword("effect") << "(" << utils::Number(std::to_string(currentEffectID)) << "), ";
+						currentEffectID++;
+					}
+
 					effect.postcondition().variable().printNameAsASPPredicate(m_outputStream);
 					m_outputStream << ", ";
 					effect.postcondition().value().printAsASPPredicate(m_outputStream);
 					m_outputStream << ")." << std::endl;
-
-					currentEffectID++;
 				});
 
 			m_outputStream << utils::Keyword("costs") << "(";

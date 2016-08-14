@@ -210,9 +210,9 @@ void TranslatorASP::translateActions() const
 
 					printActionName(*action);
 
-					// TODO: remove quirk
+					// TODO: implement conditional effects
 					if (enumerateEffects)
-						m_outputStream << ", " << utils::Keyword("effect") << "(" << utils::Number("0") << ")";
+						m_outputStream << ", " << utils::Keyword("effect") << "(unconditional)";
 
 					m_outputStream << ", ";
 
