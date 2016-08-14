@@ -64,11 +64,11 @@ The feature requirement predicates may be used in meta encodings to warn about u
 % declares a <type>
 type(type(<name>)).
 
-% specifies <object> to be of type type(<name>)
-has(<object>, type(<name>)).
+% specifies <constant> to be of type type(<name>)
+has(<constant>, type(<name>)).
 ```
 
-[Variables](#variables), [constants](#constants), and [objects](#objects) may be typed. Types are only available with PDDL and if typing is enabled.
+[Variables](#variables), [constants](#constants-objects), and [objects](#constants-objects) may be typed. Types are only available with PDDL and if typing is enabled.
 
 ### Variables
 
@@ -79,6 +79,9 @@ variable(variable(<name>)).
 % adds a <value> to the domain of a <variable>
 contains(<variable>, <value>).
 ```
+
+`plasp`’s variables represent the current state of the planning problem.
+Variables are linked to the problem's [objects](#constants-objects) and [constants](#constants-objects).
 
 With SAS, variable names are numbers starting at 0, `variable(<number>)`.
 SAS variables are inherently multivalued, which results in two or more values of the form `value(<SAS predicate>, <bool>)` for each variable.
@@ -114,3 +117,18 @@ The conditions of conditional effects are given by additional `precondition` fac
 Unconditional effects are identified with `effect(unconditional)`.
 
 Conditional effects are currently only supported with SAS input problems.
+
+### Constants/Objects
+
+```prolog
+% define a <constant> or object
+constant(constant(<name>)).
+
+% specifies <constant> to be of type type(<name>)
+has(<constant>, <type>).
+```
+
+Constants and objects are the entities that are affected by [actions](#actions), for instance, the blocks in a Blocks World problem.
+
+Constants are global for a domain, while objects are problem-specific.
+`plasp` does not distinguish between the two, as both are identically used static identifiers.
