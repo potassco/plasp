@@ -174,7 +174,8 @@ void TranslatorASP::translateActions() const
 					std::for_each(conditions.cbegin(), conditions.cend(),
 						[&](const auto &condition)
 						{
-							m_outputStream << utils::Keyword("effectCondition") << "(";
+							// Conditions of conditional effects
+							m_outputStream << utils::Keyword("precondition") << "(";
 							operator_.printPredicateAsASP(m_outputStream);
 							m_outputStream << ", " << utils::Keyword("effect") << "(" << utils::Number(std::to_string(currentEffectID)) << "), ";
 							condition.variable().printNameAsASPPredicate(m_outputStream);
