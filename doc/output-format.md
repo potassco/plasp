@@ -129,6 +129,6 @@ has(<constant>, <type>).
 ```
 
 Constants and objects are the entities that are affected by [actions](#actions), for instance, the blocks in a Blocks World problem.
-
 Constants are global for a domain, while objects are problem-specific.
-`plasp` does not distinguish between the two, as both are identically used static identifiers.
+
+`plasp` does not distinguish between the two (modeling both as constants), as both are identically used static identifiers.
