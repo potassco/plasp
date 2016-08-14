@@ -123,7 +123,7 @@ Unconditional effects are identified with `effect(unconditional)`.
 
 Conditional effects are currently only supported with SAS input problems.
 
-Actions may also have costs required to apply them. Action costs are currently supported for SAS only.
+Actions may also have *action costs* required to apply them. Action costs are currently supported for SAS only.
 
 ### Constants/Objects
 
