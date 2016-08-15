@@ -50,13 +50,13 @@ $ plasp [files] [options]
 
 `plasp` automatically detects the language of the input program.
 
-See [command-line interface](doc/command-line-interface.md) for more detail.
+See [command-line interface](doc/command-line-interface.md) for more details.
 
 ## Output Format
 
 `plasp` provides a uniform output format for SAS and PDDL input problems.
 
-See [output format](doc/output-format.md) for more detail.
+See [output format](doc/output-format.md) for more details.
 
 If you want to write your own meta encoding for `plasp`’s output, this [simple example encoding](encodings/sequential-incremental.lp) gets you started.
 
@@ -64,7 +64,7 @@ If you want to write your own meta encoding for `plasp`’s output, this [simple
 
 `plasp` requires `boost` and is built via CMake and a C++ compiler.
 
-See [building instructions](doc/building-instructions.md) for more detail.
+See [building instructions](doc/building-instructions.md) for more details.
 
 ## Contributors
 
