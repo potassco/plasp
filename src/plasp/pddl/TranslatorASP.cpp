@@ -212,7 +212,7 @@ void TranslatorASP::translateActions() const
 
 					// TODO: implement conditional effects
 					if (enumerateEffects)
-						m_outputStream << ", " << utils::Keyword("effect") << "(unconditional)";
+						m_outputStream << ", " << utils::Keyword("effect") << "(" << utils::Keyword("unconditional") << ")";
 
 					m_outputStream << ", ";
 

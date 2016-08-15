@@ -188,7 +188,7 @@ void TranslatorASP::translateActions() const
 					operator_.printPredicateAsASP(m_outputStream);
 
 					if (conditions.empty())
-						m_outputStream << ", " << utils::Keyword("effect") << "(unconditional), ";
+						m_outputStream << ", " << utils::Keyword("effect") << "(" << utils::Keyword("unconditional") << "), ";
 					else
 					{
 						m_outputStream << ", " << utils::Keyword("effect") << "(" << utils::Number(std::to_string(currentEffectID)) << "), ";
@@ -286,7 +286,7 @@ void TranslatorASP::translateAxiomRules() const
 			m_outputStream
 				<< utils::Keyword("postcondition") << "("
 				<< utils::Keyword("axiomRule") << "(" << utils::Number(axiomRuleID) << "), "
-				<< utils::Keyword("effect") << "(unconditional), ";
+				<< utils::Keyword("effect") << "(" << utils::Keyword("unconditional") << "), ";
 			postcondition.variable().printNameAsASPPredicate(m_outputStream);
 			m_outputStream << ", ";
 			postcondition.value().printAsASPPredicate(m_outputStream);
