@@ -272,7 +272,9 @@ void TranslatorASP::translateAxiomRules() const
 			std::for_each(conditions.cbegin(), conditions.cend(),
 				[&](const auto &condition)
 				{
-					m_outputStream << utils::Keyword("precondition") << "(" << utils::Keyword("axiomRule") << "(" << utils::Number(axiomRuleID) << "), ";
+					m_outputStream
+						<< utils::Keyword("precondition") << "("
+						<< utils::Keyword("axiomRule") << "(" << utils::Number(axiomRuleID) << "), ";
 					condition.variable().printNameAsASPPredicate(m_outputStream);
 					m_outputStream << ", ";
 					condition.value().printAsASPPredicate(m_outputStream);
@@ -281,7 +283,10 @@ void TranslatorASP::translateAxiomRules() const
 
 			const auto &postcondition = axiomRule.postcondition();
 
-			m_outputStream << utils::Keyword("postcondition") << "(" << utils::Keyword("axiomRule") << "(" << utils::Number(axiomRuleID) << "), ";
+			m_outputStream
+				<< utils::Keyword("postcondition") << "("
+				<< utils::Keyword("axiomRule") << "(" << utils::Number(axiomRuleID) << "), "
+				<< utils::Keyword("effect") << "(unconditional), ";
 			postcondition.variable().printNameAsASPPredicate(m_outputStream);
 			m_outputStream << ", ";
 			postcondition.value().printAsASPPredicate(m_outputStream);
