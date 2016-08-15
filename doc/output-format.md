@@ -190,11 +190,13 @@ axiomRule(axiomRule(<number>)).
 precondition(<axiom rule>, <variable>, <value>).
 
 % defines that after applying <axiom rule>, <variable> is assigned <value>
-postcondition(<axiom rule>, <variable>, <value>).
+postcondition(<axiom rule>, effect(unconditional), <variable>, <value>).
 ```
 
 Axiom rules are similar to [actions](#actions) in that they modify [variables](#variables) if certain preconditions are satisfied.
 However, axiom rules must be applied *immediately* as soon as their preconditions are satisfied.
+
+The second argument of `postcondition`, `effect(unconditional)`, is not used and exists only for consistency with [actions](#actions).
 
 Axiom rule facts are only present with SAS input programs and not PDDL.
 
