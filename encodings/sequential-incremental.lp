@@ -1,9 +1,9 @@
 #include <incmode>.
 
 % Check feature requirements
-:- requiresFeature(actionCosts).
-:- requiresFeature(axiomRules).
-:- requiresFeature(conditionalEffects).
+:- requires(feature(actionCosts)).
+:- requires(feature(axiomRules)).
+:- requires(feature(conditionalEffects)).
 
 #program base.
 
