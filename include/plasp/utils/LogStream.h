@@ -118,10 +118,16 @@ class LogStream
 		inline LogStream &operator<<(bool value);
 		inline LogStream &operator<<(const void *value);
 		inline LogStream &operator<<(const char *value);
+		inline LogStream &operator<<(const signed char *value);
+		inline LogStream &operator<<(const unsigned char *value);
 		inline LogStream &operator<<(std::basic_streambuf<CharacterType, TraitsType> *sb);
 		inline LogStream &operator<<(std::ios_base &(*func)(std::ios_base &));
 		inline LogStream &operator<<(std::basic_ios<CharacterType, TraitsType> &(*func)(std::basic_ios<CharacterType, TraitsType> &));
 		inline LogStream &operator<<(std::basic_ostream<CharacterType, TraitsType> &(*func)(std::basic_ostream<CharacterType, TraitsType> &));
+
+		inline LogStream &operator<<(char value);
+		inline LogStream &operator<<(signed char value);
+		inline LogStream &operator<<(unsigned char value);
 
 	private:
 		StandardStream m_standardStream;
@@ -242,6 +248,22 @@ LogStream &LogStream::operator<<(const char *value)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+LogStream &LogStream::operator<<(const signed char *value)
+{
+	ostream() << value;
+	return *this;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+LogStream &LogStream::operator<<(const unsigned char *value)
+{
+	ostream() << value;
+	return *this;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 LogStream &LogStream::operator<<(std::basic_streambuf<CharacterType, TraitsType>* sb)
 {
 	ostream() << sb;
@@ -279,6 +301,30 @@ inline LogStream &operator<<(LogStream &stream, const std::basic_string<Characte
 {
 	stream.ostream() << string;
 	return stream;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+LogStream &LogStream::operator<<(char value)
+{
+	ostream() << value;
+	return *this;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+LogStream &LogStream::operator<<(signed char value)
+{
+	ostream() << value;
+	return *this;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+LogStream &LogStream::operator<<(unsigned char value)
+{
+	ostream() << value;
+	return *this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

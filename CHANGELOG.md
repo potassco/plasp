@@ -6,6 +6,8 @@ Features:
 
 * unified translation format for SAS and PDDL files
 * documentation of `plasp`’s output format
+* improved output syntax highlighting
+* uses ASP string literals to avoid escaping PDDL identifiers
 
 Bug Fixes:
 

@@ -3,7 +3,6 @@
 #include <iostream>
 
 #include <plasp/utils/Formatting.h>
-#include <plasp/utils/IO.h>
 #include <plasp/utils/ParserException.h>
 
 namespace plasp
@@ -55,7 +54,8 @@ Variable Variable::fromSAS(utils::Parser<> &parser)
 
 void Variable::printNameAsASPPredicate(utils::LogStream &outputStream) const
 {
-	outputStream << utils::Keyword("variable") << "(" << utils::Number(utils::escapeASP(m_name)) << ")";
+	// TODO: assert that name is a number indeed
+	outputStream << utils::Keyword("variable") << "(" << utils::Number(m_name) << ")";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

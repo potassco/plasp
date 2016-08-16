@@ -4,7 +4,6 @@
 #include <boost/assign.hpp>
 #include <boost/bimap.hpp>
 
-#include <plasp/utils/IO.h>
 #include <plasp/utils/ParserException.h>
 
 namespace plasp

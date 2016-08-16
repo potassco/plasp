@@ -93,6 +93,26 @@ struct Token
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+struct RuleName: public Token
+{
+	RuleName(const std::string &name)
+	:	Token(name)
+	{
+	}
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline LogStream &operator<<(LogStream &stream, const RuleName &keyword)
+{
+	return (stream
+		<< utils::Format(utils::Color::White, utils::FontWeight::Bold)
+		<< keyword.name
+		<< utils::ResetFormat());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 struct Keyword: public Token
 {
 	Keyword(const std::string &name)
@@ -106,11 +126,10 @@ struct Keyword: public Token
 inline LogStream &operator<<(LogStream &stream, const Keyword &keyword)
 {
 	return (stream
-		<< utils::Format(utils::Color::White, utils::FontWeight::Bold)
+		<< utils::Format(utils::Color::Blue, utils::FontWeight::Normal)
 		<< keyword.name
 		<< utils::ResetFormat());
 }
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 struct Number: public Token
@@ -126,7 +145,7 @@ struct Number: public Token
 inline LogStream &operator<<(LogStream &stream, const Number &number)
 {
 	return (stream
-		<< utils::Format(utils::Color::Yellow, utils::FontWeight::Bold)
+		<< utils::Format(utils::Color::Yellow, utils::FontWeight::Normal)
 		<< number.name
 		<< utils::ResetFormat());
 }
@@ -148,6 +167,91 @@ inline LogStream &operator<<(LogStream &stream, const Variable &variable)
 	return (stream
 		<< utils::Format(utils::Color::Green, utils::FontWeight::Bold)
 		<< variable.name
+		<< utils::ResetFormat());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct ASPVariable: public Token
+{
+	ASPVariable(const std::string &name)
+	:	Token(name)
+	{
+	}
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline LogStream &operator<<(LogStream &stream, const ASPVariable &aspVariable)
+{
+	if (aspVariable.name.empty())
+		return stream;
+
+	// TODO: check that char cast is safe
+	return (stream
+		<< utils::Format(utils::Color::Green, utils::FontWeight::Bold)
+		<< static_cast<char>(std::toupper(aspVariable.name.front()))
+		<< aspVariable.name.c_str() + 1
+		<< utils::ResetFormat());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct String: public Token
+{
+	String(const std::string &name)
+	:	Token(name)
+	{
+	}
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline LogStream &operator<<(LogStream &stream, const String &string)
+{
+	return (stream
+		<< utils::Format(utils::Color::Green, utils::FontWeight::Normal)
+		<< "\"" << string.name << "\""
+		<< utils::ResetFormat());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct Boolean: public Token
+{
+	Boolean(const std::string &name)
+	:	Token(name)
+	{
+	}
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline LogStream &operator<<(LogStream &stream, const Boolean &string)
+{
+	return (stream
+		<< utils::Format(utils::Color::Red, utils::FontWeight::Normal)
+		<< string.name
+		<< utils::ResetFormat());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct Reserved: public Token
+{
+	Reserved(const std::string &name)
+	:	Token(name)
+	{
+	}
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline LogStream &operator<<(LogStream &stream, const Reserved &string)
+{
+	return (stream
+		<< utils::Format(utils::Color::White, utils::FontWeight::Normal)
+		<< string.name
 		<< utils::ResetFormat());
 }
 

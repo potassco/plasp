@@ -6,7 +6,6 @@
 #include <plasp/pddl/ExpressionContext.h>
 #include <plasp/pddl/IO.h>
 #include <plasp/pddl/expressions/Constant.h>
-#include <plasp/utils/IO.h>
 #include <plasp/utils/ParserException.h>
 
 namespace plasp

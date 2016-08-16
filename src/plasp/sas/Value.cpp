@@ -4,7 +4,6 @@
 
 #include <plasp/sas/Variable.h>
 #include <plasp/utils/Formatting.h>
-#include <plasp/utils/IO.h>
 #include <plasp/utils/ParserException.h>
 
 namespace plasp
@@ -128,27 +127,17 @@ const std::string &Value::name() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Value::printAsASP(utils::LogStream &outputStream) const
-{
-	if (m_sign == Value::Sign::Negative)
-		outputStream << utils::Keyword("not") << " ";
-
-	outputStream << utils::escapeASP(m_name);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 void Value::printAsASPPredicate(utils::LogStream &outputStream) const
 {
 	// TODO: do not compare by value
 	if (*this == Value::None)
 	{
-		outputStream << utils::Keyword("value") << "(" << utils::Keyword("none") << ")";
+		outputStream << utils::Keyword("value") << "(" << utils::Reserved("none") << ")";
 		return;
 	}
 
-	outputStream << utils::Keyword("value") << "(" << utils::escapeASP(m_name) << ", "
-		<< (m_sign == Sign::Positive ? utils::Keyword("true") : utils::Keyword("false")) << ")";
+	outputStream << utils::Keyword("value") << "(" << utils::String(m_name) << ", "
+		<< (m_sign == Sign::Positive ? utils::Boolean("true") : utils::Boolean("false")) << ")";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

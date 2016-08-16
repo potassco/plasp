@@ -11,7 +11,6 @@
 #include <plasp/pddl/expressions/Predicate.h>
 #include <plasp/pddl/expressions/PredicateDeclaration.h>
 #include <plasp/pddl/expressions/Unsupported.h>
-#include <plasp/utils/IO.h>
 #include <plasp/utils/ParserException.h>
 
 namespace plasp

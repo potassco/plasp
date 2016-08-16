@@ -8,7 +8,6 @@
 #include <plasp/pddl/expressions/PredicateDeclaration.h>
 #include <plasp/pddl/expressions/PrimitiveType.h>
 #include <plasp/pddl/expressions/Variable.h>
-#include <plasp/utils/IO.h>
 #include <plasp/utils/ParserException.h>
 
 namespace plasp

@@ -4,7 +4,7 @@
 #include <limits>
 #include <sstream>
 
-#include <plasp/utils/IO.h>
+#include <plasp/utils/Formatting.h>
 #include <plasp/utils/ParserException.h>
 
 namespace plasp
@@ -91,19 +91,14 @@ void Predicate::printAsASP(utils::LogStream &outputStream) const
 {
 	if (m_arguments.empty())
 	{
-		outputStream << utils::escapeASP(m_name);
+		outputStream << utils::String(m_name);
 		return;
 	}
 
-	outputStream << utils::escapeASP(m_name) << "(";
+	outputStream << "(" << utils::String(m_name);
 
 	for (size_t i = 0; i < m_arguments.size(); i++)
-	{
-		if (i > 0)
-			outputStream << ", ";
-
-		outputStream << utils::escapeASP(m_arguments[i]);
-	}
+		outputStream << ", " << utils::String(m_arguments[i]);
 
 	outputStream << ")";
 }

@@ -6,7 +6,6 @@
 #include <plasp/pddl/Domain.h>
 #include <plasp/pddl/ExpressionContext.h>
 #include <plasp/pddl/expressions/Type.h>
-#include <plasp/utils/IO.h>
 
 namespace plasp
 {

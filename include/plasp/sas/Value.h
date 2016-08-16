@@ -46,7 +46,6 @@ struct Value
 		Value negated() const;
 
 		void printAsSAS(utils::LogStream &outputStream) const;
-		void printAsASP(utils::LogStream &outputStream) const;
 		void printAsASPPredicate(utils::LogStream &outputStream) const;
 
 		Sign sign() const;

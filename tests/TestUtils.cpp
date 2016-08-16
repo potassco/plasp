@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
 
-#include <plasp/utils/IO.h>
 #include <plasp/utils/Parser.h>
 #include <plasp/utils/ParserException.h>
 
@@ -330,18 +329,4 @@ TEST(UtilsTests, ParserRemoveComments)
 	p3.skipWhiteSpace();
 
 	ASSERT_TRUE(p3.atEnd());
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-TEST(UtilsTests, EscapeASP)
-{
-	const std::string predicate = "action(stack_on(block-1, block-2, value@3, value@4))";
-
-	const auto escaped = plasp::utils::escapeASP(predicate);
-	const auto unescaped = plasp::utils::unescapeASP(escaped);
-
-	ASSERT_EQ(escaped.find("-"), std::string::npos);
-	ASSERT_EQ(escaped.find("@"), std::string::npos);
-	ASSERT_EQ(predicate, unescaped);
 }
