@@ -66,11 +66,16 @@ The feature requirement predicates may be used in meta encodings to warn about u
 % declares a <type>
 type(type(<name>)).
 
+% specifies that <type 1> inherits <type 2>
+inherits(type(<type 1>), type(<type 2>)).
+
 % specifies <constant> to be of type type(<name>)
 has(<constant>, type(<name>)).
 ```
 
 [Variables](#variables), [constants](#constants-objects), and [objects](#constants-objects) may be typed. Types are only available with PDDL and if typing is enabled.
+
+`plasp` automatically generates all matching `has` predicates for objects with types that inherit other types.
 
 ### Variables
 
