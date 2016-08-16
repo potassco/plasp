@@ -412,7 +412,7 @@ void TranslatorASP::translateLiteral(const Expression &literal) const
 	{
 		const auto &notExpression = dynamic_cast<const expressions::Not &>(literal);
 
-		if (notExpression.expressionType() != Expression::Type::Predicate)
+		if (notExpression.argument()->expressionType() != Expression::Type::Predicate)
 			throw utils::TranslatorException("only negations of primitive predicates supported as literals currently");
 
 		const auto &predicate = dynamic_cast<const expressions::Predicate &>(*notExpression.argument());

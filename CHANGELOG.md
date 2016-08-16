@@ -12,6 +12,7 @@ Features:
 Bug Fixes:
 
 * fixes minor formatting issues in SAS translation
+* fixes issue with unsupported expression negations
 
 ## 3.0.1 (2016-06-14)
 
