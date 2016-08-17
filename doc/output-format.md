@@ -156,7 +156,7 @@ initialState(<variable>, <value>).
 
 The initial state contains all [variable](#variables) assignments that hold before executing any [actions](#actions).
 
-Note that with PDDL, the initial state might not assign values to all variables. Instead, unassigned values have to be assigned `false` manually.
+Note that with PDDL, `plasp` sets all unspecified initial state variables to `false` in order to make the initial state total.
 
 ### Goal
 
