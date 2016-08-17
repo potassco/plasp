@@ -19,10 +19,11 @@ namespace pddl
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TranslatorASP::TranslatorASP(const Description &description, utils::LogStream &outputStream)
+TranslatorASP::TranslatorASP(Description &description, utils::LogStream &outputStream)
 :	m_description(description),
 	m_outputStream(outputStream)
 {
+	m_description.normalizeParameterNames();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

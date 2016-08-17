@@ -28,7 +28,9 @@ class Variable: public ExpressionCRTP<Variable>
 			const ExpressionContext &expressionContext);
 
 	public:
+		void setName(std::string name);
 		const std::string &name() const;
+
 		const Expression *type() const;
 
 		void setDirty(bool isDirty = true);

@@ -51,6 +51,8 @@ class Domain
 
 		void checkConsistency();
 
+		void normalizeParameterNames();
+
 	private:
 		void parseSection();
 

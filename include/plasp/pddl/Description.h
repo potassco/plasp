@@ -35,6 +35,8 @@ class Description
 		bool containsProblem() const;
 		const Problem &problem() const;
 
+		void normalizeParameterNames();
+
 	private:
 		Description();
 

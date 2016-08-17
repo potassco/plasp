@@ -29,6 +29,8 @@ class PredicateDeclaration: public ExpressionCRTP<PredicateDeclaration>
 
 		bool isDeclared() const;
 
+		void normalizeParameterNames();
+
 	private:
 		PredicateDeclaration();
 

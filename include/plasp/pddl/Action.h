@@ -30,6 +30,8 @@ class Action
 		const Expression *precondition() const;
 		const Expression *effect() const;
 
+		void normalizeParameterNames();
+
 	private:
 		Action() = default;
 

@@ -413,5 +413,22 @@ void Domain::checkConsistency()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void Domain::normalizeParameterNames()
+{
+	std::for_each(m_predicates.begin(), m_predicates.end(),
+		[](auto &predicate)
+		{
+			predicate->normalizeParameterNames();
+		});
+
+	std::for_each(m_actions.begin(), m_actions.end(),
+		[](auto &action)
+		{
+			action->normalizeParameterNames();
+		});
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 }
 }
