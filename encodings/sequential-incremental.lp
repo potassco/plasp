@@ -10,9 +10,6 @@
 % Establish initial state
 holds(Variable, Value, 0) :- initialState(Variable, Value).
 
-% Make unspecified initial state variables false by default (for PDDL)
-holds(variable(Variable), value(Variable, false), 0) :- variable(variable(Variable)), {initialState(variable(Variable), _)} 0.
-
 #program step(t).
 
 % Perform actions

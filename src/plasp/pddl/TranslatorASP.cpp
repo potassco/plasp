@@ -531,7 +531,17 @@ void TranslatorASP::translateInitialState() const
 			m_outputStream << ").";
 		});
 
-	m_outputStream << std::endl;
+	m_outputStream
+		<< std::endl << std::endl
+		<< utils::RuleName("initialState") << "("
+		<< utils::Keyword("variable") << "(" << utils::Variable("X") << "), "
+		<< utils::Keyword("value") << "(" << utils::Variable("X") << ", " << utils::Boolean("false") << ")) :- "
+		<< utils::RuleName("variable") << "(" << utils::Keyword("variable") << "(" << utils::Variable("X") << ")), "
+		<< utils::Keyword("not") << " "
+		<< utils::RuleName("initialState") << "("
+		<< utils::Keyword("variable") << "(" << utils::Variable("X") << "), "
+		<< utils::Keyword("value") << "(" << utils::Variable("X") << ", " << utils::Boolean("true") << "))."
+		<< std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
