@@ -130,7 +130,10 @@ void TranslatorASP::translateTypes() const
 
 void TranslatorASP::translatePredicates() const
 {
-	m_outputStream << utils::Heading2("variables");
+	m_outputStream
+		<< utils::Heading2("variables") << std::endl
+		<< utils::RuleName("boolean") << "(" << utils::Boolean("true") << ")." << std::endl
+		<< utils::RuleName("boolean") << "(" << utils::Boolean("false") << ")." << std::endl;
 
 	const auto &predicates = m_description.domain().predicates();
 
@@ -149,27 +152,6 @@ void TranslatorASP::translatePredicates() const
 			m_outputStream << ")";
 		};
 
-	const auto printValueRule =
-		[&](const auto &predicate, const auto &value)
-		{
-			m_outputStream
-				<< utils::RuleName("contains") << "("
-				<< utils::Keyword("variable") << "(";
-
-			printPredicateName(predicate);
-
-			m_outputStream
-				<< "), " << utils::Keyword("value") << "(";
-
-			printPredicateName(predicate);
-
-			m_outputStream << ", " << utils::Boolean(value) << "))";
-
-			this->translateVariablesBody(predicate->arguments());
-
-			m_outputStream << "." << std::endl;
-		};
-
 	std::for_each(predicates.cbegin(), predicates.cend(),
 		[&](const auto &predicate)
 		{
@@ -186,8 +168,27 @@ void TranslatorASP::translatePredicates() const
 
 			m_outputStream << "." << std::endl;
 
-			printValueRule(predicate, "true");
-			printValueRule(predicate, "false");
+			m_outputStream
+				<< utils::RuleName("contains") << "("
+				<< utils::Keyword("variable") << "(";
+
+			printPredicateName(predicate);
+
+			m_outputStream << "), " << utils::Keyword("value") << "(";
+
+			printPredicateName(predicate);
+
+			m_outputStream << ", " << utils::Variable("B") << "))";
+
+			this->translateVariablesBody(predicate->arguments());
+
+			// TODO: clean up
+			if (predicate->arguments().empty())
+				m_outputStream << " :- ";
+			else
+				m_outputStream << ", ";
+
+			m_outputStream << utils::RuleName("boolean") << "(" << utils::Variable("B") << ")." << std::endl;
 		});
 }
 
