@@ -341,7 +341,7 @@ void TranslatorASP::translateVariablesHead(const expressions::Variables &variabl
 	{
 		const auto &variable = **i;
 
-		m_outputStream << ", " << utils::ASPVariable(variable.name());
+		m_outputStream << ", " << utils::Variable(variable.name());
 	}
 }
 
@@ -369,13 +369,13 @@ void TranslatorASP::translateVariablesBody(const expressions::Variables &variabl
 			const auto &type = *dynamic_cast<const expressions::PrimitiveType *>(variable.type());
 
 			m_outputStream << utils::RuleName("has") << "("
-				<< utils::ASPVariable(variable.name()) << ", "
+				<< utils::Variable(variable.name()) << ", "
 				<< utils::Keyword("type") << "(" << utils::String(type.name()) << "))";
 		}
 		else
 		{
 			m_outputStream << utils::RuleName("has") << "("
-				<< utils::ASPVariable(variable.name()) << ", "
+				<< utils::Variable(variable.name()) << ", "
 				<< utils::Keyword("type") << "(" << utils::String("object") << "))";
 		}
 	}
@@ -445,7 +445,7 @@ void TranslatorASP::translatePredicate(const expressions::Predicate &predicate) 
 		{
 			const auto &variable = dynamic_cast<const expressions::Variable &>(**i);
 
-			m_outputStream << utils::ASPVariable(variable.name());
+			m_outputStream << utils::Variable(variable.name());
 		}
 		else
 			throw utils::TranslatorException("only variables and constants supported in predicates currently");

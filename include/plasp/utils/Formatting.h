@@ -172,31 +172,6 @@ inline LogStream &operator<<(LogStream &stream, const Variable &variable)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct ASPVariable: public Token
-{
-	ASPVariable(const std::string &name)
-	:	Token(name)
-	{
-	}
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-inline LogStream &operator<<(LogStream &stream, const ASPVariable &aspVariable)
-{
-	if (aspVariable.name.empty())
-		return stream;
-
-	// TODO: check that char cast is safe
-	return (stream
-		<< utils::Format(utils::Color::Green, utils::FontWeight::Bold)
-		<< static_cast<char>(std::toupper(aspVariable.name.front()))
-		<< aspVariable.name.c_str() + 1
-		<< utils::ResetFormat());
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 struct String: public Token
 {
 	String(const std::string &name)
