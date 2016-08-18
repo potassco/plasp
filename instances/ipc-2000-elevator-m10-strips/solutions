@@ -1,0 +1,6 @@
+instance | minimal horizon | #solutions with minimal horizon
+============================================================
+problem-03-00.pddl | 10 | 12
+problem-03-01.pddl | 11 | 40
+problem-04-00.pddl | 14 | 180
+problem-04-01.pddl | 13 | 120
