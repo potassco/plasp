@@ -1,0 +1,4 @@
+instance | minimal horizon | #solutions with minimal horizon
+============================================================
+prob01.pddl | 11 | 384
+prob02.pddl | 17 | 46080
