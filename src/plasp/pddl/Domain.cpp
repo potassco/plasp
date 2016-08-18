@@ -272,12 +272,14 @@ bool Domain::hasRequirement(Requirement::Type requirementType) const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Domain::checkRequirement(Requirement::Type requirementType) const
+void Domain::checkRequirement(Requirement::Type requirementType)
 {
 	if (hasRequirement(requirementType))
 		return;
 
-	throw ConsistencyException("requirement “" + Requirement(requirementType).toPDDL() + "” used but never declared");
+	m_context.logger.logWarning(m_context.parser.coordinate(), "requirement “" + Requirement(requirementType).toPDDL() + "” used but never declared");
+
+	m_requirements.push_back(requirementType);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
