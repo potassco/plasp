@@ -87,7 +87,7 @@ void TranslatorASP::translateTypes() const
 	{
 		m_outputStream
 			<< utils::RuleName("type") << "("
-			<< utils::Keyword("type") << "(" << utils::String("object") << ")." << std::endl;
+			<< utils::Keyword("type") << "(" << utils::String("object") << "))." << std::endl;
 
 		return;
 	}
