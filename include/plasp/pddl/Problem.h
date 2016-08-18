@@ -33,7 +33,7 @@ class Problem
 
 		const Requirements &requirements() const;
 		bool hasRequirement(Requirement::Type requirementType) const;
-		void checkRequirement(Requirement::Type requirementType) const;
+		void checkRequirement(Requirement::Type requirementType);
 
 		expressions::Constants &objects();
 		const expressions::Constants &objects() const;
