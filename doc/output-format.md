@@ -69,7 +69,7 @@ type(type(<name>)).
 % specifies that <type 1> inherits <type 2>
 inherits(type(<type 1>), type(<type 2>)).
 
-% specifies <constant> to be of type type(<name>)
+% specifies <constant> to have type type(<name>)
 has(<constant>, type(<name>)).
 ```
 
@@ -93,10 +93,10 @@ Variables are linked to the problem's [objects](#constants-objects) and [constan
 `plasp`’s variables are multivalued, and each variable has exactly one value at each point in time.
 
 With SAS, variable names are numbers starting at 0, `variable(<number>)`.
-SAS variables are inherently multivalued, which results in two or more values of the form `value(<SAS predicate>, <bool>)` for each variable.
+SAS variables are inherently multivalued, which results in two or more values of the form `value(<SAS predicate>, <SAS value>)` for each variable.
 
 With PDDL, Boolean variables are created from the PDDL predicates.
-Variables ared named after the PDDL predicates, `variable(<PDDL predicate>).`
+Variables are named after the PDDL predicates, `variable(<PDDL predicate>).`
 Each variable contains exactly two values (one `true`, one `false`) of the form `value(<PDDL predicate>, <bool>)`.
 Note that with PDDL, variables and values are named identically.
 
@@ -138,7 +138,7 @@ Actions may also have *action costs* required to apply them. Action costs are cu
 % declares a <constant> or object
 constant(constant(<name>)).
 
-% specifies <constant> to be of type type(<name>)
+% specifies <constant> to have type type(<name>)
 has(<constant>, <type>).
 ```
 
