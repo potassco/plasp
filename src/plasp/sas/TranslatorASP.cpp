@@ -171,34 +171,34 @@ void TranslatorASP::translateActions() const
 				{
 					const auto &conditions = effect.conditions();
 
-					std::for_each(conditions.cbegin(), conditions.cend(),
-						[&](const auto &condition)
-						{
-							// Conditions of conditional effects
-							m_outputStream << utils::RuleName("precondition") << "(";
-							operator_.printPredicateAsASP(m_outputStream);
-							m_outputStream << ", " << utils::Keyword("effect") << "(" << utils::Number(std::to_string(currentEffectID)) << "), ";
-							condition.variable().printNameAsASPPredicate(m_outputStream);
-							m_outputStream << ", ";
-							condition.value().printAsASPPredicate(m_outputStream);
-							m_outputStream << ")." << std::endl;
-						});
-
 					m_outputStream << utils::RuleName("postcondition") << "(";
 					operator_.printPredicateAsASP(m_outputStream);
 
 					if (conditions.empty())
 						m_outputStream << ", " << utils::Keyword("effect") << "(" << utils::Reserved("unconditional") << "), ";
 					else
-					{
 						m_outputStream << ", " << utils::Keyword("effect") << "(" << utils::Number(std::to_string(currentEffectID)) << "), ";
-						currentEffectID++;
-					}
 
 					effect.postcondition().variable().printNameAsASPPredicate(m_outputStream);
 					m_outputStream << ", ";
 					effect.postcondition().value().printAsASPPredicate(m_outputStream);
 					m_outputStream << ")." << std::endl;
+
+					std::for_each(conditions.cbegin(), conditions.cend(),
+						[&](const auto &condition)
+						{
+							// Conditions of conditional effects
+							m_outputStream
+								<< utils::RuleName("precondition") << "("
+								<< utils::Keyword("effect") << "(" << utils::Number(std::to_string(currentEffectID)) << "), ";
+							condition.variable().printNameAsASPPredicate(m_outputStream);
+							m_outputStream << ", ";
+							condition.value().printAsASPPredicate(m_outputStream);
+							m_outputStream << ")." << std::endl;
+						});
+
+					if (!conditions.empty())
+						currentEffectID++;
 				});
 
 			m_outputStream << utils::RuleName("costs") << "(";

@@ -1,5 +1,11 @@
 # Change Log
 
+## (unreleased)
+
+Bug Fixes:
+
+* fixes incorrect output format of conditional effects with SAS
+
 ## 3.0.2 (2016-08-18)
 
 Features:
