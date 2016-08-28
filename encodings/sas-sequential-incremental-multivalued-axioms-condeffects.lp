@@ -23,10 +23,10 @@ stateVariable(Variable)     :- headVariable(_,Variable).
 % Apply effects
 caused(Variable, Value, t) :- occurs(Action, t), postcondition(Action, Effect, Variable, Value),
 		 	      holds(Variable', Value', t - 1) : precondition(Effect, Variable', Value').
-modified(Variable, t) :- caused(Variable, Value, t).
+changed(Variable, t) :- caused(Variable, Value, t).
 
 holds(Variable, Value, t) :- caused(Variable, Value, t).
-holds(Variable, Value, t) :- holds(Variable, Value, t - 1), not modified(Variable, t).
+holds(Variable, Value, t) :- holds(Variable, Value, t - 1), not changed(Variable, t), not stateVariable(Variable).
 
 #program check(t). % t=0,1,...
 
