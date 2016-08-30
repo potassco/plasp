@@ -177,3 +177,11 @@ TEST_F(SASParserTests, ParseRequirements)
 		FAIL() << e.what();
 	}
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TEST_F(SASParserTests, CheckIssues)
+{
+	// Check issue where unexpected whitespaces in SAS files led to a parsing error
+	ASSERT_NO_THROW(plasp::sas::Description::fromFile("data/issues/issue-6.sas"));
+}
