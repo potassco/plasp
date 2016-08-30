@@ -27,6 +27,11 @@ class PDDLParserPolicy
 			return std::iswspace(c);
 		}
 
+		static bool isBlankCharacter(char c)
+		{
+			return std::isblank(c);
+		}
+
 		static bool isIdentifierCharacter(char c)
 		{
 			return c != '?'

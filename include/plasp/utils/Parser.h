@@ -72,6 +72,7 @@ class Parser: public Stream, public ParserPolicy
 		std::string parseLine();
 
 		void skipWhiteSpace();
+		void skipBlankSpace();
 		void skipLine();
 
 	private:
@@ -119,6 +120,17 @@ void Parser<ParserPolicy>::skipWhiteSpace()
 	check();
 
 	while (!atEnd() && ParserPolicy::isWhiteSpaceCharacter(currentCharacter()))
+		advance();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class ParserPolicy>
+void Parser<ParserPolicy>::skipBlankSpace()
+{
+	check();
+
+	while (!atEnd() && ParserPolicy::isBlankCharacter(currentCharacter()))
 		advance();
 }
 

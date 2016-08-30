@@ -30,14 +30,10 @@ Predicate Predicate::fromSAS(utils::Parser<> &parser)
 
 		while (true)
 		{
-			// Parse arguments until reaching newline
-			// TODO: reimplement
-			/*parser.skipWhiteSpace(
-				[&](const auto character)
-				{
-					return character != '\n' && std::isspace(character);
-				});*/
+			// Skip whitespace but not newlines
+			parser.skipBlankSpace();
 
+			// TODO: check \r handling
 			if (parser.currentCharacter() == '\n')
 				break;
 

@@ -5,6 +5,7 @@
 Bug Fixes:
 
 * fixes incorrect output format of conditional effects with SAS
+* fixes parsing issue with unexpected whitespaces in SAS files
 
 ## 3.0.2 (2016-08-18)
 
