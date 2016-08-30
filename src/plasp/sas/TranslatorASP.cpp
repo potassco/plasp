@@ -33,8 +33,12 @@ void TranslatorASP::translate() const
 	translateVariables();
 	m_outputStream << std::endl;
 	translateActions();
-	m_outputStream << std::endl;
-	translateMutexes();
+
+	if (!m_description.mutexGroups().empty())
+	{
+		m_outputStream << std::endl;
+		translateMutexes();
+	}
 
 	if (m_description.usesAxiomRules())
 	{
