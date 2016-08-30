@@ -4,3 +4,4 @@
 .travis.yml export-ignore
 
 tests/data/* linguist-documentation
+instances/* linguist-documentation
