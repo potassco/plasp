@@ -39,3 +39,6 @@ Finally, build and run the tests as follows:
 ```bash
 $ make run-tests
 ```
+
+After updating `plasp`, make sure to execute CMake again in order for the tests to run correctly.
+Else, external files required by the test suite may be reported missing.
