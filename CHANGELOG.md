@@ -2,6 +2,10 @@
 
 ## (unreleased)
 
+Features:
+
+* extended PDDL support (`imply` expressions)
+
 ## 3.0.3 (2016-09-02)
 
 Bug Fixes:
