@@ -28,12 +28,13 @@ class NAry: public ExpressionCRTP<Derived>
 			ExpressionContext &expressionContext, ExpressionParser parseExpression);
 
 	public:
-		const std::vector<const Expression *> &arguments() const;
-
-	private:
 		void addArgument(const Expression *argument);
 		void addArgument(ExpressionPointer &&argument);
+		const std::vector<const Expression *> &arguments() const;
 
+		ExpressionPointer normalize() override;
+
+	protected:
 		std::vector<const Expression *> m_arguments;
 		Expressions m_argumentStorage;
 };
@@ -106,6 +107,28 @@ template<class Derived>
 const std::vector<const Expression *> &NAry<Derived>::arguments() const
 {
 	return m_arguments;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Derived>
+inline ExpressionPointer NAry<Derived>::normalize()
+{
+	for (size_t i = 0; i < m_argumentStorage.size(); i++)
+	{
+		BOOST_ASSERT(m_argumentStorage[i]);
+
+		auto normalizedArgument = m_argumentStorage[i]->normalize();
+
+		// Replace argument if changed by normalization
+		if (!normalizedArgument)
+			continue;
+
+		m_argumentStorage[i] = std::move(normalizedArgument);
+		m_arguments[i] = m_argumentStorage[i].get();
+	}
+
+	return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

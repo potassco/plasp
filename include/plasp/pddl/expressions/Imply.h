@@ -22,6 +22,9 @@ class Imply: public Binary<Imply>
 		static const Expression::Type ExpressionType = Expression::Type::Imply;
 
 		static const std::string Identifier;
+
+	public:
+		ExpressionPointer normalize() override;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

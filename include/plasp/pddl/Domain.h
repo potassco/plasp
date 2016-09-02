@@ -67,8 +67,6 @@ class Domain
 
 		void parseActionSection();
 
-		void normalizeParameterNames();
-
 		Context &m_context;
 
 		std::string m_name;

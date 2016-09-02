@@ -87,8 +87,13 @@ const Expression *Action::effect() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Action::normalizeParameterNames()
+void Action::normalize()
 {
+	// Normalize preconditions and effects
+	m_precondition->normalize();
+	m_effect->normalize();
+
+	// Normalize parameter names
 	for (size_t i = 0; i < m_parameters.size(); i++)
 		m_parameters[i]->setName("X" + std::to_string(i));
 }

@@ -43,6 +43,21 @@ const Expression *At::argument() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+ExpressionPointer At::normalize()
+{
+	BOOST_ASSERT(m_argumentStorage);
+
+	auto normalizedArgument = m_argumentStorage->normalize();
+
+	// Replace argument if changed by normalization
+	if (normalizedArgument)
+		setArgument(std::move(normalizedArgument));
+
+	return nullptr;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 }
 }
 }

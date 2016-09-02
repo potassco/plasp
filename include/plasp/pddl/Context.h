@@ -58,6 +58,11 @@ class Context
 			return *this;
 		}
 
+		constexpr static const char *auxiliaryPrefix()
+		{
+			return "__plasp_";
+		}
+
 		Parser parser;
 		utils::Logger logger;
 };

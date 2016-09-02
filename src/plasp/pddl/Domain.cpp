@@ -417,23 +417,16 @@ void Domain::checkConsistency()
 
 void Domain::normalize()
 {
-	normalizeParameterNames();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void Domain::normalizeParameterNames()
-{
 	std::for_each(m_predicates.begin(), m_predicates.end(),
 		[](auto &predicate)
 		{
-			predicate->normalizeParameterNames();
+			predicate->normalize();
 		});
 
 	std::for_each(m_actions.begin(), m_actions.end(),
 		[](auto &action)
 		{
-			action->normalizeParameterNames();
+			action->normalize();
 		});
 }
 

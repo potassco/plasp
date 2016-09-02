@@ -38,6 +38,8 @@ class Variable: public ExpressionCRTP<Variable>
 
 		void setType(const Expression *type);
 
+		ExpressionPointer normalize() override;
+
 	private:
 		static void parseDeclaration(Context &context, Variables &parameters);
 

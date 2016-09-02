@@ -34,12 +34,13 @@ class At: public ExpressionCRTP<At>
 
 		size_t timePoint() const;
 
-		const Expression *argument() const;
-
-	private:
 		void setArgument(const Expression *argument);
 		void setArgument(ExpressionPointer &&argument);
+		const Expression *argument() const;
 
+		ExpressionPointer normalize() override;
+
+	protected:
 		size_t m_timePoint;
 
 		const Expression *m_argument;

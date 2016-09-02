@@ -29,12 +29,13 @@ class Not: public ExpressionCRTP<Not>
 	public:
 		Not();
 
-		const Expression *argument() const;
-
-	private:
 		void setArgument(const Expression *argument);
 		void setArgument(ExpressionPointer &&argument);
+		const Expression *argument() const;
 
+		ExpressionPointer normalize() override;
+
+	protected:
 		const Expression *m_argument;
 		ExpressionPointer m_argumentStorage;
 };

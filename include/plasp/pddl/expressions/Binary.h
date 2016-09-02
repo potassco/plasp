@@ -28,14 +28,15 @@ class Binary: public ExpressionCRTP<Derived>
 			ExpressionContext &expressionContext, ExpressionParser parseExpression);
 
 	public:
-		const std::array<const Expression *, 2> &arguments() const;
-
-	private:
 		template<size_t i>
 		void setArgument(const Expression *argument);
 		template<size_t i>
 		void setArgument(ExpressionPointer &&argument);
+		const std::array<const Expression *, 2> &arguments() const;
 
+		ExpressionPointer normalize() override;
+
+	protected:
 		std::array<const Expression *, 2> m_arguments;
 		std::array<ExpressionPointer, 2> m_argumentStorage;
 };
@@ -100,6 +101,28 @@ template<class Derived>
 const std::array<const Expression *, 2> &Binary<Derived>::arguments() const
 {
 	return m_arguments;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Derived>
+inline ExpressionPointer Binary<Derived>::normalize()
+{
+	for (size_t i = 0; i < m_argumentStorage.size(); i++)
+	{
+		BOOST_ASSERT(m_argumentStorage[i]);
+
+		auto normalizedArgument = m_argumentStorage[i]->normalize();
+
+		// Replace argument if changed by normalization
+		if (!normalizedArgument)
+			continue;
+
+		m_argumentStorage[i] = std::move(normalizedArgument);
+		m_arguments[i] = m_argumentStorage[i].get();
+	}
+
+	return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
