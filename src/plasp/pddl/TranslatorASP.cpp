@@ -23,7 +23,7 @@ TranslatorASP::TranslatorASP(Description &description, utils::LogStream &outputS
 :	m_description(description),
 	m_outputStream(outputStream)
 {
-	m_description.normalizeParameterNames();
+	m_description.normalize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

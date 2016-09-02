@@ -51,7 +51,7 @@ class Domain
 
 		void checkConsistency();
 
-		void normalizeParameterNames();
+		void normalize();
 
 	private:
 		void parseSection();
@@ -66,6 +66,8 @@ class Domain
 		void parsePredicateSection();
 
 		void parseActionSection();
+
+		void normalizeParameterNames();
 
 		Context &m_context;
 
