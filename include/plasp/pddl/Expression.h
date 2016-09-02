@@ -81,6 +81,7 @@ class Expression
 			At,
 			Binary,
 			Constant,
+			Dummy,
 			Either,
 			Imply,
 			Not,
@@ -89,7 +90,7 @@ class Expression
 			Predicate,
 			PrimitiveType,
 			Unsupported,
-			Variable
+			Variable,
 		};
 
 	public:
