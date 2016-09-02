@@ -45,6 +45,8 @@ class Problem
 
 		void checkConsistency();
 
+		void normalize();
+
 	private:
 		void parseRequirementSection();
 		void computeDerivedRequirements();

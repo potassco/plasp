@@ -207,6 +207,9 @@ void Description::checkConsistency()
 void Description::normalize()
 {
 	m_domain->normalize();
+
+	if (m_problem)
+		m_problem->normalize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
