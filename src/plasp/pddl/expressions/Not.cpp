@@ -47,6 +47,14 @@ ExpressionPointer Not::normalize()
 {
 	BOOST_ASSERT(m_argumentStorage);
 
+	// Remove double negations
+	if (m_argumentStorage->expressionType() == Expression::Type::Not)
+	{
+		auto &argument = dynamic_cast<Not &>(*m_argumentStorage);
+
+		return std::move(argument.m_argumentStorage);
+	}
+
 	auto normalizedArgument = m_argumentStorage->normalize();
 
 	// Replace argument if changed by normalization
