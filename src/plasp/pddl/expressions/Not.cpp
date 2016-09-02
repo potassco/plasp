@@ -52,7 +52,10 @@ ExpressionPointer Not::normalize()
 	{
 		auto &argument = dynamic_cast<Not &>(*m_argumentStorage);
 
-		return std::move(argument.m_argumentStorage);
+		auto normalized = std::move(argument.m_argumentStorage);
+		normalized->normalize();
+
+		return normalized;
 	}
 
 	auto normalizedArgument = m_argumentStorage->normalize();
