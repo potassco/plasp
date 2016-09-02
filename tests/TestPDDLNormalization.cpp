@@ -32,6 +32,8 @@ TEST(PDDLNormalizationTests, Implication)
 
 	ASSERT_EQ(n.argument(), d1p);
 	ASSERT_EQ(o.arguments()[1], d2p);
+	ASSERT_TRUE(d1p->isNormalized());
+	ASSERT_TRUE(d2p->isNormalized());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

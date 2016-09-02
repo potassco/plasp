@@ -33,6 +33,11 @@ ExpressionPointer Imply::normalize()
 	orExpression->addArgument(std::move(notArgument0));
 	orExpression->addArgument(std::move(m_argumentStorage[1]));
 
+	auto normalizedOrExpression = orExpression->normalize();
+
+	if (normalizedOrExpression)
+		return normalizedOrExpression;
+
 	return std::move(orExpression);
 }
 
