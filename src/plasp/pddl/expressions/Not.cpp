@@ -68,7 +68,7 @@ ExpressionPointer Not::negationNormalized()
 	{
 		auto &argument = dynamic_cast<Not &>(*m_argument);
 
-		return argument.m_argument->negationNormalized();
+		return argument.m_argument;
 	}
 
 	// De Morgan for negative conjunctions
