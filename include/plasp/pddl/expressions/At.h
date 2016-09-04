@@ -39,6 +39,8 @@ class At: public ExpressionCRTP<At>
 
 		ExpressionPointer normalized() override;
 
+		void print(std::ostream &ostream) const override;
+
 	protected:
 		size_t m_timePoint;
 

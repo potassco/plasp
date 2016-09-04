@@ -30,6 +30,8 @@ class Predicate: public ExpressionCRTP<Predicate>
 
 		bool isDeclared() const;
 
+		void print(std::ostream &ostream) const override;
+
 	private:
 		Predicate();
 

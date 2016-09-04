@@ -27,6 +27,8 @@ class Unsupported: public ExpressionCRTP<Unsupported>
 	public:
 		const std::string &type() const;
 
+		void print(std::ostream &ostream) const override;
+
 	private:
 		std::string m_type;
 };

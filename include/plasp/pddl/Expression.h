@@ -1,6 +1,8 @@
 #ifndef __PLASP__PDDL__EXPRESSION_H
 #define __PLASP__PDDL__EXPRESSION_H
 
+#include <iosfwd>
+
 #include <boost/intrusive_ptr.hpp>
 
 #include <plasp/utils/Parser.h>
@@ -109,6 +111,8 @@ class Expression
 
 		virtual ExpressionPointer normalized();
 		ExpressionPointer negated();
+
+		virtual void print(std::ostream &ostream) const = 0;
 
 	private:
 		friend void intrusive_ptr_add_ref(Expression *expression);

@@ -35,6 +35,8 @@ class NAry: public ExpressionCRTP<Derived>
 
 		ExpressionPointer normalized() override;
 
+		void print(std::ostream &ostream) const override;
+
 	protected:
 		Expressions m_arguments;
 };
@@ -128,6 +130,23 @@ inline ExpressionPointer NAry<Derived>::normalized()
 	}
 
 	return this;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Derived>
+inline void NAry<Derived>::print(std::ostream &ostream) const
+{
+	ostream << "(" << Derived::Identifier;
+
+	std::for_each(m_arguments.begin(), m_arguments.end(),
+		[&](auto &argument)
+		{
+			ostream << " ";
+			argument->print(ostream);
+		});
+
+	ostream << ")";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

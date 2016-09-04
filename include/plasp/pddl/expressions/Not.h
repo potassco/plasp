@@ -34,6 +34,8 @@ class Not: public ExpressionCRTP<Not>
 
 		ExpressionPointer normalized() override;
 
+		void print(std::ostream &ostream) const override;
+
 	protected:
 		ExpressionPointer m_argument;
 };

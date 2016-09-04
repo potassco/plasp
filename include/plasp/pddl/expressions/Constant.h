@@ -35,6 +35,8 @@ class Constant: public ExpressionCRTP<Constant>
 		const std::string &name() const;
 		PrimitiveTypePointer type() const;
 
+		void print(std::ostream &ostream) const override;
+
 	private:
 		static ConstantPointer parseDeclaration(Context &context);
 		static void parseTypedDeclaration(Context &context, Domain &domain, Constants &constants);

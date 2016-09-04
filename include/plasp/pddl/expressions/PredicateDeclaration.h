@@ -31,6 +31,8 @@ class PredicateDeclaration: public ExpressionCRTP<PredicateDeclaration>
 
 		void normalizeParameterNames();
 
+		void print(std::ostream &ostream) const override;
+
 	private:
 		PredicateDeclaration();
 

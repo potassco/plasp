@@ -21,12 +21,13 @@ class Dummy: public ExpressionCRTP<Dummy>
 	public:
 		static const Expression::Type ExpressionType = Expression::Type::Dummy;
 
-		bool isNormalized() const;
+	public:
+		Dummy(std::string name);
 
-		ExpressionPointer normalized() override;
+		void print(std::ostream &ostream) const override;
 
 	private:
-		bool m_isNormalized = false;
+		std::string m_name;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

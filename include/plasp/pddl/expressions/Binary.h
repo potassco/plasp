@@ -33,6 +33,8 @@ class Binary: public ExpressionCRTP<Derived>
 
 		ExpressionPointer normalized() override;
 
+		void print(std::ostream &ostream) const override;
+
 	protected:
 		std::array<ExpressionPointer, 2> m_arguments;
 };
@@ -98,6 +100,23 @@ inline ExpressionPointer Binary<Derived>::normalized()
 	}
 
 	return this;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Derived>
+inline void Binary<Derived>::print(std::ostream &ostream) const
+{
+	ostream << "(" << Derived::Identifier;
+
+	std::for_each(m_arguments.begin(), m_arguments.end(),
+		[&](auto &argument)
+		{
+			ostream << " ";
+			argument->print(ostream);
+		});
+
+	ostream << ")";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

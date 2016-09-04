@@ -13,28 +13,14 @@ using namespace plasp::pddl;
 TEST(PDDLNormalizationTests, Implication)
 {
 	auto i = expressions::ImplyPointer(new expressions::Imply);
-	auto d1 = expressions::DummyPointer(new expressions::Dummy);
-	const auto d1p = d1.get();
-	auto d2 = expressions::DummyPointer(new expressions::Dummy);
-	const auto d2p = d2.get();
 
-	i->setArgument(0, d1);
-	i->setArgument(1, d2);
+	i->setArgument(0, new expressions::Dummy("a"));
+	i->setArgument(1, new expressions::Dummy("b"));
 
-	auto normalized = i->normalized();
+	std::stringstream output;
+	i->normalized()->print(output);
 
-	ASSERT_EQ(normalized->expressionType(), Expression::Type::Or);
-
-	const auto &o = dynamic_cast<expressions::Or &>(*normalized);
-
-	ASSERT_EQ(o.arguments()[0]->expressionType(), Expression::Type::Not);
-
-	const auto &n = dynamic_cast<const expressions::Not &>(*o.arguments()[0]);
-
-	ASSERT_EQ(n.argument(), d1p);
-	ASSERT_EQ(o.arguments()[1], d2p);
-	ASSERT_TRUE(d1p->isNormalized());
-	ASSERT_TRUE(d2p->isNormalized());
+	ASSERT_EQ(output.str(), "(or (not (a)) (b))");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -43,57 +29,32 @@ TEST(PDDLNormalizationTests, DoubleNegation)
 {
 	auto n1 = expressions::NotPointer(new expressions::Not);
 	auto n2 = expressions::NotPointer(new expressions::Not);
-	auto d = expressions::DummyPointer(new expressions::Dummy);
-	const auto dp = d.get();
 
-	n2->setArgument(std::move(d));
-	n1->setArgument(std::move(n2));
+	n2->setArgument(new expressions::Dummy("a"));
+	n1->setArgument(n2);
 
-	auto normalized = n1->normalized();
+	std::stringstream output;
+	n1->normalized()->print(output);
 
-	ASSERT_EQ(normalized.get(), dp);
-	ASSERT_TRUE(dp->isNormalized());
+	ASSERT_EQ(output.str(), "(a)");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 TEST(PDDLNormalizationTests, DeMorganNegativeConjunction)
 {
-	auto d1 = expressions::DummyPointer(new expressions::Dummy);
-	const auto d1p = d1.get();
-	auto d2 = expressions::DummyPointer(new expressions::Dummy);
-	const auto d2p = d2.get();
-	auto d3 = expressions::DummyPointer(new expressions::Dummy);
-	const auto d3p = d3.get();
-
 	auto a = expressions::AndPointer(new expressions::And);
-	a->addArgument(d1);
-	a->addArgument(d2);
-	a->addArgument(d3);
+	a->addArgument(new expressions::Dummy("a"));
+	a->addArgument(new expressions::Dummy("b"));
+	a->addArgument(new expressions::Dummy("c"));
 
 	auto n = expressions::NotPointer(new expressions::Not);
 	n->setArgument(a);
 
-	auto normalized = n->normalized();
+	std::stringstream output;
+	n->normalized()->print(output);
 
-	ASSERT_EQ(normalized->expressionType(), Expression::Type::Or);
-
-	const auto &o = dynamic_cast<expressions::Or &>(*normalized);
-
-	ASSERT_EQ(o.arguments()[0]->expressionType(), Expression::Type::Not);
-	ASSERT_EQ(o.arguments()[1]->expressionType(), Expression::Type::Not);
-	ASSERT_EQ(o.arguments()[2]->expressionType(), Expression::Type::Not);
-
-	const auto &n1 = dynamic_cast<expressions::Not &>(*o.arguments()[0]);
-	const auto &n2 = dynamic_cast<expressions::Not &>(*o.arguments()[1]);
-	const auto &n3 = dynamic_cast<expressions::Not &>(*o.arguments()[2]);
-
-	ASSERT_EQ(n1.argument().get(), d1p);
-	ASSERT_EQ(n2.argument().get(), d2p);
-	ASSERT_EQ(n3.argument().get(), d3p);
-	ASSERT_TRUE(d1p->isNormalized());
-	ASSERT_TRUE(d2p->isNormalized());
-	ASSERT_TRUE(d3p->isNormalized());
+	ASSERT_EQ(output.str(), "(or (not (a)) (not (b)) (not (c)))");
 }
 
 
@@ -101,39 +62,39 @@ TEST(PDDLNormalizationTests, DeMorganNegativeConjunction)
 
 TEST(PDDLNormalizationTests, DeMorganNegativeDisjunction)
 {
-	auto d1 = expressions::DummyPointer(new expressions::Dummy);
-	const auto d1p = d1.get();
-	auto d2 = expressions::DummyPointer(new expressions::Dummy);
-	const auto d2p = d2.get();
-	auto d3 = expressions::DummyPointer(new expressions::Dummy);
-	const auto d3p = d3.get();
-
-	auto o = expressions::OrPointer(new expressions::Or);
-	o->addArgument(d1);
-	o->addArgument(d2);
-	o->addArgument(d3);
+	auto a = expressions::OrPointer(new expressions::Or);
+	a->addArgument(new expressions::Dummy("a"));
+	a->addArgument(new expressions::Dummy("b"));
+	a->addArgument(new expressions::Dummy("c"));
 
 	auto n = expressions::NotPointer(new expressions::Not);
-	n->setArgument(o);
+	n->setArgument(a);
 
-	auto normalized = n->normalized();
+	std::stringstream output;
+	n->normalized()->print(output);
 
-	ASSERT_EQ(normalized->expressionType(), Expression::Type::And);
+	ASSERT_EQ(output.str(), "(and (not (a)) (not (b)) (not (c)))");
+}
 
-	const auto &a = dynamic_cast<expressions::And &>(*normalized);
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	ASSERT_EQ(a.arguments()[0]->expressionType(), Expression::Type::Not);
-	ASSERT_EQ(a.arguments()[1]->expressionType(), Expression::Type::Not);
-	ASSERT_EQ(a.arguments()[2]->expressionType(), Expression::Type::Not);
+TEST(PDDLNormalizationTests, DoubleNegationInner)
+{
+	auto n1 = expressions::NotPointer(new expressions::Not);
+	auto n2 = expressions::NotPointer(new expressions::Not);
+	auto n3 = expressions::NotPointer(new expressions::Not);
+	auto a = expressions::AndPointer(new expressions::And);
 
-	const auto &n1 = dynamic_cast<expressions::Not &>(*a.arguments()[0]);
-	const auto &n2 = dynamic_cast<expressions::Not &>(*a.arguments()[1]);
-	const auto &n3 = dynamic_cast<expressions::Not &>(*a.arguments()[2]);
+	a->addArgument(new expressions::Dummy("a"));
+	a->addArgument(new expressions::Dummy("b"));
+	a->addArgument(new expressions::Dummy("c"));
 
-	ASSERT_EQ(n1.argument().get(), d1p);
-	ASSERT_EQ(n2.argument().get(), d2p);
-	ASSERT_EQ(n3.argument().get(), d3p);
-	ASSERT_TRUE(d1p->isNormalized());
-	ASSERT_TRUE(d2p->isNormalized());
-	ASSERT_TRUE(d3p->isNormalized());
+	n3->setArgument(a);
+	n2->setArgument(n3);
+	n1->setArgument(n2);
+
+	std::stringstream output;
+	n1->normalized()->print(output);
+
+	ASSERT_EQ(output.str(), "(or (not (a)) (not (b)) (not (c)))");
 }

@@ -37,6 +37,8 @@ class Variable: public ExpressionCRTP<Variable>
 		void setDirty(bool isDirty = true);
 		bool isDirty() const;
 
+		void print(std::ostream &ostream) const override;
+
 	private:
 		static void parseDeclaration(Context &context, Variables &parameters);
 

@@ -1,5 +1,8 @@
 #include <plasp/pddl/expressions/And.h>
 
+#include <algorithm>
+#include <iostream>
+
 namespace plasp
 {
 namespace pddl
