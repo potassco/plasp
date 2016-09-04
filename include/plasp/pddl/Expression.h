@@ -112,6 +112,7 @@ class Expression
 		ExpressionPointer normalized();
 		virtual ExpressionPointer reduced();
 		virtual ExpressionPointer negationNormalized();
+		virtual ExpressionPointer simplified();
 		ExpressionPointer negated();
 
 		virtual void print(std::ostream &ostream) const = 0;

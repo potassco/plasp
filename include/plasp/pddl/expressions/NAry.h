@@ -35,6 +35,7 @@ class NAry: public ExpressionCRTP<Derived>
 
 		ExpressionPointer reduced() override;
 		ExpressionPointer negationNormalized() override;
+		ExpressionPointer simplified() override;
 
 		void print(std::ostream &ostream) const override;
 
@@ -145,19 +146,41 @@ inline ExpressionPointer NAry<Derived>::negationNormalized()
 		m_arguments[i] = m_arguments[i]->negationNormalized();
 	}
 
-	/*// Unify same-type children
-	for (size_t i = 0; i < m_arguments.size(); i++)
+	return this;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Derived>
+inline ExpressionPointer NAry<Derived>::simplified()
+{
+	// Associate same-type children, such as (a && (b && c)) == (a && b && c)
+	for (size_t i = 0; i < m_arguments.size();)
 	{
+		m_arguments[i] = m_arguments[i]->simplified();
+
 		if (m_arguments[i]->expressionType() != Derived::ExpressionType)
+		{
+			i++;
 			continue;
+		}
 
-		auto &nAryExpression = dynamic_cast<Derived &>(*m_arguments[i]);
+		auto child = m_arguments[i];
+		auto &nAryExpression = dynamic_cast<Derived &>(*child);
 
-		m_arguments.reserve(m_arguments.size() + nAryExpression.arguments().size());
+		BOOST_ASSERT(!nAryExpression.arguments().empty());
 
-		m_arguments.emplace_back(nAryExpression.arguments());
-		m_arguments.erase(const_iterator __position)
-	}*/
+		// Remove former child by replacing it with the first one of the child
+		m_arguments[i] = nAryExpression.arguments().front();
+
+		// Reserve space for new arguments
+		m_arguments.reserve(m_arguments.size() + nAryExpression.arguments().size() - 1);
+
+		// Copy all but first element
+		m_arguments.insert(m_arguments.end(), nAryExpression.arguments().begin() + 1, nAryExpression.arguments().end());
+	}
+
+	// TODO: recognize tautologies
 
 	return this;
 }

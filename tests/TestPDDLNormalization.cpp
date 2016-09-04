@@ -10,7 +10,7 @@ using namespace plasp::pddl;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLNormalizationTests, Reduced)
+TEST(PDDLNormalizationTests, Reduce)
 {
 	auto n1 = expressions::NotPointer(new expressions::Not);
 	auto n2 = expressions::NotPointer(new expressions::Not);
@@ -34,6 +34,36 @@ TEST(PDDLNormalizationTests, Reduced)
 	n1->reduced()->print(output);
 
 	ASSERT_EQ(output.str(), "(not (not (and (or (or (not (a)) (b)) (c)) (d))))");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TEST(PDDLNormalizationTests, Simplify)
+{
+	auto a1 = expressions::AndPointer(new expressions::And);
+	auto a2 = expressions::AndPointer(new expressions::And);
+	auto o1 = expressions::OrPointer(new expressions::Or);
+	auto o2 = expressions::OrPointer(new expressions::Or);
+
+	a1->addArgument(new expressions::Dummy("a"));
+	a1->addArgument(new expressions::Dummy("b"));
+	a1->addArgument(a2);
+
+	a2->addArgument(new expressions::Dummy("c"));
+	a2->addArgument(new expressions::Dummy("d"));
+	a2->addArgument(o1);
+
+	o1->addArgument(new expressions::Dummy("e"));
+	o1->addArgument(new expressions::Dummy("f"));
+	o1->addArgument(o2);
+
+	o2->addArgument(new expressions::Dummy("g"));
+	o2->addArgument(new expressions::Dummy("h"));
+
+	std::stringstream output;
+	a1->simplified()->print(output);
+
+	ASSERT_EQ(output.str(), "(and (a) (b) (c) (d) (or (e) (f) (g) (h)))");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -84,7 +114,6 @@ TEST(PDDLNormalizationTests, DeMorganNegativeConjunction)
 
 	ASSERT_EQ(output.str(), "(or (not (a)) (not (b)) (not (c)))");
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
