@@ -181,6 +181,7 @@ inline ExpressionPointer NAry<Derived>::simplified()
 	}
 
 	// TODO: recognize tautologies
+	// TODO: introduce handle boolean values
 
 	return this;
 }
