@@ -33,7 +33,8 @@ class NAry: public ExpressionCRTP<Derived>
 		Expressions &arguments();
 		const Expressions &arguments() const;
 
-		ExpressionPointer normalized() override;
+		ExpressionPointer simplified() override;
+		ExpressionPointer negationNormalized() override;
 
 		void print(std::ostream &ostream) const override;
 
@@ -120,14 +121,43 @@ Expressions &NAry<Derived>::arguments()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived>
-inline ExpressionPointer NAry<Derived>::normalized()
+inline ExpressionPointer NAry<Derived>::simplified()
 {
 	for (size_t i = 0; i < m_arguments.size(); i++)
 	{
 		BOOST_ASSERT(m_arguments[i]);
 
-		m_arguments[i] = m_arguments[i]->normalized();
+		m_arguments[i] = m_arguments[i]->simplified();
 	}
+
+	return this;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Derived>
+inline ExpressionPointer NAry<Derived>::negationNormalized()
+{
+	for (size_t i = 0; i < m_arguments.size(); i++)
+	{
+		BOOST_ASSERT(m_arguments[i]);
+
+		m_arguments[i] = m_arguments[i]->negationNormalized();
+	}
+
+	/*// Unify same-type children
+	for (size_t i = 0; i < m_arguments.size(); i++)
+	{
+		if (m_arguments[i]->expressionType() != Derived::ExpressionType)
+			continue;
+
+		auto &nAryExpression = dynamic_cast<Derived &>(*m_arguments[i]);
+
+		m_arguments.reserve(m_arguments.size() + nAryExpression.arguments().size());
+
+		m_arguments.emplace_back(nAryExpression.arguments());
+		m_arguments.erase(const_iterator __position)
+	}*/
 
 	return this;
 }

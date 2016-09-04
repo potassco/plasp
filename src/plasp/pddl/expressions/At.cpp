@@ -1,5 +1,7 @@
 #include <plasp/pddl/expressions/At.h>
 
+#include <plasp/utils/TranslatorException.h>
+
 namespace plasp
 {
 namespace pddl
@@ -34,11 +36,18 @@ ExpressionPointer At::argument() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ExpressionPointer At::normalized()
+ExpressionPointer At::simplified()
+{
+	throw utils::TranslatorException("“at” predicates currently not supported");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ExpressionPointer At::negationNormalized()
 {
 	BOOST_ASSERT(m_argument);
 
-	m_argument = m_argument->normalized();
+	m_argument = m_argument->negationNormalized();
 
 	return this;
 }

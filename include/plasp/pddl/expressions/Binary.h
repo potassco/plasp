@@ -31,7 +31,8 @@ class Binary: public ExpressionCRTP<Derived>
 		void setArgument(size_t i, ExpressionPointer argument);
 		const std::array<ExpressionPointer, 2> &arguments() const;
 
-		ExpressionPointer normalized() override;
+		ExpressionPointer simplified() override;
+		ExpressionPointer negationNormalized() override;
 
 		void print(std::ostream &ostream) const override;
 
@@ -90,7 +91,22 @@ const std::array<ExpressionPointer, 2> &Binary<Derived>::arguments() const
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived>
-inline ExpressionPointer Binary<Derived>::normalized()
+inline ExpressionPointer Binary<Derived>::simplified()
+{
+	for (size_t i = 0; i < m_arguments.size(); i++)
+	{
+		BOOST_ASSERT(m_arguments[i]);
+
+		m_arguments[i] = m_arguments[i]->simplified();
+	}
+
+	return this;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Derived>
+inline ExpressionPointer Binary<Derived>::negationNormalized()
 {
 	for (size_t i = 0; i < m_arguments.size(); i++)
 	{

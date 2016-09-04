@@ -21,13 +21,13 @@ const std::string Imply::Identifier = "imply";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ExpressionPointer Imply::normalized()
+ExpressionPointer Imply::simplified()
 {
 	BOOST_ASSERT(m_arguments[0]);
 	BOOST_ASSERT(m_arguments[1]);
 
-	m_arguments[0] = m_arguments[0]->normalized();
-	m_arguments[1] = m_arguments[1]->normalized();
+	m_arguments[0] = m_arguments[0]->simplified();
+	m_arguments[1] = m_arguments[1]->simplified();
 
 	auto notArgument0 = NotPointer(new Not);
 	notArgument0->setArgument(std::move(m_arguments[0]));
@@ -36,7 +36,7 @@ ExpressionPointer Imply::normalized()
 	orExpression->addArgument(std::move(notArgument0));
 	orExpression->addArgument(std::move(m_arguments[1]));
 
-	auto normalizedOrExpression = orExpression->normalized();
+	auto normalizedOrExpression = orExpression->simplified();
 
 	if (normalizedOrExpression)
 		return normalizedOrExpression;

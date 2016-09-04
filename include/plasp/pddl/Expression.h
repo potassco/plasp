@@ -109,7 +109,9 @@ class Expression
 
 		virtual Type expressionType() const = 0;
 
-		virtual ExpressionPointer normalized();
+		ExpressionPointer normalized();
+		virtual ExpressionPointer simplified();
+		virtual ExpressionPointer negationNormalized();
 		ExpressionPointer negated();
 
 		virtual void print(std::ostream &ostream) const = 0;

@@ -37,7 +37,18 @@ ExpressionPointer Not::argument() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ExpressionPointer Not::normalized()
+ExpressionPointer Not::simplified()
+{
+	BOOST_ASSERT(m_argument);
+
+	m_argument = m_argument->simplified();
+
+	return this;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ExpressionPointer Not::negationNormalized()
 {
 	BOOST_ASSERT(m_argument);
 

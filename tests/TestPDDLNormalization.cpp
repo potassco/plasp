@@ -10,6 +10,34 @@ using namespace plasp::pddl;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+TEST(PDDLNormalizationTests, Simplify)
+{
+	auto n1 = expressions::NotPointer(new expressions::Not);
+	auto n2 = expressions::NotPointer(new expressions::Not);
+	auto a = expressions::AndPointer(new expressions::And);
+	auto o = expressions::OrPointer(new expressions::Or);
+	auto i = expressions::ImplyPointer(new expressions::Imply);
+
+	i->setArgument(0, new expressions::Dummy("a"));
+	i->setArgument(1, new expressions::Dummy("b"));
+
+	o->addArgument(i);
+	o->addArgument(new expressions::Dummy("c"));
+
+	a->addArgument(o);
+	a->addArgument(new expressions::Dummy("d"));
+
+	n2->setArgument(a);
+	n1->setArgument(n2);
+
+	std::stringstream output;
+	n1->simplified()->print(output);
+
+	ASSERT_EQ(output.str(), "(not (not (and (or (or (not (a)) (b)) (c)) (d))))");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 TEST(PDDLNormalizationTests, Implication)
 {
 	auto i = expressions::ImplyPointer(new expressions::Imply);
