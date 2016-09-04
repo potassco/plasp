@@ -28,17 +28,13 @@ class Binary: public ExpressionCRTP<Derived>
 			ExpressionContext &expressionContext, ExpressionParser parseExpression);
 
 	public:
-		template<size_t i>
-		void setArgument(const Expression *argument);
-		template<size_t i>
-		void setArgument(ExpressionPointer &&argument);
-		const std::array<const Expression *, 2> &arguments() const;
+		void setArgument(size_t i, ExpressionPointer argument);
+		const std::array<ExpressionPointer, 2> &arguments() const;
 
 		ExpressionPointer normalize() override;
 
 	protected:
-		std::array<const Expression *, 2> m_arguments;
-		std::array<ExpressionPointer, 2> m_argumentStorage;
+		std::array<ExpressionPointer, 2> m_arguments;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -63,8 +59,8 @@ boost::intrusive_ptr<Derived> Binary<Derived>::parse(Context &context,
 
 	// Assume that expression identifier (imply, exists, etc.) is already parsed
 	// Parse arguments of the expression
-	expression->Binary<Derived>::setArgument<0>(parseExpression(context, expressionContext));
-	expression->Binary<Derived>::setArgument<1>(parseExpression(context, expressionContext));
+	expression->Binary<Derived>::setArgument(0, parseExpression(context, expressionContext));
+	expression->Binary<Derived>::setArgument(1, parseExpression(context, expressionContext));
 
 	parser.expect<std::string>(")");
 
@@ -74,31 +70,17 @@ boost::intrusive_ptr<Derived> Binary<Derived>::parse(Context &context,
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived>
-template<size_t i>
-void Binary<Derived>::setArgument(const Expression *expression)
+void Binary<Derived>::setArgument(size_t i, ExpressionPointer expression)
 {
-	static_assert(i <= 2, "Index out of range");
+	BOOST_ASSERT_MSG(i <= 2, "Index out of range");
 
-	m_argumentStorage[i] = nullptr;
 	m_arguments[i] = expression;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived>
-template<size_t i>
-void Binary<Derived>::setArgument(ExpressionPointer &&expression)
-{
-	static_assert(i <= 2, "Index out of range");
-
-	m_argumentStorage[i] = std::move(expression);
-	m_arguments[i] = m_argumentStorage[i].get();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<class Derived>
-const std::array<const Expression *, 2> &Binary<Derived>::arguments() const
+const std::array<ExpressionPointer, 2> &Binary<Derived>::arguments() const
 {
 	return m_arguments;
 }
@@ -108,18 +90,17 @@ const std::array<const Expression *, 2> &Binary<Derived>::arguments() const
 template<class Derived>
 inline ExpressionPointer Binary<Derived>::normalize()
 {
-	for (size_t i = 0; i < m_argumentStorage.size(); i++)
+	for (size_t i = 0; i < m_arguments.size(); i++)
 	{
-		BOOST_ASSERT(m_argumentStorage[i]);
+		BOOST_ASSERT(m_arguments[i]);
 
-		auto normalizedArgument = m_argumentStorage[i]->normalize();
+		auto normalizedArgument = m_arguments[i]->normalize();
 
 		// Replace argument if changed by normalization
 		if (!normalizedArgument)
 			continue;
 
-		m_argumentStorage[i] = std::move(normalizedArgument);
-		m_arguments[i] = m_argumentStorage[i].get();
+		m_arguments[i] = std::move(normalizedArgument);
 	}
 
 	return nullptr;

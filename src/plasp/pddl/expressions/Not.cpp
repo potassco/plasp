@@ -20,23 +20,14 @@ Not::Not()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Not::setArgument(const Expression *argument)
+void Not::setArgument(ExpressionPointer argument)
 {
-	m_argumentStorage = nullptr;
 	m_argument = argument;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Not::setArgument(ExpressionPointer &&argument)
-{
-	m_argumentStorage = std::move(argument);
-	m_argument = m_argumentStorage.get();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-const Expression *Not::argument() const
+ExpressionPointer Not::argument() const
 {
 	return m_argument;
 }
@@ -45,14 +36,14 @@ const Expression *Not::argument() const
 
 ExpressionPointer Not::normalize()
 {
-	BOOST_ASSERT(m_argumentStorage);
+	BOOST_ASSERT(m_argument);
 
 	// Remove double negations immediately
-	if (m_argumentStorage->expressionType() == Expression::Type::Not)
+	if (m_argument->expressionType() == Expression::Type::Not)
 	{
-		auto &argument = dynamic_cast<Not &>(*m_argumentStorage);
+		auto &argument = dynamic_cast<Not &>(*m_argument);
 
-		auto normalized = std::move(argument.m_argumentStorage);
+		auto normalized = std::move(argument.m_argument);
 		auto normalizedInner = normalized->normalize();
 
 		if (normalizedInner)
@@ -61,7 +52,7 @@ ExpressionPointer Not::normalize()
 		return normalized;
 	}
 
-	auto normalizedArgument = m_argumentStorage->normalize();
+	auto normalizedArgument = m_argument->normalize();
 
 	// Replace argument if changed by normalization
 	if (normalizedArgument)

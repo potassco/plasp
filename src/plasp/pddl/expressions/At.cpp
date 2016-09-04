@@ -20,23 +20,14 @@ At::At()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void At::setArgument(const Expression *argument)
+void At::setArgument(ExpressionPointer argument)
 {
-	m_argumentStorage = nullptr;
 	m_argument = argument;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void At::setArgument(ExpressionPointer &&argument)
-{
-	m_argumentStorage = std::move(argument);
-	m_argument = m_argumentStorage.get();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-const Expression *At::argument() const
+ExpressionPointer At::argument() const
 {
 	return m_argument;
 }
@@ -45,9 +36,9 @@ const Expression *At::argument() const
 
 ExpressionPointer At::normalize()
 {
-	BOOST_ASSERT(m_argumentStorage);
+	BOOST_ASSERT(m_argument);
 
-	auto normalizedArgument = m_argumentStorage->normalize();
+	auto normalizedArgument = m_argument->normalize();
 
 	// Replace argument if changed by normalization
 	if (normalizedArgument)

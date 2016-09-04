@@ -163,7 +163,7 @@ const std::string &Predicate::name() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::vector<ExpressionPointer> &Predicate::arguments() const
+const Expressions &Predicate::arguments() const
 {
 	return m_arguments;
 }

@@ -28,15 +28,13 @@ class NAry: public ExpressionCRTP<Derived>
 			ExpressionContext &expressionContext, ExpressionParser parseExpression);
 
 	public:
-		void addArgument(const Expression *argument);
-		void addArgument(ExpressionPointer &&argument);
-		const std::vector<const Expression *> &arguments() const;
+		void addArgument(ExpressionPointer argument);
+		const Expressions &arguments() const;
 
 		ExpressionPointer normalize() override;
 
 	protected:
-		std::vector<const Expression *> m_arguments;
-		Expressions m_argumentStorage;
+		Expressions m_arguments;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -81,7 +79,7 @@ boost::intrusive_ptr<Derived> NAry<Derived>::parse(Context &context,
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived>
-void NAry<Derived>::addArgument(const Expression *argument)
+void NAry<Derived>::addArgument(ExpressionPointer argument)
 {
 	if (!argument)
 		return;
@@ -92,19 +90,7 @@ void NAry<Derived>::addArgument(const Expression *argument)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived>
-void NAry<Derived>::addArgument(ExpressionPointer &&argument)
-{
-	if (!argument)
-		return;
-
-	m_argumentStorage.emplace_back(std::move(argument));
-	m_arguments.emplace_back(m_argumentStorage.back().get());
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<class Derived>
-const std::vector<const Expression *> &NAry<Derived>::arguments() const
+const Expressions &NAry<Derived>::arguments() const
 {
 	return m_arguments;
 }
@@ -114,18 +100,17 @@ const std::vector<const Expression *> &NAry<Derived>::arguments() const
 template<class Derived>
 inline ExpressionPointer NAry<Derived>::normalize()
 {
-	for (size_t i = 0; i < m_argumentStorage.size(); i++)
+	for (size_t i = 0; i < m_arguments.size(); i++)
 	{
-		BOOST_ASSERT(m_argumentStorage[i]);
+		BOOST_ASSERT(m_arguments[i]);
 
-		auto normalizedArgument = m_argumentStorage[i]->normalize();
+		auto normalizedArgument = m_arguments[i]->normalize();
 
 		// Replace argument if changed by normalization
 		if (!normalizedArgument)
 			continue;
 
-		m_argumentStorage[i] = std::move(normalizedArgument);
-		m_arguments[i] = m_argumentStorage[i].get();
+		m_arguments[i] = std::move(normalizedArgument);
 	}
 
 	return nullptr;

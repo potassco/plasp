@@ -162,7 +162,7 @@ const std::string &PrimitiveType::name() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::vector<PrimitiveTypePointer> &PrimitiveType::parentTypes() const
+const PrimitiveTypes &PrimitiveType::parentTypes() const
 {
 	return m_parentTypes;
 }

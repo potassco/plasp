@@ -17,8 +17,8 @@ TEST(PDDLNormalizationTests, Implication)
 	auto d2 = expressions::DummyPointer(new expressions::Dummy);
 	const auto d2p = d2.get();
 
-	i->setArgument<0>(d1);
-	i->setArgument<1>(d2);
+	i->setArgument(0, d1);
+	i->setArgument(1, d2);
 
 	auto normalized = i->normalize();
 

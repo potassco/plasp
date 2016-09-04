@@ -261,7 +261,7 @@ void TranslatorASP::translateActions() const
 					const auto &andExpression = dynamic_cast<const expressions::And &>(precondition);
 
 					std::for_each(andExpression.arguments().cbegin(), andExpression.arguments().cend(),
-						[&](const auto *argument)
+						[&](const auto argument)
 						{
 							translateLiteral("precondition", *argument);
 						});
@@ -287,7 +287,7 @@ void TranslatorASP::translateActions() const
 					const auto &andExpression = dynamic_cast<const expressions::And &>(effect);
 
 					std::for_each(andExpression.arguments().cbegin(), andExpression.arguments().cend(),
-						[&](const auto *argument)
+						[&](const auto argument)
 						{
 							translateLiteral("postcondition", *argument, true);
 						});
@@ -557,7 +557,7 @@ void TranslatorASP::translateGoal() const
 		const auto &andExpression = dynamic_cast<const expressions::And &>(goal);
 
 		std::for_each(andExpression.arguments().cbegin(), andExpression.arguments().cend(),
-			[&](const auto *argument)
+			[&](const auto argument)
 			{
 				m_outputStream << std::endl << utils::RuleName("goal") << "(";
 

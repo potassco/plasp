@@ -33,7 +33,7 @@ class PrimitiveType: public ExpressionCRTP<PrimitiveType>
 		PrimitiveType(std::string name);
 
 		const std::string &name() const;
-		const std::vector<PrimitiveTypePointer> &parentTypes() const;
+		const PrimitiveTypes &parentTypes() const;
 
 		ExpressionPointer normalize() override;
 
@@ -45,7 +45,7 @@ class PrimitiveType: public ExpressionCRTP<PrimitiveType>
 
 		std::string m_name;
 
-		std::vector<PrimitiveTypePointer> m_parentTypes;
+		PrimitiveTypes m_parentTypes;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
