@@ -110,7 +110,7 @@ class Expression
 		virtual Type expressionType() const = 0;
 
 		ExpressionPointer normalized();
-		virtual ExpressionPointer simplified();
+		virtual ExpressionPointer reduced();
 		virtual ExpressionPointer negationNormalized();
 		ExpressionPointer negated();
 

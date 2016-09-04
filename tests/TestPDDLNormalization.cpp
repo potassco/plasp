@@ -10,7 +10,7 @@ using namespace plasp::pddl;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLNormalizationTests, Simplify)
+TEST(PDDLNormalizationTests, Reduced)
 {
 	auto n1 = expressions::NotPointer(new expressions::Not);
 	auto n2 = expressions::NotPointer(new expressions::Not);
@@ -31,7 +31,7 @@ TEST(PDDLNormalizationTests, Simplify)
 	n1->setArgument(n2);
 
 	std::stringstream output;
-	n1->simplified()->print(output);
+	n1->reduced()->print(output);
 
 	ASSERT_EQ(output.str(), "(not (not (and (or (or (not (a)) (b)) (c)) (d))))");
 }

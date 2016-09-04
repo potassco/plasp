@@ -37,7 +37,7 @@ class At: public ExpressionCRTP<At>
 		void setArgument(ExpressionPointer argument);
 		ExpressionPointer argument() const;
 
-		ExpressionPointer simplified() override;
+		ExpressionPointer reduced() override;
 		ExpressionPointer negationNormalized() override;
 
 		void print(std::ostream &ostream) const override;

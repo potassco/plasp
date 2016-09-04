@@ -37,11 +37,11 @@ ExpressionPointer Not::argument() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ExpressionPointer Not::simplified()
+ExpressionPointer Not::reduced()
 {
 	BOOST_ASSERT(m_argument);
 
-	m_argument = m_argument->simplified();
+	m_argument = m_argument->reduced();
 
 	return this;
 }

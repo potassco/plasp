@@ -24,7 +24,7 @@ class Imply: public Binary<Imply>
 		static const std::string Identifier;
 
 	public:
-		ExpressionPointer simplified() override;
+		ExpressionPointer reduced() override;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

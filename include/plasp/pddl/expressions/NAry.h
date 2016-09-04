@@ -33,7 +33,7 @@ class NAry: public ExpressionCRTP<Derived>
 		Expressions &arguments();
 		const Expressions &arguments() const;
 
-		ExpressionPointer simplified() override;
+		ExpressionPointer reduced() override;
 		ExpressionPointer negationNormalized() override;
 
 		void print(std::ostream &ostream) const override;
@@ -121,13 +121,13 @@ Expressions &NAry<Derived>::arguments()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived>
-inline ExpressionPointer NAry<Derived>::simplified()
+inline ExpressionPointer NAry<Derived>::reduced()
 {
 	for (size_t i = 0; i < m_arguments.size(); i++)
 	{
 		BOOST_ASSERT(m_arguments[i]);
 
-		m_arguments[i] = m_arguments[i]->simplified();
+		m_arguments[i] = m_arguments[i]->reduced();
 	}
 
 	return this;

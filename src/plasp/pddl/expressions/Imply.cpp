@@ -21,13 +21,13 @@ const std::string Imply::Identifier = "imply";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ExpressionPointer Imply::simplified()
+ExpressionPointer Imply::reduced()
 {
 	BOOST_ASSERT(m_arguments[0]);
 	BOOST_ASSERT(m_arguments[1]);
 
-	m_arguments[0] = m_arguments[0]->simplified();
-	m_arguments[1] = m_arguments[1]->simplified();
+	m_arguments[0] = m_arguments[0]->reduced();
+	m_arguments[1] = m_arguments[1]->reduced();
 
 	auto notArgument0 = NotPointer(new Not);
 	notArgument0->setArgument(m_arguments[0]);
@@ -36,7 +36,7 @@ ExpressionPointer Imply::simplified()
 	orExpression->addArgument(notArgument0);
 	orExpression->addArgument(m_arguments[1]);
 
-	return orExpression->simplified();
+	return orExpression;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

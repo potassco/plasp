@@ -36,9 +36,9 @@ ExpressionPointer At::argument() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ExpressionPointer At::simplified()
+ExpressionPointer At::reduced()
 {
-	throw utils::TranslatorException("“at” predicates currently not supported");
+	throw utils::TranslatorException("reducing “at” predicates currently not supported");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

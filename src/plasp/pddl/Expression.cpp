@@ -26,12 +26,12 @@ namespace pddl
 
 ExpressionPointer Expression::normalized()
 {
-	return simplified()->negationNormalized();
+	return reduced()->negationNormalized();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ExpressionPointer Expression::simplified()
+ExpressionPointer Expression::reduced()
 {
 	return this;
 }
