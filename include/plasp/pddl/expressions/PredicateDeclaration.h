@@ -29,7 +29,7 @@ class PredicateDeclaration: public ExpressionCRTP<PredicateDeclaration>
 
 		bool isDeclared() const;
 
-		ExpressionPointer normalize() override;
+		void normalizeParameterNames();
 
 	private:
 		PredicateDeclaration();

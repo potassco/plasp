@@ -79,12 +79,10 @@ const Variables &PredicateDeclaration::arguments() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ExpressionPointer PredicateDeclaration::normalize()
+void PredicateDeclaration::normalizeParameterNames()
 {
 	for (size_t i = 0; i < m_parameters.size(); i++)
 		m_parameters[i]->setName("X" + std::to_string(i));
-
-	return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -34,7 +34,7 @@ ExpressionPointer Not::argument() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ExpressionPointer Not::normalize()
+ExpressionPointer Not::normalized()
 {
 	BOOST_ASSERT(m_argument);
 
@@ -43,22 +43,12 @@ ExpressionPointer Not::normalize()
 	{
 		auto &argument = dynamic_cast<Not &>(*m_argument);
 
-		auto normalized = std::move(argument.m_argument);
-		auto normalizedInner = normalized->normalize();
-
-		if (normalizedInner)
-			return normalizedInner;
-
-		return normalized;
+		return argument.m_argument->normalized();
 	}
 
-	auto normalizedArgument = m_argument->normalize();
+	m_argument = m_argument->normalized();
 
-	// Replace argument if changed by normalization
-	if (normalizedArgument)
-		setArgument(std::move(normalizedArgument));
-
-	return nullptr;
+	return this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -37,8 +37,6 @@ class Variable: public ExpressionCRTP<Variable>
 		void setDirty(bool isDirty = true);
 		bool isDirty() const;
 
-		ExpressionPointer normalize() override;
-
 	private:
 		static void parseDeclaration(Context &context, Variables &parameters);
 

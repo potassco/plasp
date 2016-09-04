@@ -37,7 +37,7 @@ class At: public ExpressionCRTP<At>
 		void setArgument(ExpressionPointer argument);
 		ExpressionPointer argument() const;
 
-		ExpressionPointer normalize() override;
+		ExpressionPointer normalized() override;
 
 	protected:
 		size_t m_timePoint;

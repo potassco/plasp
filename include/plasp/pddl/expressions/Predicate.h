@@ -30,8 +30,6 @@ class Predicate: public ExpressionCRTP<Predicate>
 
 		bool isDeclared() const;
 
-		ExpressionPointer normalize() override;
-
 	private:
 		Predicate();
 

@@ -32,7 +32,7 @@ class Not: public ExpressionCRTP<Not>
 		void setArgument(ExpressionPointer argument);
 		ExpressionPointer argument() const;
 
-		ExpressionPointer normalize() override;
+		ExpressionPointer normalized() override;
 
 	protected:
 		ExpressionPointer m_argument;

@@ -24,6 +24,30 @@ namespace pddl
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+ExpressionPointer Expression::normalized()
+{
+	return this;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ExpressionPointer Expression::negated()
+{
+	if (expressionType() == Type::Not)
+	{
+		auto &notExpression = dynamic_cast<expressions::Not &>(*this);
+
+		return notExpression.argument();
+	}
+
+	auto notExpression = expressions::NotPointer(new expressions::Not);
+	notExpression->setArgument(this);
+
+	return notExpression;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 ExpressionPointer parseEffectBodyExpression(Context &context, ExpressionContext &expressionContext);
 ExpressionPointer parsePredicate(Context &context, ExpressionContext &expressionContext);
 

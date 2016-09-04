@@ -20,7 +20,7 @@ TEST(PDDLNormalizationTests, Implication)
 	i->setArgument(0, d1);
 	i->setArgument(1, d2);
 
-	auto normalized = i->normalize();
+	auto normalized = i->normalized();
 
 	ASSERT_EQ(normalized->expressionType(), Expression::Type::Or);
 
@@ -48,7 +48,7 @@ TEST(PDDLNormalizationTests, DoubleNegation)
 	n2->setArgument(std::move(d));
 	n1->setArgument(std::move(n2));
 
-	auto normalized = n1->normalize();
+	auto normalized = n1->normalized();
 
 	ASSERT_EQ(normalized.get(), dp);
 	ASSERT_TRUE(dp->isNormalized());

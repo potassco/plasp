@@ -420,7 +420,7 @@ void Domain::normalize()
 	std::for_each(m_predicates.begin(), m_predicates.end(),
 		[](auto &predicate)
 		{
-			predicate->normalize();
+			predicate->normalizeParameterNames();
 		});
 
 	std::for_each(m_actions.begin(), m_actions.end(),

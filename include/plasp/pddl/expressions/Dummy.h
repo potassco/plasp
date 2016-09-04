@@ -23,7 +23,7 @@ class Dummy: public ExpressionCRTP<Dummy>
 
 		bool isNormalized() const;
 
-		ExpressionPointer normalize() override;
+		ExpressionPointer normalized() override;
 
 	private:
 		bool m_isNormalized = false;

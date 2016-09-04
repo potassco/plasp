@@ -28,10 +28,11 @@ class NAry: public ExpressionCRTP<Derived>
 			ExpressionContext &expressionContext, ExpressionParser parseExpression);
 
 	public:
+		void setArgument(size_t i, ExpressionPointer argument);
 		void addArgument(ExpressionPointer argument);
 		const Expressions &arguments() const;
 
-		ExpressionPointer normalize() override;
+		ExpressionPointer normalized() override;
 
 	protected:
 		Expressions m_arguments;
@@ -79,6 +80,16 @@ boost::intrusive_ptr<Derived> NAry<Derived>::parse(Context &context,
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived>
+void NAry<Derived>::setArgument(size_t i, ExpressionPointer expression)
+{
+	BOOST_ASSERT_MSG(i <= m_arguments.size(), "Index out of range");
+
+	m_arguments[i] = expression;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Derived>
 void NAry<Derived>::addArgument(ExpressionPointer argument)
 {
 	if (!argument)
@@ -98,22 +109,16 @@ const Expressions &NAry<Derived>::arguments() const
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived>
-inline ExpressionPointer NAry<Derived>::normalize()
+inline ExpressionPointer NAry<Derived>::normalized()
 {
 	for (size_t i = 0; i < m_arguments.size(); i++)
 	{
 		BOOST_ASSERT(m_arguments[i]);
 
-		auto normalizedArgument = m_arguments[i]->normalize();
-
-		// Replace argument if changed by normalization
-		if (!normalizedArgument)
-			continue;
-
-		m_arguments[i] = std::move(normalizedArgument);
+		m_arguments[i] = m_arguments[i]->normalized();
 	}
 
-	return nullptr;
+	return this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

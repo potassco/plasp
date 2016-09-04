@@ -22,9 +22,6 @@ class Either: public NAry<Either>
 		static const Expression::Type ExpressionType = Expression::Type::Either;
 
 		static const std::string Identifier;
-
-	public:
-		ExpressionPointer normalize() override;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -401,7 +401,7 @@ void Problem::normalize()
 
 	// TODO: normalize objects and initial state
 
-	m_goal->normalize();
+	m_goal = m_goal->normalized();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -31,7 +31,7 @@ class Binary: public ExpressionCRTP<Derived>
 		void setArgument(size_t i, ExpressionPointer argument);
 		const std::array<ExpressionPointer, 2> &arguments() const;
 
-		ExpressionPointer normalize() override;
+		ExpressionPointer normalized() override;
 
 	protected:
 		std::array<ExpressionPointer, 2> m_arguments;
@@ -72,7 +72,7 @@ boost::intrusive_ptr<Derived> Binary<Derived>::parse(Context &context,
 template<class Derived>
 void Binary<Derived>::setArgument(size_t i, ExpressionPointer expression)
 {
-	BOOST_ASSERT_MSG(i <= 2, "Index out of range");
+	BOOST_ASSERT_MSG(i <= m_arguments.size(), "Index out of range");
 
 	m_arguments[i] = expression;
 }
@@ -88,22 +88,16 @@ const std::array<ExpressionPointer, 2> &Binary<Derived>::arguments() const
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived>
-inline ExpressionPointer Binary<Derived>::normalize()
+inline ExpressionPointer Binary<Derived>::normalized()
 {
 	for (size_t i = 0; i < m_arguments.size(); i++)
 	{
 		BOOST_ASSERT(m_arguments[i]);
 
-		auto normalizedArgument = m_arguments[i]->normalize();
-
-		// Replace argument if changed by normalization
-		if (!normalizedArgument)
-			continue;
-
-		m_arguments[i] = std::move(normalizedArgument);
+		m_arguments[i] = m_arguments[i]->normalized();
 	}
 
-	return nullptr;
+	return this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

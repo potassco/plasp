@@ -107,12 +107,8 @@ class Expression
 
 		virtual Type expressionType() const = 0;
 
-		// Normalizes the expression dependent on its type, recursing through all child expressions
-		//
-		// Result:
-		//     * a new expression pointer to replace this one if required; this object is then empty
-		//     * nullptr otherwise; the object may or may not have changed
-		virtual ExpressionPointer normalize() = 0;
+		virtual ExpressionPointer normalized();
+		ExpressionPointer negated();
 
 	private:
 		friend void intrusive_ptr_add_ref(Expression *expression);

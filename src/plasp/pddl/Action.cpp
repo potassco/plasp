@@ -90,8 +90,8 @@ const Expression *Action::effect() const
 void Action::normalize()
 {
 	// Normalize preconditions and effects
-	m_precondition->normalize();
-	m_effect->normalize();
+	m_precondition = m_precondition->normalized();
+	m_effect = m_effect->normalized();
 
 	// Normalize parameter names
 	for (size_t i = 0; i < m_parameters.size(); i++)

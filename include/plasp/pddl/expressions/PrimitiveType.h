@@ -35,8 +35,6 @@ class PrimitiveType: public ExpressionCRTP<PrimitiveType>
 		const std::string &name() const;
 		const PrimitiveTypes &parentTypes() const;
 
-		ExpressionPointer normalize() override;
-
 	private:
 		void setDirty(bool isDirty = true);
 		bool isDirty() const;
