@@ -1,5 +1,8 @@
 #include <plasp/pddl/expressions/Not.h>
 
+#include <plasp/pddl/expressions/And.h>
+#include <plasp/pddl/expressions/Or.h>
+
 namespace plasp
 {
 namespace pddl
@@ -47,6 +50,34 @@ ExpressionPointer Not::normalized()
 	}
 
 	m_argument = m_argument->normalized();
+
+	// De Morgan for negative conjunctions
+	if (m_argument->expressionType() == Expression::Type::And)
+	{
+		auto &andExpression = dynamic_cast<And &>(*m_argument);
+		auto orExpression = OrPointer(new Or);
+
+		orExpression->arguments().reserve(andExpression.arguments().size());
+
+		for (size_t i = 0; i < andExpression.arguments().size(); i++)
+			orExpression->addArgument(andExpression.arguments()[i]->negated());
+
+		return orExpression->normalized();
+	}
+
+	// De Morgan for negative disjunctions
+	if (m_argument->expressionType() == Expression::Type::Or)
+	{
+		auto &orExpression = dynamic_cast<Or &>(*m_argument);
+		auto andExpression = AndPointer(new And);
+
+		andExpression->arguments().reserve(orExpression.arguments().size());
+
+		for (size_t i = 0; i < orExpression.arguments().size(); i++)
+			andExpression->addArgument(orExpression.arguments()[i]->negated());
+
+		return andExpression->normalized();
+	}
 
 	return this;
 }

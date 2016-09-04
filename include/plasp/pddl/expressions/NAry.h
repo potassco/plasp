@@ -30,6 +30,7 @@ class NAry: public ExpressionCRTP<Derived>
 	public:
 		void setArgument(size_t i, ExpressionPointer argument);
 		void addArgument(ExpressionPointer argument);
+		Expressions &arguments();
 		const Expressions &arguments() const;
 
 		ExpressionPointer normalized() override;
@@ -102,6 +103,14 @@ void NAry<Derived>::addArgument(ExpressionPointer argument)
 
 template<class Derived>
 const Expressions &NAry<Derived>::arguments() const
+{
+	return m_arguments;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Derived>
+Expressions &NAry<Derived>::arguments()
 {
 	return m_arguments;
 }

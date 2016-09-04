@@ -30,11 +30,11 @@ ExpressionPointer Imply::normalized()
 	m_arguments[1] = m_arguments[1]->normalized();
 
 	auto notArgument0 = NotPointer(new Not);
-	notArgument0->setArgument(m_arguments[0]);
+	notArgument0->setArgument(std::move(m_arguments[0]));
 
 	auto orExpression = OrPointer(new Or);
-	orExpression->addArgument(notArgument0);
-	orExpression->addArgument(m_arguments[1]);
+	orExpression->addArgument(std::move(notArgument0));
+	orExpression->addArgument(std::move(m_arguments[1]));
 
 	auto normalizedOrExpression = orExpression->normalized();
 
