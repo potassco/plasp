@@ -35,7 +35,7 @@ ConstantPointer Constant::parseDeclaration(Context &context)
 {
 	context.parser.skipWhiteSpace();
 
-	auto constant = std::make_unique<Constant>(Constant());
+	auto constant = ConstantPointer(new Constant);
 
 	constant->m_name = context.parser.parseIdentifier();
 
@@ -75,7 +75,7 @@ void Constant::parseTypedDeclaration(Context &context, Domain &domain, Constants
 		return;
 
 	// If existing, parse and store parent type
-	auto *type = PrimitiveType::parseAndFind(context, domain);
+	auto type = PrimitiveType::parseAndFind(context, domain);
 
 	// Assign parent type to all types that were previously flagged
 	std::for_each(constants.begin(), constants.end(),
@@ -145,7 +145,7 @@ void Constant::parseTypedDeclarations(Context &context, Problem &problem)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Constant *Constant::parseAndFind(Context &context, const Domain &domain)
+ConstantPointer Constant::parseAndFind(Context &context, const Domain &domain)
 {
 	auto &parser = context.parser;
 
@@ -153,7 +153,7 @@ Constant *Constant::parseAndFind(Context &context, const Domain &domain)
 
 	const auto constantName = parser.parseIdentifier();
 
-	auto *constant = parseAndFind(constantName, domain.constants());
+	auto constant = parseAndFind(constantName, domain.constants());
 
 	if (constant != nullptr)
 		return constant;
@@ -163,7 +163,7 @@ Constant *Constant::parseAndFind(Context &context, const Domain &domain)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Constant *Constant::parseAndFind(Context &context, const Problem &problem)
+ConstantPointer Constant::parseAndFind(Context &context, const Problem &problem)
 {
 	auto &parser = context.parser;
 
@@ -171,7 +171,7 @@ Constant *Constant::parseAndFind(Context &context, const Problem &problem)
 
 	const auto constantName = parser.parseIdentifier();
 
-	auto *constant = parseAndFind(constantName, problem.domain().constants());
+	auto constant = parseAndFind(constantName, problem.domain().constants());
 
 	if (constant)
 		return constant;
@@ -186,7 +186,7 @@ Constant *Constant::parseAndFind(Context &context, const Problem &problem)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Constant *Constant::parseAndFind(const std::string &constantName, const Constants &constants)
+ConstantPointer Constant::parseAndFind(const std::string &constantName, const Constants &constants)
 {
 	const auto match = std::find_if(constants.cbegin(), constants.cend(),
 		[&](const auto &constant)
@@ -225,14 +225,14 @@ const std::string &Constant::name() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Constant::setType(const PrimitiveType *type)
+void Constant::setType(PrimitiveTypePointer type)
 {
 	m_type = type;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const PrimitiveType *Constant::type() const
+PrimitiveTypePointer Constant::type() const
 {
 	return m_type;
 }

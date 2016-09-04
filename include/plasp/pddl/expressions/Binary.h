@@ -24,7 +24,7 @@ class Binary: public ExpressionCRTP<Derived>
 {
 	public:
 		template<typename ExpressionParser>
-		static std::unique_ptr<Derived> parse(Context &context,
+		static boost::intrusive_ptr<Derived> parse(Context &context,
 			ExpressionContext &expressionContext, ExpressionParser parseExpression);
 
 	public:
@@ -45,7 +45,7 @@ class Binary: public ExpressionCRTP<Derived>
 
 template<class Derived>
 template<typename ExpressionParser>
-std::unique_ptr<Derived> Binary<Derived>::parse(Context &context,
+boost::intrusive_ptr<Derived> Binary<Derived>::parse(Context &context,
 	ExpressionContext &expressionContext, ExpressionParser parseExpression)
 {
 	auto &parser = context.parser;
@@ -59,7 +59,7 @@ std::unique_ptr<Derived> Binary<Derived>::parse(Context &context,
 		return nullptr;
 	}
 
-	auto expression = std::make_unique<Derived>();
+	auto expression = boost::intrusive_ptr<Derived>(new Derived);
 
 	// Assume that expression identifier (imply, exists, etc.) is already parsed
 	// Parse arguments of the expression

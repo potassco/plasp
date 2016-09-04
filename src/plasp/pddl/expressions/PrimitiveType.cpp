@@ -61,7 +61,7 @@ void PrimitiveType::parseDeclaration(Context &context, Domain &domain)
 		return;
 	}
 
-	types.emplace_back(std::make_unique<PrimitiveType>(typeName));
+	types.emplace_back(PrimitiveTypePointer(new PrimitiveType(typeName)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -82,7 +82,7 @@ void PrimitiveType::parseTypedDeclaration(Context &context, Domain &domain)
 	domain.checkRequirement(Requirement::Type::Typing);
 
 	// If existing, parse and store parent type
-	auto *parentType = parseAndFind(context, domain);
+	auto parentType = parseAndFind(context, domain);
 
 	parentType->setDirty(false);
 
@@ -100,7 +100,7 @@ void PrimitiveType::parseTypedDeclaration(Context &context, Domain &domain)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PrimitiveType *PrimitiveType::parseAndFind(Context &context, Domain &domain)
+PrimitiveTypePointer PrimitiveType::parseAndFind(Context &context, Domain &domain)
 {
 	auto &parser = context.parser;
 
@@ -125,7 +125,7 @@ PrimitiveType *PrimitiveType::parseAndFind(Context &context, Domain &domain)
 		if (typeName == "object" || typeName == "objects")
 		{
 			context.logger.logWarning(parser.coordinate(), "primitive type “" + typeName + "” should be declared");
-			types.emplace_back(std::make_unique<expressions::PrimitiveType>(typeName));
+			types.emplace_back(PrimitiveTypePointer(new PrimitiveType(typeName)));
 		}
 		else
 			throw utils::ParserException(parser.coordinate(), "type “" + typeName + "” used but never declared");
@@ -162,7 +162,7 @@ const std::string &PrimitiveType::name() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::vector<const PrimitiveType *> &PrimitiveType::parentTypes() const
+const std::vector<PrimitiveTypePointer> &PrimitiveType::parentTypes() const
 {
 	return m_parentTypes;
 }

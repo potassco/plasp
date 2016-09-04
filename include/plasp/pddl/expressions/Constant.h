@@ -28,12 +28,12 @@ class Constant: public ExpressionCRTP<Constant>
 		static void parseTypedDeclaration(Context &context, Problem &problem);
 		static void parseTypedDeclarations(Context &context, Problem &problem);
 
-		static Constant *parseAndFind(Context &context, const Domain &domain);
-		static Constant *parseAndFind(Context &context, const Problem &problem);
+		static ConstantPointer parseAndFind(Context &context, const Domain &domain);
+		static ConstantPointer parseAndFind(Context &context, const Problem &problem);
 
 	public:
 		const std::string &name() const;
-		const PrimitiveType *type() const;
+		PrimitiveTypePointer type() const;
 
 		ExpressionPointer normalize() override;
 
@@ -41,20 +41,20 @@ class Constant: public ExpressionCRTP<Constant>
 		static ConstantPointer parseDeclaration(Context &context);
 		static void parseTypedDeclaration(Context &context, Domain &domain, Constants &constants);
 
-		static Constant *parseAndFind(const std::string &constantName, const Constants &constants);
+		static ConstantPointer parseAndFind(const std::string &constantName, const Constants &constants);
 
 		Constant();
 
 		void setDirty(bool isDirty = true);
 		bool isDirty() const;
 
-		void setType(const PrimitiveType *parentType);
+		void setType(PrimitiveTypePointer parentType);
 
 		bool m_isDirty;
 
 		std::string m_name;
 
-		const PrimitiveType *m_type;
+		PrimitiveTypePointer m_type;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

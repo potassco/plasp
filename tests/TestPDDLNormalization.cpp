@@ -11,14 +11,14 @@ using namespace plasp::pddl;
 
 TEST(PDDLNormalizationTests, Implication)
 {
-	auto i = std::make_unique<expressions::Imply>();
-	auto d1 = std::make_unique<expressions::Dummy>();
+	auto i = expressions::ImplyPointer(new expressions::Imply);
+	auto d1 = expressions::DummyPointer(new expressions::Dummy);
 	const auto d1p = d1.get();
-	auto d2 = std::make_unique<expressions::Dummy>();
+	auto d2 = expressions::DummyPointer(new expressions::Dummy);
 	const auto d2p = d2.get();
 
-	i->setArgument<0>(std::move(d1));
-	i->setArgument<1>(std::move(d2));
+	i->setArgument<0>(d1);
+	i->setArgument<1>(d2);
 
 	auto normalized = i->normalize();
 
@@ -40,9 +40,9 @@ TEST(PDDLNormalizationTests, Implication)
 
 TEST(PDDLNormalizationTests, DoubleNegation)
 {
-	auto n1 = std::make_unique<expressions::Not>();
-	auto n2 = std::make_unique<expressions::Not>();
-	auto d = std::make_unique<expressions::Dummy>();
+	auto n1 = expressions::NotPointer(new expressions::Not);
+	auto n2 = expressions::NotPointer(new expressions::Not);
+	auto d = expressions::DummyPointer(new expressions::Dummy);
 	const auto dp = d.get();
 
 	n2->setArgument(std::move(d));

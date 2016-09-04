@@ -54,7 +54,7 @@ PredicatePointer Predicate::parse(Context &context, ExpressionContext &expressio
 		return nullptr;
 	}
 
-	auto predicate = std::make_unique<Predicate>(Predicate());
+	auto predicate = PredicatePointer(new Predicate);
 
 	predicate->m_name = predicateName;
 
@@ -66,13 +66,13 @@ PredicatePointer Predicate::parse(Context &context, ExpressionContext &expressio
 		// Parse variables
 		if (context.parser.currentCharacter() == '?')
 		{
-			const auto *variable = Variable::parseAndFind(context, expressionContext);
+			const auto variable = Variable::parseAndFind(context, expressionContext);
 			predicate->m_arguments.emplace_back(variable);
 		}
 		// Parse constants
 		else
 		{
-			const auto *constant = (expressionContext.problem == nullptr)
+			const auto constant = (expressionContext.problem == nullptr)
 				? Constant::parseAndFind(context, expressionContext.domain)
 				: Constant::parseAndFind(context, *expressionContext.problem);
 			predicate->m_arguments.emplace_back(constant);
@@ -117,7 +117,7 @@ PredicatePointer Predicate::parse(Context &context, const Problem &problem)
 		return nullptr;
 	}
 
-	auto predicate = std::make_unique<Predicate>(Predicate());
+	auto predicate = PredicatePointer(new Predicate);
 
 	predicate->m_name = predicateName;
 
@@ -129,7 +129,7 @@ PredicatePointer Predicate::parse(Context &context, const Problem &problem)
 			throw utils::ParserException(parser.coordinate(), "variables not allowed in this context");
 
 		// Parse objects and constants
-		const auto *constant = Constant::parseAndFind(context, problem);
+		const auto constant = Constant::parseAndFind(context, problem);
 		predicate->m_arguments.emplace_back(constant);
 	}
 
@@ -163,7 +163,7 @@ const std::string &Predicate::name() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::vector<const Expression *> &Predicate::arguments() const
+const std::vector<ExpressionPointer> &Predicate::arguments() const
 {
 	return m_arguments;
 }

@@ -19,7 +19,7 @@ UnsupportedPointer Unsupported::parse(Context &context)
 {
 	auto &parser = context.parser;
 
-	auto expression = std::make_unique<Unsupported>(Unsupported());
+	auto expression = UnsupportedPointer(new Unsupported);
 
 	parser.expect<std::string>("(");
 

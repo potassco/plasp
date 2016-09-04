@@ -1,7 +1,7 @@
 #ifndef __PLASP__PDDL__EXPRESSION_H
 #define __PLASP__PDDL__EXPRESSION_H
 
-#include <memory>
+#include <boost/intrusive_ptr.hpp>
 
 #include <plasp/utils/Parser.h>
 
@@ -23,55 +23,58 @@ class ExpressionVisitor;
 class Problem;
 
 class Expression;
-using ExpressionPointer = std::unique_ptr<Expression>;
+using ExpressionPointer = boost::intrusive_ptr<Expression>;
 using Expressions = std::vector<ExpressionPointer>;
 
 namespace expressions
 {
 class And;
-using AndPointer = std::unique_ptr<And>;
+using AndPointer = boost::intrusive_ptr<And>;
 
 class At;
-using AtPointer = std::unique_ptr<At>;
+using AtPointer = boost::intrusive_ptr<At>;
 
 class Constant;
-using ConstantPointer = std::unique_ptr<Constant>;
+using ConstantPointer = boost::intrusive_ptr<Constant>;
 using Constants = std::vector<ConstantPointer>;
 
+class Dummy;
+using DummyPointer = boost::intrusive_ptr<Dummy>;
+
 class Either;
-using EitherPointer = std::unique_ptr<Either>;
+using EitherPointer = boost::intrusive_ptr<Either>;
 
 class Imply;
-using ImplyPointer = std::unique_ptr<Imply>;
+using ImplyPointer = boost::intrusive_ptr<Imply>;
 
 class Not;
-using NotPointer = std::unique_ptr<Not>;
+using NotPointer = boost::intrusive_ptr<Not>;
 
 class Or;
-using OrPointer = std::unique_ptr<Or>;
+using OrPointer = boost::intrusive_ptr<Or>;
 
 class Predicate;
-using PredicatePointer = std::unique_ptr<Predicate>;
+using PredicatePointer = boost::intrusive_ptr<Predicate>;
 using Predicates = std::vector<PredicatePointer>;
 
 class PredicateDeclaration;
-using PredicateDeclarationPointer = std::unique_ptr<PredicateDeclaration>;
+using PredicateDeclarationPointer = boost::intrusive_ptr<PredicateDeclaration>;
 using PredicateDeclarations = std::vector<PredicateDeclarationPointer>;
 
 class PrimitiveType;
-using PrimitiveTypePointer = std::unique_ptr<PrimitiveType>;
+using PrimitiveTypePointer = boost::intrusive_ptr<PrimitiveType>;
 using PrimitiveTypes = std::vector<PrimitiveTypePointer>;
 
 template<class Type>
 class Reference;
 template<class Type>
-using ReferencePointer = std::unique_ptr<Reference<Type>>;
+using ReferencePointer = boost::intrusive_ptr<Reference<Type>>;
 
 class Unsupported;
-using UnsupportedPointer = std::unique_ptr<Unsupported>;
+using UnsupportedPointer = boost::intrusive_ptr<Unsupported>;
 
 class Variable;
-using VariablePointer = std::unique_ptr<Variable>;
+using VariablePointer = boost::intrusive_ptr<Variable>;
 using Variables = std::vector<VariablePointer>;
 }
 
@@ -110,7 +113,28 @@ class Expression
 		//     * a new expression pointer to replace this one if required; this object is then empty
 		//     * nullptr otherwise; the object may or may not have changed
 		virtual ExpressionPointer normalize() = 0;
+
+	private:
+		friend void intrusive_ptr_add_ref(Expression *expression);
+		friend void intrusive_ptr_release(Expression *expression);
+
+		size_t m_referenceCount = 0;
 };
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline void intrusive_ptr_add_ref(Expression *expression)
+{
+    expression->m_referenceCount++;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline void intrusive_ptr_release(Expression *expression)
+{
+    if (--expression->m_referenceCount == 0)
+        delete expression;
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

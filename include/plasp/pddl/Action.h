@@ -38,8 +38,8 @@ class Action
 		std::string m_name;
 
 		expressions::Variables m_parameters;
-		std::unique_ptr<Expression> m_precondition;
-		std::unique_ptr<Expression> m_effect;
+		ExpressionPointer m_precondition;
+		ExpressionPointer m_effect;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

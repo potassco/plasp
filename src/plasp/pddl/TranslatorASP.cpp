@@ -313,7 +313,7 @@ void TranslatorASP::translateConstants(const std::string &heading, const express
 				<< utils::String(constant->name())
 				<< "))." << std::endl;
 
-			const auto *type = constant->type();
+			const auto type = constant->type();
 
 			if (type != nullptr)
 			{
@@ -366,7 +366,7 @@ void TranslatorASP::translateVariablesBody(const expressions::Variables &variabl
 			if (variable.type()->expressionType() != Expression::Type::PrimitiveType)
 				throw utils::TranslatorException("only primitive types supported currently");
 
-			const auto &type = *dynamic_cast<const expressions::PrimitiveType *>(variable.type());
+			const auto &type = dynamic_cast<const expressions::PrimitiveType &>(*variable.type());
 
 			m_outputStream << utils::RuleName("has") << "("
 				<< utils::Variable(variable.name()) << ", "

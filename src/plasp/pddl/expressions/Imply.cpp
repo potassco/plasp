@@ -26,10 +26,10 @@ ExpressionPointer Imply::normalize()
 	BOOST_ASSERT(m_argumentStorage[0]);
 	BOOST_ASSERT(m_argumentStorage[1]);
 
-	auto notArgument0 = std::make_unique<Not>();
+	auto notArgument0 = NotPointer(new Not);
 	notArgument0->setArgument(std::move(m_argumentStorage[0]));
 
-	auto orExpression = std::make_unique<Or>();
+	auto orExpression = OrPointer(new Or);
 	orExpression->addArgument(std::move(notArgument0));
 	orExpression->addArgument(std::move(m_argumentStorage[1]));
 

@@ -83,7 +83,7 @@ AtPointer At::parse(Context &context, ExpressionContext &expressionContext,
 		return nullptr;
 	}
 
-	auto expression = std::make_unique<At>(At());
+	auto expression = AtPointer(new At);
 
 	expression->m_timePoint = timePoint;
 

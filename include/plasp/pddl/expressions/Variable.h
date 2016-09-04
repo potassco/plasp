@@ -24,19 +24,18 @@ class Variable: public ExpressionCRTP<Variable>
 		static void parseTypedDeclaration(Context &context, ExpressionContext &expressionContext);
 		static void parseTypedDeclarations(Context &context, ExpressionContext &expressionContext);
 
-		static const Variable *parseAndFind(Context &context,
+		static VariablePointer parseAndFind(Context &context,
 			const ExpressionContext &expressionContext);
 
 	public:
 		void setName(std::string name);
 		const std::string &name() const;
 
-		const Expression *type() const;
+		void setType(ExpressionPointer type);
+		ExpressionPointer type() const;
 
 		void setDirty(bool isDirty = true);
 		bool isDirty() const;
-
-		void setType(const Expression *type);
 
 		ExpressionPointer normalize() override;
 
@@ -50,10 +49,7 @@ class Variable: public ExpressionCRTP<Variable>
 
 		std::string m_name;
 
-		const Expression *m_type;
-
-		// Stores "either" expression if necessary
-		ExpressionPointer m_eitherExpression;
+		ExpressionPointer m_type;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

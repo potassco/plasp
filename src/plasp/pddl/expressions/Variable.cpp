@@ -41,7 +41,7 @@ void Variable::parseDeclaration(Context &context, Variables &parameters)
 
 	parser.expect<std::string>("?");
 
-	auto variable = std::make_unique<Variable>(Variable());
+	auto variable = VariablePointer(new Variable);
 
 	variable->m_name = parser.parseIdentifier();
 
@@ -58,7 +58,7 @@ void Variable::parseDeclaration(Context &context, Variables &parameters)
 	// Flag variable for potentially upcoming type declaration
 	variable->setDirty();
 
-	parameters.emplace_back(std::move(variable));
+	parameters.emplace_back(variable);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -80,7 +80,7 @@ void Variable::parseTypedDeclaration(Context &context, ExpressionContext &expres
 		return;
 
 	const auto setType =
-		[&](const auto *type)
+		[&](ExpressionPointer type)
 		{
 			// Set the argument type for all previously flagged arguments
 			std::for_each(variables.begin(), variables.end(),
@@ -96,17 +96,14 @@ void Variable::parseTypedDeclaration(Context &context, ExpressionContext &expres
 
 	parser.skipWhiteSpace();
 
-	// Parse argument of "either" type (always begins with opening parenthesis)
-	if ((variable->m_eitherExpression = Either::parse(context, expressionContext, parseExistingPrimitiveType)))
-	{
-		setType(variable->m_eitherExpression.get());
-		return;
-	}
+	// Parse argument if it has "either" type (always begins with opening parenthesis)
+	variable->m_type = Either::parse(context, expressionContext, parseExistingPrimitiveType);
 
-	// Parse primitive type
-	const auto *type = PrimitiveType::parseAndFind(context, expressionContext.domain);
+	// Else, try parsing it as a primitive type
+	if (!variable->m_type)
+		variable->m_type = PrimitiveType::parseAndFind(context, expressionContext.domain);
 
-	setType(type);
+	setType(variable->m_type);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -138,7 +135,7 @@ void Variable::parseTypedDeclarations(Context &context, ExpressionContext &expre
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const Variable *Variable::parseAndFind(Context &context, const ExpressionContext &expressionContext)
+VariablePointer Variable::parseAndFind(Context &context, const ExpressionContext &expressionContext)
 {
 	auto &parser = context.parser;
 
@@ -178,7 +175,14 @@ const std::string &Variable::name() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const Expression *Variable::type() const
+void Variable::setType(ExpressionPointer type)
+{
+	m_type = type;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ExpressionPointer Variable::type() const
 {
 	return m_type;
 }
@@ -195,13 +199,6 @@ void Variable::setDirty(bool isDirty)
 bool Variable::isDirty() const
 {
 	return m_isDirty;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void Variable::setType(const Expression *type)
-{
-	m_type = type;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

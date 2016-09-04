@@ -57,7 +57,7 @@ NotPointer Not::parse(Context &context, ExpressionContext &expressionContext,
 		return nullptr;
 	}
 
-	auto expression = std::make_unique<Not>(Not());
+	auto expression = NotPointer(new Not);
 
 	context.parser.skipWhiteSpace();
 

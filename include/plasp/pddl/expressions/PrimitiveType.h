@@ -26,14 +26,14 @@ class PrimitiveType: public ExpressionCRTP<PrimitiveType>
 		static void parseDeclaration(Context &context, Domain &domain);
 		static void parseTypedDeclaration(Context &context, Domain &domain);
 
-		static PrimitiveType *parseAndFind(Context &context, Domain &domain);
+		static PrimitiveTypePointer parseAndFind(Context &context, Domain &domain);
 
 	public:
 		PrimitiveType();
 		PrimitiveType(std::string name);
 
 		const std::string &name() const;
-		const std::vector<const PrimitiveType *> &parentTypes() const;
+		const std::vector<PrimitiveTypePointer> &parentTypes() const;
 
 		ExpressionPointer normalize() override;
 
@@ -45,7 +45,7 @@ class PrimitiveType: public ExpressionCRTP<PrimitiveType>
 
 		std::string m_name;
 
-		std::vector<const PrimitiveType *> m_parentTypes;
+		std::vector<PrimitiveTypePointer> m_parentTypes;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

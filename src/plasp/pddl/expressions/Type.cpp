@@ -17,7 +17,7 @@ namespace expressions
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const Expression *parseExistingPrimitiveType(Context &context, ExpressionContext &expressionContext)
+ExpressionPointer parseExistingPrimitiveType(Context &context, ExpressionContext &expressionContext)
 {
 	return PrimitiveType::parseAndFind(context, expressionContext.domain);
 }

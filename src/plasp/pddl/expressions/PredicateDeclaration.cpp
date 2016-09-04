@@ -30,7 +30,7 @@ void PredicateDeclaration::parse(Context &context, Domain &domain)
 {
 	context.parser.expect<std::string>("(");
 
-	auto predicate = std::make_unique<PredicateDeclaration>(PredicateDeclaration());
+	auto predicate = PredicateDeclarationPointer(new PredicateDeclaration);
 
 	predicate->m_name = context.parser.parseIdentifier();
 
