@@ -41,7 +41,7 @@ ExpressionPointer Not::normalized()
 {
 	BOOST_ASSERT(m_argument);
 
-	// Remove double negations immediately
+	// Remove immediate double negations
 	if (m_argument->expressionType() == Expression::Type::Not)
 	{
 		auto &argument = dynamic_cast<Not &>(*m_argument);
@@ -49,7 +49,16 @@ ExpressionPointer Not::normalized()
 		return argument.m_argument->normalized();
 	}
 
+	// Normalize argument
 	m_argument = m_argument->normalized();
+
+	// Remove double negations occurring after normalizing the argument
+	if (m_argument->expressionType() == Expression::Type::Not)
+	{
+		auto &argument = dynamic_cast<Not &>(*m_argument);
+
+		return argument.m_argument->normalized();
+	}
 
 	// De Morgan for negative conjunctions
 	if (m_argument->expressionType() == Expression::Type::And)
