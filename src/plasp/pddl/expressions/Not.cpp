@@ -57,18 +57,18 @@ ExpressionPointer Not::negationNormalized()
 	{
 		auto &argument = dynamic_cast<Not &>(*m_argument);
 
-		return argument.m_argument->normalized();
+		return argument.m_argument->negationNormalized();
 	}
 
 	// Normalize argument
-	m_argument = m_argument->normalized();
+	m_argument = m_argument->negationNormalized();
 
 	// Remove double negations occurring after normalizing the argument
 	if (m_argument->expressionType() == Expression::Type::Not)
 	{
 		auto &argument = dynamic_cast<Not &>(*m_argument);
 
-		return argument.m_argument->normalized();
+		return argument.m_argument->negationNormalized();
 	}
 
 	// De Morgan for negative conjunctions
@@ -82,7 +82,7 @@ ExpressionPointer Not::negationNormalized()
 		for (size_t i = 0; i < andExpression.arguments().size(); i++)
 			orExpression->addArgument(andExpression.arguments()[i]->negated());
 
-		return orExpression->normalized();
+		return orExpression->negationNormalized();
 	}
 
 	// De Morgan for negative disjunctions
@@ -96,7 +96,7 @@ ExpressionPointer Not::negationNormalized()
 		for (size_t i = 0; i < orExpression.arguments().size(); i++)
 			andExpression->addArgument(orExpression.arguments()[i]->negated());
 
-		return andExpression->normalized();
+		return andExpression->negationNormalized();
 	}
 
 	return this;

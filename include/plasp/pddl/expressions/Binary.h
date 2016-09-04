@@ -112,7 +112,7 @@ inline ExpressionPointer Binary<Derived>::negationNormalized()
 	{
 		BOOST_ASSERT(m_arguments[i]);
 
-		m_arguments[i] = m_arguments[i]->normalized();
+		m_arguments[i] = m_arguments[i]->negationNormalized();
 	}
 
 	return this;
