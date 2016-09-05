@@ -5,6 +5,7 @@
 
 #include <boost/filesystem.hpp>
 
+#include <plasp/pddl/ConsistencyException.h>
 #include <plasp/pddl/IO.h>
 #include <plasp/utils/ParserException.h>
 

@@ -5,6 +5,7 @@
 #include <sstream>
 #include <stdexcept>
 
+#include <plasp/pddl/ConsistencyException.h>
 #include <plasp/pddl/Description.h>
 #include <plasp/pddl/expressions/And.h>
 #include <plasp/pddl/expressions/Either.h>

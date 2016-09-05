@@ -2,6 +2,7 @@
 
 #include <algorithm>
 
+#include <plasp/pddl/ConsistencyException.h>
 #include <plasp/pddl/Domain.h>
 #include <plasp/pddl/ExpressionContext.h>
 #include <plasp/pddl/IO.h>
