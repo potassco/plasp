@@ -58,7 +58,6 @@ boost::intrusive_ptr<Derived> Binary<Derived>::parse(Context &context,
 
 	auto expression = boost::intrusive_ptr<Derived>(new Derived);
 
-	// Assume that expression identifier (imply, exists, etc.) is already parsed
 	// Parse arguments of the expression
 	expression->Binary<Derived>::setArgument(0, parseExpression(context, expressionContext));
 	expression->Binary<Derived>::setArgument(1, parseExpression(context, expressionContext));

@@ -63,10 +63,10 @@ void Variable::parseDeclaration(Context &context, Variables &parameters)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Variable::parseTypedDeclaration(Context &context, ExpressionContext &expressionContext)
+void Variable::parseTypedDeclaration(Context &context, ExpressionContext &expressionContext,
+		Variables &variables)
 {
 	auto &parser = context.parser;
-	auto &variables = expressionContext.parameters;
 
 	// Parse and store variable itself
 	parseDeclaration(context, variables);
@@ -108,22 +108,23 @@ void Variable::parseTypedDeclaration(Context &context, ExpressionContext &expres
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Variable::parseTypedDeclarations(Context &context, ExpressionContext &expressionContext)
+void Variable::parseTypedDeclarations(Context &context, ExpressionContext &expressionContext,
+	Variables &variables)
 {
 	auto &parser = context.parser;
 
 	while (parser.currentCharacter() != ')')
 	{
-		parseTypedDeclaration(context, expressionContext);
+		parseTypedDeclaration(context, expressionContext, variables);
 
 		parser.skipWhiteSpace();
 	}
 
-	if (expressionContext.parameters.empty())
+	if (variables.empty())
 		return;
 
 	// Check correct use of typing requirement
-	const auto typingUsed = (expressionContext.parameters.back()->type() != nullptr);
+	const auto typingUsed = (variables.back()->type() != nullptr);
 
 	// If types are given, check that typing is a requirement
 	if (typingUsed)

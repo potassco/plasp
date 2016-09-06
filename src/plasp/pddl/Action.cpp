@@ -32,7 +32,7 @@ void Action::parseDeclaration(Context &context, Domain &domain)
 	ExpressionContext expressionContext(domain, action->m_parameters);
 
 	// Read parameters
-	expressions::Variable::parseTypedDeclarations(context, expressionContext);
+	expressions::Variable::parseTypedDeclarations(context, expressionContext, action->m_parameters);
 
 	parser.expect<std::string>(")");
 

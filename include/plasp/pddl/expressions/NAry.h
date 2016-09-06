@@ -63,7 +63,6 @@ boost::intrusive_ptr<Derived> NAry<Derived>::parse(Context &context,
 
 	parser.skipWhiteSpace();
 
-	// Assume that expression identifier (and, or, etc.) is already parsed
 	// Parse arguments of the expression
 	while (parser.currentCharacter() != ')')
 	{

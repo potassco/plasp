@@ -21,8 +21,10 @@ class Variable: public ExpressionCRTP<Variable>
 	public:
 		static const Expression::Type ExpressionType = Expression::Type::Variable;
 
-		static void parseTypedDeclaration(Context &context, ExpressionContext &expressionContext);
-		static void parseTypedDeclarations(Context &context, ExpressionContext &expressionContext);
+		static void parseTypedDeclaration(Context &context, ExpressionContext &expressionContext,
+			Variables &variables);
+		static void parseTypedDeclarations(Context &context, ExpressionContext &expressionContext,
+			Variables &variables);
 
 		static VariablePointer parseAndFind(Context &context,
 			const ExpressionContext &expressionContext);

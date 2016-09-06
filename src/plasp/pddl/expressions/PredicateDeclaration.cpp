@@ -42,7 +42,7 @@ void PredicateDeclaration::parse(Context &context, Domain &domain)
 	ExpressionContext expressionContext(domain, predicate->m_parameters);
 
 	// Parse arguments
-	expressions::Variable::parseTypedDeclarations(context, expressionContext);
+	expressions::Variable::parseTypedDeclarations(context, expressionContext, predicate->m_parameters);
 
 	context.parser.expect<std::string>(")");
 
