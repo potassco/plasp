@@ -85,11 +85,11 @@ ExpressionPointer parsePreconditionExpression(Context &context,
 
 	ExpressionPointer expression;
 
-	if ((expression = expressions::And::parse(context, expressionContext, parsePreconditionExpression)))
+	if ((expression = expressions::And::parse(context, expressionContext, parsePreconditionExpression))
+	    || (expression = expressions::ForAll::parse(context, expressionContext, parsePreconditionExpression)))
+	{
 		return expression;
-
-	if ((expression = expressions::ForAll::parse(context, expressionContext, parsePreconditionExpression)))
-		return expression;
+	}
 
 	const auto position = parser.position();
 
@@ -172,8 +172,11 @@ ExpressionPointer parseEffectExpression(Context &context, ExpressionContext &exp
 
 	ExpressionPointer expression;
 
-	if ((expression = expressions::And::parse(context, expressionContext, parseEffectExpression)))
+	if ((expression = expressions::And::parse(context, expressionContext, parseEffectExpression))
+	    || (expression = expressions::ForAll::parse(context, expressionContext, parseEffectExpression)))
+	{
 		return expression;
+	}
 
 	const auto position = parser.position();
 
@@ -181,8 +184,7 @@ ExpressionPointer parseEffectExpression(Context &context, ExpressionContext &exp
 
 	const auto expressionIdentifierPosition = parser.position();
 
-	if (parser.testIdentifierAndSkip("forall")
-		|| parser.testIdentifierAndSkip("when"))
+	if (parser.testIdentifierAndSkip("when"))
 	{
 		parser.seek(expressionIdentifierPosition);
 		const auto expressionIdentifier = parser.parseIdentifier();
