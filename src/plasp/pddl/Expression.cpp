@@ -5,6 +5,8 @@
 #include <plasp/pddl/ExpressionContext.h>
 #include <plasp/pddl/IO.h>
 #include <plasp/pddl/expressions/And.h>
+#include <plasp/pddl/expressions/Exists.h>
+#include <plasp/pddl/expressions/ForAll.h>
 #include <plasp/pddl/expressions/Imply.h>
 #include <plasp/pddl/expressions/Not.h>
 #include <plasp/pddl/expressions/Or.h>
@@ -86,14 +88,16 @@ ExpressionPointer parsePreconditionExpression(Context &context,
 	if ((expression = expressions::And::parse(context, expressionContext, parsePreconditionExpression)))
 		return expression;
 
+	if ((expression = expressions::ForAll::parse(context, expressionContext, parsePreconditionExpression)))
+		return expression;
+
 	const auto position = parser.position();
 
 	parser.expect<std::string>("(");
 
 	const auto expressionIdentifierPosition = parser.position();
 
-	if (parser.testIdentifierAndSkip("forall")
-		|| parser.testIdentifierAndSkip("preference"))
+	if (parser.testIdentifierAndSkip("preference"))
 	{
 		// TODO: refactor
 		parser.seek(expressionIdentifierPosition);
@@ -119,6 +123,8 @@ ExpressionPointer parseExpression(Context &context, ExpressionContext &expressio
 
 	if ((expression = expressions::And::parse(context, expressionContext, parseExpression))
 	    || (expression = expressions::Or::parse(context, expressionContext, parseExpression))
+	    || (expression = expressions::Exists::parse(context, expressionContext, parseExpression))
+	    || (expression = expressions::ForAll::parse(context, expressionContext, parseExpression))
 		|| (expression = expressions::Not::parse(context, expressionContext, parseExpression))
 	    || (expression = expressions::Imply::parse(context, expressionContext, parseExpression))
 	    || (expression = expressions::Predicate::parse(context, expressionContext)))
@@ -132,9 +138,7 @@ ExpressionPointer parseExpression(Context &context, ExpressionContext &expressio
 
 	const auto expressionIdentifierPosition = parser.position();
 
-	if (parser.testIdentifierAndSkip("exists")
-		|| parser.testIdentifierAndSkip("forall")
-		|| parser.testIdentifierAndSkip("-")
+	if (parser.testIdentifierAndSkip("-")
 		|| parser.testIdentifierAndSkip("=")
 		|| parser.testIdentifierAndSkip("*")
 		|| parser.testIdentifierAndSkip("+")

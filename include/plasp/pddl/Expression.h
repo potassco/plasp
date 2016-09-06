@@ -93,6 +93,8 @@ class Expression
 			Constant,
 			Dummy,
 			Either,
+			Exists,
+			ForAll,
 			Imply,
 			Not,
 			Or,
