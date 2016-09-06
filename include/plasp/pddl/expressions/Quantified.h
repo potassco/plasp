@@ -3,6 +3,7 @@
 
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Expression.h>
+#include <plasp/pddl/ExpressionContext.h>
 #include <plasp/pddl/expressions/Variable.h>
 
 namespace plasp
@@ -65,8 +66,14 @@ boost::intrusive_ptr<Derived> Quantified<Derived>::parse(Context &context,
 	Variable::parseTypedDeclarations(context, expressionContext, expression->m_variables);
 	parser.expect<std::string>(")");
 
+	// Push newly parsed variables to the stack
+	expressionContext.variables.push(&expression->m_variables);
+
 	// Parse argument of the expression
 	expression->Quantified<Derived>::setArgument(parseExpression(context, expressionContext));
+
+	// Clean up variable stack
+	expressionContext.variables.pop();
 
 	parser.expect<std::string>(")");
 
