@@ -46,6 +46,12 @@ using DummyPointer = boost::intrusive_ptr<Dummy>;
 class Either;
 using EitherPointer = boost::intrusive_ptr<Either>;
 
+class Exists;
+using ExistsPointer = boost::intrusive_ptr<Exists>;
+
+class ForAll;
+using ForAllPointer = boost::intrusive_ptr<ForAll>;
+
 class Imply;
 using ImplyPointer = boost::intrusive_ptr<Imply>;
 
