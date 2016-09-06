@@ -4,6 +4,9 @@
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Expression.h>
 
+#include <plasp/pddl/expressions/Exists.h>
+#include <plasp/pddl/expressions/ForAll.h>
+
 namespace plasp
 {
 namespace pddl
@@ -33,6 +36,7 @@ class NAry: public ExpressionCRTP<Derived>
 
 		ExpressionPointer reduced() override;
 		ExpressionPointer negationNormalized() override;
+		ExpressionPointer prenex() override;
 		ExpressionPointer simplified() override;
 
 		void print(std::ostream &ostream) const override;
@@ -144,6 +148,26 @@ inline ExpressionPointer NAry<Derived>::negationNormalized()
 	}
 
 	return this;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Derived>
+inline ExpressionPointer NAry<Derived>::prenex()
+{
+	ExpressionPointer result = this;
+
+	for (size_t i = 0; i < m_arguments.size(); i++)
+	{
+		// Iterate in backward order to wrap quantifiers in forward order
+		auto &argument = m_arguments[m_arguments.size() - i - 1];
+
+		BOOST_ASSERT(argument);
+
+		result = Expression::prenex(result, argument);
+	}
+
+	return result;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -120,10 +120,14 @@ class Expression
 		ExpressionPointer normalized();
 		virtual ExpressionPointer reduced();
 		virtual ExpressionPointer negationNormalized();
+		virtual ExpressionPointer prenex();
 		virtual ExpressionPointer simplified();
 		ExpressionPointer negated();
 
 		virtual void print(std::ostream &ostream) const = 0;
+
+	protected:
+		static ExpressionPointer prenex(ExpressionPointer parent, ExpressionPointer &child);
 
 	private:
 		friend void intrusive_ptr_add_ref(Expression *expression);

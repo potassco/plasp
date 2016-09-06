@@ -36,6 +36,7 @@ class Quantified: public ExpressionCRTP<Derived>
 
 		ExpressionPointer reduced() override;
 		ExpressionPointer negationNormalized() override;
+		ExpressionPointer prenex() override;
 		ExpressionPointer simplified() override;
 
 		void print(std::ostream &ostream) const override;
@@ -121,7 +122,9 @@ const Variables &Quantified<Derived>::variables() const
 template<class Derived>
 inline ExpressionPointer Quantified<Derived>::reduced()
 {
-	m_argument = m_argument->reduced();
+	BOOST_ASSERT(m_argument);
+
+	m_argument = m_argument->prenex();
 
 	return this;
 }
@@ -131,7 +134,22 @@ inline ExpressionPointer Quantified<Derived>::reduced()
 template<class Derived>
 inline ExpressionPointer Quantified<Derived>::negationNormalized()
 {
-	m_argument = m_argument->negationNormalized();
+	BOOST_ASSERT(m_argument);
+
+	m_argument = m_argument->prenex();
+
+	return this;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Derived>
+inline ExpressionPointer Quantified<Derived>::prenex()
+{
+	BOOST_ASSERT(m_argument);
+
+	// Quantifiers may not move before other quantifiers, their order matters
+	m_argument = m_argument->prenex();
 
 	return this;
 }
@@ -141,6 +159,8 @@ inline ExpressionPointer Quantified<Derived>::negationNormalized()
 template<class Derived>
 inline ExpressionPointer Quantified<Derived>::simplified()
 {
+	BOOST_ASSERT(m_argument);
+
 	m_argument = m_argument->simplified();
 
 	// Associate same-type children, such as (forall (?x) (forall (?y) (...)))

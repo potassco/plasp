@@ -28,7 +28,7 @@ namespace pddl
 
 ExpressionPointer Expression::normalized()
 {
-	return reduced()->negationNormalized()->simplified();
+	return reduced()->negationNormalized()->prenex()->simplified();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -43,6 +43,57 @@ ExpressionPointer Expression::reduced()
 ExpressionPointer Expression::negationNormalized()
 {
 	return this;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ExpressionPointer Expression::prenex()
+{
+	return this;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ExpressionPointer Expression::prenex(ExpressionPointer parent, ExpressionPointer &child)
+{
+	BOOST_ASSERT(child);
+
+	child = child->prenex();
+
+	if (child->expressionType() == Expression::Type::Exists)
+	{
+		auto quantifiedExpression = expressions::ExistsPointer(dynamic_cast<expressions::Exists *>(child.get()));
+
+		// Move argument up
+		child = quantifiedExpression->argument();
+
+		// Recursively build prenex form on new child
+		parent = Expression::prenex(parent, child);
+
+		// Move quantifier up
+		quantifiedExpression->setArgument(parent);
+
+		// Make parent point to the quantifier that has been moved up
+		return quantifiedExpression;
+	}
+	else if (child->expressionType() == Expression::Type::ForAll)
+	{
+		auto quantifiedExpression = expressions::ForAllPointer(dynamic_cast<expressions::ForAll *>(child.get()));
+
+		// Move argument up
+		child = quantifiedExpression->argument();
+
+		// Recursively build prenex form on new child
+		parent = Expression::prenex(parent, child);
+
+		// Move quantifier up
+		quantifiedExpression->setArgument(parent);
+
+		// Make parent point to the quantifier that has been moved up
+		return quantifiedExpression;
+	}
+
+	return parent;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
