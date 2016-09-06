@@ -149,8 +149,6 @@ inline ExpressionPointer Quantified<Derived>::simplified()
 
 	auto &quantifiedExpression = dynamic_cast<Derived &>(*m_argument);
 
-	BOOST_ASSERT(!quantifiedExpression.arguments().empty());
-
 	// Unify variables
 	m_variables.insert(m_variables.end(), quantifiedExpression.variables().begin(), quantifiedExpression.variables().end());
 
