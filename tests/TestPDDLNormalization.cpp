@@ -2,9 +2,12 @@
 
 #include <plasp/pddl/expressions/And.h>
 #include <plasp/pddl/expressions/Dummy.h>
+#include <plasp/pddl/expressions/Exists.h>
+#include <plasp/pddl/expressions/ForAll.h>
 #include <plasp/pddl/expressions/Imply.h>
 #include <plasp/pddl/expressions/Not.h>
 #include <plasp/pddl/expressions/Or.h>
+#include <plasp/pddl/expressions/Variable.h>
 
 using namespace plasp::pddl;
 
@@ -154,4 +157,32 @@ TEST(PDDLNormalizationTests, DoubleNegationInner)
 	n1->normalized()->print(output);
 
 	ASSERT_EQ(output.str(), "(or (not (a)) (not (b)) (not (c)))");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TEST(PDDLNormalizationTests, SimplifyNestedForAll)
+{
+	auto v1 = expressions::VariablePointer(new expressions::Variable("x"));
+	auto v2 = expressions::VariablePointer(new expressions::Variable("y"));
+	auto v3 = expressions::VariablePointer(new expressions::Variable("z"));
+	auto v4 = expressions::VariablePointer(new expressions::Variable("u"));
+	auto v5 = expressions::VariablePointer(new expressions::Variable("v"));
+	auto v6 = expressions::VariablePointer(new expressions::Variable("w"));
+
+	auto f1 = expressions::ForAllPointer(new expressions::ForAll);
+	auto f2 = expressions::ForAllPointer(new expressions::ForAll);
+
+	auto d = expressions::DummyPointer(new expressions::Dummy("a"));
+
+	f1->variables() = {v1, v2, v3};
+	f2->variables() = {v4, v5, v6};
+
+	f1->setArgument(f2);
+	f2->setArgument(d);
+
+	std::stringstream output;
+	f1->normalized()->print(output);
+
+	ASSERT_EQ(output.str(), "(forall (?x ?y ?z ?u ?v ?w) (a))");
 }

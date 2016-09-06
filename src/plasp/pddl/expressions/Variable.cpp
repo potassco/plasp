@@ -26,8 +26,15 @@ namespace expressions
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 Variable::Variable()
+:	m_isDirty{false}
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+Variable::Variable(std::string name)
 :	m_isDirty{false},
-	m_type{nullptr}
+	m_name{name}
 {
 }
 
@@ -180,8 +187,13 @@ bool Variable::isDirty() const
 
 void Variable::print(std::ostream &ostream) const
 {
-	// TODO: implement correctly
-	ostream << "(<variable " << m_name << ">)";
+	ostream << "?" << m_name;
+
+	if (m_type)
+	{
+		ostream << " - ";
+		m_type->print(ostream);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

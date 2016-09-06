@@ -31,8 +31,12 @@ class Quantified: public ExpressionCRTP<Derived>
 		void setArgument(ExpressionPointer argument);
 		ExpressionPointer argument() const;
 
+		Variables &variables();
+		const Variables &variables() const;
+
 		ExpressionPointer reduced() override;
 		ExpressionPointer negationNormalized() override;
+		ExpressionPointer simplified() override;
 
 		void print(std::ostream &ostream) const override;
 
@@ -99,6 +103,22 @@ ExpressionPointer Quantified<Derived>::argument() const
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived>
+Variables &Quantified<Derived>::variables()
+{
+	return m_variables;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Derived>
+const Variables &Quantified<Derived>::variables() const
+{
+	return m_variables;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Derived>
 inline ExpressionPointer Quantified<Derived>::reduced()
 {
 	m_argument = m_argument->reduced();
@@ -119,16 +139,42 @@ inline ExpressionPointer Quantified<Derived>::negationNormalized()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived>
+inline ExpressionPointer Quantified<Derived>::simplified()
+{
+	m_argument = m_argument->simplified();
+
+	// Associate same-type children, such as (forall (?x) (forall (?y) (...)))
+	if (m_argument->expressionType() != Derived::ExpressionType)
+		return this;
+
+	auto &quantifiedExpression = dynamic_cast<Derived &>(*m_argument);
+
+	BOOST_ASSERT(!quantifiedExpression.arguments().empty());
+
+	// Unify variables
+	m_variables.insert(m_variables.end(), quantifiedExpression.variables().begin(), quantifiedExpression.variables().end());
+
+	// Move child expression up
+	m_argument = quantifiedExpression.argument();
+
+	// TODO: introduce/handle boolean values
+
+	return this;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Derived>
 inline void Quantified<Derived>::print(std::ostream &ostream) const
 {
-	ostream << "(" << Derived::Identifier << "(";
+	ostream << "(" << Derived::Identifier << " (";
 
 	for (size_t i = 0; i < m_variables.size(); i++)
 	{
 		if (i > 0)
 			ostream << " ";
 
-		ostream << m_variables[i]->name();
+		m_variables[i]->print(ostream);
 	}
 
 	ostream << ") ";

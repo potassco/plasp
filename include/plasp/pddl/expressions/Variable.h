@@ -27,6 +27,9 @@ class Variable: public ExpressionCRTP<Variable>
 			Variables &variables);
 
 	public:
+		Variable();
+		Variable(std::string name);
+
 		void setName(std::string name);
 		const std::string &name() const;
 
@@ -42,8 +45,6 @@ class Variable: public ExpressionCRTP<Variable>
 		static void parseDeclaration(Context &context, Variables &parameters);
 
 	private:
-		Variable();
-
 		bool m_isDirty;
 
 		std::string m_name;
