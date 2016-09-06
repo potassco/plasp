@@ -1,6 +1,8 @@
 #include <plasp/pddl/expressions/Not.h>
 
 #include <plasp/pddl/expressions/And.h>
+#include <plasp/pddl/expressions/Exists.h>
+#include <plasp/pddl/expressions/ForAll.h>
 #include <plasp/pddl/expressions/Or.h>
 
 namespace plasp
@@ -97,6 +99,28 @@ ExpressionPointer Not::negationNormalized()
 			andExpression->addArgument(orExpression.arguments()[i]->negated());
 
 		return andExpression->negationNormalized();
+	}
+
+	// De Morgen for existential quantifiers
+	if (m_argument->expressionType() == Expression::Type::Exists)
+	{
+		auto &existsExpression = dynamic_cast<Exists &>(*m_argument);
+		auto forAllExpression = ForAllPointer(new ForAll);
+
+		forAllExpression->setArgument(existsExpression.argument()->negated());
+
+		return forAllExpression->negationNormalized();
+	}
+
+	// De Morgen for universal quantifiers
+	if (m_argument->expressionType() == Expression::Type::ForAll)
+	{
+		auto &forAllExpression = dynamic_cast<ForAll &>(*m_argument);
+		auto existsExpression = ExistsPointer(new Exists);
+
+		existsExpression->setArgument(forAllExpression.argument()->negated());
+
+		return existsExpression->negationNormalized();
 	}
 
 	return this;
