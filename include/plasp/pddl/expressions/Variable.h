@@ -26,9 +26,6 @@ class Variable: public ExpressionCRTP<Variable>
 		static void parseTypedDeclarations(Context &context, ExpressionContext &expressionContext,
 			Variables &variables);
 
-		static VariablePointer parseAndFind(Context &context,
-			const ExpressionContext &expressionContext);
-
 	public:
 		void setName(std::string name);
 		const std::string &name() const;

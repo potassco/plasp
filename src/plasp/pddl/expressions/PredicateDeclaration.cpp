@@ -39,7 +39,8 @@ void PredicateDeclaration::parse(Context &context, Domain &domain)
 
 	context.parser.skipWhiteSpace();
 
-	ExpressionContext expressionContext(domain, predicate->m_parameters);
+	ExpressionContext expressionContext(domain);
+	expressionContext.variables.push(&predicate->m_parameters);
 
 	// Parse arguments
 	expressions::Variable::parseTypedDeclarations(context, expressionContext, predicate->m_parameters);

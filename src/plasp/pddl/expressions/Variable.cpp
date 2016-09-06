@@ -136,32 +136,6 @@ void Variable::parseTypedDeclarations(Context &context, ExpressionContext &expre
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-VariablePointer Variable::parseAndFind(Context &context, const ExpressionContext &expressionContext)
-{
-	auto &parser = context.parser;
-
-	parser.skipWhiteSpace();
-
-	parser.expect<std::string>("?");
-
-	const auto variableName = parser.parseIdentifier();
-
-	const auto &variables = expressionContext.parameters;
-
-	const auto match = std::find_if(variables.cbegin(), variables.cend(),
-		[&](const auto &variable)
-		{
-			return variable->name() == variableName;
-		});
-
-	if (match == variables.cend())
-		throw utils::ParserException(parser.coordinate(), "parameter “" + variableName + "” used but never declared");
-
-	return match->get();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 void Variable::setName(std::string name)
 {
 	m_name = name;

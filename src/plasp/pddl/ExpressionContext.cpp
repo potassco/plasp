@@ -14,19 +14,17 @@ namespace pddl
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ExpressionContext::ExpressionContext(Domain &domain, expressions::Variables &parameters)
+ExpressionContext::ExpressionContext(Domain &domain)
 :	domain(domain),
-	problem(nullptr),
-	parameters(parameters)
+	problem(nullptr)
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ExpressionContext::ExpressionContext(Domain &domain, Problem *problem, expressions::Variables &parameters)
+ExpressionContext::ExpressionContext(Domain &domain, Problem *problem)
 :	domain(domain),
-	problem{problem},
-	parameters(parameters)
+	problem{problem}
 {
 }
 

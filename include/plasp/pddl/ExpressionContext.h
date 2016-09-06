@@ -3,6 +3,7 @@
 
 #include <plasp/pddl/Expression.h>
 #include <plasp/pddl/Requirement.h>
+#include <plasp/pddl/VariableStack.h>
 
 namespace plasp
 {
@@ -18,8 +19,8 @@ namespace pddl
 class ExpressionContext
 {
 	public:
-		ExpressionContext(Domain &domain, expressions::Variables &parameters);
-		ExpressionContext(Domain &domain, Problem *problem, expressions::Variables &parameters);
+		ExpressionContext(Domain &domain);
+		ExpressionContext(Domain &domain, Problem *problem);
 
 		bool hasRequirement(Requirement::Type requirementType) const;
 		void checkRequirement(Requirement::Type requirementType) const;
@@ -27,7 +28,7 @@ class ExpressionContext
 		Domain &domain;
 		Problem *problem;
 
-		expressions::Variables &parameters;
+		VariableStack variables;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

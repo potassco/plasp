@@ -66,7 +66,7 @@ PredicatePointer Predicate::parse(Context &context, ExpressionContext &expressio
 		// Parse variables
 		if (context.parser.currentCharacter() == '?')
 		{
-			const auto variable = Variable::parseAndFind(context, expressionContext);
+			const auto variable = expressionContext.variables.parseAndFind(context);
 			predicate->m_arguments.emplace_back(variable);
 		}
 		// Parse constants
