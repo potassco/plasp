@@ -29,6 +29,8 @@ class Not: public ExpressionCRTP<Not>
 	public:
 		Not();
 
+		ExpressionPointer copy() override;
+
 		void setArgument(ExpressionPointer argument);
 		ExpressionPointer argument() const;
 
@@ -36,6 +38,7 @@ class Not: public ExpressionCRTP<Not>
 		ExpressionPointer negationNormalized() override;
 		ExpressionPointer prenex(Expression::Type lastExpressionType) override;
 		ExpressionPointer simplified() override;
+		ExpressionPointer disjunctionNormalized() override;
 
 		void print(std::ostream &ostream) const override;
 

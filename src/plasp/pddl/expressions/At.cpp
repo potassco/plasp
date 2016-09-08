@@ -22,6 +22,17 @@ At::At()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+ExpressionPointer At::copy()
+{
+	auto result = new At;
+
+	result->m_argument = m_argument->copy();
+
+	return result;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void At::setArgument(ExpressionPointer argument)
 {
 	m_argument = argument;
@@ -70,6 +81,17 @@ ExpressionPointer At::simplified()
 	BOOST_ASSERT(m_argument);
 
 	m_argument = m_argument->simplified();
+
+	return this;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ExpressionPointer At::disjunctionNormalized()
+{
+	BOOST_ASSERT(m_argument);
+
+	m_argument = m_argument->disjunctionNormalized();
 
 	return this;
 }

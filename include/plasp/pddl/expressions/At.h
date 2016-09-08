@@ -32,6 +32,8 @@ class At: public ExpressionCRTP<At>
 	public:
 		At();
 
+		ExpressionPointer copy() override;
+
 		size_t timePoint() const;
 
 		void setArgument(ExpressionPointer argument);
@@ -41,6 +43,7 @@ class At: public ExpressionCRTP<At>
 		ExpressionPointer negationNormalized() override;
 		ExpressionPointer prenex(Expression::Type lastExpressionType) override;
 		ExpressionPointer simplified() override;
+		ExpressionPointer disjunctionNormalized() override;
 
 		void print(std::ostream &ostream) const override;
 

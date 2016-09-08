@@ -29,12 +29,16 @@ class Binary: public ExpressionCRTP<Derived>
 			ExpressionContext &expressionContext, ExpressionParser parseExpression);
 
 	public:
+		ExpressionPointer copy() override;
+
 		void setArgument(size_t i, ExpressionPointer argument);
 		const std::array<ExpressionPointer, 2> &arguments() const;
 
 		ExpressionPointer reduced() override;
 		ExpressionPointer negationNormalized() override;
 		ExpressionPointer prenex(Expression::Type lastExpressionType) override;
+		ExpressionPointer simplified() override;
+		ExpressionPointer disjunctionNormalized() override;
 
 		void print(std::ostream &ostream) const override;
 
@@ -69,6 +73,19 @@ boost::intrusive_ptr<Derived> Binary<Derived>::parse(Context &context,
 	parser.expect<std::string>(")");
 
 	return expression;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Derived>
+ExpressionPointer Binary<Derived>::copy()
+{
+	auto result = new Derived;
+
+	for (size_t i = 0; i < m_arguments.size(); i++)
+		result->m_arguments[i] = m_arguments[i]->copy();
+
+	return result;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -125,6 +142,36 @@ template<class Derived>
 inline ExpressionPointer Binary<Derived>::prenex(Expression::Type)
 {
 	// TODO: implement by refactoring binary expressions
+	return this;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Derived>
+inline ExpressionPointer Binary<Derived>::simplified()
+{
+	for (size_t i = 0; i < m_arguments.size(); i++)
+	{
+		BOOST_ASSERT(m_arguments[i]);
+
+		m_arguments[i] = m_arguments[i]->simplified();
+	}
+
+	return this;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Derived>
+inline ExpressionPointer Binary<Derived>::disjunctionNormalized()
+{
+	for (size_t i = 0; i < m_arguments.size(); i++)
+	{
+		BOOST_ASSERT(m_arguments[i]);
+
+		m_arguments[i] = m_arguments[i]->disjunctionNormalized();
+	}
+
 	return this;
 }
 

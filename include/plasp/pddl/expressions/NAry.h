@@ -29,6 +29,8 @@ class NAry: public ExpressionCRTP<Derived>
 			ExpressionContext &expressionContext, ExpressionParser parseExpression);
 
 	public:
+		ExpressionPointer copy() override;
+
 		void setArgument(size_t i, ExpressionPointer argument);
 		void addArgument(ExpressionPointer argument);
 		Expressions &arguments();
@@ -38,6 +40,7 @@ class NAry: public ExpressionCRTP<Derived>
 		ExpressionPointer negationNormalized() override;
 		ExpressionPointer prenex(Expression::Type lastExpressionType) override;
 		ExpressionPointer simplified() override;
+		ExpressionPointer disjunctionNormalized() override;
 
 		void print(std::ostream &ostream) const override;
 
@@ -81,6 +84,21 @@ boost::intrusive_ptr<Derived> NAry<Derived>::parse(Context &context,
 	parser.expect<std::string>(")");
 
 	return expression;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Derived>
+ExpressionPointer NAry<Derived>::copy()
+{
+	auto result = new Derived;
+
+	result->m_arguments.resize(m_arguments.size());
+
+	for (size_t i = 0; i < m_arguments.size(); i++)
+		result->m_arguments[i] = m_arguments[i]->copy();
+
+	return result;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -267,6 +285,21 @@ inline ExpressionPointer NAry<Derived>::simplified()
 
 	// TODO: recognize tautologies
 	// TODO: introduce/handle boolean values
+
+	return this;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Derived>
+inline ExpressionPointer NAry<Derived>::disjunctionNormalized()
+{
+	for (size_t i = 0; i < m_arguments.size(); i++)
+	{
+		BOOST_ASSERT(m_arguments[i]);
+
+		m_arguments[i] = m_arguments[i]->disjunctionNormalized();
+	}
 
 	return this;
 }

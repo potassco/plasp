@@ -49,10 +49,13 @@ class QuantifiedCRTP: public Quantified
 			return Derived::ExpressionType;
 		}
 
+		ExpressionPointer copy() override;
+
 		ExpressionPointer reduced() override;
 		ExpressionPointer negationNormalized() override;
 		ExpressionPointer prenex(Expression::Type lastExpressionType) override;
 		ExpressionPointer simplified() override;
+		ExpressionPointer disjunctionNormalized() override;
 
 		void print(std::ostream &ostream) const override;
 };
@@ -94,6 +97,18 @@ boost::intrusive_ptr<Derived> QuantifiedCRTP<Derived>::parse(Context &context,
 	parser.expect<std::string>(")");
 
 	return expression;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Derived>
+ExpressionPointer QuantifiedCRTP<Derived>::copy()
+{
+	auto result = new Derived;
+
+	result->m_argument = m_argument->copy();
+
+	return result;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -184,6 +199,18 @@ inline ExpressionPointer QuantifiedCRTP<Derived>::simplified()
 	m_argument = quantifiedExpression.argument();
 
 	// TODO: introduce/handle boolean values
+
+	return this;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Derived>
+inline ExpressionPointer QuantifiedCRTP<Derived>::disjunctionNormalized()
+{
+	BOOST_ASSERT(m_argument);
+
+	m_argument = m_argument->disjunctionNormalized();
 
 	return this;
 }

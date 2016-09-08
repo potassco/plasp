@@ -25,6 +25,17 @@ Not::Not()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+ExpressionPointer Not::copy()
+{
+	auto result = new Not;
+
+	result->m_argument = m_argument->copy();
+
+	return result;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void Not::setArgument(ExpressionPointer argument)
 {
 	m_argument = argument;
@@ -144,6 +155,17 @@ ExpressionPointer Not::simplified()
 	BOOST_ASSERT(m_argument);
 
 	m_argument = m_argument->simplified();
+
+	return this;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ExpressionPointer Not::disjunctionNormalized()
+{
+	BOOST_ASSERT(m_argument);
+
+	m_argument = m_argument->disjunctionNormalized();
 
 	return this;
 }

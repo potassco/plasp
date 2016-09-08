@@ -22,6 +22,9 @@ class And: public NAry<And>
 		static const Expression::Type ExpressionType = Expression::Type::And;
 
 		static const std::string Identifier;
+
+	public:
+		ExpressionPointer disjunctionNormalized() override;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

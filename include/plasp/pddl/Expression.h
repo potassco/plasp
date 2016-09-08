@@ -120,11 +120,14 @@ class Expression
 
 		virtual Type expressionType() const = 0;
 
+		virtual ExpressionPointer copy();
+
 		ExpressionPointer normalized();
 		virtual ExpressionPointer reduced();
 		virtual ExpressionPointer negationNormalized();
 		virtual ExpressionPointer prenex(Expression::Type lastQuantifierType = Expression::Type::Exists);
 		virtual ExpressionPointer simplified();
+		virtual ExpressionPointer disjunctionNormalized();
 		ExpressionPointer negated();
 
 		virtual void print(std::ostream &ostream) const = 0;

@@ -302,3 +302,51 @@ TEST(PDDLNormalizationTests, PrenexGroupSameType)
 
 	ASSERT_EQ(output.str(), "(forall (?v1 ?v2 ?v6 ?v7) (exists (?v3 ?v8) (forall (?v4 ?v9) (exists (?v5) (and (a) (b))))))");
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TEST(PDDLNormalizationTests, DisjunctiveNormalForm)
+{
+	auto f = expressions::ForAllPointer(new expressions::ForAll);
+	auto e = expressions::ExistsPointer(new expressions::Exists);
+	auto a = expressions::AndPointer(new expressions::And);
+	auto o1 = expressions::OrPointer(new expressions::Or);
+	auto o2 = expressions::OrPointer(new expressions::Or);
+	auto o3 = expressions::OrPointer(new expressions::Or);
+
+	f->variables() = {new expressions::Variable("v1")};
+	f->setArgument(e);
+
+	e->variables() = {new expressions::Variable("v2")};
+	e->setArgument(o1);
+
+	o1->addArgument(a);
+	o1->addArgument(new expressions::Dummy("h"));
+
+	a->addArgument(new expressions::Dummy("a"));
+	a->addArgument(new expressions::Dummy("b"));
+	a->addArgument(o2);
+	a->addArgument(o3);
+
+	o2->addArgument(new expressions::Dummy("c"));
+	o2->addArgument(new expressions::Dummy("d"));
+	o2->addArgument(new expressions::Dummy("e"));
+
+	o3->addArgument(new expressions::Dummy("f"));
+	o3->addArgument(new expressions::Dummy("g"));
+
+	auto normalized = f->normalized();
+
+	std::stringstream output;
+	normalized->print(output);
+
+	ASSERT_EQ(output.str(), "(forall (?v1) (exists (?v2) (or "
+		"(and (a) (b) (c) (f)) "
+		"(h) "
+		"(and (a) (b) (d) (f)) "
+		"(and (a) (b) (e) (f)) "
+		"(and (a) (b) (c) (g)) "
+		"(and (a) (b) (d) (g)) "
+		"(and (a) (b) (e) (g))"
+		")))");
+}
