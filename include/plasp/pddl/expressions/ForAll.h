@@ -16,7 +16,7 @@ namespace expressions
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class ForAll: public Quantified<ForAll>
+class ForAll: public QuantifiedCRTP<ForAll>
 {
 	public:
 		static const Expression::Type ExpressionType = Expression::Type::ForAll;

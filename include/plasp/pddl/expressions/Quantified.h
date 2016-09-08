@@ -19,27 +19,14 @@ namespace expressions
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class Derived>
-class Quantified: public ExpressionCRTP<Derived>
+class Quantified: public Expression
 {
-	public:
-		template<typename ExpressionParser>
-		static boost::intrusive_ptr<Derived> parse(Context &context,
-			ExpressionContext &expressionContext, ExpressionParser parseExpression);
-
 	public:
 		void setArgument(ExpressionPointer argument);
 		ExpressionPointer argument() const;
 
 		Variables &variables();
 		const Variables &variables() const;
-
-		ExpressionPointer reduced() override;
-		ExpressionPointer negationNormalized() override;
-		ExpressionPointer prenex() override;
-		ExpressionPointer simplified() override;
-
-		void print(std::ostream &ostream) const override;
 
 	protected:
 		Variables m_variables;
@@ -49,8 +36,32 @@ class Quantified: public ExpressionCRTP<Derived>
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived>
+class QuantifiedCRTP: public Quantified
+{
+	public:
+		template<typename ExpressionParser>
+		static boost::intrusive_ptr<Derived> parse(Context &context,
+			ExpressionContext &expressionContext, ExpressionParser parseExpression);
+
+	public:
+		Type expressionType() const override final
+		{
+			return Derived::ExpressionType;
+		}
+
+		ExpressionPointer reduced() override;
+		ExpressionPointer negationNormalized() override;
+		ExpressionPointer prenex(Expression::Type lastExpressionType) override;
+		ExpressionPointer simplified() override;
+
+		void print(std::ostream &ostream) const override;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Derived>
 template<typename ExpressionParser>
-boost::intrusive_ptr<Derived> Quantified<Derived>::parse(Context &context,
+boost::intrusive_ptr<Derived> QuantifiedCRTP<Derived>::parse(Context &context,
 	ExpressionContext &expressionContext, ExpressionParser parseExpression)
 {
 	auto &parser = context.parser;
@@ -75,7 +86,7 @@ boost::intrusive_ptr<Derived> Quantified<Derived>::parse(Context &context,
 	expressionContext.variables.push(&expression->m_variables);
 
 	// Parse argument of the expression
-	expression->Quantified<Derived>::setArgument(parseExpression(context, expressionContext));
+	expression->Quantified::setArgument(parseExpression(context, expressionContext));
 
 	// Clean up variable stack
 	expressionContext.variables.pop();
@@ -87,24 +98,28 @@ boost::intrusive_ptr<Derived> Quantified<Derived>::parse(Context &context,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class Derived>
-void Quantified<Derived>::setArgument(ExpressionPointer expression)
+inline void Quantified::setArgument(ExpressionPointer expression)
 {
 	m_argument = expression;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class Derived>
-ExpressionPointer Quantified<Derived>::argument() const
+inline ExpressionPointer Quantified::argument() const
 {
 	return m_argument;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class Derived>
-Variables &Quantified<Derived>::variables()
+inline Variables &Quantified::variables()
+{
+	return m_variables;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline const Variables &Quantified::variables() const
 {
 	return m_variables;
 }
@@ -112,19 +127,24 @@ Variables &Quantified<Derived>::variables()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived>
-const Variables &Quantified<Derived>::variables() const
+inline ExpressionPointer QuantifiedCRTP<Derived>::reduced()
 {
-	return m_variables;
+	BOOST_ASSERT(m_argument);
+
+	m_argument = m_argument->reduced();
+
+	// Child quantifiers may not move before this quantifier, the order matters
+	return this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived>
-inline ExpressionPointer Quantified<Derived>::reduced()
+inline ExpressionPointer QuantifiedCRTP<Derived>::negationNormalized()
 {
 	BOOST_ASSERT(m_argument);
 
-	m_argument = m_argument->prenex();
+	m_argument = m_argument->negationNormalized();
 
 	return this;
 }
@@ -132,32 +152,20 @@ inline ExpressionPointer Quantified<Derived>::reduced()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived>
-inline ExpressionPointer Quantified<Derived>::negationNormalized()
+inline ExpressionPointer QuantifiedCRTP<Derived>::prenex(Expression::Type)
 {
 	BOOST_ASSERT(m_argument);
 
-	m_argument = m_argument->prenex();
-
-	return this;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<class Derived>
-inline ExpressionPointer Quantified<Derived>::prenex()
-{
-	BOOST_ASSERT(m_argument);
+	m_argument = m_argument->prenex(Derived::ExpressionType);
 
 	// Quantifiers may not move before other quantifiers, their order matters
-	m_argument = m_argument->prenex();
-
 	return this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived>
-inline ExpressionPointer Quantified<Derived>::simplified()
+inline ExpressionPointer QuantifiedCRTP<Derived>::simplified()
 {
 	BOOST_ASSERT(m_argument);
 
@@ -183,7 +191,7 @@ inline ExpressionPointer Quantified<Derived>::simplified()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived>
-inline void Quantified<Derived>::print(std::ostream &ostream) const
+inline void QuantifiedCRTP<Derived>::print(std::ostream &ostream) const
 {
 	ostream << "(" << Derived::Identifier << " (";
 

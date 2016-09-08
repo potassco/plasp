@@ -54,11 +54,13 @@ ExpressionPointer At::negationNormalized()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ExpressionPointer At::prenex()
+ExpressionPointer At::prenex(Expression::Type lastExpressionType)
 {
 	BOOST_ASSERT(m_argument);
 
-	return Expression::prenex(this, m_argument);
+	m_argument = m_argument->prenex(lastExpressionType);
+
+	return Expression::moveUpQuantifiers(this, m_argument);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

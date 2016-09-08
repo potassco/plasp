@@ -47,18 +47,16 @@ ExpressionPointer Expression::negationNormalized()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ExpressionPointer Expression::prenex()
+ExpressionPointer Expression::prenex(Expression::Type)
 {
 	return this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ExpressionPointer Expression::prenex(ExpressionPointer parent, ExpressionPointer &child)
+ExpressionPointer Expression::moveUpQuantifiers(ExpressionPointer parent, ExpressionPointer &child)
 {
 	BOOST_ASSERT(child);
-
-	child = child->prenex();
 
 	if (child->expressionType() == Expression::Type::Exists)
 	{
@@ -66,9 +64,6 @@ ExpressionPointer Expression::prenex(ExpressionPointer parent, ExpressionPointer
 
 		// Move argument up
 		child = quantifiedExpression->argument();
-
-		// Recursively build prenex form on new child
-		parent = Expression::prenex(parent, child);
 
 		// Move quantifier up
 		quantifiedExpression->setArgument(parent);
@@ -82,9 +77,6 @@ ExpressionPointer Expression::prenex(ExpressionPointer parent, ExpressionPointer
 
 		// Move argument up
 		child = quantifiedExpression->argument();
-
-		// Recursively build prenex form on new child
-		parent = Expression::prenex(parent, child);
 
 		// Move quantifier up
 		quantifiedExpression->setArgument(parent);

@@ -238,8 +238,67 @@ TEST(PDDLNormalizationTests, Prenex)
 
 	auto normalized = a->reduced()->negationNormalized()->prenex();
 
+	{
+		std::stringstream output;
+		normalized->print(output);
+
+		ASSERT_EQ(output.str(), "(forall (?x) (forall (?y) (exists (?z) (and (a) (or (b) (c))))))");
+	}
+
+	normalized = normalized->simplified();
+
+	{
+		std::stringstream output;
+		normalized->print(output);
+
+		ASSERT_EQ(output.str(), "(forall (?x ?y) (exists (?z) (and (a) (or (b) (c)))))");
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TEST(PDDLNormalizationTests, PrenexGroupSameType)
+{
+	auto f1 = expressions::ForAllPointer(new expressions::ForAll);
+	auto f2 = expressions::ForAllPointer(new expressions::ForAll);
+	auto f3 = expressions::ForAllPointer(new expressions::ForAll);
+	auto f4 = expressions::ForAllPointer(new expressions::ForAll);
+	auto f5 = expressions::ForAllPointer(new expressions::ForAll);
+	auto f6 = expressions::ForAllPointer(new expressions::ForAll);
+	auto e1 = expressions::ExistsPointer(new expressions::Exists);
+	auto e2 = expressions::ExistsPointer(new expressions::Exists);
+	auto e3 = expressions::ExistsPointer(new expressions::Exists);
+	auto a = expressions::AndPointer(new expressions::And);
+
+	f1->variables() = {new expressions::Variable("v1")};
+	f1->setArgument(a);
+
+	// forall exists forall exists
+	a->addArgument(f2);
+	f2->variables() = {new expressions::Variable("v2")};
+	f2->setArgument(e1);
+	e1->variables() = {new expressions::Variable("v3")};
+	e1->setArgument(f3);
+	f3->variables() = {new expressions::Variable("v4")};
+	f3->setArgument(e2);
+	e2->variables() = {new expressions::Variable("v5")};
+	e2->setArgument(new expressions::Dummy("a"));
+
+	// forall forall exists forall
+	a->addArgument(f4);
+	f4->variables() = {new expressions::Variable("v6")};
+	f4->setArgument(f5);
+	f5->variables() = {new expressions::Variable("v7")};
+	f5->setArgument(e3);
+	e3->variables() = {new expressions::Variable("v8")};
+	e3->setArgument(f6);
+	f6->variables() = {new expressions::Variable("v9")};
+	f6->setArgument(new expressions::Dummy("b"));
+
+	auto normalized = f1->normalized();
+
 	std::stringstream output;
 	normalized->print(output);
 
-	ASSERT_EQ(output.str(), "(forall (?x) (exists (?z) (forall (?y) (and (a) (or (b) (c))))))");
+	ASSERT_EQ(output.str(), "(forall (?v1 ?v2 ?v6 ?v7) (exists (?v3 ?v8) (forall (?v4 ?v9) (exists (?v5) (and (a) (b))))))");
 }

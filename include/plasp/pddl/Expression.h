@@ -73,6 +73,9 @@ class PrimitiveType;
 using PrimitiveTypePointer = boost::intrusive_ptr<PrimitiveType>;
 using PrimitiveTypes = std::vector<PrimitiveTypePointer>;
 
+class Quantified;
+using QuantifiedPointer = boost::intrusive_ptr<Quantified>;
+
 template<class Type>
 class Reference;
 template<class Type>
@@ -120,14 +123,14 @@ class Expression
 		ExpressionPointer normalized();
 		virtual ExpressionPointer reduced();
 		virtual ExpressionPointer negationNormalized();
-		virtual ExpressionPointer prenex();
+		virtual ExpressionPointer prenex(Expression::Type lastQuantifierType = Expression::Type::Exists);
 		virtual ExpressionPointer simplified();
 		ExpressionPointer negated();
 
 		virtual void print(std::ostream &ostream) const = 0;
 
 	protected:
-		static ExpressionPointer prenex(ExpressionPointer parent, ExpressionPointer &child);
+		static ExpressionPointer moveUpQuantifiers(ExpressionPointer parent, ExpressionPointer &child);
 
 	private:
 		friend void intrusive_ptr_add_ref(Expression *expression);

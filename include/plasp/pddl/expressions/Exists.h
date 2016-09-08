@@ -16,7 +16,7 @@ namespace expressions
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class Exists: public Quantified<Exists>
+class Exists: public QuantifiedCRTP<Exists>
 {
 	public:
 		static const Expression::Type ExpressionType = Expression::Type::Exists;

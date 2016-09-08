@@ -34,7 +34,7 @@ class Binary: public ExpressionCRTP<Derived>
 
 		ExpressionPointer reduced() override;
 		ExpressionPointer negationNormalized() override;
-		ExpressionPointer prenex() override;
+		ExpressionPointer prenex(Expression::Type lastExpressionType) override;
 
 		void print(std::ostream &ostream) const override;
 
@@ -122,19 +122,10 @@ inline ExpressionPointer Binary<Derived>::negationNormalized()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived>
-inline ExpressionPointer Binary<Derived>::prenex()
+inline ExpressionPointer Binary<Derived>::prenex(Expression::Type)
 {
-	ExpressionPointer result = this;
-
-	for (size_t i = 0; i < m_arguments.size(); i++)
-	{
-		// Iterate in backward order to wrap quantifiers in forward order
-		auto &argument = m_arguments[m_arguments.size() - i - 1];
-
-		result = Expression::prenex(result, argument);
-	}
-
-	return result;
+	// TODO: implement by refactoring binary expressions
+	return this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -36,7 +36,7 @@ class NAry: public ExpressionCRTP<Derived>
 
 		ExpressionPointer reduced() override;
 		ExpressionPointer negationNormalized() override;
-		ExpressionPointer prenex() override;
+		ExpressionPointer prenex(Expression::Type lastExpressionType) override;
 		ExpressionPointer simplified() override;
 
 		void print(std::ostream &ostream) const override;
@@ -153,21 +153,85 @@ inline ExpressionPointer NAry<Derived>::negationNormalized()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived>
-inline ExpressionPointer NAry<Derived>::prenex()
+inline ExpressionPointer NAry<Derived>::prenex(Expression::Type lastExpressionType)
 {
-	ExpressionPointer result = this;
-
+	// First, move all childrens’ quantifiers to the front
 	for (size_t i = 0; i < m_arguments.size(); i++)
 	{
-		// Iterate in backward order to wrap quantifiers in forward order
-		auto &argument = m_arguments[m_arguments.size() - i - 1];
+		BOOST_ASSERT(m_arguments[i]);
 
-		BOOST_ASSERT(argument);
-
-		result = Expression::prenex(result, argument);
+		m_arguments[i] = m_arguments[i]->prenex(lastExpressionType);
 	}
 
-	return result;
+	// Next, move all children’s quantifiers up
+
+	const auto isQuantifier =
+		[](const auto &expression)
+		{
+			return expression->expressionType() == Expression::Type::Exists
+				|| expression->expressionType() == Expression::Type::ForAll;
+		};
+
+	QuantifiedPointer front = nullptr;
+	QuantifiedPointer back = nullptr;
+
+	const auto moveUpQuantifiers =
+		[&](auto &child, const auto expressionType)
+		{
+			BOOST_ASSERT(child);
+
+			bool changed = false;
+
+			while (isQuantifier(child)
+				&& child->expressionType() == expressionType)
+			{
+				// Decouple quantifier from tree and replace it with its child
+				auto expression = Expression::moveUpQuantifiers(nullptr, child);
+				auto quantifier = QuantifiedPointer(dynamic_cast<Quantified *>(expression.get()));
+
+				if (!front)
+					front = quantifier;
+				else
+					back->setArgument(quantifier);
+
+				back = quantifier;
+
+				changed = true;
+			}
+
+			return changed;
+		};
+
+	bool changed = true;
+	const auto otherExpressionType = (lastExpressionType == Expression::Type::Exists)
+		? Expression::Type::ForAll : Expression::Type::Exists;
+
+	// Group quantifiers of the same type when moving them up, starting with the parent quantifier’s type
+	while (changed)
+	{
+		changed = false;
+
+		// Group all quantifiers of the same type as the parent quantifier
+		for (size_t i = 0; i < m_arguments.size(); i++)
+			changed = moveUpQuantifiers(m_arguments[i], lastExpressionType) || changed;
+
+		// Group all other quantifiers
+		for (size_t i = 0; i < m_arguments.size(); i++)
+			changed = moveUpQuantifiers(m_arguments[i], otherExpressionType) || changed;
+	}
+
+	// If quantifiers were moved up, put this node back into the node hierarchy
+	if (front)
+	{
+		BOOST_ASSERT(back);
+
+		back->setArgument(this);
+
+		return front;
+	}
+
+	// If no quantifiers were moved up, simply return this node
+	return this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
