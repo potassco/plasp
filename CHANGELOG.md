@@ -4,7 +4,7 @@
 
 Features:
 
-* extended PDDL support (`imply` expressions)
+* extended PDDL parser support (`imply`, `exists`, `forall`, and `when` expressions)
 
 ## 3.0.3 (2016-09-02)
 
