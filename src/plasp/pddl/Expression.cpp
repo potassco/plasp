@@ -13,6 +13,7 @@
 #include <plasp/pddl/expressions/Predicate.h>
 #include <plasp/pddl/expressions/PredicateDeclaration.h>
 #include <plasp/pddl/expressions/Unsupported.h>
+#include <plasp/pddl/expressions/When.h>
 #include <plasp/utils/ParserException.h>
 
 namespace plasp
@@ -230,7 +231,8 @@ ExpressionPointer parseEffectExpression(Context &context, ExpressionContext &exp
 	ExpressionPointer expression;
 
 	if ((expression = expressions::And::parse(context, expressionContext, parseEffectExpression))
-	    || (expression = expressions::ForAll::parse(context, expressionContext, parseEffectExpression)))
+	    || (expression = expressions::ForAll::parse(context, expressionContext, parseEffectExpression))
+	    || (expression = expressions::When::parse(context, expressionContext, parseExpression, parseConditionalEffectExpression)))
 	{
 		return expression;
 	}
@@ -293,6 +295,18 @@ ExpressionPointer parseEffectBodyExpression(Context &context, ExpressionContext 
 
 	parser.seek(position);
 	throw utils::ParserException(parser.coordinate(), "expression type “" + expressionIdentifier + "” unknown or not allowed in this context");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ExpressionPointer parseConditionalEffectExpression(Context &context, ExpressionContext &expressionContext)
+{
+	ExpressionPointer expression;
+
+	if ((expression = expressions::And::parse(context, expressionContext, parseEffectBodyExpression)))
+		return expression;
+
+	return parseEffectBodyExpression(context, expressionContext);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

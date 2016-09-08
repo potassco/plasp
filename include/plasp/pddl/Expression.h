@@ -87,6 +87,9 @@ using UnsupportedPointer = boost::intrusive_ptr<Unsupported>;
 class Variable;
 using VariablePointer = boost::intrusive_ptr<Variable>;
 using Variables = std::vector<VariablePointer>;
+
+class When;
+using WhenPointer = boost::intrusive_ptr<When>;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -113,6 +116,7 @@ class Expression
 			Reference,
 			Unsupported,
 			Variable,
+			When,
 		};
 
 	public:
@@ -179,6 +183,9 @@ ExpressionPointer parsePreconditionExpression(Context &context,
 ExpressionPointer parseExpression(Context &context, ExpressionContext &expressionContext);
 
 ExpressionPointer parseEffectExpression(Context &context,
+	ExpressionContext &expressionContext);
+
+ExpressionPointer parseConditionalEffectExpression(Context &context,
 	ExpressionContext &expressionContext);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
