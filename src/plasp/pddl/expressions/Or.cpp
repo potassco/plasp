@@ -28,7 +28,7 @@ ExpressionPointer Or::decomposed(DerivedPredicates &derivedPredicates)
 			argument = argument->decomposed(derivedPredicates);
 		});
 
-	auto derivedPredicate = DerivedPredicatePointer(new DerivedPredicate);
+	auto derivedPredicate = DerivedPredicatePointer(new DerivedPredicate(derivedPredicates.size()));
 	derivedPredicates.push_back(derivedPredicate);
 
 	derivedPredicate->setArgument(this);

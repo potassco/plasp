@@ -24,7 +24,7 @@ const std::string ForAll::Identifier = "forall";
 
 ExpressionPointer ForAll::decomposed(DerivedPredicates &derivedPredicates)
 {
-	auto derivedPredicate = DerivedPredicatePointer(new DerivedPredicate);
+	auto derivedPredicate = DerivedPredicatePointer(new DerivedPredicate(derivedPredicates.size()));
 	derivedPredicates.push_back(derivedPredicate);
 
 	derivedPredicate->setArgument(this);

@@ -24,12 +24,18 @@ class DerivedPredicate: public ExpressionCRTP<DerivedPredicate>
 		// TODO: consider implementing parsing functions for compatibility with older PDDL versions
 
 	public:
+		explicit DerivedPredicate(size_t id);
+
+		size_t id() const;
+
 		void setArgument(ExpressionPointer argument);
 		ExpressionPointer argument() const;
 
 		void print(std::ostream &ostream) const override;
 
 	private:
+		size_t m_id;
+
 		ExpressionPointer m_argument;
 };
 
