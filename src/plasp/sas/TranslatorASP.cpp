@@ -271,6 +271,8 @@ void TranslatorASP::translateAxiomRules() const
 				<< utils::Number(axiomRuleID)
 				<< "))." << std::endl;
 
+			// TODO: Translate axiom rule layer
+
 			const auto &conditions = axiomRule.conditions();
 
 			std::for_each(conditions.cbegin(), conditions.cend(),
