@@ -25,6 +25,7 @@ class And: public NAry<And>
 
 	public:
 		ExpressionPointer disjunctionNormalized() override;
+		ExpressionPointer decomposed(DerivedPredicates &derivedPredicates) override;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

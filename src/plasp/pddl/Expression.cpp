@@ -15,6 +15,7 @@
 #include <plasp/pddl/expressions/Unsupported.h>
 #include <plasp/pddl/expressions/When.h>
 #include <plasp/utils/ParserException.h>
+#include <plasp/utils/TranslatorException.h>
 
 namespace plasp
 {
@@ -108,6 +109,13 @@ ExpressionPointer Expression::simplified()
 ExpressionPointer Expression::disjunctionNormalized()
 {
 	return this;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ExpressionPointer Expression::decomposed(expressions::DerivedPredicates &)
+{
+	throw utils::TranslatorException("Expression is not in first-order negation normal form and cannot be decomposed");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

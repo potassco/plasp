@@ -22,6 +22,9 @@ class Or: public NAry<Or>
 		static const Expression::Type ExpressionType = Expression::Type::Or;
 
 		static const std::string Identifier;
+
+	public:
+		ExpressionPointer decomposed(DerivedPredicates &derivedPredicates) override;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

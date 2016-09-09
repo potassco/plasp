@@ -7,6 +7,7 @@
 #include <plasp/pddl/Parser.h>
 #include <plasp/pddl/Requirement.h>
 #include <plasp/pddl/expressions/Constant.h>
+#include <plasp/pddl/expressions/DerivedPredicate.h>
 #include <plasp/pddl/expressions/PredicateDeclaration.h>
 #include <plasp/pddl/expressions/PrimitiveType.h>
 
@@ -49,6 +50,9 @@ class Domain
 		std::vector<std::unique_ptr<Action>> &actions();
 		const std::vector<std::unique_ptr<Action>> &actions() const;
 
+		expressions::DerivedPredicates &derivedPredicates();
+		const expressions::DerivedPredicates &derivedPredicates() const;
+
 		void checkConsistency();
 
 		void normalize();
@@ -85,6 +89,8 @@ class Domain
 
 		std::vector<utils::Stream::Position> m_actionPositions;
 		std::vector<std::unique_ptr<Action>> m_actions;
+
+		expressions::DerivedPredicates m_derivedPredicates;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

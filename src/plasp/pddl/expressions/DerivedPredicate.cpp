@@ -1,9 +1,7 @@
-#include <plasp/pddl/expressions/ForAll.h>
-
-#include <algorithm>
-#include <iostream>
-
 #include <plasp/pddl/expressions/DerivedPredicate.h>
+
+#include <plasp/pddl/Context.h>
+#include <plasp/pddl/ExpressionContext.h>
 
 namespace plasp
 {
@@ -14,22 +12,29 @@ namespace expressions
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// ForAll
+// DerivedPredicate
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::string ForAll::Identifier = "forall";
+void DerivedPredicate::setArgument(ExpressionPointer argument)
+{
+	m_argument = argument;
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ExpressionPointer ForAll::decomposed(DerivedPredicates &derivedPredicates)
+ExpressionPointer DerivedPredicate::argument() const
 {
-	auto derivedPredicate = DerivedPredicatePointer(new DerivedPredicate);
-	derivedPredicates.push_back(derivedPredicate);
+	return m_argument;
+}
 
-	derivedPredicate->setArgument(this);
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	return derivedPredicate;
+void DerivedPredicate::print(std::ostream &ostream) const
+{
+	ostream << "(:derived <no name> ";
+	m_argument->print(ostream);
+	ostream << ")";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

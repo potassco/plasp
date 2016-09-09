@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include <plasp/pddl/expressions/Or.h>
+#include <plasp/utils/TranslatorException.h>
 
 namespace plasp
 {
@@ -63,6 +64,29 @@ ExpressionPointer And::disjunctionNormalized()
 	}
 
 	return orExpression;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ExpressionPointer And::decomposed(DerivedPredicates &derivedPredicates)
+{
+	// Check that all children are simple or negated predicates
+	std::for_each(m_arguments.begin(), m_arguments.end(),
+		[&](auto &argument)
+		{
+			if (argument->expressionType() == Expression::Type::Not)
+			{
+				argument = argument->decomposed(derivedPredicates);
+				return;
+			}
+
+			if (argument->expressionType() != Expression::Type::Predicate)
+				return;
+
+			throw utils::TranslatorException("Expression is not in first-order negation normal form and cannot be decomposed");
+		});
+
+	return this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

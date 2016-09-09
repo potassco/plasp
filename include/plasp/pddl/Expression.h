@@ -40,6 +40,10 @@ class Constant;
 using ConstantPointer = boost::intrusive_ptr<Constant>;
 using Constants = std::vector<ConstantPointer>;
 
+class DerivedPredicate;
+using DerivedPredicatePointer = boost::intrusive_ptr<DerivedPredicate>;
+using DerivedPredicates = std::vector<DerivedPredicatePointer>;
+
 class Dummy;
 using DummyPointer = boost::intrusive_ptr<Dummy>;
 
@@ -103,6 +107,7 @@ class Expression
 			At,
 			Binary,
 			Constant,
+			DerivedPredicate,
 			Dummy,
 			Either,
 			Exists,
@@ -132,6 +137,7 @@ class Expression
 		virtual ExpressionPointer prenex(Expression::Type lastQuantifierType = Expression::Type::Exists);
 		virtual ExpressionPointer simplified();
 		virtual ExpressionPointer disjunctionNormalized();
+		virtual ExpressionPointer decomposed(expressions::DerivedPredicates &derivedPredicates);
 		ExpressionPointer negated();
 
 		virtual void print(std::ostream &ostream) const = 0;

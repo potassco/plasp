@@ -39,6 +39,7 @@ class Not: public ExpressionCRTP<Not>
 		ExpressionPointer prenex(Expression::Type lastExpressionType) override;
 		ExpressionPointer simplified() override;
 		ExpressionPointer disjunctionNormalized() override;
+		ExpressionPointer decomposed(DerivedPredicates &derivedPredicates) override;
 
 		void print(std::ostream &ostream) const override;
 
