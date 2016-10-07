@@ -1,13 +1,13 @@
 cmake_minimum_required(VERSION 2.6)
 project(plasp CXX)
 
+option(BUILD_TESTS "Build unit tests" OFF)
+
 find_package(Boost 1.55.0 COMPONENTS program_options iostreams system filesystem REQUIRED)
 
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wpedantic")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 add_definitions(-std=c++14)
-
-option(BUILD_TESTS "Build unit tests" OFF)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
