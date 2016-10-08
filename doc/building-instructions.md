@@ -25,8 +25,8 @@ $ make
 
 ## Running the Tests
 
-`plasp` provides unit tests written using the [Google Test](https://github.com/google/googletest) framework.
-Before building and running the tests, make sure you have fetched the Google Test git submodule:
+`plasp` provides unit tests written using the [Catch](https://github.com/philsquared/Catch) framework.
+Before building and running the tests, make sure you have fetched the Catch git submodule:
 
 ```bash
 $ git submodule init
