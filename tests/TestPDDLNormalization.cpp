@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <catch.hpp>
 
 #include <plasp/pddl/expressions/And.h>
 #include <plasp/pddl/expressions/Dummy.h>
@@ -10,7 +10,7 @@ using namespace plasp::pddl;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLNormalizationTests, Reduce)
+TEST_CASE("[PDDL normalization] PDDL expressions are correctly reduced", "[PDDL normalization]")
 {
 	auto n1 = expressions::NotPointer(new expressions::Not);
 	auto n2 = expressions::NotPointer(new expressions::Not);
@@ -33,12 +33,12 @@ TEST(PDDLNormalizationTests, Reduce)
 	std::stringstream output;
 	n1->reduced()->print(output);
 
-	ASSERT_EQ(output.str(), "(not (not (and (or (or (not (a)) (b)) (c)) (d))))");
+	REQUIRE(output.str() == "(not (not (and (or (or (not (a)) (b)) (c)) (d))))");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLNormalizationTests, Simplify)
+TEST_CASE("[PDDL normalization] PDDL expressions are correctly simplified", "[PDDL normalization]")
 {
 	auto a1 = expressions::AndPointer(new expressions::And);
 	auto a2 = expressions::AndPointer(new expressions::And);
@@ -63,12 +63,12 @@ TEST(PDDLNormalizationTests, Simplify)
 	std::stringstream output;
 	a1->simplified()->print(output);
 
-	ASSERT_EQ(output.str(), "(and (a) (b) (c) (d) (or (e) (f) (g) (h)))");
+	REQUIRE(output.str() == "(and (a) (b) (c) (d) (or (e) (f) (g) (h)))");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLNormalizationTests, Implication)
+TEST_CASE("[PDDL normalization] Implications are correctly replaced", "[PDDL normalization]")
 {
 	auto i = expressions::ImplyPointer(new expressions::Imply);
 
@@ -78,12 +78,12 @@ TEST(PDDLNormalizationTests, Implication)
 	std::stringstream output;
 	i->normalized()->print(output);
 
-	ASSERT_EQ(output.str(), "(or (not (a)) (b))");
+	REQUIRE(output.str() == "(or (not (a)) (b))");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLNormalizationTests, DoubleNegation)
+TEST_CASE("[PDDL normalization] Double negations are correctly replaced", "[PDDL normalization]")
 {
 	auto n1 = expressions::NotPointer(new expressions::Not);
 	auto n2 = expressions::NotPointer(new expressions::Not);
@@ -94,12 +94,12 @@ TEST(PDDLNormalizationTests, DoubleNegation)
 	std::stringstream output;
 	n1->normalized()->print(output);
 
-	ASSERT_EQ(output.str(), "(a)");
+	REQUIRE(output.str() == "(a)");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLNormalizationTests, DeMorganNegativeConjunction)
+TEST_CASE("[PDDL normalization] De Morgan’s rule is correctly applied to negative conjunctions", "[PDDL normalization]")
 {
 	auto a = expressions::AndPointer(new expressions::And);
 	a->addArgument(new expressions::Dummy("a"));
@@ -112,12 +112,12 @@ TEST(PDDLNormalizationTests, DeMorganNegativeConjunction)
 	std::stringstream output;
 	n->normalized()->print(output);
 
-	ASSERT_EQ(output.str(), "(or (not (a)) (not (b)) (not (c)))");
+	REQUIRE(output.str() == "(or (not (a)) (not (b)) (not (c)))");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLNormalizationTests, DeMorganNegativeDisjunction)
+TEST_CASE("[PDDL normalization] De Morgan’s rule is correctly applied to negative disjunctions", "[PDDL normalization]")
 {
 	auto a = expressions::OrPointer(new expressions::Or);
 	a->addArgument(new expressions::Dummy("a"));
@@ -130,12 +130,12 @@ TEST(PDDLNormalizationTests, DeMorganNegativeDisjunction)
 	std::stringstream output;
 	n->normalized()->print(output);
 
-	ASSERT_EQ(output.str(), "(and (not (a)) (not (b)) (not (c)))");
+	REQUIRE(output.str() == "(and (not (a)) (not (b)) (not (c)))");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLNormalizationTests, DoubleNegationInner)
+TEST_CASE("[PDDL normalization] Expressions inside double negations are also normalized", "[PDDL normalization]")
 {
 	auto n1 = expressions::NotPointer(new expressions::Not);
 	auto n2 = expressions::NotPointer(new expressions::Not);
@@ -153,5 +153,5 @@ TEST(PDDLNormalizationTests, DoubleNegationInner)
 	std::stringstream output;
 	n1->normalized()->print(output);
 
-	ASSERT_EQ(output.str(), "(or (not (a)) (not (b)) (not (c)))");
+	REQUIRE(output.str() == "(or (not (a)) (not (b)) (not (c)))");
 }
