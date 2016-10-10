@@ -13,7 +13,7 @@ addons:
       - libboost-filesystem1.55-dev
 matrix:
   include:
-    - env: COMPILER=g++-5
+    - env: COMPILER_NAME=g++ _CXX=g++-5
       os: linux
       language: cpp
       addons:
@@ -23,7 +23,7 @@ matrix:
           packages:
             - *default_packages
             - g++-5
-    - env: COMPILER=g++-6
+    - env: COMPILER_NAME=g++ _CXX=g++-6
       os: linux
       language: cpp
       addons:
@@ -38,5 +38,5 @@ script:
   - git submodule update
   - mkdir build
   - cd build
-  - cmake .. -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DCMAKE_CXX_COMPILER=$COMPILER
+  - cmake .. -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTS=ON -DCMAKE_CXX_COMPILER=$_CXX
   - make -j3 && make -j3 run-tests
