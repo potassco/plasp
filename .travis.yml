@@ -3,10 +3,10 @@ sudo: false
 language: c++
 addons:
   apt:
-    sources:
+    sources: &default_sources
       - ubuntu-toolchain-r-test
       - boost-latest
-    packages:
+    packages: &default_packages
       - libboost-program-options1.55-dev
       - libboost-iostreams1.55-dev
       - libboost-system1.55-dev
@@ -16,12 +16,18 @@ matrix:
     - env: COMPILER=g++-5
       addons:
         apt:
+          sources:
+            - *default_sources
           packages:
+            - *default_packages
             - g++-5
     - env: COMPILER=g++-6
       addons:
         apt:
+          sources:
+            - *default_sources
           packages:
+            - *default_packages
             - g++-6
 script:
   - git submodule init
