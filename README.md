@@ -68,7 +68,8 @@ See [building instructions](doc/building-instructions.md) for more details.
 
 ## Contributors
 
-* [Patrick Lühne](https://www.luehne.de) (`plasp` 3)
+* [Patrick Lühne](https://www.luehne.de)
+* Torsten Schaub (encodings)
 
 ### Earlier Versions
 
