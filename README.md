@@ -1,8 +1,8 @@
-# plasp—Translate PDDL to ASP
+# plasp [![GitHub Release](https://img.shields.io/github/release/potassco/plasp.svg?maxAge=3600)](https://github.com/potassco/plasp/releases) [![Build Status](https://img.shields.io/travis/potassco/plasp/develop.svg?maxAge=3600&label=build (master))](https://travis-ci.org/potassco/plasp?branch=master) [![Build Status](https://img.shields.io/travis/potassco/plasp/develop.svg?maxAge=3600&label=build (develop))](https://travis-ci.org/potassco/plasp?branch=develop)
 
-[![GitHub Release](https://img.shields.io/github/release/potassco/plasp.svg?maxAge=3600)](https://github.com/potassco/plasp/releases)
-[![Build Status](https://img.shields.io/travis/potassco/plasp/develop.svg?maxAge=3600&label=build (master))](https://travis-ci.org/potassco/plasp?branch=master)
-[![Build Status](https://img.shields.io/travis/potassco/plasp/develop.svg?maxAge=3600&label=build (develop))](https://travis-ci.org/potassco/plasp?branch=develop)
+> Translate PDDL to ASP
+
+## Overview
 
 `plasp` 3 is in early development and not intended for productive use yet.
 
