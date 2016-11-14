@@ -69,6 +69,7 @@ See [building instructions](doc/building-instructions.md) for more details.
 ## Contributors
 
 * [Patrick Lühne](https://www.luehne.de)
+* Martin Gebser (encodings)
 * Torsten Schaub (encodings)
 
 ### Earlier Versions
