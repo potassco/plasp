@@ -64,7 +64,7 @@ If you want to write your own meta encoding for `plasp`’s output, this [simple
 
 `plasp` requires `boost` and is built via CMake and a C++ compiler.
 
-See [building instructions](doc/building-instructions.md) for more details.
+See [building](doc/building.md) for more details.
 
 ## Contributors
 
