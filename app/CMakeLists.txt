@@ -1,4 +1,4 @@
-set(target plasp_app)
+set(target plasp-app)
 
 file(GLOB core_sources "*.cpp")
 file(GLOB core_headers "*.h")
