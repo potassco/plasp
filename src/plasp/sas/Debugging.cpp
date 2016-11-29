@@ -33,7 +33,7 @@ utils::LogStream &operator<<(utils::LogStream &ostream, const Description &descr
 
 			std::for_each(values.cbegin(), values.cend(),
 				[&](const auto &value)
-			    {
+				{
 					ostream << "\t\t\t";
 					value.printAsSAS(ostream);
 					ostream << std::endl;
