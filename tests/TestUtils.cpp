@@ -1,14 +1,14 @@
 #include <catch.hpp>
 
-#include <plasp/utils/Parser.h>
-#include <plasp/utils/ParserException.h>
+#include <plasp/input/Parser.h>
+#include <plasp/input/ParserException.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 TEST_CASE("[parser] Simple strings are parsed correctly", "[parser]")
 {
 	std::stringstream s("  identifier  5   \n-51\t 0 1 100 200 -300 -400");
-	plasp::utils::Parser<> p("input", s);
+	plasp::input::Parser<> p("input", s);
 
 	REQUIRE(p.parse<std::string>() == "identifier");
 	REQUIRE(p.parse<size_t>() == 5u);
@@ -19,7 +19,7 @@ TEST_CASE("[parser] Simple strings are parsed correctly", "[parser]")
 	REQUIRE(p.parse<int>() == 100);
 	REQUIRE(p.parse<size_t>() == 200u);
 	REQUIRE(p.parse<int>() == -300);
-	REQUIRE_THROWS_AS(p.parse<size_t>(), plasp::utils::ParserException);
+	REQUIRE_THROWS_AS(p.parse<size_t>(), plasp::input::ParserException);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@ TEST_CASE("[parser] Simple strings are parsed correctly", "[parser]")
 TEST_CASE("[parser] Parsing exceptions are correctly reported", "[parser]")
 {
 	std::stringstream s("  identifier  5   \n-51\t 0 1 100 200 -300 -400");
-	plasp::utils::Parser<> p("input", s);
+	plasp::input::Parser<> p("input", s);
 
 	REQUIRE_NOTHROW(p.expect<std::string>("identifier"));
 	REQUIRE_NOTHROW(p.expect<size_t>(5u));
@@ -38,31 +38,31 @@ TEST_CASE("[parser] Parsing exceptions are correctly reported", "[parser]")
 	REQUIRE_NOTHROW(p.expect<int>(100));
 	REQUIRE_NOTHROW(p.expect<size_t>(200u));
 	REQUIRE_NOTHROW(p.expect<int>(-300));
-	REQUIRE_THROWS_AS(p.expect<size_t>(-400), plasp::utils::ParserException);
+	REQUIRE_THROWS_AS(p.expect<size_t>(-400), plasp::input::ParserException);
 
 	p.seek(0);
-	REQUIRE_THROWS_AS(p.expect<std::string>("error"), plasp::utils::ParserException);
+	REQUIRE_THROWS_AS(p.expect<std::string>("error"), plasp::input::ParserException);
 
 	p.seek(14);
-	REQUIRE_THROWS_AS(p.expect<size_t>(6u), plasp::utils::ParserException);
+	REQUIRE_THROWS_AS(p.expect<size_t>(6u), plasp::input::ParserException);
 
 	p.seek(17);
-	REQUIRE_THROWS_AS(p.expect<int>(-50), plasp::utils::ParserException);
+	REQUIRE_THROWS_AS(p.expect<int>(-50), plasp::input::ParserException);
 
 	p.seek(24);
-	REQUIRE_THROWS_AS(p.expect<bool>(true), plasp::utils::ParserException);
+	REQUIRE_THROWS_AS(p.expect<bool>(true), plasp::input::ParserException);
 
 	p.seek(26);
-	REQUIRE_THROWS_AS(p.expect<bool>(false), plasp::utils::ParserException);
+	REQUIRE_THROWS_AS(p.expect<bool>(false), plasp::input::ParserException);
 
 	p.seek(28);
-	REQUIRE_THROWS_AS(p.expect<int>(101), plasp::utils::ParserException);
+	REQUIRE_THROWS_AS(p.expect<int>(101), plasp::input::ParserException);
 
 	p.seek(31);
-	REQUIRE_THROWS_AS(p.expect<size_t>(201), plasp::utils::ParserException);
+	REQUIRE_THROWS_AS(p.expect<size_t>(201), plasp::input::ParserException);
 
 	p.seek(34);
-	REQUIRE_THROWS_AS(p.expect<int>(-299), plasp::utils::ParserException);
+	REQUIRE_THROWS_AS(p.expect<int>(-299), plasp::input::ParserException);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -70,9 +70,9 @@ TEST_CASE("[parser] Parsing exceptions are correctly reported", "[parser]")
 TEST_CASE("[parser] While parsing, the cursor position is as expected", "[parser]")
 {
 	std::stringstream s("  identifier  5   \n-51\t 0 1");
-	plasp::utils::Parser<> p("input", s);
+	plasp::input::Parser<> p("input", s);
 
-	plasp::utils::Parser<>::Position pos;
+	plasp::input::Parser<>::Position pos;
 
 	pos = p.position();
 	REQUIRE(p.testAndReturn<std::string>("error") == false);
@@ -130,136 +130,136 @@ TEST_CASE("[parser] While parsing, the cursor position is as expected", "[parser
 TEST_CASE("[parser] The end of the input stream is correctly handled", "[parser]")
 {
 	std::stringstream s1("test");
-	plasp::utils::Parser<> p1("input", s1);
+	plasp::input::Parser<> p1("input", s1);
 
 	REQUIRE_NOTHROW(p1.expect<std::string>("test"));
-	REQUIRE_THROWS_AS(p1.parse<std::string>(), plasp::utils::ParserException);
+	REQUIRE_THROWS_AS(p1.parse<std::string>(), plasp::input::ParserException);
 
 	std::stringstream s2("test1 test2 test3");
-	plasp::utils::Parser<> p2("input", s2);
+	plasp::input::Parser<> p2("input", s2);
 
 	REQUIRE_NOTHROW(p2.expect<std::string>("test1"));
 	REQUIRE_NOTHROW(p2.expect<std::string>("test2"));
 	REQUIRE_NOTHROW(p2.expect<std::string>("test3"));
-	REQUIRE_THROWS_AS(p2.parse<std::string>(), plasp::utils::ParserException);
+	REQUIRE_THROWS_AS(p2.parse<std::string>(), plasp::input::ParserException);
 
 	std::stringstream s3("-127");
-	plasp::utils::Parser<> p3("input", s3);
+	plasp::input::Parser<> p3("input", s3);
 
 	p3.expect<int>(-127);
-	REQUIRE_THROWS_AS(p3.parse<int>(), plasp::utils::ParserException);
+	REQUIRE_THROWS_AS(p3.parse<int>(), plasp::input::ParserException);
 
 	std::stringstream s4("128 -1023 -4095");
-	plasp::utils::Parser<> p4("input", s4);
+	plasp::input::Parser<> p4("input", s4);
 
 	REQUIRE_NOTHROW(p4.expect<size_t>(128));
 	REQUIRE_NOTHROW(p4.expect<int>(-1023));
 	REQUIRE_NOTHROW(p4.expect<int>(-4095));
-	REQUIRE_THROWS_AS(p4.parse<int>(), plasp::utils::ParserException);
+	REQUIRE_THROWS_AS(p4.parse<int>(), plasp::input::ParserException);
 
 	std::stringstream s5("0");
-	plasp::utils::Parser<> p5("input", s5);
+	plasp::input::Parser<> p5("input", s5);
 
 	p5.expect<bool>(false);
-	REQUIRE_THROWS_AS(p5.parse<bool>(), plasp::utils::ParserException);
+	REQUIRE_THROWS_AS(p5.parse<bool>(), plasp::input::ParserException);
 
 	std::stringstream s6("0 1 0");
-	plasp::utils::Parser<> p6("input", s6);
+	plasp::input::Parser<> p6("input", s6);
 
 	REQUIRE_NOTHROW(p6.expect<bool>(false));
 	REQUIRE_NOTHROW(p6.expect<bool>(true));
 	REQUIRE_NOTHROW(p6.expect<bool>(false));
-	REQUIRE_THROWS_AS(p6.parse<bool>(), plasp::utils::ParserException);
+	REQUIRE_THROWS_AS(p6.parse<bool>(), plasp::input::ParserException);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST_CASE("[parser] While parsing, the cursor coordinate is as expcected", "[parser]")
+TEST_CASE("[parser] While parsing, the cursor location is as expcected", "[parser]")
 {
 	std::stringstream s("123 \n4\ntest1\n test2\ntest3 \ntest4\n\n\n\n");
-	plasp::utils::Parser<> p("input", s);
+	plasp::input::Parser<> p("input", s);
 
 	const auto startPosition = p.position();
 
-	plasp::utils::StreamCoordinate c;
+	plasp::input::Location l;
 
-	c = p.coordinate();
-	REQUIRE(c.row == 1u);
-	REQUIRE(c.column == 1u);
+	l = p.location();
+	REQUIRE(l.rowStart == 1u);
+	REQUIRE(l.columnStart == 1u);
 	REQUIRE(p.currentCharacter() == '1');
 
 	REQUIRE_NOTHROW(p.advance());
 
-	c = p.coordinate();
-	REQUIRE(c.row == 1u);
-	REQUIRE(c.column == 2u);
+	l = p.location();
+	REQUIRE(l.rowStart == 1u);
+	REQUIRE(l.columnStart == 2u);
 	REQUIRE(p.currentCharacter() == '2');
 
 	REQUIRE_NOTHROW(p.advance());
 
-	c = p.coordinate();
-	REQUIRE(c.row == 1u);
-	REQUIRE(c.column == 3u);
+	l = p.location();
+	REQUIRE(l.rowStart == 1u);
+	REQUIRE(l.columnStart == 3u);
 	REQUIRE(p.currentCharacter() == '3');
 
 	REQUIRE_NOTHROW(p.advance());
 
-	c = p.coordinate();
-	REQUIRE(c.row == 1u);
-	REQUIRE(c.column == 4u);
+	l = p.location();
+	REQUIRE(l.rowStart == 1u);
+	REQUIRE(l.columnStart == 4u);
 	REQUIRE(p.currentCharacter() == ' ');
 
 	REQUIRE_NOTHROW(p.advance());
 
-	c = p.coordinate();
-	REQUIRE(c.row == 1u);
-	REQUIRE(c.column == 5u);
+	l = p.location();
+	REQUIRE(l.rowStart == 1u);
+	REQUIRE(l.columnStart == 5u);
 	REQUIRE(p.currentCharacter() == '\n');
 
 	REQUIRE_NOTHROW(p.advance());
 
-	c = p.coordinate();
-	REQUIRE(c.row == 2u);
-	REQUIRE(c.column == 1u);
+	l = p.location();
+	REQUIRE(l.rowStart == 2u);
+	REQUIRE(l.columnStart == 1u);
 	REQUIRE(p.currentCharacter() == '4');
 
 	REQUIRE_NOTHROW(p.advance());
 
 	REQUIRE_NOTHROW(p.expect<std::string>("test1"));
 
-	c = p.coordinate();
-	REQUIRE(c.row == 3u);
-	REQUIRE(c.column == 6u);
+	l = p.location();
+	REQUIRE(l.rowStart == 3u);
+	REQUIRE(l.columnStart == 6u);
 
 	REQUIRE_NOTHROW(p.expect<std::string>("test2"));
 
-	c = p.coordinate();
-	REQUIRE(c.row == 4u);
-	REQUIRE(c.column == 7u);
+	l = p.location();
+	REQUIRE(l.rowStart == 4u);
+	REQUIRE(l.columnStart == 7u);
 
 	REQUIRE_NOTHROW(p.expect<std::string>("test3"));
 
-	c = p.coordinate();
-	REQUIRE(c.row == 5u);
-	REQUIRE(c.column == 6u);
+	l = p.location();
+	REQUIRE(l.rowStart == 5u);
+	REQUIRE(l.columnStart == 6u);
 
 	REQUIRE_NOTHROW(p.skipLine());
 
-	c = p.coordinate();
-	REQUIRE(c.row == 6u);
-	REQUIRE(c.column == 1u);
+	l = p.location();
+	REQUIRE(l.rowStart == 6u);
+	REQUIRE(l.columnStart == 1u);
 
 	REQUIRE_NOTHROW(p.skipLine());
 
-	c = p.coordinate();
-	REQUIRE(c.row == 7u);
-	REQUIRE(c.column == 1u);
+	l = p.location();
+	REQUIRE(l.rowStart == 7u);
+	REQUIRE(l.columnStart == 1u);
 
 	REQUIRE_NOTHROW(p.skipWhiteSpace());
 
-	c = p.coordinate();
-	REQUIRE(c.row == 10u);
-	REQUIRE(c.column == 1u);
+	l = p.location();
+	REQUIRE(l.rowStart == 10u);
+	REQUIRE(l.columnStart == 1u);
 	REQUIRE(p.atEnd());
 
 	p.reset();
@@ -285,30 +285,30 @@ TEST_CASE("[parser] While parsing, the cursor coordinate is as expcected", "[par
 TEST_CASE("[parser] Comments are correctly removed", "[parser]")
 {
 	std::stringstream s1("; comment at beginning\ntest1; comment in between\ntest2; comment at end");
-	plasp::utils::Parser<> p1("input", s1);
+	plasp::input::Parser<> p1("input", s1);
 
 	p1.removeComments(";", "\n", false);
 
-	plasp::utils::StreamCoordinate c;
+	plasp::input::Location l;
 
 	REQUIRE_NOTHROW(p1.expect<std::string>("test1"));
 
-	c = p1.coordinate();
-	REQUIRE(c.row == 2u);
-	REQUIRE(c.column == 6u);
+	l = p1.location();
+	REQUIRE(l.rowStart == 2u);
+	REQUIRE(l.columnStart == 6u);
 
 	REQUIRE_NOTHROW(p1.expect<std::string>("test2"));
 
-	c = p1.coordinate();
-	REQUIRE(c.row == 3u);
-	REQUIRE(c.column == 6u);
+	l = p1.location();
+	REQUIRE(l.rowStart == 3u);
+	REQUIRE(l.columnStart == 6u);
 
 	p1.skipWhiteSpace();
 
 	REQUIRE(p1.atEnd());
 
 	std::stringstream s2("test;");
-	plasp::utils::Parser<> p2("input", s2);
+	plasp::input::Parser<> p2("input", s2);
 
 	p2.removeComments(";", "\n", false);
 
@@ -319,7 +319,7 @@ TEST_CASE("[parser] Comments are correctly removed", "[parser]")
 	REQUIRE(p2.atEnd());
 
 	std::stringstream s3("/* comment at start */ test1 /* comment in between */ test2 /*");
-	plasp::utils::Parser<> p3("input", s3);
+	plasp::input::Parser<> p3("input", s3);
 
 	p3.removeComments("/*", "*/", true);
 

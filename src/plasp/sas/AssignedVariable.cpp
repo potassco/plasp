@@ -31,7 +31,7 @@ AssignedVariable::AssignedVariable(const Variable &variable, const Value &value)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-AssignedVariable AssignedVariable::fromSAS(utils::Parser<> &parser, const Variables &variables)
+AssignedVariable AssignedVariable::fromSAS(input::Parser<> &parser, const Variables &variables)
 {
 	AssignedVariable assignedVariable;
 
@@ -43,7 +43,7 @@ AssignedVariable AssignedVariable::fromSAS(utils::Parser<> &parser, const Variab
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-AssignedVariable AssignedVariable::fromSAS(utils::Parser<> &parser, const Variable &variable)
+AssignedVariable AssignedVariable::fromSAS(input::Parser<> &parser, const Variable &variable)
 {
 	AssignedVariable assignedVariable;
 

@@ -3,9 +3,9 @@
 
 #include <iosfwd>
 
+#include <plasp/input/Parser.h>
 #include <plasp/sas/Value.h>
 #include <plasp/sas/Variable.h>
-#include <plasp/utils/Parser.h>
 
 namespace plasp
 {
@@ -26,7 +26,7 @@ using VariableTransitions = std::vector<VariableTransition>;
 class VariableTransition
 {
 	public:
-		static VariableTransition fromSAS(utils::Parser<> &parser, const Variables &variables);
+		static VariableTransition fromSAS(input::Parser<> &parser, const Variables &variables);
 
 	public:
 		const Variable &variable() const;

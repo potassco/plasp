@@ -1,7 +1,7 @@
 #ifndef __PLASP__LANGUAGE_H
 #define __PLASP__LANGUAGE_H
 
-#include <plasp/utils/Parser.h>
+#include <string>
 
 namespace plasp
 {

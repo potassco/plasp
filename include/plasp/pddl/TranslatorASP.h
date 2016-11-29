@@ -19,7 +19,7 @@ namespace pddl
 class TranslatorASP
 {
 	public:
-		explicit TranslatorASP(Description &description, utils::LogStream &outputStream);
+		explicit TranslatorASP(Description &description, output::ColorStream &outputStream);
 
 		void translate() const;
 
@@ -40,7 +40,7 @@ class TranslatorASP
 		void translatePredicate(const expressions::Predicate &predicate) const;
 
 		Description &m_description;
-		utils::LogStream &m_outputStream;
+		output::ColorStream &m_outputStream;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

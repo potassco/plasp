@@ -33,7 +33,7 @@ TEST_CASE("[PDDL normalization] PDDL expressions are correctly reduced", "[PDDL 
 	std::stringstream output;
 	n1->reduced()->print(output);
 
-	REQUIRE(output.str() == "(not (not (and (or (or (not (a)) (b)) (c)) (d))))");
+	CHECK(output.str() == "(not (not (and (or (or (not (a)) (b)) (c)) (d))))");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -63,7 +63,7 @@ TEST_CASE("[PDDL normalization] PDDL expressions are correctly simplified", "[PD
 	std::stringstream output;
 	a1->simplified()->print(output);
 
-	REQUIRE(output.str() == "(and (a) (b) (c) (d) (or (e) (f) (g) (h)))");
+	CHECK(output.str() == "(and (a) (b) (c) (d) (or (e) (f) (g) (h)))");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -78,7 +78,7 @@ TEST_CASE("[PDDL normalization] Implications are correctly replaced", "[PDDL nor
 	std::stringstream output;
 	i->normalized()->print(output);
 
-	REQUIRE(output.str() == "(or (not (a)) (b))");
+	CHECK(output.str() == "(or (not (a)) (b))");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -94,7 +94,7 @@ TEST_CASE("[PDDL normalization] Double negations are correctly replaced", "[PDDL
 	std::stringstream output;
 	n1->normalized()->print(output);
 
-	REQUIRE(output.str() == "(a)");
+	CHECK(output.str() == "(a)");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -112,7 +112,7 @@ TEST_CASE("[PDDL normalization] De Morgan’s rule is correctly applied to negat
 	std::stringstream output;
 	n->normalized()->print(output);
 
-	REQUIRE(output.str() == "(or (not (a)) (not (b)) (not (c)))");
+	CHECK(output.str() == "(or (not (a)) (not (b)) (not (c)))");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -130,7 +130,7 @@ TEST_CASE("[PDDL normalization] De Morgan’s rule is correctly applied to negat
 	std::stringstream output;
 	n->normalized()->print(output);
 
-	REQUIRE(output.str() == "(and (not (a)) (not (b)) (not (c)))");
+	CHECK(output.str() == "(and (not (a)) (not (b)) (not (c)))");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -153,5 +153,5 @@ TEST_CASE("[PDDL normalization] Expressions inside double negations are also nor
 	std::stringstream output;
 	n1->normalized()->print(output);
 
-	REQUIRE(output.str() == "(or (not (a)) (not (b)) (not (c)))");
+	CHECK(output.str() == "(or (not (a)) (not (b)) (not (c)))");
 }

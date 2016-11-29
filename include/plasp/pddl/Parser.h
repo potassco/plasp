@@ -1,7 +1,7 @@
 #ifndef __PLASP__PDDL__PARSER_H
 #define __PLASP__PDDL__PARSER_H
 
-#include <plasp/utils/Parser.h>
+#include <plasp/input/Parser.h>
 
 namespace plasp
 {
@@ -44,7 +44,7 @@ class PDDLParserPolicy
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-using Parser = utils::Parser<PDDLParserPolicy>;
+using Parser = input::Parser<PDDLParserPolicy>;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

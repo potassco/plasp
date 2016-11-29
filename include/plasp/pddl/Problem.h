@@ -64,18 +64,18 @@ class Problem
 
 		std::string m_name;
 
-		utils::Stream::Position m_domainPosition;
+		input::Stream::Position m_domainPosition;
 
-		utils::Stream::Position m_requirementsPosition;
+		input::Stream::Position m_requirementsPosition;
 		Requirements m_requirements;
 
-		utils::Stream::Position m_objectsPosition;
+		input::Stream::Position m_objectsPosition;
 		expressions::Constants m_objects;
 
-		utils::Stream::Position m_initialStatePosition;
+		input::Stream::Position m_initialStatePosition;
 		std::unique_ptr<InitialState> m_initialState;
 
-		utils::Stream::Position m_goalPosition;
+		input::Stream::Position m_goalPosition;
 		ExpressionPointer m_goal;
 };
 

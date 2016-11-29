@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include <plasp/utils/ParserException.h>
+#include <plasp/input/ParserException.h>
 
 namespace plasp
 {
@@ -15,7 +15,7 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-MutexGroup MutexGroup::fromSAS(utils::Parser<> &parser, const Variables &variables)
+MutexGroup MutexGroup::fromSAS(input::Parser<> &parser, const Variables &variables)
 {
 	MutexGroup mutexGroup;
 
@@ -29,7 +29,7 @@ MutexGroup MutexGroup::fromSAS(utils::Parser<> &parser, const Variables &variabl
 		mutexGroup.m_facts.emplace_back(Fact::fromSAS(parser, variables));
 
 		if (mutexGroup.m_facts[j].value() == Value::None)
-			throw utils::ParserException(parser.coordinate(), "mutex groups must not contain <none of those> values");
+			throw input::ParserException(parser.location(), "mutex groups must not contain <none of those> values");
 	}
 
 	parser.expect<std::string>("end_mutex_group");

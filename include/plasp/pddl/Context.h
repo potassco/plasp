@@ -5,8 +5,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include <plasp/output/Logger.h>
 #include <plasp/pddl/Parser.h>
-#include <plasp/utils/Logger.h>
 
 namespace plasp
 {
@@ -25,19 +25,9 @@ class Context
 		Context() = default;
 		~Context() = default;
 
-		explicit Context(Parser &&otherParser)
-		:	parser{std::move(otherParser)}
-		{
-		}
-
-		explicit Context(utils::Logger &&otherLogger)
-		:	logger{std::move(otherLogger)}
-		{
-		}
-
-		explicit Context(Parser &&otherParser, utils::Logger &&otherLogger)
+		explicit Context(Parser &&otherParser, output::Logger &otherLogger)
 		:	parser{std::move(otherParser)},
-			logger{std::move(otherLogger)}
+			logger(otherLogger)
 		{
 		}
 
@@ -46,17 +36,11 @@ class Context
 
 		Context(Context &&other)
 		:	parser(std::move(other.parser)),
-			logger(std::move(other.logger))
+			logger(other.logger)
 		{
 		}
 
-		Context &operator=(Context &&other)
-		{
-			parser = std::move(other.parser);
-			logger = std::move(other.logger);
-
-			return *this;
-		}
+		Context &operator=(Context &&other) = delete;
 
 		constexpr static const char *auxiliaryPrefix()
 		{
@@ -64,7 +48,7 @@ class Context
 		}
 
 		Parser parser;
-		utils::Logger logger;
+		output::Logger &logger;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -2,8 +2,8 @@
 
 #include <iostream>
 
-#include <plasp/utils/Formatting.h>
-#include <plasp/utils/ParserException.h>
+#include <plasp/input/ParserException.h>
+#include <plasp/output/Formatting.h>
 
 namespace plasp
 {
@@ -23,7 +23,7 @@ Variable::Variable()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Variable Variable::fromSAS(utils::Parser<> &parser)
+Variable Variable::fromSAS(input::Parser<> &parser)
 {
 	Variable variable;
 
@@ -42,7 +42,7 @@ Variable Variable::fromSAS(utils::Parser<> &parser)
 
 		// <none of those> values are only allowed at the end
 		if (j < numberOfValues - 1 && variable.m_values[j] == Value::None)
-			throw utils::ParserException(parser.coordinate(), "<none of those> value must be the last value of a variable");
+			throw input::ParserException(parser.location(), "<none of those> value must be the last value of a variable");
 	}
 
 	parser.expect<std::string>("end_variable");
@@ -52,20 +52,20 @@ Variable Variable::fromSAS(utils::Parser<> &parser)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Variable::printNameAsASPPredicate(utils::LogStream &outputStream) const
+void Variable::printNameAsASPPredicate(output::ColorStream &stream) const
 {
 	// TODO: assert that name is a number indeed
-	outputStream << utils::Keyword("variable") << "(" << utils::Number(m_name) << ")";
+	stream << output::Keyword("variable") << "(" << output::Number<std::string>(m_name) << ")";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const Variable &Variable::referenceFromSAS(utils::Parser<> &parser, const Variables &variables)
+const Variable &Variable::referenceFromSAS(input::Parser<> &parser, const Variables &variables)
 {
 	const auto variableID = parser.parse<size_t>();
 
 	if (variableID >= variables.size())
-		throw utils::ParserException(parser.coordinate(), "variable index out of range (index " + std::to_string(variableID) + ")");
+		throw input::ParserException(parser.location(), "variable index out of range (index " + std::to_string(variableID) + ")");
 
 	return variables[variableID];
 }

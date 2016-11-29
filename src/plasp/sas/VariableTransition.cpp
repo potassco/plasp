@@ -24,7 +24,7 @@ VariableTransition::VariableTransition()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-VariableTransition VariableTransition::fromSAS(utils::Parser<> &parser, const Variables &variables)
+VariableTransition VariableTransition::fromSAS(input::Parser<> &parser, const Variables &variables)
 {
 	VariableTransition variableTransition;
 

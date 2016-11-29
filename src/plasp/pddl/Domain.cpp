@@ -2,13 +2,13 @@
 
 #include <algorithm>
 
+#include <plasp/input/ParserException.h>
 #include <plasp/pddl/ConsistencyException.h>
 #include <plasp/pddl/IO.h>
 #include <plasp/pddl/expressions/Constant.h>
 #include <plasp/pddl/expressions/PredicateDeclaration.h>
 #include <plasp/pddl/expressions/PrimitiveType.h>
 #include <plasp/pddl/expressions/Variable.h>
-#include <plasp/utils/ParserException.h>
 
 namespace plasp
 {
@@ -51,7 +51,7 @@ void Domain::findSections()
 			if (unique && sectionPosition != -1)
 			{
 				parser.seek(value);
-				throw utils::ParserException(parser.coordinate(), "only one “:" + sectionName + "” section allowed");
+				throw input::ParserException(parser.location(), "only one “:" + sectionName + "” section allowed");
 			}
 
 			sectionPosition = value;
@@ -92,7 +92,7 @@ void Domain::findSections()
 
 			const auto sectionIdentifier = parser.parseIdentifier();
 
-			m_context.logger.logWarning(parser.coordinate(), "section type “" + sectionIdentifier + "” currently unsupported");
+			m_context.logger.log(output::Priority::Warning, parser.location(), "section type “" + sectionIdentifier + "” currently unsupported");
 
 			parser.seek(sectionIdentifierPosition);
 		}
@@ -101,7 +101,7 @@ void Domain::findSections()
 			const auto sectionIdentifier = parser.parseIdentifier();
 
 			parser.seek(position);
-			throw utils::ParserException(parser.coordinate(), "unknown domain section “" + sectionIdentifier + "”");
+			throw input::ParserException(parser.location(), "unknown domain section “" + sectionIdentifier + "”");
 		}
 
 		// Skip section for now and parse it later
@@ -277,7 +277,7 @@ void Domain::checkRequirement(Requirement::Type requirementType)
 	if (hasRequirement(requirementType))
 		return;
 
-	m_context.logger.logWarning(m_context.parser.coordinate(), "requirement “" + Requirement(requirementType).toPDDL() + "” used but never declared");
+	m_context.logger.log(output::Priority::Warning, m_context.parser.location(), "requirement “" + Requirement(requirementType).toPDDL() + "” used but never declared");
 
 	m_requirements.push_back(requirementType);
 }
@@ -340,7 +340,7 @@ void Domain::parseTypeSection()
 	while (parser.currentCharacter() != ')')
 	{
 		if (parser.currentCharacter() == '(')
-			throw utils::ParserException(parser.coordinate(), "only primitive types are allowed in type section");
+			throw input::ParserException(parser.location(), "only primitive types are allowed in type section");
 
 		expressions::PrimitiveType::parseTypedDeclaration(m_context, *this);
 

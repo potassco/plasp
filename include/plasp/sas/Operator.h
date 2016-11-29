@@ -4,12 +4,12 @@
 #include <string>
 #include <vector>
 
+#include <plasp/input/Parser.h>
+#include <plasp/output/ColorStream.h>
 #include <plasp/sas/AssignedVariable.h>
 #include <plasp/sas/Effect.h>
 #include <plasp/sas/Predicate.h>
 #include <plasp/sas/Variable.h>
-#include <plasp/utils/LogStream.h>
-#include <plasp/utils/Parser.h>
 
 namespace plasp
 {
@@ -33,10 +33,10 @@ class Operator
 		using Condition = AssignedVariable;
 		using Conditions = AssignedVariables;
 
-		static Operator fromSAS(utils::Parser<> &parser, const Variables &variables);
+		static Operator fromSAS(input::Parser<> &parser, const Variables &variables);
 
 	public:
-		void printPredicateAsASP(utils::LogStream &ostream) const;
+		void printPredicateAsASP(output::ColorStream &stream) const;
 
 		const Predicate &predicate() const;
 		const Conditions &preconditions() const;

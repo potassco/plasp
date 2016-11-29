@@ -1,6 +1,6 @@
 #include <plasp/sas/TranslatorASP.h>
 
-#include <plasp/utils/Formatting.h>
+#include <plasp/output/Formatting.h>
 
 namespace plasp
 {
@@ -13,9 +13,9 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TranslatorASP::TranslatorASP(const Description &description, utils::LogStream &ostream)
+TranslatorASP::TranslatorASP(const Description &description, output::ColorStream &outputStream)
 :	m_description(description),
-	m_outputStream(ostream)
+	m_outputStream(outputStream)
 {
 }
 
@@ -56,30 +56,30 @@ void TranslatorASP::translate() const
 
 void TranslatorASP::translateRequirements() const
 {
-	m_outputStream << utils::Heading2("feature requirements") << std::endl;
+	m_outputStream << output::Heading2("feature requirements") << std::endl;
 
 	if (m_description.usesActionCosts())
-		m_outputStream << utils::RuleName("requires") << "(" << utils::Keyword("feature") << "(" << utils::Reserved("actionCosts") << "))." << std::endl;
+		m_outputStream << output::Function("requires") << "(" << output::Keyword("feature") << "(" << output::Reserved("actionCosts") << "))." << std::endl;
 
 	if (m_description.usesAxiomRules())
-		m_outputStream << utils::RuleName("requires") << "(" << utils::Keyword("feature") << "(" << utils::Reserved("axiomRules") << "))." << std::endl;
+		m_outputStream << output::Function("requires") << "(" << output::Keyword("feature") << "(" << output::Reserved("axiomRules") << "))." << std::endl;
 
 	if (m_description.usesConditionalEffects())
-		m_outputStream << utils::RuleName("requires") << "(" << utils::Keyword("feature") << "(" << utils::Reserved("conditionalEffects") << "))." << std::endl;
+		m_outputStream << output::Function("requires") << "(" << output::Keyword("feature") << "(" << output::Reserved("conditionalEffects") << "))." << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void TranslatorASP::translateInitialState() const
 {
-	m_outputStream << utils::Heading2("initial state") << std::endl;
+	m_outputStream << output::Heading2("initial state") << std::endl;
 
 	const auto &initialStateFacts = m_description.initialState().facts();
 
 	std::for_each(initialStateFacts.cbegin(), initialStateFacts.cend(),
 		[&](const auto &fact)
 		{
-			m_outputStream << utils::RuleName("initialState") << "(";
+			m_outputStream << output::Function("initialState") << "(";
 			fact.variable().printNameAsASPPredicate(m_outputStream);
 			m_outputStream << ", ";
 			fact.value().printAsASPPredicate(m_outputStream);
@@ -91,14 +91,14 @@ void TranslatorASP::translateInitialState() const
 
 void TranslatorASP::translateGoal() const
 {
-	m_outputStream << utils::Heading2("goal") << std::endl;
+	m_outputStream << output::Heading2("goal") << std::endl;
 
 	const auto &goalFacts = m_description.goal().facts();
 
 	std::for_each(goalFacts.cbegin(), goalFacts.cend(),
 		[&](const auto &fact)
 		{
-			m_outputStream << utils::RuleName("goal") << "(";
+			m_outputStream << output::Function("goal") << "(";
 			fact.variable().printNameAsASPPredicate(m_outputStream);
 			m_outputStream << ", ";
 			fact.value().printAsASPPredicate(m_outputStream);
@@ -110,7 +110,7 @@ void TranslatorASP::translateGoal() const
 
 void TranslatorASP::translateVariables() const
 {
-	m_outputStream << utils::Heading2("variables");
+	m_outputStream << output::Heading2("variables");
 
 	const auto &variables = m_description.variables();
 
@@ -121,14 +121,14 @@ void TranslatorASP::translateVariables() const
 
 			BOOST_ASSERT(!values.empty());
 
-			m_outputStream << std::endl << utils::RuleName("variable") << "(";
+			m_outputStream << std::endl << output::Function("variable") << "(";
 			variable.printNameAsASPPredicate(m_outputStream);
 			m_outputStream << ")." << std::endl;
 
 			std::for_each(values.cbegin(), values.cend(),
 				[&](const auto &value)
 				{
-					m_outputStream << utils::RuleName("contains") << "(";
+					m_outputStream << output::Function("contains") << "(";
 					variable.printNameAsASPPredicate(m_outputStream);
 					m_outputStream << ", ";
 					value.printAsASPPredicate(m_outputStream);
@@ -141,7 +141,7 @@ void TranslatorASP::translateVariables() const
 
 void TranslatorASP::translateActions() const
 {
-	m_outputStream << utils::Heading2("actions");
+	m_outputStream << output::Heading2("actions");
 
 	const auto &operators = m_description.operators();
 
@@ -150,7 +150,7 @@ void TranslatorASP::translateActions() const
 	std::for_each(operators.cbegin(), operators.cend(),
 		[&](const auto &operator_)
 		{
-			m_outputStream << std::endl << utils::RuleName("action") << "(";
+			m_outputStream << std::endl << output::Function("action") << "(";
 			operator_.printPredicateAsASP(m_outputStream);
 			m_outputStream << ")." << std::endl;
 
@@ -159,7 +159,7 @@ void TranslatorASP::translateActions() const
 			std::for_each(preconditions.cbegin(), preconditions.cend(),
 				[&](const auto &precondition)
 				{
-					m_outputStream << utils::RuleName("precondition") << "(";
+					m_outputStream << output::Function("precondition") << "(";
 					operator_.printPredicateAsASP(m_outputStream);
 					m_outputStream << ", ";
 					precondition.variable().printNameAsASPPredicate(m_outputStream);
@@ -175,13 +175,13 @@ void TranslatorASP::translateActions() const
 				{
 					const auto &conditions = effect.conditions();
 
-					m_outputStream << utils::RuleName("postcondition") << "(";
+					m_outputStream << output::Function("postcondition") << "(";
 					operator_.printPredicateAsASP(m_outputStream);
 
 					if (conditions.empty())
-						m_outputStream << ", " << utils::Keyword("effect") << "(" << utils::Reserved("unconditional") << "), ";
+						m_outputStream << ", " << output::Keyword("effect") << "(" << output::Reserved("unconditional") << "), ";
 					else
-						m_outputStream << ", " << utils::Keyword("effect") << "(" << utils::Number(std::to_string(currentEffectID)) << "), ";
+						m_outputStream << ", " << output::Keyword("effect") << "(" << output::Number<decltype(currentEffectID)>(currentEffectID) << "), ";
 
 					effect.postcondition().variable().printNameAsASPPredicate(m_outputStream);
 					m_outputStream << ", ";
@@ -193,8 +193,8 @@ void TranslatorASP::translateActions() const
 						{
 							// Conditions of conditional effects
 							m_outputStream
-								<< utils::RuleName("precondition") << "("
-								<< utils::Keyword("effect") << "(" << utils::Number(std::to_string(currentEffectID)) << "), ";
+								<< output::Function("precondition") << "("
+								<< output::Keyword("effect") << "(" << output::Number<decltype(currentEffectID)>(currentEffectID) << "), ";
 							condition.variable().printNameAsASPPredicate(m_outputStream);
 							m_outputStream << ", ";
 							condition.value().printAsASPPredicate(m_outputStream);
@@ -205,9 +205,9 @@ void TranslatorASP::translateActions() const
 						currentEffectID++;
 				});
 
-			m_outputStream << utils::RuleName("costs") << "(";
+			m_outputStream << output::Function("costs") << "(";
 			operator_.printPredicateAsASP(m_outputStream);
-			m_outputStream << ", " << utils::Number(std::to_string(operator_.costs())) << ")." << std::endl;
+			m_outputStream << ", " << output::Number<decltype(operator_.costs())>(operator_.costs()) << ")." << std::endl;
 		});
 }
 
@@ -215,7 +215,7 @@ void TranslatorASP::translateActions() const
 
 void TranslatorASP::translateMutexes() const
 {
-	m_outputStream << utils::Heading2("mutex groups");
+	m_outputStream << output::Heading2("mutex groups");
 
 	const auto &mutexGroups = m_description.mutexGroups();
 
@@ -229,9 +229,9 @@ void TranslatorASP::translateMutexes() const
 
 			m_outputStream
 				<< std::endl
-				<< utils::RuleName("mutexGroup") << "("
-				<< utils::Keyword("mutexGroup") << "("
-				<< utils::Number(mutexGroupID)
+				<< output::Function("mutexGroup") << "("
+				<< output::Keyword("mutexGroup") << "("
+				<< output::Number<decltype(mutexGroupID)>(mutexGroupID)
 				<< "))." << std::endl;
 
 			const auto &facts = mutexGroup.facts();
@@ -239,7 +239,7 @@ void TranslatorASP::translateMutexes() const
 			std::for_each(facts.cbegin(), facts.cend(),
 				[&](const auto &fact)
 				{
-					m_outputStream << utils::RuleName("contains") << "(" << utils::Keyword("mutexGroup") << "(" << utils::Number(mutexGroupID) << "), ";
+					m_outputStream << output::Function("contains") << "(" << output::Keyword("mutexGroup") << "(" << output::Number<decltype(mutexGroupID)>(mutexGroupID) << "), ";
 					fact.variable().printNameAsASPPredicate(m_outputStream);
 					m_outputStream << ", ";
 					fact.value().printAsASPPredicate(m_outputStream);
@@ -252,7 +252,7 @@ void TranslatorASP::translateMutexes() const
 
 void TranslatorASP::translateAxiomRules() const
 {
-	m_outputStream << utils::Heading2("axiom rules");
+	m_outputStream << output::Heading2("axiom rules");
 
 	const auto &axiomRules = m_description.axiomRules();
 
@@ -266,9 +266,9 @@ void TranslatorASP::translateAxiomRules() const
 
 			m_outputStream
 				<< std::endl
-				<< utils::RuleName("axiomRule") << "("
-				<< utils::Keyword("axiomRule") << "("
-				<< utils::Number(axiomRuleID)
+				<< output::Function("axiomRule") << "("
+				<< output::Keyword("axiomRule") << "("
+				<< output::Number<decltype(axiomRuleID)>(axiomRuleID)
 				<< "))." << std::endl;
 
 			const auto &conditions = axiomRule.conditions();
@@ -277,8 +277,8 @@ void TranslatorASP::translateAxiomRules() const
 				[&](const auto &condition)
 				{
 					m_outputStream
-						<< utils::RuleName("precondition") << "("
-						<< utils::Keyword("axiomRule") << "(" << utils::Number(axiomRuleID) << "), ";
+						<< output::Function("precondition") << "("
+						<< output::Keyword("axiomRule") << "(" << output::Number<decltype(axiomRuleID)>(axiomRuleID) << "), ";
 					condition.variable().printNameAsASPPredicate(m_outputStream);
 					m_outputStream << ", ";
 					condition.value().printAsASPPredicate(m_outputStream);
@@ -288,9 +288,9 @@ void TranslatorASP::translateAxiomRules() const
 			const auto &postcondition = axiomRule.postcondition();
 
 			m_outputStream
-				<< utils::RuleName("postcondition") << "("
-				<< utils::Keyword("axiomRule") << "(" << utils::Number(axiomRuleID) << "), "
-				<< utils::Keyword("effect") << "(" << utils::Reserved("unconditional") << "), ";
+				<< output::Function("postcondition") << "("
+				<< output::Keyword("axiomRule") << "(" << output::Number<decltype(axiomRuleID)>(axiomRuleID) << "), "
+				<< output::Keyword("effect") << "(" << output::Reserved("unconditional") << "), ";
 			postcondition.variable().printNameAsASPPredicate(m_outputStream);
 			m_outputStream << ", ";
 			postcondition.value().printAsASPPredicate(m_outputStream);

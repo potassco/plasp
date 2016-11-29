@@ -5,12 +5,12 @@
 #include <boost/program_options.hpp>
 
 #include <plasp/LanguageDetection.h>
+#include <plasp/output/ColorStream.h>
+#include <plasp/output/TranslatorException.h>
 #include <plasp/pddl/Description.h>
 #include <plasp/pddl/TranslatorASP.h>
 #include <plasp/sas/Description.h>
 #include <plasp/sas/TranslatorASP.h>
-#include <plasp/utils/LogStream.h>
-#include <plasp/utils/TranslatorException.h>
 
 int main(int argc, char **argv)
 {
@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 			std::cout << description;
 		};
 
-	plasp::utils::Logger logger;
+	plasp::output::Logger logger;
 
 	try
 	{
@@ -52,7 +52,7 @@ int main(int argc, char **argv)
 	}
 	catch (const po::error &e)
 	{
-		logger.logError(e.what());
+		logger.log(plasp::output::Priority::Error, e.what());
 		std::cout << std::endl;
 		printHelp();
 		return EXIT_FAILURE;
@@ -72,31 +72,32 @@ int main(int argc, char **argv)
 
 	const auto warningLevel = variablesMap["warning-level"].as<std::string>();
 
-	if (warningLevel == "error")
-		logger.setWarningLevel(plasp::utils::Logger::WarningLevel::Error);
+	// TODO: reimplement
+	/*if (warningLevel == "error")
+		logger.setWarningLevel(plasp::output::Logger::WarningLevel::Error);
 	else if (warningLevel == "ignore")
-		logger.setWarningLevel(plasp::utils::Logger::WarningLevel::Ignore);
+		logger.setWarningLevel(plasp::output::Logger::WarningLevel::Ignore);
 	else if (warningLevel == "show")
-		logger.setWarningLevel(plasp::utils::Logger::WarningLevel::Show);
+		logger.setWarningLevel(plasp::output::Logger::WarningLevel::Show);
 	else
 	{
-		logger.logError("unknown warning level “" + warningLevel + "”");
+		logger.log(plasp::output::Priority::Error, "unknown warning level “" + warningLevel + "”");
 		std::cout << std::endl;
 		printHelp();
 		return EXIT_FAILURE;
-	}
+	}*/
 
 	const auto colorPolicy = variablesMap["color"].as<std::string>();
 
 	if (colorPolicy == "auto")
-		logger.setColorPolicy(plasp::utils::LogStream::ColorPolicy::Auto);
+		logger.setColorPolicy(plasp::output::ColorStream::ColorPolicy::Auto);
 	else if (colorPolicy == "never")
-		logger.setColorPolicy(plasp::utils::LogStream::ColorPolicy::Never);
+		logger.setColorPolicy(plasp::output::ColorStream::ColorPolicy::Never);
 	else if (colorPolicy == "always")
-		logger.setColorPolicy(plasp::utils::LogStream::ColorPolicy::Always);
+		logger.setColorPolicy(plasp::output::ColorStream::ColorPolicy::Always);
 	else
 	{
-		logger.logError("unknown color policy “" + colorPolicy + "”");
+		logger.log(plasp::output::Priority::Error, "unknown color policy “" + colorPolicy + "”");
 		std::cout << std::endl;
 		printHelp();
 		return EXIT_FAILURE;
@@ -104,7 +105,7 @@ int main(int argc, char **argv)
 
 	try
 	{
-		plasp::utils::Parser<plasp::utils::CaseInsensitiveParserPolicy> parser;
+		plasp::input::Parser<plasp::input::CaseInsensitiveParserPolicy> parser;
 
 		if (variablesMap.count("input"))
 		{
@@ -135,7 +136,7 @@ int main(int argc, char **argv)
 
 		if (language == plasp::Language::Type::Unknown)
 		{
-			logger.logError("unknown input language");
+			logger.log(plasp::output::Priority::Error, "unknown input language");
 			std::cout << std::endl;
 			printHelp();
 			return EXIT_FAILURE;
@@ -143,10 +144,9 @@ int main(int argc, char **argv)
 
 		if (language == plasp::Language::Type::PDDL)
 		{
-			auto pddlLogger = logger;
-			auto context = plasp::pddl::Context(std::move(parser), std::move(pddlLogger));
-			auto description = plasp::pddl::Description::fromContext(std::move(context));
-			const auto translator = plasp::pddl::TranslatorASP(description, description.context().logger.outputStream());
+			auto context = plasp::pddl::Context(std::move(parser), logger);
+			auto description = plasp::pddl::Description::fromContext(context);
+			const auto translator = plasp::pddl::TranslatorASP(description, logger.outputStream());
 			translator.translate();
 		}
 		else if (language == plasp::Language::Type::SAS)
@@ -156,19 +156,19 @@ int main(int argc, char **argv)
 			translator.translate();
 		}
 	}
-	catch (const plasp::utils::ParserException &e)
+	catch (const plasp::input::ParserException &e)
 	{
-		logger.logError(e.coordinate(), e.message());
+		logger.log(plasp::output::Priority::Error, e.location(), e.message().c_str());
 		return EXIT_FAILURE;
 	}
-	catch (const plasp::utils::TranslatorException &e)
+	catch (const plasp::output::TranslatorException &e)
 	{
-		logger.logError(e.what());
+		logger.log(plasp::output::Priority::Error, e.what());
 		return EXIT_FAILURE;
 	}
 	catch (const std::exception &e)
 	{
-		logger.logError(e.what());
+		logger.log(plasp::output::Priority::Error, e.what());
 		return EXIT_FAILURE;
 	}
 

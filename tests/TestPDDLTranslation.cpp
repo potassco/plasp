@@ -14,17 +14,20 @@ boost::iostreams::stream<boost::iostreams::null_sink> nullStream((boost::iostrea
 
 TEST_CASE("[PDDL translation] Former issues are fixed", "[PDDL translation]")
 {
-	// Check that translating domains without typing information works
+	plasp::output::Logger logger;
+	Context context(Parser(), logger);
+
+	SECTION("translating domains without typing information works")
 	{
-		auto description = Description::fromFile("data/issues/issue-4.pddl");
+		auto description = Description::fromFile("data/issues/issue-4.pddl", context);
 		const auto translator = TranslatorASP(description, description.context().logger.outputStream());
-		REQUIRE_NOTHROW(translator.translate());
+		CHECK_NOTHROW(translator.translate());
 	}
 
-	// Check that translating the simple blocks world domain works
+	SECTION("translating the simple blocks world domain works")
 	{
-		auto description = Description::fromFile("data/issues/issue-5.pddl");
+		auto description = Description::fromFile("data/issues/issue-5.pddl", context);
 		const auto translator = TranslatorASP(description, description.context().logger.outputStream());
-		REQUIRE_NOTHROW(translator.translate());
+		CHECK_NOTHROW(translator.translate());
 	}
 }
