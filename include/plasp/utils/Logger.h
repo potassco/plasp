@@ -23,7 +23,7 @@ class Logger
 	public:
 		enum class WarningLevel
 		{
-			Normal,
+			Show,
 			Error,
 			Ignore
 		};

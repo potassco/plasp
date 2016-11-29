@@ -18,6 +18,7 @@ class Language
 		enum class Type
 		{
 			Unknown,
+			Automatic,
 			PDDL,
 			SAS
 		};

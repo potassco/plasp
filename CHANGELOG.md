@@ -5,6 +5,7 @@
 Features:
 
 * extended PDDL support (`imply` expressions)
+* improved command-line interface
 
 ## 3.0.3 (2016-09-02)
 

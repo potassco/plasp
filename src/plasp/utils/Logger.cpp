@@ -16,7 +16,7 @@ namespace utils
 Logger::Logger()
 :	m_outputStream(StandardStream::Out),
 	m_errorStream(StandardStream::Err),
-	m_warningLevel{Logger::WarningLevel::Normal}
+	m_warningLevel{Logger::WarningLevel::Show}
 {
 }
 
@@ -47,7 +47,7 @@ Logger::Logger(Logger &&other)
 	m_errorStream{std::move(other.m_errorStream)},
 	m_warningLevel{other.m_warningLevel}
 {
-	other.m_warningLevel = WarningLevel::Normal;
+	other.m_warningLevel = WarningLevel::Show;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -58,7 +58,7 @@ Logger &Logger::operator=(Logger &&other)
 	m_errorStream = std::move(other.m_errorStream);
 	m_warningLevel = other.m_warningLevel;
 
-	other.m_warningLevel = WarningLevel::Normal;
+	other.m_warningLevel = WarningLevel::Show;
 
 	return *this;
 }

@@ -17,6 +17,7 @@ using LanguageNames = boost::bimap<Language::Type, std::string>;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const LanguageNames languageNames = boost::assign::list_of<LanguageNames::relation>
+	(Language::Type::Automatic, "auto")
 	(Language::Type::PDDL, "pddl")
 	(Language::Type::SAS, "sas")
 	(Language::Type::Unknown, "unknown");

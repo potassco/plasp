@@ -45,7 +45,7 @@ $ clingo encodings/sequential-incremental.lp instance.lp
 ## Command-Line Interface
 
 ```bash
-$ plasp [files] [options]
+$ plasp [options] file...
 ```
 
 `plasp` automatically detects the language of the input program.

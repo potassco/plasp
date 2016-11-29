@@ -18,12 +18,12 @@ int main(int argc, char **argv)
 
 	po::options_description description("Allowed options");
 	description.add_options()
-		("help,h", "Display this help message.")
-		("version,v", "Display version information.")
-		("input,i", po::value<std::vector<std::string>>(), "Specify the PDDL or SAS input file.")
-		("language,l", po::value<std::string>(), "Specify the input language (sas or pddl). Omit for automatic detection.")
-		("warning-level", po::value<std::string>()->default_value("normal"), "Specify whether to output warnings normally (normal), to treat them as critical errors (error), or to ignore them (ignore).")
-		("color", po::value<std::string>()->default_value("auto"), "Specify whether to colorize the output (always, never, or auto).");
+		("help,h", "Display this help message")
+		("version,v", "Display version information")
+		("input,i", po::value<std::vector<std::string>>(), "Input files (in PDDL or SAS format)")
+		("language,l", po::value<std::string>()->default_value("auto"), "Input language (pddl, sas, auto)")
+		("warning-level", po::value<std::string>()->default_value("show"), "Show warnings (show), treat them as errors (error), or ignore them (ignore)")
+		("color", po::value<std::string>()->default_value("auto"), "Colorize output (always, never, auto)");
 
 	po::positional_options_description positionalOptionsDescription;
 	positionalOptionsDescription.add("input", -1);
@@ -33,8 +33,8 @@ int main(int argc, char **argv)
 	const auto printHelp =
 		[&]()
 		{
-			std::cout << "Usage: plasp [files] [options]" << std::endl;
-			std::cout << "Translate PDDL instances to ASP facts." << std::endl << std::endl;
+			std::cout << "Usage: plasp [options] file..." << std::endl;
+			std::cout << "Translate PDDL to ASP." << std::endl << std::endl;
 
 			std::cout << description;
 		};
@@ -76,8 +76,8 @@ int main(int argc, char **argv)
 		logger.setWarningLevel(plasp::utils::Logger::WarningLevel::Error);
 	else if (warningLevel == "ignore")
 		logger.setWarningLevel(plasp::utils::Logger::WarningLevel::Ignore);
-	else if (warningLevel == "normal")
-		logger.setWarningLevel(plasp::utils::Logger::WarningLevel::Normal);
+	else if (warningLevel == "show")
+		logger.setWarningLevel(plasp::utils::Logger::WarningLevel::Show);
 	else
 	{
 		logger.logError("unknown warning level “" + warningLevel + "”");
@@ -122,12 +122,13 @@ int main(int argc, char **argv)
 		const auto detectLanguage =
 			[&]()
 			{
-				if (variablesMap.count("language") == 0)
+				const auto languageName = variablesMap["language"].as<std::string>();
+				const auto language = plasp::Language::fromString(languageName);
+
+				if (language == plasp::Language::Type::Automatic)
 					return plasp::detectLanguage(parser);
 
-				const auto languageName = variablesMap["language"].as<std::string>();
-
-				return plasp::Language::fromString(languageName);
+				return language;
 			};
 
 		const auto language = detectLanguage();
