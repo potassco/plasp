@@ -16,14 +16,17 @@ int main(int argc, char **argv)
 {
 	namespace po = boost::program_options;
 
+	bool warningsAsErrors;
+
 	po::options_description description("Allowed options");
 	description.add_options()
 		("help,h", "Display this help message")
 		("version,v", "Display version information")
 		("input,i", po::value<std::vector<std::string>>(), "Input files (in PDDL or SAS format)")
 		("language,l", po::value<std::string>()->default_value("auto"), "Input language (pddl, sas, auto)")
-		("warning-level", po::value<std::string>()->default_value("show"), "Show warnings (show), treat them as errors (error), or ignore them (ignore)")
-		("color", po::value<std::string>()->default_value("auto"), "Colorize output (always, never, auto)");
+		("color", po::value<std::string>()->default_value("auto"), "Colorize output (always, never, auto)")
+		("log-priority,p", po::value<std::string>()->default_value("warning"), "Log messages starting from this priority (debug, info, warning, error)")
+		("warnings-as-errors", po::bool_switch(&warningsAsErrors), "Treat warnings as errors");
 
 	po::positional_options_description positionalOptionsDescription;
 	positionalOptionsDescription.add("input", -1);
@@ -70,22 +73,8 @@ int main(int argc, char **argv)
 		return EXIT_SUCCESS;
 	}
 
-	const auto warningLevel = variablesMap["warning-level"].as<std::string>();
-
-	// TODO: reimplement
-	/*if (warningLevel == "error")
-		logger.setWarningLevel(plasp::output::Logger::WarningLevel::Error);
-	else if (warningLevel == "ignore")
-		logger.setWarningLevel(plasp::output::Logger::WarningLevel::Ignore);
-	else if (warningLevel == "show")
-		logger.setWarningLevel(plasp::output::Logger::WarningLevel::Show);
-	else
-	{
-		logger.log(plasp::output::Priority::Error, "unknown warning level “" + warningLevel + "”");
-		std::cout << std::endl;
-		printHelp();
-		return EXIT_FAILURE;
-	}*/
+	if (warningsAsErrors)
+		logger.setAbortPriority(plasp::output::Priority::Warning);
 
 	const auto colorPolicy = variablesMap["color"].as<std::string>();
 
@@ -99,6 +88,21 @@ int main(int argc, char **argv)
 	{
 		logger.log(plasp::output::Priority::Error, "unknown color policy “" + colorPolicy + "”");
 		std::cout << std::endl;
+		printHelp();
+		return EXIT_FAILURE;
+	}
+
+	const auto logPriorityString = variablesMap["log-priority"].as<std::string>();
+
+	try
+	{
+		const auto logPriority = plasp::output::priorityFromName(logPriorityString.c_str());
+		logger.setLogPriority(logPriority);
+	}
+	catch (const std::exception &e)
+	{
+		logger.log(plasp::output::Priority::Error, ("unknown log priorty “" + logPriorityString + "”").c_str());
+		logger.errorStream() << std::endl;
 		printHelp();
 		return EXIT_FAILURE;
 	}

@@ -30,8 +30,10 @@ class Logger
 		ColorStream &outputStream();
 		ColorStream &errorStream();
 
-		// The level from which on messages should be printed
+		// The priority from which on messages should be printed
 		void setLogPriority(Priority logPriority);
+		// Messages with this priority (or higher) will terminate the program’s execution
+		void setAbortPriority(Priority abortPriority);
 		void setColorPolicy(ColorStream::ColorPolicy colorPolicy);
 
 		void log(Priority priority, const char *message);
@@ -44,6 +46,7 @@ class Logger
 		ColorStream m_errorStream;
 
 		Priority m_logPriority;
+		Priority m_abortPriority;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
