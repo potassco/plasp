@@ -29,7 +29,7 @@ struct Tag
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class ParserPolicy = CaseSensitiveParserPolicy>
-class Parser: public input::Stream, public ParserPolicy
+class Parser: public Stream, public ParserPolicy
 {
 	template<class OtherParserPolicy>
 	friend class Parser;
