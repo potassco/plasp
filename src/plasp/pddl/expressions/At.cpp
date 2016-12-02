@@ -1,6 +1,6 @@
 #include <plasp/pddl/expressions/At.h>
 
-#include <plasp/utils/TranslatorException.h>
+#include <plasp/output/TranslatorException.h>
 
 namespace plasp
 {
@@ -49,7 +49,7 @@ ExpressionPointer At::argument() const
 
 ExpressionPointer At::reduced()
 {
-	throw utils::TranslatorException("reducing “at” predicates currently not supported");
+	throw output::TranslatorException("reducing “at” predicates currently not supported");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

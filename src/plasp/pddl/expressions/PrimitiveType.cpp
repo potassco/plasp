@@ -4,6 +4,7 @@
 
 #include <boost/assert.hpp>
 
+#include <plasp/input/ParserException.h>
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Domain.h>
 #include <plasp/pddl/ExpressionContext.h>
@@ -111,7 +112,7 @@ PrimitiveTypePointer PrimitiveType::parseAndFind(Context &context, Domain &domai
 	const auto typeName = parser.parseIdentifier();
 
 	if (typeName.empty())
-		throw utils::ParserException(parser.coordinate(), "no type supplied");
+		throw input::ParserException(parser.location(), "no type supplied");
 
 	const auto match = std::find_if(types.cbegin(), types.cend(),
 		[&](const auto &primitiveType)
@@ -124,11 +125,11 @@ PrimitiveTypePointer PrimitiveType::parseAndFind(Context &context, Domain &domai
 		// Only "object" is allowed as an implicit type
 		if (typeName == "object" || typeName == "objects")
 		{
-			context.logger.logWarning(parser.coordinate(), "primitive type “" + typeName + "” should be declared");
+			context.logger.log(output::Priority::Warning, parser.location(), "primitive type “" + typeName + "” should be declared");
 			types.emplace_back(PrimitiveTypePointer(new PrimitiveType(typeName)));
 		}
 		else
-			throw utils::ParserException(parser.coordinate(), "type “" + typeName + "” used but never declared");
+			throw input::ParserException(parser.location(), "type “" + typeName + "” used but never declared");
 
 		return types.back().get();
 	}

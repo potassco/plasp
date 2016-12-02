@@ -12,8 +12,11 @@ file(GLOB pddl_expressions_headers "../include/plasp/pddl/expressions/*.h")
 file(GLOB sas_sources "plasp/sas/*.cpp")
 file(GLOB sas_headers "../include/plasp/sas/*.h")
 
-file(GLOB utils_sources "plasp/utils/*.cpp")
-file(GLOB utils_headers "../include/plasp/utils/*.h")
+file(GLOB input_sources "plasp/input/*.cpp")
+file(GLOB input_headers "../include/plasp/input/*.h")
+
+file(GLOB output_sources "plasp/output/*.cpp")
+file(GLOB output_headers "../include/plasp/output/*.h")
 
 include_directories(
 	${Boost_INCLUDE_DIRS}
@@ -36,8 +39,11 @@ set(sources
 	${sas_sources}
 	${sas_headers}
 
-	${utils_sources}
-	${utils_headers}
+	${input_sources}
+	${input_headers}
+
+	${output_sources}
+	${output_headers}
 )
 
 set(libraries

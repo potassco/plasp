@@ -25,7 +25,7 @@ UnsupportedPointer Unsupported::parse(Context &context)
 
 	expression->m_type = parser.parseIdentifier();
 
-	context.logger.logWarning(parser.coordinate(), "expression type “" + expression->m_type + "” currently unsupported in this context");
+	context.logger.log(output::Priority::Warning, parser.location(), "expression type “" + expression->m_type + "” currently unsupported in this context");
 
 	skipSection(parser);
 

@@ -4,8 +4,8 @@
 #include <limits>
 #include <sstream>
 
-#include <plasp/utils/Formatting.h>
-#include <plasp/utils/ParserException.h>
+#include <plasp/input/ParserException.h>
+#include <plasp/output/Formatting.h>
 
 namespace plasp
 {
@@ -18,7 +18,7 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Predicate Predicate::fromSAS(utils::Parser<> &parser)
+Predicate Predicate::fromSAS(input::Parser<> &parser)
 {
 	Predicate predicate;
 
@@ -43,7 +43,7 @@ Predicate Predicate::fromSAS(utils::Parser<> &parser)
 	}
 	catch (const std::exception &e)
 	{
-		throw utils::ParserException(parser.coordinate(), "could not parse operator predicate");
+		throw input::ParserException(parser.location(), "could not parse operator predicate");
 	}
 
 	return predicate;
@@ -65,38 +65,38 @@ const Predicate::Arguments &Predicate::arguments() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Predicate::printAsSAS(utils::LogStream &outputStream) const
+void Predicate::printAsSAS(output::ColorStream &stream) const
 {
 	if (m_arguments.empty())
 	{
-		outputStream << m_name;
+		stream << m_name;
 		return;
 	}
 
 	for (size_t i = 0; i < m_arguments.size(); i++)
 	{
 		if (i > 0)
-			outputStream << " ";
+			stream << " ";
 
-		outputStream << m_arguments[i];
+		stream << m_arguments[i];
 	}
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Predicate::printAsASP(utils::LogStream &outputStream) const
+void Predicate::printAsASP(output::ColorStream &stream) const
 {
 	if (m_arguments.empty())
 	{
-		outputStream << utils::String(m_name);
+		stream << output::String(m_name.c_str());
 		return;
 	}
 
-	outputStream << "(" << utils::String(m_name);
+	stream << "(" << output::String(m_name.c_str());
 
 	for (size_t i = 0; i < m_arguments.size(); i++)
-		outputStream << ", " << utils::String(m_arguments[i]);
+		stream << ", " << output::String(m_arguments[i].c_str());
 
-	outputStream << ")";
+	stream << ")";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

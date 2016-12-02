@@ -5,8 +5,8 @@
 #include <string>
 #include <vector>
 
-#include <plasp/utils/LogStream.h>
-#include <plasp/utils/Parser.h>
+#include <plasp/input/Parser.h>
+#include <plasp/output/ColorStream.h>
 
 namespace plasp
 {
@@ -22,13 +22,13 @@ namespace sas
 class Predicate
 {
 	public:
-		static Predicate fromSAS(utils::Parser<> &parser);
+		static Predicate fromSAS(input::Parser<> &parser);
 
 		using Arguments = std::vector<std::string>;
 
 	public:
-		void printAsSAS(utils::LogStream &outputStream) const;
-		void printAsASP(utils::LogStream &outputStream) const;
+		void printAsSAS(output::ColorStream &stream) const;
+		void printAsASP(output::ColorStream &stream) const;
 
 		const std::string &name() const;
 		const Arguments &arguments() const;

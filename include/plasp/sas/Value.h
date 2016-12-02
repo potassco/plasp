@@ -5,8 +5,8 @@
 #include <string>
 #include <vector>
 
-#include <plasp/utils/LogStream.h>
-#include <plasp/utils/Parser.h>
+#include <plasp/input/Parser.h>
+#include <plasp/output/ColorStream.h>
 
 namespace plasp
 {
@@ -39,14 +39,14 @@ struct Value
 		static const Value Any;
 		static const Value None;
 
-		static Value fromSAS(utils::Parser<> &parser);
-		static const Value &referenceFromSAS(utils::Parser<> &parser, const Variable &variable);
+		static Value fromSAS(input::Parser<> &parser);
+		static const Value &referenceFromSAS(input::Parser<> &parser, const Variable &variable);
 
 	public:
 		Value negated() const;
 
-		void printAsSAS(utils::LogStream &outputStream) const;
-		void printAsASPPredicate(utils::LogStream &outputStream) const;
+		void printAsSAS(output::ColorStream &stream) const;
+		void printAsASPPredicate(output::ColorStream &stream) const;
 
 		Sign sign() const;
 		const std::string &name() const;

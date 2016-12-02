@@ -5,7 +5,7 @@
 
 #include <boost/intrusive_ptr.hpp>
 
-#include <plasp/utils/Parser.h>
+#include <plasp/input/Parser.h>
 
 namespace plasp
 {

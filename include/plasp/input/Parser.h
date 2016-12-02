@@ -1,5 +1,5 @@
-#ifndef __PLASP__UTILS__PARSER_H
-#define __PLASP__UTILS__PARSER_H
+#ifndef __PLASP__INPUT__PARSER_H
+#define __PLASP__INPUT__PARSER_H
 
 #include <iostream>
 #include <iterator>
@@ -8,14 +8,13 @@
 
 #include <boost/filesystem.hpp>
 
-#include <plasp/utils/ParserException.h>
-#include <plasp/utils/ParserPolicy.h>
-#include <plasp/utils/Stream.h>
-#include <plasp/utils/StreamCoordinate.h>
+#include <plasp/input/ParserException.h>
+#include <plasp/input/ParserPolicy.h>
+#include <plasp/input/Stream.h>
 
 namespace plasp
 {
-namespace utils
+namespace input
 {
 
 template<typename Type>
@@ -199,7 +198,7 @@ void Parser<ParserPolicy>::expect(const Type &expectedValue)
 	std::stringstream message;
 	message << "unexpected value, expected “" << expectedValue << "”";
 
-	throw ParserException(coordinate(), message.str());
+	throw ParserException(location(), message.str());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -402,7 +401,7 @@ uint64_t Parser<ParserPolicy>::parseIntegerBody()
 	check();
 
 	if (!std::isdigit(currentCharacter()))
-		throw ParserException(coordinate(), "could not parse integer value");
+		throw ParserException(location(), "could not parse integer value");
 
 	uint64_t value = 0;
 
@@ -444,7 +443,7 @@ uint64_t Parser<ParserPolicy>::parseImpl(Tag<uint64_t>)
 	skipWhiteSpace();
 
 	if (currentCharacter() == '-')
-		throw ParserException(coordinate(), "expected unsigned integer, got signed one");
+		throw ParserException(location(), "expected unsigned integer, got signed one");
 
 	return parseIntegerBody();
 }
@@ -478,7 +477,7 @@ bool Parser<ParserPolicy>::parseImpl(Tag<bool>)
 	if (testAndSkip<char>('1'))
 		return true;
 
-	throw ParserException(coordinate(), "could not parse Boolean value");
+	throw ParserException(location(), "could not parse Boolean value");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

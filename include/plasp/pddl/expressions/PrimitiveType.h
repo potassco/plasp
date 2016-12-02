@@ -2,7 +2,6 @@
 #define __PLASP__PDDL__EXPRESSIONS__PRIMITIVE_TYPE_H
 
 #include <plasp/pddl/Expression.h>
-#include <plasp/utils/ParserException.h>
 
 namespace plasp
 {

@@ -75,19 +75,19 @@ class Domain
 
 		std::string m_name;
 
-		utils::Stream::Position m_requirementsPosition;
+		input::Stream::Position m_requirementsPosition;
 		Requirements m_requirements;
 
-		utils::Stream::Position m_typesPosition;
+		input::Stream::Position m_typesPosition;
 		expressions::PrimitiveTypes m_types;
 
-		utils::Stream::Position m_constantsPosition;
+		input::Stream::Position m_constantsPosition;
 		expressions::Constants m_constants;
 
-		utils::Stream::Position m_predicatesPosition;
+		input::Stream::Position m_predicatesPosition;
 		expressions::PredicateDeclarations m_predicates;
 
-		std::vector<utils::Stream::Position> m_actionPositions;
+		std::vector<input::Stream::Position> m_actionPositions;
 		std::vector<std::unique_ptr<Action>> m_actions;
 
 		expressions::DerivedPredicates m_derivedPredicates;

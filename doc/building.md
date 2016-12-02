@@ -1,4 +1,4 @@
-# Building Instructions
+# Building
 
 `plasp` requires a C++14 compiler (preferrably GCC ≥ 6.1 or clang ≥ 3.8), the `boost` libraries (≥ 1.55), and CMake for building.
 
@@ -25,8 +25,8 @@ $ make
 
 ## Running the Tests
 
-`plasp` provides unit tests written using the [Google Test](https://github.com/google/googletest) framework.
-Before building and running the tests, make sure you have fetched the Google Test git submodule:
+`plasp` provides unit tests written using the [Catch](https://github.com/philsquared/Catch) framework.
+Before building and running the tests, make sure you have fetched the Catch git submodule:
 
 ```bash
 $ git submodule init

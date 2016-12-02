@@ -5,6 +5,9 @@
 Features:
 
 * extended PDDL parser support (`imply`, `exists`, `forall`, and `when` expressions)
+* improved command-line interface
+* new command-line option `--log-level` to control which status messages should be shown
+* new command-line option `--warnings-as-errors` to abort program execution upon warnings (replaces `--warning-level`)
 
 ## 3.0.3 (2016-09-02)
 

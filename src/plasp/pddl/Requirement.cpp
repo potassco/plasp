@@ -4,7 +4,7 @@
 #include <boost/assign.hpp>
 #include <boost/bimap.hpp>
 
-#include <plasp/utils/ParserException.h>
+#include <plasp/input/ParserException.h>
 
 namespace plasp
 {
@@ -89,12 +89,12 @@ Requirement Requirement::parse(Context &context)
 	const auto match = requirementTypesToPDDL.right.find(requirementName);
 
 	if (match == requirementTypesToPDDL.right.end())
-		throw utils::ParserException(parser.coordinate(), "unknown PDDL requirement “" + requirementName + "”");
+		throw input::ParserException(parser.location(), "unknown PDDL requirement “" + requirementName + "”");
 
 	const auto requirementType = match->second;
 
 	if (requirementType == Requirement::Type::GoalUtilities)
-		context.logger.logWarning(parser.coordinate(), "requirement “goal-utilities” is not part of the PDDL 3.1 specification");
+		context.logger.log(output::Priority::Warning, parser.location(), "requirement “goal-utilities” is not part of the PDDL 3.1 specification");
 
 	return Requirement(match->second);
 }

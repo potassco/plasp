@@ -1,13 +1,13 @@
-#ifndef __PLASP__UTILS__FORMATTING_H
-#define __PLASP__UTILS__FORMATTING_H
+#ifndef __PLASP__OUTPUT__FORMATTING_H
+#define __PLASP__OUTPUT__FORMATTING_H
 
 #include <iostream>
 
-#include <plasp/utils/LogStream.h>
+#include <plasp/output/ColorStream.h>
 
 namespace plasp
 {
-namespace utils
+namespace output
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -18,21 +18,30 @@ namespace utils
 
 enum class Color
 {
-	Black = 0,
-	Red = 1,
-	Green = 2,
-	Yellow = 3,
-	Blue = 4,
-	Magenta = 5,
-	Cyan = 6,
-	White = 7
+	Default = 39,
+	Black = 30,
+	Red = 31,
+	Green = 32,
+	Yellow = 33,
+	Blue = 34,
+	Magenta = 35,
+	Cyan = 36,
+	LightGray = 37,
+	DarkGray = 90,
+	LightRed = 91,
+	LightGreen = 92,
+	LightYellow = 93,
+	LightBlue = 94,
+	LightMagenta = 95,
+	LightCyan = 96,
+	White = 97
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 enum class FontWeight
 {
-	Normal = 0,
+	Normal = 21,
 	Bold = 1
 };
 
@@ -40,25 +49,19 @@ enum class FontWeight
 
 struct Format
 {
-	Format(Color color, FontWeight fontWeight = FontWeight::Normal)
-	:	m_color{color},
-		m_fontWeight{fontWeight}
-	{
-	}
-
-	Color m_color;
-	FontWeight m_fontWeight;
+	Color color = Color::Default;
+	FontWeight fontWeight = FontWeight::Normal;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline LogStream &operator<<(LogStream &stream, const Format &format)
+inline ColorStream &operator<<(ColorStream &stream, const Format &format)
 {
 	if (!stream.supportsColor())
 		return stream;
 
-	const auto fontWeightCode = static_cast<size_t>(format.m_fontWeight);
-	const auto colorCode = 30 + static_cast<size_t>(format.m_color);
+	const auto fontWeightCode = static_cast<int>(format.fontWeight);
+	const auto colorCode = static_cast<int>(format.color);
 
 	return (stream << "\033[" << fontWeightCode << ";" << colorCode << "m");
 }
@@ -71,7 +74,7 @@ struct ResetFormat
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline LogStream &operator<<(LogStream &stream, const ResetFormat &)
+inline ColorStream &operator<<(ColorStream &stream, const ResetFormat &)
 {
 	if (!stream.supportsColor())
 		return stream;
@@ -81,196 +84,224 @@ inline LogStream &operator<<(LogStream &stream, const ResetFormat &)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct Token
+struct Function
 {
-	Token(const std::string &name)
-	:	name(name)
+	Function(const char *name)
+	:	name{name}
 	{
-	}
+	};
 
-	const std::string &name;
+	const char *name;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct RuleName: public Token
-{
-	RuleName(const std::string &name)
-	:	Token(name)
-	{
-	}
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-inline LogStream &operator<<(LogStream &stream, const RuleName &keyword)
+inline ColorStream &operator<<(ColorStream &stream, const Function &function)
 {
 	return (stream
-		<< utils::Format(utils::Color::White, utils::FontWeight::Bold)
+		<< Format({Color::White, FontWeight::Normal})
+		<< function.name
+		<< ResetFormat());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct Keyword
+{
+	Keyword(const char *name)
+	:	name{name}
+	{
+	};
+
+	const char *name;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline ColorStream &operator<<(ColorStream &stream, const Keyword &keyword)
+{
+	return (stream
+		<< Format({Color::Blue, FontWeight::Normal})
 		<< keyword.name
-		<< utils::ResetFormat());
+		<< ResetFormat());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct Keyword: public Token
+struct Operator
 {
-	Keyword(const std::string &name)
-	:	Token(name)
+	Operator(const char *name)
+	:	name{name}
 	{
-	}
+	};
+
+	const char *name;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline LogStream &operator<<(LogStream &stream, const Keyword &keyword)
+inline ColorStream &operator<<(ColorStream &stream, const Operator &operator_)
 {
-	return (stream
-		<< utils::Format(utils::Color::Blue, utils::FontWeight::Normal)
-		<< keyword.name
-		<< utils::ResetFormat());
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-struct Number: public Token
-{
-	Number(const std::string &name)
-	:	Token(name)
-	{
-	}
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-inline LogStream &operator<<(LogStream &stream, const Number &number)
-{
-	return (stream
-		<< utils::Format(utils::Color::Yellow, utils::FontWeight::Normal)
-		<< number.name
-		<< utils::ResetFormat());
+	return (stream << operator_.name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct Variable: public Token
+template<typename T>
+struct Number
 {
-	Variable(const std::string &name)
-	:	Token(name)
+	Number(T value)
+	:	value{value}
 	{
-	}
+	};
+
+	T value;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline LogStream &operator<<(LogStream &stream, const Variable &variable)
+template<typename T>
+inline ColorStream &operator<<(ColorStream &stream, const Number<T> &number)
 {
 	return (stream
-		<< utils::Format(utils::Color::Green, utils::FontWeight::Bold)
+		<< Format({Color::Yellow, FontWeight::Normal})
+		<< number.value
+		<< ResetFormat());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct Variable
+{
+	Variable(const char *name)
+	:	name{name}
+	{
+	};
+
+	const char *name;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline ColorStream &operator<<(ColorStream &stream, const Variable &variable)
+{
+	return (stream
+		<< Format({Color::Green, FontWeight::Bold})
 		<< variable.name
-		<< utils::ResetFormat());
+		<< ResetFormat());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct String: public Token
+struct String
 {
-	String(const std::string &name)
-	:	Token(name)
+	String(const char *content)
+	:	content{content}
 	{
-	}
+	};
+
+	const char *content;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline LogStream &operator<<(LogStream &stream, const String &string)
+inline ColorStream &operator<<(ColorStream &stream, const String &string)
 {
 	return (stream
-		<< utils::Format(utils::Color::Green, utils::FontWeight::Normal)
-		<< "\"" << string.name << "\""
-		<< utils::ResetFormat());
+		<< Format({Color::Green, FontWeight::Normal})
+		<< "\"" << string.content << "\""
+		<< ResetFormat());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct Boolean: public Token
+struct Boolean
 {
-	Boolean(const std::string &name)
-	:	Token(name)
+	Boolean(const char *value)
+	:	value{value}
 	{
-	}
+	};
+
+	const char *value;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline LogStream &operator<<(LogStream &stream, const Boolean &string)
+inline ColorStream &operator<<(ColorStream &stream, const Boolean &boolean)
 {
 	return (stream
-		<< utils::Format(utils::Color::Red, utils::FontWeight::Normal)
-		<< string.name
-		<< utils::ResetFormat());
+		<< Format({Color::Red, FontWeight::Normal})
+		<< boolean.value
+		<< ResetFormat());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct Reserved: public Token
+struct Reserved
 {
-	Reserved(const std::string &name)
-	:	Token(name)
+	Reserved(const char *name)
+	:	name{name}
 	{
-	}
+	};
+
+	const char *name;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline LogStream &operator<<(LogStream &stream, const Reserved &string)
+inline ColorStream &operator<<(ColorStream &stream, const Reserved &reserved)
 {
 	return (stream
-		<< utils::Format(utils::Color::White, utils::FontWeight::Normal)
-		<< string.name
-		<< utils::ResetFormat());
+		<< Format({Color::White, FontWeight::Normal})
+		<< reserved.name
+		<< ResetFormat());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct Heading1: public Token
+struct Heading1
 {
-	Heading1(const std::string &name)
-	:	Token(name)
+	Heading1(const char *content)
+	:	content{content}
 	{
-	}
+	};
+
+	const char *content;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline LogStream &operator<<(LogStream &stream, const Heading1 &heading1)
+inline ColorStream &operator<<(ColorStream &stream, const Heading1 &heading1)
 {
 	return (stream
-		<< utils::Format(utils::Color::Blue, utils::FontWeight::Bold)
+		<< Format({Color::Blue, FontWeight::Bold})
 		<< "%---------------------------------------" << std::endl
-		<< "% " << heading1.name << std::endl
+		<< "% " << heading1.content << std::endl
 		<< "%---------------------------------------"
-		<< utils::ResetFormat()
+		<< ResetFormat()
 		<< std::endl);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct Heading2: public Token
+struct Heading2
 {
-	Heading2(const std::string &name)
-	:	Token(name)
+	Heading2(const char *content)
+	:	content{content}
 	{
-	}
+	};
+
+	const char *content;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline LogStream &operator<<(LogStream &stream, const Heading2 &heading2)
+inline ColorStream &operator<<(ColorStream &stream, const Heading2 &heading2)
 {
 	return (stream
-		<< utils::Format(utils::Color::Blue, utils::FontWeight::Bold)
-		<< "% " << heading2.name
-		<< utils::ResetFormat());
+		<< Format({Color::Blue, FontWeight::Bold})
+		<< "% " << heading2.content
+		<< ResetFormat());
 }
 
 

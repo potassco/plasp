@@ -1,4 +1,3 @@
-[submodule "tests/googletest"]
-	path = tests/googletest
-	url = https://github.com/google/googletest.git
-	ignore = dirty
+[submodule "lib/catch"]
+	path = lib/catch
+	url = https://github.com/philsquared/Catch

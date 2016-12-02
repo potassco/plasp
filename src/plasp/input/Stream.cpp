@@ -1,10 +1,12 @@
-#include <plasp/utils/Stream.h>
+#include <plasp/input/Stream.h>
 
 #include <fstream>
 
+#include <plasp/input/ParserException.h>
+
 namespace plasp
 {
-namespace utils
+namespace input
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -77,7 +79,7 @@ typename Stream::Position Stream::position() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-StreamCoordinate Stream::coordinate() const
+Location Stream::location() const
 {
 	const auto currentPosition = position();
 
@@ -99,7 +101,7 @@ StreamCoordinate Stream::coordinate() const
 	size_t row = 1;
 	size_t column = 1;
 
-	// Compute the coordinate character by character
+	// Compute the location character by character
 	while (true)
 	{
 		if (currentPosition == -1 && atEnd())
@@ -120,7 +122,7 @@ StreamCoordinate Stream::coordinate() const
 		m_stream.ignore(1);
 	}
 
-	return {currentFile->sectionName, row, column};
+	return {currentFile->sectionName.c_str(), currentFile->sectionName.c_str(), row, row, column, column};
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -142,10 +144,10 @@ bool Stream::atEnd() const
 void Stream::check() const
 {
 	if (atEnd())
-		throw ParserException(coordinate(), "reading past end of file");
+		throw ParserException(location(), "reading past end of file");
 
 	if (m_stream.fail())
-		throw ParserException(coordinate());
+		throw ParserException(location());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

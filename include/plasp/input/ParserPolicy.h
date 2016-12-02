@@ -1,11 +1,11 @@
-#ifndef __PLASP__UTILS__PARSER_POLICY_H
-#define __PLASP__UTILS__PARSER_POLICY_H
+#ifndef __PLASP__INPUT__PARSER_POLICY_H
+#define __PLASP__INPUT__PARSER_POLICY_H
 
 #include <iostream>
 
 namespace plasp
 {
-namespace utils
+namespace input
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

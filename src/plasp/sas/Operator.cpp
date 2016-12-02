@@ -3,8 +3,8 @@
 #include <iostream>
 #include <limits>
 
+#include <plasp/output/Formatting.h>
 #include <plasp/sas/VariableTransition.h>
-#include <plasp/utils/Formatting.h>
 
 namespace plasp
 {
@@ -17,7 +17,7 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Operator Operator::fromSAS(utils::Parser<> &parser, const Variables &variables)
+Operator Operator::fromSAS(input::Parser<> &parser, const Variables &variables)
 {
 	Operator operator_;
 
@@ -46,11 +46,11 @@ Operator Operator::fromSAS(utils::Parser<> &parser, const Variables &variables)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Operator::printPredicateAsASP(utils::LogStream &outputStream) const
+void Operator::printPredicateAsASP(output::ColorStream &stream) const
 {
-	outputStream << utils::Keyword("action") << "(";
-	m_predicate.printAsASP(outputStream);
-	outputStream << ")";
+	stream << output::Keyword("action") << "(";
+	m_predicate.printAsASP(stream);
+	stream << ")";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

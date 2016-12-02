@@ -11,7 +11,7 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-InitialState InitialState::fromSAS(utils::Parser<> &parser, const Variables &variables)
+InitialState InitialState::fromSAS(input::Parser<> &parser, const Variables &variables)
 {
 	InitialState initialState;
 

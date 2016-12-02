@@ -1,12 +1,12 @@
-#ifndef __PLASP__UTILS__TRANSLATOR_EXCEPTION_H
-#define __PLASP__UTILS__TRANSLATOR_EXCEPTION_H
+#ifndef __PLASP__OUTPUT__TRANSLATOR_EXCEPTION_H
+#define __PLASP__OUTPUT__TRANSLATOR_EXCEPTION_H
 
 #include <exception>
 #include <string>
 
 namespace plasp
 {
-namespace utils
+namespace output
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

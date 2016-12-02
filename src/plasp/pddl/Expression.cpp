@@ -1,5 +1,7 @@
 #include <plasp/pddl/Expression.h>
 
+#include <plasp/input/ParserException.h>
+#include <plasp/output/TranslatorException.h>
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Domain.h>
 #include <plasp/pddl/ExpressionContext.h>
@@ -14,8 +16,6 @@
 #include <plasp/pddl/expressions/PredicateDeclaration.h>
 #include <plasp/pddl/expressions/Unsupported.h>
 #include <plasp/pddl/expressions/When.h>
-#include <plasp/utils/ParserException.h>
-#include <plasp/utils/TranslatorException.h>
 
 namespace plasp
 {
@@ -113,9 +113,9 @@ ExpressionPointer Expression::disjunctionNormalized()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ExpressionPointer Expression::decomposed(expressions::DerivedPredicates &)
+[[ noreturn ]] ExpressionPointer Expression::decomposed(expressions::DerivedPredicates &)
 {
-	throw utils::TranslatorException("Expression is not in first-order negation normal form and cannot be decomposed");
+	throw output::TranslatorException("Expression is not in first-order negation normal form and cannot be decomposed");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -227,7 +227,7 @@ ExpressionPointer parseExpression(Context &context, ExpressionContext &expressio
 	const auto expressionIdentifier = parser.parseIdentifier();
 
 	parser.seek(position);
-	throw utils::ParserException(parser.coordinate(), "expression type “" + expressionIdentifier + "” unknown or not allowed in this context");
+	throw input::ParserException(parser.location(), "expression type “" + expressionIdentifier + "” unknown or not allowed in this context");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -302,7 +302,7 @@ ExpressionPointer parseEffectBodyExpression(Context &context, ExpressionContext 
 	const auto expressionIdentifier = parser.parseIdentifier();
 
 	parser.seek(position);
-	throw utils::ParserException(parser.coordinate(), "expression type “" + expressionIdentifier + "” unknown or not allowed in this context");
+	throw input::ParserException(parser.location(), "expression type “" + expressionIdentifier + "” unknown or not allowed in this context");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -328,7 +328,7 @@ ExpressionPointer parsePredicate(Context &context, ExpressionContext &expression
 	if ((expression = expressions::Predicate::parse(context, expressionContext)))
 		return expression;
 
-	throw utils::ParserException(parser.coordinate(), "expected predicate");
+	throw input::ParserException(parser.location(), "expected predicate");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <catch.hpp>
 
 #include <fstream>
 #include <iostream>
@@ -17,164 +17,173 @@ using namespace plasp::pddl;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLParserTests, ParseBlocksWorldDomain)
+TEST_CASE("[PDDL parser] The Blocks World domain is parsed correctly", "[PDDL parser]")
 {
-	const auto description = Description::fromFile("data/blocksworld-domain.pddl");
+	plasp::output::Logger logger;
+	Context context(Parser(), logger);
 
-	ASSERT_NO_THROW(description.domain());
+	const auto description = Description::fromFile("data/blocksworld-domain.pddl", context);
+
+	REQUIRE_NOTHROW(description.domain());
 
 	const auto &domain = description.domain();
 
 	// Name
-	ASSERT_EQ(domain.name(), "blocks");
+	CHECK(domain.name() == "blocks");
 
 	// Requirements
-	ASSERT_EQ(domain.requirements().size(), 2u);
-	ASSERT_EQ(domain.requirements()[0].type(), Requirement::Type::STRIPS);
-	ASSERT_EQ(domain.requirements()[1].type(), Requirement::Type::Typing);
+	REQUIRE(domain.requirements().size() == 2u);
+	CHECK(domain.requirements()[0].type() == Requirement::Type::STRIPS);
+	CHECK(domain.requirements()[1].type() == Requirement::Type::Typing);
 
 	// Types
-	ASSERT_EQ(domain.types().size(), 1u);
+	REQUIRE(domain.types().size() == 1u);
 
 	const auto &block = *domain.types()[0];
 
-	ASSERT_EQ(block.name(), "block");
-	ASSERT_EQ(block.parentTypes().size(), 0u);
+	CHECK(block.name() == "block");
+	REQUIRE(block.parentTypes().size() == 0u);
 
 	// Predicates
-	ASSERT_EQ(domain.predicates().size(), 5u);
+	REQUIRE(domain.predicates().size() == 5u);
 
 	const auto &on = *domain.predicates()[0];
 
-	ASSERT_EQ(on.name(), "on");
-	ASSERT_EQ(on.arguments().size(), 2u);
-	ASSERT_EQ(on.arguments()[0]->name(), "x");
+	CHECK(on.name() == "on");
+	REQUIRE(on.arguments().size() == 2u);
+	CHECK(on.arguments()[0]->name() == "x");
 	const auto &onArgument0Type = dynamic_cast<const expressions::PrimitiveType &>(*on.arguments()[0]->type());
-	ASSERT_EQ(&onArgument0Type, &block);
-	ASSERT_EQ(on.arguments()[1]->name(), "y");
+	CHECK(&onArgument0Type == &block);
+	CHECK(on.arguments()[1]->name() == "y");
 	const auto &onArgument1Type = dynamic_cast<const expressions::PrimitiveType &>(*on.arguments()[1]->type());
-	ASSERT_EQ(&onArgument1Type, &block);
+	CHECK(&onArgument1Type == &block);
 
 	const auto &handempty = *domain.predicates()[3];
 
-	ASSERT_EQ(handempty.name(), "handempty");
-	ASSERT_TRUE(handempty.arguments().empty());
+	CHECK(handempty.name() == "handempty");
+	CHECK(handempty.arguments().empty());
 
 	// Actions
-	ASSERT_EQ(domain.actions().size(), 4u);
+	REQUIRE(domain.actions().size() == 4u);
 
 	const auto &pickUp = *domain.actions()[0];
 
-	ASSERT_EQ(pickUp.name(), "pick-up");
-	ASSERT_EQ(pickUp.parameters().size(), 1u);
-	ASSERT_EQ(pickUp.parameters()[0]->name(), "x");
-	ASSERT_EQ(pickUp.parameters()[0]->type(), &block);
+	CHECK(pickUp.name() == "pick-up");
+	REQUIRE(pickUp.parameters().size() == 1u);
+	CHECK(pickUp.parameters()[0]->name() == "x");
+	CHECK(pickUp.parameters()[0]->type() == &block);
 
 	const auto &pickUpPre = dynamic_cast<const expressions::And &>(*pickUp.precondition());
-	ASSERT_EQ(pickUpPre.arguments().size(), 3u);
+	REQUIRE(pickUpPre.arguments().size() == 3u);
 	const auto &pickUpPre0 = dynamic_cast<const expressions::Predicate &>(*pickUpPre.arguments()[0]);
-	ASSERT_EQ(pickUpPre0.name(), "clear");
-	ASSERT_EQ(pickUpPre0.arguments().size(), 1u);
+	CHECK(pickUpPre0.name() == "clear");
+	REQUIRE(pickUpPre0.arguments().size() == 1u);
 	const auto &pickUpPre00 = dynamic_cast<const expressions::Variable &>(*pickUpPre0.arguments()[0]);
-	ASSERT_EQ(pickUpPre00.name(), "x");
-	ASSERT_EQ(pickUpPre00.type(), &block);
-	ASSERT_EQ(&pickUpPre00, pickUp.parameters()[0].get());
+	CHECK(pickUpPre00.name() == "x");
+	CHECK(pickUpPre00.type() == &block);
+	CHECK(&pickUpPre00 == pickUp.parameters()[0].get());
 	const auto &pickUpPre2 = dynamic_cast<const expressions::Predicate &>(*pickUpPre.arguments()[2]);
-	ASSERT_EQ(pickUpPre2.name(), "handempty");
-	ASSERT_EQ(pickUpPre2.arguments().size(), 0u);
+	CHECK(pickUpPre2.name() == "handempty");
+	CHECK(pickUpPre2.arguments().empty());
 
 	const auto &pickUpEff = dynamic_cast<const expressions::And &>(*pickUp.effect());
-	ASSERT_EQ(pickUpEff.arguments().size(), 4u);
+	REQUIRE(pickUpEff.arguments().size() == 4u);
 	const auto &pickUpEff0 = dynamic_cast<const expressions::Not &>(*pickUpEff.arguments()[0]);
 	const auto &pickUpEff00 = dynamic_cast<const expressions::Predicate &>(*pickUpEff0.argument());
-	ASSERT_EQ(pickUpEff00.name(), "ontable");
-	ASSERT_EQ(pickUpEff00.arguments().size(), 1u);
+	CHECK(pickUpEff00.name() == "ontable");
+	REQUIRE(pickUpEff00.arguments().size() == 1u);
 	const auto &pickUpEff000 = dynamic_cast<const expressions::Variable &>(*pickUpEff00.arguments()[0]);
-	ASSERT_EQ(pickUpEff000.name(), "x");
-	ASSERT_EQ(pickUpEff000.type(), &block);
+	CHECK(pickUpEff000.name() == "x");
+	CHECK(pickUpEff000.type() == &block);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLParserTests, ParseBlocksWorldProblem)
+TEST_CASE("[PDDL parser] A Blocks World problem is parsed correctly", "[PDDL parser]")
 {
-	const auto description = Description::fromFiles({"data/blocksworld-domain.pddl", "data/blocksworld-problem.pddl"});
+	plasp::output::Logger logger;
+	Context context(Parser(), logger);
 
-	ASSERT_NO_THROW(description.problem());
+	const auto description = Description::fromFiles({"data/blocksworld-domain.pddl", "data/blocksworld-problem.pddl"}, context);
+
+	REQUIRE_NOTHROW(description.problem());
 
 	const auto &problem = description.problem();
 
 	// Name
-	ASSERT_EQ(problem.name(), "blocks-4-0");
-	ASSERT_EQ(problem.domain().name(), "blocks");
+	CHECK(problem.name() == "blocks-4-0");
+	CHECK(problem.domain().name() == "blocks");
 
 	// Requirements
 	// TODO: compute domain vs. problem requirements correctly and check them
 
 	// Objects
-	ASSERT_EQ(problem.objects().size(), 4u);
+	REQUIRE(problem.objects().size() == 4u);
 
-	ASSERT_EQ(problem.objects()[0]->name(), "d");
-	ASSERT_NE(problem.objects()[0]->type(), nullptr);
-	ASSERT_EQ(problem.objects()[0]->type()->name(), "block");
-	ASSERT_EQ(problem.objects()[3]->name(), "c");
-	ASSERT_NE(problem.objects()[3]->type(), nullptr);
-	ASSERT_EQ(problem.objects()[3]->type()->name(), "block");
+	CHECK(problem.objects()[0]->name() == "d");
+	REQUIRE(problem.objects()[0]->type() != nullptr);
+	CHECK(problem.objects()[0]->type()->name() == "block");
+	CHECK(problem.objects()[3]->name() == "c");
+	REQUIRE(problem.objects()[3]->type() != nullptr);
+	CHECK(problem.objects()[3]->type()->name() == "block");
 
 	// Initial State
 	const auto &facts = problem.initialState().facts();
 
-	ASSERT_EQ(facts.size(), 9u);
+	REQUIRE(facts.size() == 9u);
 	const auto &fact0 = dynamic_cast<const expressions::Predicate &>(*facts[0].get());
-	ASSERT_EQ(fact0.name(), "clear");
-	ASSERT_EQ(fact0.arguments().size(), 1u);
+	CHECK(fact0.name() == "clear");
+	REQUIRE(fact0.arguments().size() == 1u);
 	const auto &fact00 = dynamic_cast<const expressions::Constant &>(*fact0.arguments()[0]);
-	ASSERT_EQ(fact00.name(), "c");
-	ASSERT_NE(fact00.type(), nullptr);
-	ASSERT_EQ(fact00.type()->name(), "block");
+	CHECK(fact00.name() == "c");
+	REQUIRE(fact00.type() != nullptr);
+	CHECK(fact00.type()->name() == "block");
 	const auto &fact8 = dynamic_cast<const expressions::Predicate &>(*facts[8].get());
-	ASSERT_EQ(fact8.name(), "handempty");
-	ASSERT_EQ(fact8.arguments().size(), 0u);
+	CHECK(fact8.name() == "handempty");
+	REQUIRE(fact8.arguments().size() == 0u);
 
 	// Goal
 	const auto &goal = dynamic_cast<const expressions::And &>(problem.goal());
 
-	ASSERT_EQ(goal.arguments().size(), 3u);
+	REQUIRE(goal.arguments().size() == 3u);
 	const auto &goal0 = dynamic_cast<const expressions::Predicate &>(*goal.arguments()[0]);
-	ASSERT_EQ(goal0.name(), "on");
-	ASSERT_EQ(goal0.arguments().size(), 2u);
+	CHECK(goal0.name() == "on");
+	REQUIRE(goal0.arguments().size() == 2u);
 	const auto &goal00 = dynamic_cast<const expressions::Constant &>(*goal0.arguments()[0]);
-	ASSERT_EQ(goal00.name(), "d");
+	CHECK(goal00.name() == "d");
 	const auto &goal01 = dynamic_cast<const expressions::Constant &>(*goal0.arguments()[1]);
-	ASSERT_EQ(goal01.name(), "c");
+	CHECK(goal01.name() == "c");
 	const auto &goal2 = dynamic_cast<const expressions::Predicate &>(*goal.arguments()[2]);
-	ASSERT_EQ(goal2.name(), "on");
-	ASSERT_EQ(goal2.arguments().size(), 2u);
+	CHECK(goal2.name() == "on");
+	REQUIRE(goal2.arguments().size() == 2u);
 	const auto &goal20 = dynamic_cast<const expressions::Constant &>(*goal2.arguments()[0]);
-	ASSERT_EQ(goal20.name(), "b");
+	CHECK(goal20.name() == "b");
 	const auto &goal21 = dynamic_cast<const expressions::Constant &>(*goal2.arguments()[1]);
-	ASSERT_EQ(goal21.name(), "a");
+	CHECK(goal21.name() == "a");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLParserTests, ParseStorageDomain)
+TEST_CASE("[PDDL parser] The Storage domain is parsed correctly", "[PDDL parser]")
 {
-	const auto description = plasp::pddl::Description::fromFile("data/storage-domain.pddl");
+	plasp::output::Logger logger;
+	Context context(Parser(), logger);
 
-	ASSERT_NO_THROW(description.domain());
+	const auto description = plasp::pddl::Description::fromFile("data/storage-domain.pddl", context);
+
+	REQUIRE_NOTHROW(description.domain());
 
 	const auto &domain = description.domain();
 
 	// Name
-	ASSERT_EQ(domain.name(), "storage-propositional");
+	CHECK(domain.name() == "storage-propositional");
 
 	// Requirements
-	ASSERT_EQ(domain.requirements().size(), 1u);
-	ASSERT_EQ(domain.requirements()[0].type(), Requirement::Type::Typing);
+	REQUIRE(domain.requirements().size() == 1u);
+	CHECK(domain.requirements()[0].type() == Requirement::Type::Typing);
 
 	// Types
-	ASSERT_EQ(domain.types().size(), 10u);
+	REQUIRE(domain.types().size() == 10u);
 
 	const auto &hoist = *domain.types()[0];
 	const auto &surface = *domain.types()[1];
@@ -184,140 +193,146 @@ TEST(PDDLParserTests, ParseStorageDomain)
 	const auto &crate = *domain.types()[9];
 
 	const auto &hoistParents = hoist.parentTypes();
-	ASSERT_EQ(hoistParents.size(), 1u);
-	ASSERT_TRUE(std::find(hoistParents.cbegin(), hoistParents.cend(), &object) != hoistParents.cend());
+	REQUIRE(hoistParents.size() == 1u);
+	CHECK(std::find(hoistParents.cbegin(), hoistParents.cend(), &object) != hoistParents.cend());
 
 	const auto &areaParents = area.parentTypes();
-	ASSERT_EQ(areaParents.size(), 2u);
-	ASSERT_TRUE(std::find(areaParents.cbegin(), areaParents.cend(), &object) != areaParents.cend());
-	ASSERT_TRUE(std::find(areaParents.cbegin(), areaParents.cend(), &surface) != areaParents.cend());
+	REQUIRE(areaParents.size() == 2u);
+	CHECK(std::find(areaParents.cbegin(), areaParents.cend(), &object) != areaParents.cend());
+	CHECK(std::find(areaParents.cbegin(), areaParents.cend(), &surface) != areaParents.cend());
 
 	// Predicates
-	ASSERT_EQ(domain.predicates().size(), 8u);
+	REQUIRE(domain.predicates().size() == 8u);
 
 	const auto &on = *domain.predicates()[5];
 
-	ASSERT_EQ(on.name(), "on");
-	ASSERT_EQ(on.arguments().size(), 2u);
-	ASSERT_EQ(on.arguments()[0]->name(), "c");
+	CHECK(on.name() == "on");
+	REQUIRE(on.arguments().size() == 2u);
+	CHECK(on.arguments()[0]->name() == "c");
 	const auto &onArgument0Type = dynamic_cast<const expressions::PrimitiveType &>(*on.arguments()[0]->type());
-	ASSERT_EQ(&onArgument0Type, &crate);
-	ASSERT_EQ(on.arguments()[1]->name(), "s");
+	CHECK(&onArgument0Type == &crate);
+	CHECK(on.arguments()[1]->name() == "s");
 	const auto &onArgument1Type = dynamic_cast<const expressions::PrimitiveType &>(*on.arguments()[1]->type());
-	ASSERT_EQ(&onArgument1Type, &storearea);
+	CHECK(&onArgument1Type == &storearea);
 
 	const auto &in = *domain.predicates()[1];
-	ASSERT_EQ(in.name(), "in");
-	ASSERT_EQ(in.arguments().size(), 2u);
-	ASSERT_EQ(in.arguments()[0]->name(), "x");
+	CHECK(in.name() == "in");
+	REQUIRE(in.arguments().size() == 2u);
+	CHECK(in.arguments()[0]->name() == "x");
 	const auto &inArgument0Type = dynamic_cast<const expressions::Either &>(*in.arguments()[0]->type());
-	ASSERT_EQ(inArgument0Type.arguments().size(), 2u);
+	REQUIRE(inArgument0Type.arguments().size() == 2u);
 	const auto &inArgument0Type0 = dynamic_cast<const expressions::PrimitiveType &>(*inArgument0Type.arguments()[0]);
-	ASSERT_EQ(&inArgument0Type0, &storearea);
+	CHECK(&inArgument0Type0 == &storearea);
 	const auto &inArgument0Type1 = dynamic_cast<const expressions::PrimitiveType &>(*inArgument0Type.arguments()[1]);
-	ASSERT_EQ(&inArgument0Type1, &crate);
+	CHECK(&inArgument0Type1 == &crate);
 
 	// Actions
-	ASSERT_EQ(domain.actions().size(), 5u);
+	REQUIRE(domain.actions().size() == 5u);
 
 	const auto &drop = *domain.actions()[1];
 
-	ASSERT_EQ(drop.name(), "drop");
-	ASSERT_EQ(drop.parameters().size(), 5u);
-	ASSERT_EQ(drop.parameters()[3]->name(), "a2");
-	ASSERT_EQ(drop.parameters()[3]->type(), &area);
+	CHECK(drop.name() == "drop");
+	REQUIRE(drop.parameters().size() == 5u);
+	CHECK(drop.parameters()[3]->name() == "a2");
+	CHECK(drop.parameters()[3]->type() == &area);
 
 	const auto &dropPre = dynamic_cast<const expressions::And &>(*drop.precondition());
-	ASSERT_EQ(dropPre.arguments().size(), 5u);
+	REQUIRE(dropPre.arguments().size() == 5u);
 	const auto &dropPre2 = dynamic_cast<const expressions::Predicate &>(*dropPre.arguments()[2]);
-	ASSERT_EQ(dropPre2.name(), "lifting");
-	ASSERT_EQ(dropPre2.arguments().size(), 2u);
+	CHECK(dropPre2.name() == "lifting");
+	REQUIRE(dropPre2.arguments().size() == 2u);
 	const auto &dropPre21 = dynamic_cast<const expressions::Variable &>(*dropPre2.arguments()[1]);
-	ASSERT_EQ(dropPre21.name(), "c");
-	ASSERT_EQ(dropPre21.type(), &crate);
+	CHECK(dropPre21.name() == "c");
+	CHECK(dropPre21.type() == &crate);
 
 	const auto &dropEff = dynamic_cast<const expressions::And &>(*drop.effect());
-	ASSERT_EQ(dropEff.arguments().size(), 5u);
+	REQUIRE(dropEff.arguments().size() == 5u);
 	const auto &dropEff2 = dynamic_cast<const expressions::Not &>(*dropEff.arguments()[2]);
 	const auto &dropEff20 = dynamic_cast<const expressions::Predicate &>(*dropEff2.argument());
-	ASSERT_EQ(dropEff20.name(), "clear");
-	ASSERT_EQ(dropEff20.arguments().size(), 1u);
+	CHECK(dropEff20.name() == "clear");
+	REQUIRE(dropEff20.arguments().size() == 1u);
 	const auto &dropEff200 = dynamic_cast<const expressions::Variable &>(*dropEff20.arguments()[0]);
-	ASSERT_EQ(dropEff200.name(), "a1");
-	ASSERT_EQ(dropEff200.type(), &storearea);
+	CHECK(dropEff200.name() == "a1");
+	CHECK(dropEff200.type() == &storearea);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLParserTests, ParseStorageProblem)
+TEST_CASE("[PDDL parser] A Storage problem is parsed correctly", "[PDDL parser]")
 {
-	const auto description = Description::fromFiles({"data/storage-domain.pddl", "data/storage-problem.pddl"});
+	plasp::output::Logger logger;
+	Context context(Parser(), logger);
 
-	ASSERT_NO_THROW(description.problem());
+	const auto description = Description::fromFiles({"data/storage-domain.pddl", "data/storage-problem.pddl"}, context);
+
+	REQUIRE_NOTHROW(description.problem());
 
 	const auto &problem = description.problem();
 
 	// Name
-	ASSERT_EQ(problem.name(), "storage-1");
-	ASSERT_EQ(problem.domain().name(), "storage-propositional");
+	CHECK(problem.name() == "storage-1");
+	CHECK(problem.domain().name() == "storage-propositional");
 
 	// Requirements
 	// TODO: compute domain vs. problem requirements correctly and check them
 
 	// Objects
-	ASSERT_EQ(problem.objects().size(), 7u);
+	REQUIRE(problem.objects().size() == 7u);
 
-	ASSERT_EQ(problem.objects()[0]->name(), "depot0-1-1");
-	ASSERT_NE(problem.objects()[0]->type(), nullptr);
-	ASSERT_EQ(problem.objects()[0]->type()->name(), "storearea");
-	ASSERT_EQ(problem.objects()[6]->name(), "loadarea");
-	ASSERT_NE(problem.objects()[6]->type(), nullptr);
-	ASSERT_EQ(problem.objects()[6]->type()->name(), "transitarea");
+	CHECK(problem.objects()[0]->name() == "depot0-1-1");
+	REQUIRE(problem.objects()[0]->type() != nullptr);
+	CHECK(problem.objects()[0]->type()->name() == "storearea");
+	CHECK(problem.objects()[6]->name() == "loadarea");
+	REQUIRE(problem.objects()[6]->type() != nullptr);
+	CHECK(problem.objects()[6]->type()->name() == "transitarea");
 
 	// Initial State
 	const auto &facts = problem.initialState().facts();
 
-	ASSERT_EQ(facts.size(), 10u);
+	REQUIRE(facts.size() == 10u);
 	const auto &fact0 = dynamic_cast<const expressions::Predicate &>(*facts[0].get());
-	ASSERT_EQ(fact0.name(), "in");
-	ASSERT_EQ(fact0.arguments().size(), 2u);
+	CHECK(fact0.name() == "in");
+	REQUIRE(fact0.arguments().size() == 2u);
 	const auto &fact01 = dynamic_cast<const expressions::Constant &>(*fact0.arguments()[1]);
-	ASSERT_EQ(fact01.name(), "depot0");
-	ASSERT_NE(fact01.type(), nullptr);
-	ASSERT_EQ(fact01.type()->name(), "depot");
+	CHECK(fact01.name() == "depot0");
+	REQUIRE(fact01.type() != nullptr);
+	CHECK(fact01.type()->name() == "depot");
 	const auto &fact9 = dynamic_cast<const expressions::Predicate &>(*facts[9].get());
-	ASSERT_EQ(fact9.name(), "available");
-	ASSERT_EQ(fact9.arguments().size(), 1u);
+	CHECK(fact9.name() == "available");
+	REQUIRE(fact9.arguments().size() == 1u);
 	const auto &fact90 = dynamic_cast<const expressions::Constant &>(*fact9.arguments()[0]);
-	ASSERT_EQ(fact90.name(), "hoist0");
-	ASSERT_NE(fact90.type(), nullptr);
-	ASSERT_EQ(fact90.type()->name(), "hoist");
+	CHECK(fact90.name() == "hoist0");
+	REQUIRE(fact90.type() != nullptr);
+	CHECK(fact90.type()->name() == "hoist");
 
 	// Goal
 	const auto &goal = dynamic_cast<const expressions::And &>(problem.goal());
 
-	ASSERT_EQ(goal.arguments().size(), 1u);
+	REQUIRE(goal.arguments().size() == 1u);
 	const auto &goal0 = dynamic_cast<const expressions::Predicate &>(*goal.arguments()[0]);
-	ASSERT_EQ(goal0.name(), "in");
-	ASSERT_EQ(goal0.arguments().size(), 2u);
+	CHECK(goal0.name() == "in");
+	REQUIRE(goal0.arguments().size() == 2u);
 	const auto &goal00 = dynamic_cast<const expressions::Constant &>(*goal0.arguments()[0]);
-	ASSERT_EQ(goal00.name(), "crate0");
+	CHECK(goal00.name() == "crate0");
 	const auto &goal01 = dynamic_cast<const expressions::Constant &>(*goal0.arguments()[1]);
-	ASSERT_EQ(goal01.name(), "depot0");
+	CHECK(goal01.name() == "depot0");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLParserTests, ParseConstants)
+TEST_CASE("[PDDL parser] Constants are parsed correctly", "[PDDL parser]")
 {
-	const auto description = Description::fromFile("data/woodworking-domain.pddl");
+	plasp::output::Logger logger;
+	Context context(Parser(), logger);
 
-	ASSERT_NO_THROW(description.domain());
+	const auto description = Description::fromFile("data/woodworking-domain.pddl", context);
+
+	REQUIRE_NOTHROW(description.domain());
 
 	const auto &domain = description.domain();
 
 	// Name
-	ASSERT_EQ(domain.name(), "woodworking");
+	CHECK(domain.name() == "woodworking");
 
 	// Types
 	const auto &acolour = *domain.types()[0];
@@ -325,82 +340,193 @@ TEST(PDDLParserTests, ParseConstants)
 	const auto &treatmentstatus = *domain.types()[5];
 
 	// Constants
-	ASSERT_EQ(domain.constants().size(), 8u);
-	ASSERT_EQ(domain.constants()[0]->type(), &surface);
-	ASSERT_EQ(domain.constants()[2]->type(), &surface);
-	ASSERT_EQ(domain.constants()[3]->type(), &treatmentstatus);
-	ASSERT_EQ(domain.constants()[6]->type(), &treatmentstatus);
-	ASSERT_EQ(domain.constants()[7]->type(), &acolour);
+	REQUIRE(domain.constants().size() == 8u);
+	CHECK(domain.constants()[0]->type() == &surface);
+	CHECK(domain.constants()[2]->type() == &surface);
+	CHECK(domain.constants()[3]->type() == &treatmentstatus);
+	CHECK(domain.constants()[6]->type() == &treatmentstatus);
+	CHECK(domain.constants()[7]->type() == &acolour);
 
 	// TODO: add test with constants in predicates
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLParserTests, ParseWithWhiteSpace)
+TEST_CASE("[PDDL parser] White spaces are ignored", "[PDDL parser]")
 {
-	ASSERT_NO_THROW(Description::fromFile("data/white-space-test.pddl"));
+	plasp::output::Logger logger;
+	Context context(Parser(), logger);
+
+	CHECK_NOTHROW(Description::fromFile("data/white-space-test.pddl", context));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLParserTests, DetectWrongDomain)
+TEST_CASE("[PDDL parser] Missing or unmatching domain descriptions are detected", "[PDDL parser]")
 {
-	ASSERT_THROW(Description::fromFile("data/blocksworld-problem.pddl"), ConsistencyException);
-	ASSERT_THROW(Description::fromFiles({"data/blocksworld-problem.pddl", "data/storage-domain.pddl"}), plasp::utils::ParserException);
+	plasp::output::Logger logger;
+	Context context(Parser(), logger);
+
+	SECTION("")
+	{
+		CHECK_THROWS_AS(Description::fromFile("data/blocksworld-problem.pddl", context), ConsistencyException);
+	}
+	SECTION("")
+	{
+		CHECK_THROWS_AS(Description::fromFiles({"data/blocksworld-problem.pddl", "data/storage-domain.pddl"}, context), plasp::input::ParserException);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLParserTests, DetectSyntaxErrors)
+TEST_CASE("[PDDL parser] Common PDDL syntax errors are detected", "[PDDL parser]")
 {
-	ASSERT_NO_THROW(Description::fromFile("data/pddl-syntax/domain-valid.pddl"));
+	plasp::output::Logger logger;
+	Context context(Parser(), logger);
 
-	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-expressions-1.pddl"));
-	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-expressions-2.pddl"));
-	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-expressions-3.pddl"));
+	SECTION("")
+	{
+		CHECK_NOTHROW(Description::fromFile("data/pddl-syntax/domain-valid.pddl", context));
+	}
 
-	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-expression-name-1.pddl"));
-	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-expression-name-2.pddl"));
-	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-expression-name-3.pddl"));
+	SECTION("")
+	{
+		CHECK_THROWS(Description::fromFile("data/pddl-syntax/domain-expressions-1.pddl", context));
+	}
+	SECTION("")
+	{
+		CHECK_THROWS(Description::fromFile("data/pddl-syntax/domain-expressions-2.pddl", context));
+	}
+	SECTION("")
+	{
+		CHECK_THROWS(Description::fromFile("data/pddl-syntax/domain-expressions-3.pddl", context));
+	}
 
-	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-parentheses-1.pddl"));
-	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-parentheses-2.pddl"));
-	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-parentheses-3.pddl"));
-	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-parentheses-4.pddl"));
-	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-parentheses-5.pddl"));
-	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-parentheses-6.pddl"));
-	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-parentheses-7.pddl"));
-	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-parentheses-8.pddl"));
+	SECTION("")
+	{
+		CHECK_THROWS(Description::fromFile("data/pddl-syntax/domain-expression-name-1.pddl", context));
+	}
+	SECTION("")
+	{
+		CHECK_THROWS(Description::fromFile("data/pddl-syntax/domain-expression-name-2.pddl", context));
+	}
+	SECTION("")
+	{
+		CHECK_THROWS(Description::fromFile("data/pddl-syntax/domain-expression-name-3.pddl", context));
+	}
 
-	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-section-name-1.pddl"));
-	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-section-name-2.pddl"));
-	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-section-name-3.pddl"));
-	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-section-name-4.pddl"));
-	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-section-name-5.pddl"));
-	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-section-name-6.pddl"));
-	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-section-name-7.pddl"));
+	SECTION("")
+	{
+		CHECK_THROWS(Description::fromFile("data/pddl-syntax/domain-parentheses-1.pddl", context));
+	}
+	SECTION("")
+	{
+		CHECK_THROWS(Description::fromFile("data/pddl-syntax/domain-parentheses-2.pddl", context));
+	}
+	SECTION("")
+	{
+		CHECK_THROWS(Description::fromFile("data/pddl-syntax/domain-parentheses-3.pddl", context));
+	}
+	SECTION("")
+	{
+		CHECK_THROWS(Description::fromFile("data/pddl-syntax/domain-parentheses-4.pddl", context));
+	}
+	SECTION("")
+	{
+		CHECK_THROWS(Description::fromFile("data/pddl-syntax/domain-parentheses-5.pddl", context));
+	}
+	SECTION("")
+	{
+		CHECK_THROWS(Description::fromFile("data/pddl-syntax/domain-parentheses-6.pddl", context));
+	}
+	SECTION("")
+	{
+		CHECK_THROWS(Description::fromFile("data/pddl-syntax/domain-parentheses-7.pddl", context));
+	}
+	SECTION("")
+	{
+		CHECK_THROWS(Description::fromFile("data/pddl-syntax/domain-parentheses-8.pddl", context));
+	}
 
-	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-types-1.pddl"));
-	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-types-2.pddl"));
-	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-types-3.pddl"));
-	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-types-4.pddl"));
+	SECTION("")
+	{
+		CHECK_THROWS(Description::fromFile("data/pddl-syntax/domain-section-name-1.pddl", context));
+	}
+	SECTION("")
+	{
+		CHECK_THROWS(Description::fromFile("data/pddl-syntax/domain-section-name-2.pddl", context));
+	}
+	SECTION("")
+	{
+		CHECK_THROWS(Description::fromFile("data/pddl-syntax/domain-section-name-3.pddl", context));
+	}
+	SECTION("")
+	{
+		CHECK_THROWS(Description::fromFile("data/pddl-syntax/domain-section-name-4.pddl", context));
+	}
+	SECTION("")
+	{
+		CHECK_THROWS(Description::fromFile("data/pddl-syntax/domain-section-name-5.pddl", context));
+	}
+	SECTION("")
+	{
+		CHECK_THROWS(Description::fromFile("data/pddl-syntax/domain-section-name-6.pddl", context));
+	}
+	SECTION("")
+	{
+		CHECK_THROWS(Description::fromFile("data/pddl-syntax/domain-section-name-7.pddl", context));
+	}
 
-	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-variables-1.pddl"));
-	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-variables-2.pddl"));
-	ASSERT_ANY_THROW(Description::fromFile("data/pddl-syntax/domain-variables-3.pddl"));
+	SECTION("")
+	{
+		CHECK_THROWS(Description::fromFile("data/pddl-syntax/domain-types-1.pddl", context));
+	}
+	SECTION("")
+	{
+		CHECK_THROWS(Description::fromFile("data/pddl-syntax/domain-types-2.pddl", context));
+	}
+	SECTION("")
+	{
+		CHECK_THROWS(Description::fromFile("data/pddl-syntax/domain-types-3.pddl", context));
+	}
+	SECTION("")
+	{
+		CHECK_THROWS(Description::fromFile("data/pddl-syntax/domain-types-4.pddl", context));
+	}
+
+	SECTION("")
+	{
+		CHECK_THROWS(Description::fromFile("data/pddl-syntax/domain-variables-1.pddl", context));
+	}
+	SECTION("")
+	{
+		CHECK_THROWS(Description::fromFile("data/pddl-syntax/domain-variables-2.pddl", context));
+	}
+	SECTION("")
+	{
+		CHECK_THROWS(Description::fromFile("data/pddl-syntax/domain-variables-3.pddl", context));
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLParserTests, CheckIssues)
+TEST_CASE("[PDDL parser] Former issues are fixed", "[PDDL parser]")
 {
-	// Check white space issues with constants and parsing unsupported sections
-	ASSERT_NO_THROW(Description::fromFile("data/issues/issue-1.pddl"));
+	plasp::output::Logger logger;
+	Context context(Parser(), logger);
 
-	// Check white space issues with empty n-ary predicates
-	ASSERT_NO_THROW(Description::fromFile("data/issues/issue-2.pddl"));
+	SECTION("white space issues with constants and parsing unsupported sections")
+	{
+		CHECK_NOTHROW(Description::fromFile("data/issues/issue-1.pddl", context));
+	}
 
-	// Check that comments are correctly ignored
-	ASSERT_NO_THROW(Description::fromFile("data/issues/issue-3.pddl"));
+	SECTION("white space issues with empty n-ary predicates")
+	{
+		CHECK_NOTHROW(Description::fromFile("data/issues/issue-2.pddl", context));
+	}
+
+	SECTION("comments are correctly ignored")
+	{
+		CHECK_NOTHROW(Description::fromFile("data/issues/issue-3.pddl", context));
+	}
 }

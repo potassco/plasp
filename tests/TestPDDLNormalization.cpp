@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include <catch.hpp>
 
 #include <plasp/pddl/expressions/And.h>
 #include <plasp/pddl/expressions/Dummy.h>
@@ -13,7 +13,7 @@ using namespace plasp::pddl;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLNormalizationTests, Reduce)
+TEST_CASE("[PDDL normalization] PDDL expressions are correctly reduced", "[PDDL normalization]")
 {
 	auto n1 = expressions::NotPointer(new expressions::Not);
 	auto n2 = expressions::NotPointer(new expressions::Not);
@@ -36,12 +36,12 @@ TEST(PDDLNormalizationTests, Reduce)
 	std::stringstream output;
 	n1->reduced()->print(output);
 
-	ASSERT_EQ(output.str(), "(not (not (and (or (or (not (a)) (b)) (c)) (d))))");
+	CHECK(output.str() == "(not (not (and (or (or (not (a)) (b)) (c)) (d))))");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLNormalizationTests, Simplify)
+TEST_CASE("[PDDL normalization] PDDL expressions are correctly simplified", "[PDDL normalization]")
 {
 	auto a1 = expressions::AndPointer(new expressions::And);
 	auto a2 = expressions::AndPointer(new expressions::And);
@@ -66,12 +66,12 @@ TEST(PDDLNormalizationTests, Simplify)
 	std::stringstream output;
 	a1->simplified()->print(output);
 
-	ASSERT_EQ(output.str(), "(and (a) (b) (c) (d) (or (e) (f) (g) (h)))");
+	CHECK(output.str() == "(and (a) (b) (c) (d) (or (e) (f) (g) (h)))");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLNormalizationTests, Implication)
+TEST_CASE("[PDDL normalization] Implications are correctly replaced", "[PDDL normalization]")
 {
 	auto i = expressions::ImplyPointer(new expressions::Imply);
 
@@ -81,12 +81,12 @@ TEST(PDDLNormalizationTests, Implication)
 	std::stringstream output;
 	i->normalized()->print(output);
 
-	ASSERT_EQ(output.str(), "(or (not (a)) (b))");
+	CHECK(output.str() == "(or (not (a)) (b))");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLNormalizationTests, DoubleNegation)
+TEST_CASE("[PDDL normalization] Double negations are correctly replaced", "[PDDL normalization]")
 {
 	auto n1 = expressions::NotPointer(new expressions::Not);
 	auto n2 = expressions::NotPointer(new expressions::Not);
@@ -97,12 +97,12 @@ TEST(PDDLNormalizationTests, DoubleNegation)
 	std::stringstream output;
 	n1->normalized()->print(output);
 
-	ASSERT_EQ(output.str(), "(a)");
+	CHECK(output.str() == "(a)");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLNormalizationTests, DeMorganNegativeConjunction)
+TEST_CASE("[PDDL normalization] De Morgan’s rule is correctly applied to negative conjunctions", "[PDDL normalization]")
 {
 	auto a = expressions::AndPointer(new expressions::And);
 	a->addArgument(new expressions::Dummy("a"));
@@ -115,12 +115,12 @@ TEST(PDDLNormalizationTests, DeMorganNegativeConjunction)
 	std::stringstream output;
 	n->normalized()->print(output);
 
-	ASSERT_EQ(output.str(), "(or (not (a)) (not (b)) (not (c)))");
+	CHECK(output.str() == "(or (not (a)) (not (b)) (not (c)))");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLNormalizationTests, DeMorganNegativeDisjunction)
+TEST_CASE("[PDDL normalization] De Morgan’s rule is correctly applied to negative disjunctions", "[PDDL normalization]")
 {
 	auto a = expressions::OrPointer(new expressions::Or);
 	a->addArgument(new expressions::Dummy("a"));
@@ -133,12 +133,12 @@ TEST(PDDLNormalizationTests, DeMorganNegativeDisjunction)
 	std::stringstream output;
 	n->normalized()->print(output);
 
-	ASSERT_EQ(output.str(), "(and (not (a)) (not (b)) (not (c)))");
+	CHECK(output.str() == "(and (not (a)) (not (b)) (not (c)))");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLNormalizationTests, DoubleNegationInner)
+TEST_CASE("[PDDL normalization] Expressions inside double negations are also normalized", "[PDDL normalization]")
 {
 	auto n1 = expressions::NotPointer(new expressions::Not);
 	auto n2 = expressions::NotPointer(new expressions::Not);
@@ -156,12 +156,12 @@ TEST(PDDLNormalizationTests, DoubleNegationInner)
 	std::stringstream output;
 	n1->normalized()->print(output);
 
-	ASSERT_EQ(output.str(), "(or (not (a)) (not (b)) (not (c)))");
+	CHECK(output.str() == "(or (not (a)) (not (b)) (not (c)))");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLNormalizationTests, SimplifyNestedForAll)
+TEST_CASE("[PDDL normalization] Nested “for all” expressions are correctly simplified", "[PDDL normalization]")
 {
 	auto v1 = expressions::VariablePointer(new expressions::Variable("x"));
 	auto v2 = expressions::VariablePointer(new expressions::Variable("y"));
@@ -182,12 +182,12 @@ TEST(PDDLNormalizationTests, SimplifyNestedForAll)
 	std::stringstream output;
 	f1->normalized()->print(output);
 
-	ASSERT_EQ(output.str(), "(forall (?x ?y ?z ?u ?v ?w) (a))");
+	CHECK(output.str() == "(forall (?x ?y ?z ?u ?v ?w) (a))");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLNormalizationTests, SimplifyNestedExists)
+TEST_CASE("[PDDL normalization] Nested “exists” expressions are correctly simplified", "[PDDL normalization]")
 {
 	auto v1 = expressions::VariablePointer(new expressions::Variable("x"));
 	auto v2 = expressions::VariablePointer(new expressions::Variable("y"));
@@ -208,12 +208,12 @@ TEST(PDDLNormalizationTests, SimplifyNestedExists)
 	std::stringstream output;
 	e1->normalized()->print(output);
 
-	ASSERT_EQ(output.str(), "(exists (?x ?y ?z ?u ?v ?w) (a))");
+	CHECK(output.str() == "(exists (?x ?y ?z ?u ?v ?w) (a))");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLNormalizationTests, Prenex)
+TEST_CASE("[PDDL normalization] Prenex normal form is correctly established", "[PDDL normalization]")
 {
 	auto a = expressions::AndPointer(new expressions::And);
 	auto f1 = expressions::ForAllPointer(new expressions::ForAll);
@@ -238,26 +238,28 @@ TEST(PDDLNormalizationTests, Prenex)
 
 	auto normalized = a->reduced()->negationNormalized()->prenex();
 
+	SECTION("normalized")
 	{
 		std::stringstream output;
 		normalized->print(output);
 
-		ASSERT_EQ(output.str(), "(forall (?x) (forall (?y) (exists (?z) (and (a) (or (b) (c))))))");
+		CHECK(output.str() == "(forall (?x) (forall (?y) (exists (?z) (and (a) (or (b) (c))))))");
 	}
 
-	normalized = normalized->simplified();
-
+	SECTION("simplified")
 	{
+		normalized = normalized->simplified();
+
 		std::stringstream output;
 		normalized->print(output);
 
-		ASSERT_EQ(output.str(), "(forall (?x ?y) (exists (?z) (and (a) (or (b) (c)))))");
+		CHECK(output.str() == "(forall (?x ?y) (exists (?z) (and (a) (or (b) (c)))))");
 	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLNormalizationTests, PrenexGroupSameType)
+TEST_CASE("[PDDL normalization] Same-type first-order expressions are correctly grouped in prenex normal form", "[PDDL normalization]")
 {
 	auto f1 = expressions::ForAllPointer(new expressions::ForAll);
 	auto f2 = expressions::ForAllPointer(new expressions::ForAll);
@@ -300,12 +302,12 @@ TEST(PDDLNormalizationTests, PrenexGroupSameType)
 	std::stringstream output;
 	normalized->print(output);
 
-	ASSERT_EQ(output.str(), "(forall (?v1 ?v2 ?v6 ?v7) (exists (?v3 ?v8) (forall (?v4 ?v9) (exists (?v5) (and (a) (b))))))");
+	CHECK(output.str() == "(forall (?v1 ?v2 ?v6 ?v7) (exists (?v3 ?v8) (forall (?v4 ?v9) (exists (?v5) (and (a) (b))))))");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLNormalizationTests, DisjunctiveNormalForm)
+TEST_CASE("[PDDL normalization] Disjunctive normal form is correctly established", "[PDDL normalization]")
 {
 	auto f = expressions::ForAllPointer(new expressions::ForAll);
 	auto e = expressions::ExistsPointer(new expressions::Exists);
@@ -340,7 +342,7 @@ TEST(PDDLNormalizationTests, DisjunctiveNormalForm)
 	std::stringstream output;
 	normalized->print(output);
 
-	ASSERT_EQ(output.str(), "(forall (?v1) (exists (?v2) (or "
+	CHECK(output.str() == "(forall (?v1) (exists (?v2) (or "
 		"(and (a) (b) (c) (f)) "
 		"(h) "
 		"(and (a) (b) (d) (f)) "

@@ -3,8 +3,8 @@
 #include <algorithm>
 #include <iostream>
 
+#include <plasp/output/TranslatorException.h>
 #include <plasp/pddl/expressions/Or.h>
-#include <plasp/utils/TranslatorException.h>
 
 namespace plasp
 {
@@ -83,7 +83,7 @@ ExpressionPointer And::decomposed(DerivedPredicates &derivedPredicates)
 			if (argument->expressionType() != Expression::Type::Predicate)
 				return;
 
-			throw utils::TranslatorException("Expression is not in first-order negation normal form and cannot be decomposed");
+			throw output::TranslatorException("Expression is not in first-order negation normal form and cannot be decomposed");
 		});
 
 	return this;

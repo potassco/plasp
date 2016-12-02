@@ -7,13 +7,13 @@
 
 #include <boost/filesystem/path.hpp>
 
+#include <plasp/input/Parser.h>
 #include <plasp/sas/AxiomRule.h>
 #include <plasp/sas/Goal.h>
 #include <plasp/sas/InitialState.h>
 #include <plasp/sas/MutexGroup.h>
 #include <plasp/sas/Operator.h>
 #include <plasp/sas/Variable.h>
-#include <plasp/utils/Parser.h>
 
 namespace plasp
 {
@@ -29,7 +29,7 @@ namespace sas
 class Description
 {
 	public:
-		static Description fromParser(utils::Parser<> &&parser);
+		static Description fromParser(input::Parser<> &&parser);
 		static Description fromStream(std::istream &istream);
 		static Description fromFile(const boost::filesystem::path &path);
 
@@ -50,16 +50,16 @@ class Description
 	private:
 		Description();
 
-		void parseContent(utils::Parser<> &parser);
+		void parseContent(input::Parser<> &parser);
 
-		void parseVersionSection(utils::Parser<> &parser) const;
-		void parseMetricSection(utils::Parser<> &parser);
-		void parseVariablesSection(utils::Parser<> &parser);
-		void parseMutexSection(utils::Parser<> &parser);
-		void parseInitialStateSection(utils::Parser<> &parser);
-		void parseGoalSection(utils::Parser<> &parser);
-		void parseOperatorSection(utils::Parser<> &parser);
-		void parseAxiomSection(utils::Parser<> &parser);
+		void parseVersionSection(input::Parser<> &parser) const;
+		void parseMetricSection(input::Parser<> &parser);
+		void parseVariablesSection(input::Parser<> &parser);
+		void parseMutexSection(input::Parser<> &parser);
+		void parseInitialStateSection(input::Parser<> &parser);
+		void parseGoalSection(input::Parser<> &parser);
+		void parseOperatorSection(input::Parser<> &parser);
+		void parseAxiomSection(input::Parser<> &parser);
 
 		bool m_usesActionCosts;
 

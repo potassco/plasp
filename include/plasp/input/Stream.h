@@ -1,5 +1,5 @@
-#ifndef __PLASP__UTILS__STREAM_H
-#define __PLASP__UTILS__STREAM_H
+#ifndef __PLASP__INPUT__STREAM_H
+#define __PLASP__INPUT__STREAM_H
 
 #include <iostream>
 #include <iterator>
@@ -8,12 +8,11 @@
 
 #include <boost/filesystem.hpp>
 
-#include <plasp/utils/ParserException.h>
-#include <plasp/utils/StreamCoordinate.h>
+#include <plasp/input/Location.h>
 
 namespace plasp
 {
-namespace utils
+namespace input
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -62,7 +61,7 @@ class Stream
 		void reset();
 		void seek(Position position);
 		Position position() const;
-		StreamCoordinate coordinate() const;
+		Location location() const;
 
 		char currentCharacter() const;
 		void advance();

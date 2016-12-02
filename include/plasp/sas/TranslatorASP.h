@@ -1,8 +1,8 @@
 #ifndef __PLASP__SAS__TRANSLATOR_ASP_H
 #define __PLASP__SAS__TRANSLATOR_ASP_H
 
+#include <plasp/output/ColorStream.h>
 #include <plasp/sas/Description.h>
-#include <plasp/utils/LogStream.h>
 
 #include <iosfwd>
 
@@ -20,7 +20,7 @@ namespace sas
 class TranslatorASP
 {
 	public:
-		explicit TranslatorASP(const Description &description, utils::LogStream &outputStream);
+		explicit TranslatorASP(const Description &description, output::ColorStream &outputStream);
 
 		void translate() const;
 
@@ -34,7 +34,7 @@ class TranslatorASP
 		void translateAxiomRules() const;
 
 		const Description &m_description;
-		utils::LogStream &m_outputStream;
+		output::ColorStream &m_outputStream;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

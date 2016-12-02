@@ -1,5 +1,6 @@
 #include <plasp/pddl/InitialState.h>
 
+#include <plasp/input/ParserException.h>
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/ExpressionContext.h>
 #include <plasp/pddl/IO.h>
@@ -7,7 +8,6 @@
 #include <plasp/pddl/expressions/At.h>
 #include <plasp/pddl/expressions/Predicate.h>
 #include <plasp/pddl/expressions/Unsupported.h>
-#include <plasp/utils/ParserException.h>
 
 namespace plasp
 {
@@ -58,7 +58,7 @@ std::unique_ptr<InitialState> InitialState::parseDeclaration(Context &context,
 			const auto expressionIdentifier = parser.parseIdentifier();
 
 			parser.seek(position);
-			throw utils::ParserException(parser.coordinate(), "expression type “" + expressionIdentifier + "” unknown or not allowed in this context");
+			throw input::ParserException(parser.location(), "expression type “" + expressionIdentifier + "” unknown or not allowed in this context");
 		};
 
 	parser.skipWhiteSpace();

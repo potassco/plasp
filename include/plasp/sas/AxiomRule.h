@@ -3,9 +3,9 @@
 
 #include <vector>
 
+#include <plasp/input/Parser.h>
 #include <plasp/sas/AssignedVariable.h>
 #include <plasp/sas/Variable.h>
-#include <plasp/utils/Parser.h>
 
 namespace plasp
 {
@@ -29,7 +29,7 @@ class AxiomRule
 		using Condition = AssignedVariable;
 		using Conditions = AssignedVariables;
 
-		static AxiomRule fromSAS(utils::Parser<> &parser, const Variables &variables);
+		static AxiomRule fromSAS(input::Parser<> &parser, const Variables &variables);
 
 	public:
 		const Conditions &conditions() const;

@@ -1,4 +1,4 @@
-set(target plasp_app)
+set(target plasp-app)
 
 file(GLOB core_sources "*.cpp")
 file(GLOB core_headers "*.h")
@@ -20,4 +20,4 @@ set(libraries
 
 add_executable(${target} ${sources})
 target_link_libraries(${target} ${libraries})
-set_target_properties(plasp_app PROPERTIES OUTPUT_NAME plasp)
+set_target_properties(${target} PROPERTIES OUTPUT_NAME plasp)

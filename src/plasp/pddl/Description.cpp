@@ -5,9 +5,9 @@
 
 #include <boost/filesystem.hpp>
 
+#include <plasp/input/ParserException.h>
 #include <plasp/pddl/ConsistencyException.h>
 #include <plasp/pddl/IO.h>
-#include <plasp/utils/ParserException.h>
 
 namespace plasp
 {
@@ -20,8 +20,9 @@ namespace pddl
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Description::Description()
-:	m_domainPosition{-1},
+Description::Description(Context &context)
+:	m_context(context),
+	m_domainPosition{-1},
 	m_domain{std::make_unique<Domain>(Domain(m_context))},
 	m_problemPosition{-1}
 {
@@ -29,11 +30,10 @@ Description::Description()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Description Description::fromContext(Context &&context)
+Description Description::fromContext(Context &context)
 {
-	Description description;
+	Description description(context);
 
-	description.m_context = std::move(context);
 	description.parse();
 
 	return description;
@@ -41,9 +41,9 @@ Description Description::fromContext(Context &&context)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Description Description::fromStream(std::istream &istream)
+Description Description::fromStream(std::istream &istream, Context &context)
 {
-	Description description;
+	Description description(context);
 
 	description.m_context.parser.read("std::cin", istream);
 	description.parse();
@@ -53,9 +53,9 @@ Description Description::fromStream(std::istream &istream)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Description Description::fromFile(const std::string &path)
+Description Description::fromFile(const std::string &path, Context &context)
 {
-	Description description;
+	Description description(context);
 
 	description.m_context.parser.read(path);
 	description.parse();
@@ -65,11 +65,13 @@ Description Description::fromFile(const std::string &path)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Description Description::fromFiles(const std::vector<std::string> &paths)
+Description Description::fromFiles(const std::vector<std::string> &paths, Context &context)
 {
 	BOOST_ASSERT(!paths.empty());
 
-	Description description;
+	// TODO: handle dirty context objects (for instance, reused context objects in unit tests)
+
+	Description description(context);
 
 	std::for_each(paths.cbegin(), paths.cend(),
 		[&](const auto &path)
@@ -166,7 +168,7 @@ void Description::findSections()
 		if (parser.testAndSkip<std::string>("domain"))
 		{
 			if (m_domainPosition != -1)
-				throw utils::ParserException(parser.coordinate(), "PDDL description may not contain two domains");
+				throw input::ParserException(parser.location(), "PDDL description may not contain two domains");
 
 			m_domainPosition = position;
 
@@ -176,7 +178,7 @@ void Description::findSections()
 		else if (m_context.parser.testAndSkip<std::string>("problem"))
 		{
 			if (m_problemPosition != -1)
-				throw utils::ParserException(parser.coordinate(), "PDDL description may currently not contain two problems");
+				throw input::ParserException(parser.location(), "PDDL description may currently not contain two problems");
 
 			m_problem = std::make_unique<Problem>(Problem(m_context, *m_domain));
 
@@ -188,7 +190,7 @@ void Description::findSections()
 		else
 		{
 			const auto sectionIdentifier = parser.parse<std::string>();
-			throw utils::ParserException(parser.coordinate(), "unknown PDDL section “" + sectionIdentifier + "”");
+			throw input::ParserException(parser.location(), "unknown PDDL section “" + sectionIdentifier + "”");
 		}
 
 		m_context.parser.skipWhiteSpace();

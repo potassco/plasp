@@ -1,24 +1,29 @@
-#ifndef __PLASP__UTILS__STREAM_COORDINATE_H
-#define __PLASP__UTILS__STREAM_COORDINATE_H
+#ifndef __PLASP__INPUT__LOCATION_H
+#define __PLASP__INPUT__LOCATION_H
 
-#include <string>
+#include <cstdlib>
 
 namespace plasp
 {
-namespace utils
+namespace input
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// StreamCoordinate
+// Location
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct StreamCoordinate
+struct Location
 {
-	std::string sectionName;
-	size_t row;
-	size_t column;
+	const char *sectionStart = nullptr;
+	const char *sectionEnd = nullptr;
+
+	std::size_t rowStart = -1;
+	std::size_t rowEnd = -1;
+
+	std::size_t columnStart = -1;
+	std::size_t columnEnd = -1;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
