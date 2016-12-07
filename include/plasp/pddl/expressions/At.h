@@ -40,10 +40,10 @@ class At: public ExpressionCRTP<At>
 		ExpressionPointer argument() const;
 
 		ExpressionPointer reduced() override;
-		ExpressionPointer negationNormalized() override;
-		ExpressionPointer prenex(Expression::Type lastExpressionType) override;
+		ExpressionPointer existentiallyQuantified() override;
 		ExpressionPointer simplified() override;
-		ExpressionPointer disjunctionNormalized() override;
+
+		void collectParameters(std::set<VariablePointer> &parameters) override;
 
 		void print(std::ostream &ostream) const override;
 

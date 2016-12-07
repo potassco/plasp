@@ -39,6 +39,8 @@ class Variable: public ExpressionCRTP<Variable>
 		void setDirty(bool isDirty = true);
 		bool isDirty() const;
 
+		void collectParameters(std::set<VariablePointer> &parameters) override;
+
 		void print(std::ostream &ostream) const override;
 
 	private:

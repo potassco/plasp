@@ -62,91 +62,13 @@ ExpressionPointer Not::reduced()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ExpressionPointer Not::negationNormalized()
+ExpressionPointer Not::existentiallyQuantified()
 {
 	BOOST_ASSERT(m_argument);
 
-	// Remove immediate double negations
-	if (m_argument->expressionType() == Expression::Type::Not)
-	{
-		auto &argument = dynamic_cast<Not &>(*m_argument);
-
-		return argument.m_argument->negationNormalized();
-	}
-
-	// Normalize argument
-	m_argument = m_argument->negationNormalized();
-
-	// Remove double negations occurring after normalizing the argument
-	if (m_argument->expressionType() == Expression::Type::Not)
-	{
-		auto &argument = dynamic_cast<Not &>(*m_argument);
-
-		return argument.m_argument;
-	}
-
-	// De Morgan for negative conjunctions
-	if (m_argument->expressionType() == Expression::Type::And)
-	{
-		auto &andExpression = dynamic_cast<And &>(*m_argument);
-		auto orExpression = OrPointer(new Or);
-
-		orExpression->arguments().reserve(andExpression.arguments().size());
-
-		for (size_t i = 0; i < andExpression.arguments().size(); i++)
-			orExpression->addArgument(andExpression.arguments()[i]->negated());
-
-		return orExpression->negationNormalized();
-	}
-
-	// De Morgan for negative disjunctions
-	if (m_argument->expressionType() == Expression::Type::Or)
-	{
-		auto &orExpression = dynamic_cast<Or &>(*m_argument);
-		auto andExpression = AndPointer(new And);
-
-		andExpression->arguments().reserve(orExpression.arguments().size());
-
-		for (size_t i = 0; i < orExpression.arguments().size(); i++)
-			andExpression->addArgument(orExpression.arguments()[i]->negated());
-
-		return andExpression->negationNormalized();
-	}
-
-	// De Morgen for existential quantifiers
-	if (m_argument->expressionType() == Expression::Type::Exists)
-	{
-		auto &existsExpression = dynamic_cast<Exists &>(*m_argument);
-		auto forAllExpression = ForAllPointer(new ForAll);
-
-		forAllExpression->setArgument(existsExpression.argument()->negated());
-
-		return forAllExpression->negationNormalized();
-	}
-
-	// De Morgen for universal quantifiers
-	if (m_argument->expressionType() == Expression::Type::ForAll)
-	{
-		auto &forAllExpression = dynamic_cast<ForAll &>(*m_argument);
-		auto existsExpression = ExistsPointer(new Exists);
-
-		existsExpression->setArgument(forAllExpression.argument()->negated());
-
-		return existsExpression->negationNormalized();
-	}
+	m_argument = m_argument->existentiallyQuantified();
 
 	return this;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-ExpressionPointer Not::prenex(Expression::Type lastExpressionType)
-{
-	BOOST_ASSERT(m_argument);
-
-	m_argument = m_argument->prenex(lastExpressionType);
-
-	return Expression::moveUpQuantifiers(this, m_argument);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -157,18 +79,44 @@ ExpressionPointer Not::simplified()
 
 	m_argument = m_argument->simplified();
 
+	// Remove double negations
+	if (m_argument->expressionType() == Expression::Type::Not)
+	{
+		const auto &notExpression = dynamic_cast<expressions::Not &>(*m_argument);
+
+		return notExpression.argument();
+	}
+
 	return this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ExpressionPointer Not::disjunctionNormalized()
+void Not::collectParameters(std::set<VariablePointer> &parameters)
 {
-	BOOST_ASSERT(m_argument);
+	m_argument->collectParameters(parameters);
+}
 
-	m_argument = m_argument->disjunctionNormalized();
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	return this;
+ExpressionPointer Not::decomposed(DerivedPredicates &derivedPredicates)
+{
+	m_argument = m_argument->decomposed(derivedPredicates);
+
+	// Predicates and derived predicates can be directly negated
+	if (m_argument->expressionType() == Expression::Type::Predicate
+	    || m_argument->expressionType() == Expression::Type::DerivedPredicate)
+	{
+		return this;
+	}
+
+	derivedPredicates.emplace_back(new DerivedPredicate());
+	auto &derivedPredicate = derivedPredicates.back();
+
+	// Move this expression’s arguments to the derived predicate
+	derivedPredicate->setPreconditions({{this}});
+
+	return derivedPredicate;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -180,19 +128,6 @@ void Not::print(std::ostream &ostream) const
 	m_argument->print(ostream);
 
 	ostream << ")";
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-ExpressionPointer Not::decomposed(DerivedPredicates &)
-{
-	if (m_argument->expressionType() != Expression::Type::Not
-	    && m_argument->expressionType() != Expression::Type::Predicate)
-	{
-		throw output::TranslatorException("Expression is not in first-order negation normal form and cannot be decomposed");
-	}
-
-	return this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

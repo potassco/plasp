@@ -37,10 +37,10 @@ class NAry: public ExpressionCRTP<Derived>
 		const Expressions &arguments() const;
 
 		ExpressionPointer reduced() override;
-		ExpressionPointer negationNormalized() override;
-		ExpressionPointer prenex(Expression::Type lastExpressionType) override;
+		ExpressionPointer existentiallyQuantified() override;
 		ExpressionPointer simplified() override;
-		ExpressionPointer disjunctionNormalized() override;
+
+		void collectParameters(std::set<VariablePointer> &parameters) override;
 
 		void print(std::ostream &ostream) const override;
 
@@ -143,11 +143,11 @@ Expressions &NAry<Derived>::arguments()
 template<class Derived>
 inline ExpressionPointer NAry<Derived>::reduced()
 {
-	for (size_t i = 0; i < m_arguments.size(); i++)
+	for (auto &argument : m_arguments)
 	{
-		BOOST_ASSERT(m_arguments[i]);
+		BOOST_ASSERT(argument);
 
-		m_arguments[i] = m_arguments[i]->reduced();
+		argument = argument->reduced();
 	}
 
 	return this;
@@ -156,99 +156,15 @@ inline ExpressionPointer NAry<Derived>::reduced()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived>
-inline ExpressionPointer NAry<Derived>::negationNormalized()
+inline ExpressionPointer NAry<Derived>::existentiallyQuantified()
 {
-	for (size_t i = 0; i < m_arguments.size(); i++)
+	for (auto &argument : m_arguments)
 	{
-		BOOST_ASSERT(m_arguments[i]);
+		BOOST_ASSERT(argument);
 
-		m_arguments[i] = m_arguments[i]->negationNormalized();
+		argument = argument->existentiallyQuantified();
 	}
 
-	return this;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<class Derived>
-inline ExpressionPointer NAry<Derived>::prenex(Expression::Type lastExpressionType)
-{
-	// First, move all childrens’ quantifiers to the front
-	for (size_t i = 0; i < m_arguments.size(); i++)
-	{
-		BOOST_ASSERT(m_arguments[i]);
-
-		m_arguments[i] = m_arguments[i]->prenex(lastExpressionType);
-	}
-
-	// Next, move all children’s quantifiers up
-
-	const auto isQuantifier =
-		[](const auto &expression)
-		{
-			return expression->expressionType() == Expression::Type::Exists
-				|| expression->expressionType() == Expression::Type::ForAll;
-		};
-
-	QuantifiedPointer front = nullptr;
-	QuantifiedPointer back = nullptr;
-
-	const auto moveUpQuantifiers =
-		[&](auto &child, const auto expressionType)
-		{
-			BOOST_ASSERT(child);
-
-			bool changed = false;
-
-			while (isQuantifier(child)
-				&& child->expressionType() == expressionType)
-			{
-				// Decouple quantifier from tree and replace it with its child
-				auto expression = Expression::moveUpQuantifiers(nullptr, child);
-				auto quantifier = QuantifiedPointer(dynamic_cast<Quantified *>(expression.get()));
-
-				if (!front)
-					front = quantifier;
-				else
-					back->setArgument(quantifier);
-
-				back = quantifier;
-
-				changed = true;
-			}
-
-			return changed;
-		};
-
-	bool changed = true;
-	const auto otherExpressionType = (lastExpressionType == Expression::Type::Exists)
-		? Expression::Type::ForAll : Expression::Type::Exists;
-
-	// Group quantifiers of the same type when moving them up, starting with the parent quantifier’s type
-	while (changed)
-	{
-		changed = false;
-
-		// Group all quantifiers of the same type as the parent quantifier
-		for (size_t i = 0; i < m_arguments.size(); i++)
-			changed = moveUpQuantifiers(m_arguments[i], lastExpressionType) || changed;
-
-		// Group all other quantifiers
-		for (size_t i = 0; i < m_arguments.size(); i++)
-			changed = moveUpQuantifiers(m_arguments[i], otherExpressionType) || changed;
-	}
-
-	// If quantifiers were moved up, put this node back into the node hierarchy
-	if (front)
-	{
-		BOOST_ASSERT(back);
-
-		back->setArgument(this);
-
-		return front;
-	}
-
-	// If no quantifiers were moved up, simply return this node
 	return this;
 }
 
@@ -260,16 +176,16 @@ inline ExpressionPointer NAry<Derived>::simplified()
 	// Associate same-type children, such as (a && (b && c)) == (a && b && c)
 	for (size_t i = 0; i < m_arguments.size();)
 	{
-		m_arguments[i] = m_arguments[i]->simplified();
+		auto &argument = m_arguments[i];
+		argument = argument->simplified();
 
-		if (m_arguments[i]->expressionType() != Derived::ExpressionType)
+		if (argument->expressionType() != Derived::ExpressionType)
 		{
 			i++;
 			continue;
 		}
 
-		auto child = m_arguments[i];
-		auto &nAryExpression = dynamic_cast<Derived &>(*child);
+		auto &nAryExpression = dynamic_cast<Derived &>(*argument);
 
 		BOOST_ASSERT(!nAryExpression.arguments().empty());
 
@@ -292,16 +208,10 @@ inline ExpressionPointer NAry<Derived>::simplified()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived>
-inline ExpressionPointer NAry<Derived>::disjunctionNormalized()
+inline void NAry<Derived>::collectParameters(std::set<VariablePointer> &parameters)
 {
-	for (size_t i = 0; i < m_arguments.size(); i++)
-	{
-		BOOST_ASSERT(m_arguments[i]);
-
-		m_arguments[i] = m_arguments[i]->disjunctionNormalized();
-	}
-
-	return this;
+	for (const auto &argument : m_arguments)
+		argument->collectParameters(parameters);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -311,12 +221,11 @@ inline void NAry<Derived>::print(std::ostream &ostream) const
 {
 	ostream << "(" << Derived::Identifier;
 
-	std::for_each(m_arguments.begin(), m_arguments.end(),
-		[&](auto &argument)
-		{
-			ostream << " ";
-			argument->print(ostream);
-		});
+	for (const auto &argument : m_arguments)
+	{
+		ostream << " ";
+		argument->print(ostream);
+	}
 
 	ostream << ")";
 }

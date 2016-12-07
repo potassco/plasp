@@ -2,6 +2,7 @@
 #define __PLASP__PDDL__EXPRESSION_H
 
 #include <iosfwd>
+#include <set>
 
 #include <boost/intrusive_ptr.hpp>
 
@@ -131,14 +132,20 @@ class Expression
 
 		virtual ExpressionPointer copy();
 
+		// Transform into a normal form as used for the translation to ASP
 		ExpressionPointer normalized();
+		// Reduce the set of used expressions (eliminates implications, for instance)
 		virtual ExpressionPointer reduced();
-		virtual ExpressionPointer negationNormalized();
-		virtual ExpressionPointer prenex(Expression::Type lastQuantifierType = Expression::Type::Exists);
+		// Transform such that only existential (and no universal) quantifiers are used
+		virtual ExpressionPointer existentiallyQuantified();
+		// Simplify the expression equivalently
 		virtual ExpressionPointer simplified();
-		virtual ExpressionPointer disjunctionNormalized();
+		// Decompose expression into derived predicates (eliminate recursively nested expressions)
 		virtual ExpressionPointer decomposed(expressions::DerivedPredicates &derivedPredicates);
+		// Negate the expression
 		ExpressionPointer negated();
+
+		virtual void collectParameters(std::set<expressions::VariablePointer> &parameters);
 
 		virtual void print(std::ostream &ostream) const = 0;
 

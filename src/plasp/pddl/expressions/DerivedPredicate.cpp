@@ -16,39 +16,97 @@ namespace expressions
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-DerivedPredicate::DerivedPredicate(size_t id)
-:	m_id{id}
+void DerivedPredicate::setPreconditions(std::vector<Expressions> &&preconditions)
 {
+	m_preconditions = std::move(preconditions);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-size_t DerivedPredicate::id() const
+const std::vector<Expressions> &DerivedPredicate::preconditions() const
 {
-	return m_id;
+	return m_preconditions;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void DerivedPredicate::setArgument(ExpressionPointer argument)
+void DerivedPredicate::collectParameters()
 {
-	m_argument = argument;
+	for (const auto &conjunction : m_preconditions)
+		for (const auto &precondition : conjunction)
+			precondition->collectParameters(m_parameters);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ExpressionPointer DerivedPredicate::argument() const
+const std::set<VariablePointer> &DerivedPredicate::parameters() const
 {
-	return m_argument;
+	return m_parameters;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void DerivedPredicate::collectParameters(std::set<VariablePointer> &parameters)
+{
+	for (auto &conjunction : m_preconditions)
+		for (auto &precondition : conjunction)
+			precondition->collectParameters(m_parameters);
+
+	// Copy in order not to interfere with potentially bound variables in parent expressions
+	parameters = m_parameters;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void DerivedPredicate::print(std::ostream &ostream) const
 {
-	ostream << "(:derived <no name> ";
-	m_argument->print(ostream);
-	ostream << ")";
+	ostream << "(:derived <no name>";
+
+	BOOST_ASSERT(m_preconditions.size() > 0);
+
+	const auto printConjunction =
+		[&ostream](const auto &conjunction)
+		{
+			if (conjunction.size() == 0)
+			{
+				conjunction.front()->print(ostream);
+				return;
+			}
+
+			ostream << "(and";
+
+			for (const auto &precondition : conjunction)
+			{
+				ostream << " ";
+				precondition->print(ostream);
+			}
+
+			ostream << ")";
+		};
+
+	if (m_preconditions.size() == 1)
+	{
+		const auto &conjunction = m_preconditions.front();
+
+		BOOST_ASSERT(conjunction.size() > 0);
+
+		printConjunction(conjunction);
+
+		ostream << ")";
+
+		return;
+	}
+
+	ostream << " (or";
+
+	for (const auto conjunction : m_preconditions)
+	{
+		ostream << " ";
+
+		printConjunction(conjunction);
+	}
+
+	ostream << "))";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -27,17 +27,13 @@ class TranslatorASP
 		void translateDomain() const;
 		void translateTypes() const;
 		void translatePredicates() const;
+		void translateDerivedPredicates() const;
 		void translateActions() const;
 
 		void translateProblem() const;
 		void translateInitialState() const;
 		void translateGoal() const;
-
 		void translateConstants(const std::string &heading, const expressions::Constants &constants) const;
-		void translateVariablesHead(const expressions::Variables &variables) const;
-		void translateVariablesBody(const expressions::Variables &variables) const;
-		void translateLiteral(const Expression &literal) const;
-		void translatePredicate(const expressions::Predicate &predicate) const;
 
 		Description &m_description;
 		output::ColorStream &m_outputStream;

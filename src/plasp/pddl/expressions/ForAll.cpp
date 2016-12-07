@@ -3,7 +3,8 @@
 #include <algorithm>
 #include <iostream>
 
-#include <plasp/pddl/expressions/DerivedPredicate.h>
+#include <plasp/pddl/expressions/Exists.h>
+#include <plasp/pddl/expressions/Not.h>
 
 namespace plasp
 {
@@ -22,14 +23,16 @@ const std::string ForAll::Identifier = "forall";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ExpressionPointer ForAll::decomposed(DerivedPredicates &derivedPredicates)
+ExpressionPointer ForAll::existentiallyQuantified()
 {
-	auto derivedPredicate = DerivedPredicatePointer(new DerivedPredicate(derivedPredicates.size()));
-	derivedPredicates.push_back(derivedPredicate);
+	auto existsExpression = ExistsPointer(new Exists());
+	auto notExpression = NotPointer(new Not());
 
-	derivedPredicate->setArgument(this);
+	notExpression->setArgument(m_argument->existentiallyQuantified());
+	existsExpression->setArgument(notExpression);
+	existsExpression->variables() = std::move(m_variables);
 
-	return derivedPredicate;
+	return existsExpression;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

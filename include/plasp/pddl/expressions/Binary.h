@@ -32,13 +32,14 @@ class Binary: public ExpressionCRTP<Derived>
 		ExpressionPointer copy() override;
 
 		void setArgument(size_t i, ExpressionPointer argument);
+		std::array<ExpressionPointer, 2> &arguments();
 		const std::array<ExpressionPointer, 2> &arguments() const;
 
 		ExpressionPointer reduced() override;
-		ExpressionPointer negationNormalized() override;
-		ExpressionPointer prenex(Expression::Type lastExpressionType) override;
+		ExpressionPointer existentiallyQuantified() override;
 		ExpressionPointer simplified() override;
-		ExpressionPointer disjunctionNormalized() override;
+
+		void collectParameters(std::set<VariablePointer> &parameters) override;
 
 		void print(std::ostream &ostream) const override;
 
@@ -101,6 +102,14 @@ void Binary<Derived>::setArgument(size_t i, ExpressionPointer expression)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived>
+std::array<ExpressionPointer, 2> &Binary<Derived>::arguments()
+{
+	return m_arguments;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Derived>
 const std::array<ExpressionPointer, 2> &Binary<Derived>::arguments() const
 {
 	return m_arguments;
@@ -111,11 +120,11 @@ const std::array<ExpressionPointer, 2> &Binary<Derived>::arguments() const
 template<class Derived>
 inline ExpressionPointer Binary<Derived>::reduced()
 {
-	for (size_t i = 0; i < m_arguments.size(); i++)
+	for (auto &argument : m_arguments)
 	{
-		BOOST_ASSERT(m_arguments[i]);
+		BOOST_ASSERT(argument);
 
-		m_arguments[i] = m_arguments[i]->reduced();
+		argument = argument->reduced();
 	}
 
 	return this;
@@ -124,24 +133,15 @@ inline ExpressionPointer Binary<Derived>::reduced()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived>
-inline ExpressionPointer Binary<Derived>::negationNormalized()
+inline ExpressionPointer Binary<Derived>::existentiallyQuantified()
 {
-	for (size_t i = 0; i < m_arguments.size(); i++)
+	for (auto &argument : m_arguments)
 	{
-		BOOST_ASSERT(m_arguments[i]);
+		BOOST_ASSERT(argument);
 
-		m_arguments[i] = m_arguments[i]->negationNormalized();
+		argument = argument->existentiallyQuantified();
 	}
 
-	return this;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<class Derived>
-inline ExpressionPointer Binary<Derived>::prenex(Expression::Type)
-{
-	// TODO: implement by refactoring binary expressions
 	return this;
 }
 
@@ -150,11 +150,11 @@ inline ExpressionPointer Binary<Derived>::prenex(Expression::Type)
 template<class Derived>
 inline ExpressionPointer Binary<Derived>::simplified()
 {
-	for (size_t i = 0; i < m_arguments.size(); i++)
+	for (auto &argument : m_arguments)
 	{
-		BOOST_ASSERT(m_arguments[i]);
+		BOOST_ASSERT(argument);
 
-		m_arguments[i] = m_arguments[i]->simplified();
+		argument = argument->simplified();
 	}
 
 	return this;
@@ -163,16 +163,10 @@ inline ExpressionPointer Binary<Derived>::simplified()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived>
-inline ExpressionPointer Binary<Derived>::disjunctionNormalized()
+inline void Binary<Derived>::collectParameters(std::set<VariablePointer> &parameters)
 {
-	for (size_t i = 0; i < m_arguments.size(); i++)
-	{
-		BOOST_ASSERT(m_arguments[i]);
-
-		m_arguments[i] = m_arguments[i]->disjunctionNormalized();
-	}
-
-	return this;
+	for (const auto &argument : m_arguments)
+		argument->collectParameters(parameters);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

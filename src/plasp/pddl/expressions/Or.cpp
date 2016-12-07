@@ -1,5 +1,7 @@
 #include <plasp/pddl/expressions/Or.h>
 
+#include <plasp/output/TranslatorException.h>
+#include <plasp/pddl/expressions/And.h>
 #include <plasp/pddl/expressions/DerivedPredicate.h>
 
 namespace plasp
@@ -21,17 +23,38 @@ const std::string Or::Identifier = "or";
 
 ExpressionPointer Or::decomposed(DerivedPredicates &derivedPredicates)
 {
-	// Check that all children are simple or negated predicates
-	std::for_each(m_arguments.begin(), m_arguments.end(),
-		[&](auto &argument)
+	derivedPredicates.emplace_back(new DerivedPredicate());
+	auto &derivedPredicate = derivedPredicates.back();
+
+	std::vector<Expressions> preconditions;
+
+	for (auto &argument : m_arguments)
+	{
+		Expressions conjunction;
+
+		// “and” expressions can directly be inlined into the derived predicate
+		if (argument->expressionType() == Expression::Type::And)
 		{
-			argument = argument->decomposed(derivedPredicates);
-		});
+			const auto &andExpression = dynamic_cast<expressions::And &>(*argument);
 
-	auto derivedPredicate = DerivedPredicatePointer(new DerivedPredicate(derivedPredicates.size()));
-	derivedPredicates.push_back(derivedPredicate);
+			conjunction = std::move(andExpression.arguments());
 
-	derivedPredicate->setArgument(this);
+			for (auto &argument : conjunction)
+				argument = argument->decomposed(derivedPredicates);
+
+			break;
+		}
+		else
+		{
+			conjunction.emplace_back(argument->decomposed(derivedPredicates));
+			break;
+		}
+
+		// Move this expression’s arguments to the derived predicate
+		preconditions.emplace_back(std::move(conjunction));
+	}
+
+	derivedPredicate->setPreconditions(std::move(preconditions));
 
 	return derivedPredicate;
 }

@@ -24,7 +24,6 @@ class And: public NAry<And>
 		static const std::string Identifier;
 
 	public:
-		ExpressionPointer disjunctionNormalized() override;
 		ExpressionPointer decomposed(DerivedPredicates &derivedPredicates) override;
 };
 

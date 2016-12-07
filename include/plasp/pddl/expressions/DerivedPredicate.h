@@ -1,6 +1,8 @@
 #ifndef __PLASP__PDDL__EXPRESSIONS__DERIVED_PREDICATE_H
 #define __PLASP__PDDL__EXPRESSIONS__DERIVED_PREDICATE_H
 
+#include <set>
+
 #include <plasp/pddl/Expression.h>
 
 namespace plasp
@@ -24,19 +26,22 @@ class DerivedPredicate: public ExpressionCRTP<DerivedPredicate>
 		// TODO: consider implementing parsing functions for compatibility with older PDDL versions
 
 	public:
-		explicit DerivedPredicate(size_t id);
+		void setPreconditions(std::vector<Expressions> &&preconditions);
+		const std::vector<Expressions> &preconditions() const;
 
-		size_t id() const;
+		const std::set<VariablePointer> &parameters() const;
 
-		void setArgument(ExpressionPointer argument);
-		ExpressionPointer argument() const;
+		void collectParameters(std::set<VariablePointer> &parameters) override;
 
 		void print(std::ostream &ostream) const override;
 
 	private:
-		size_t m_id;
+		void collectParameters();
 
-		ExpressionPointer m_argument;
+		// The arguments are interpreted as a disjunction of conjunctions
+		std::vector<Expressions> m_preconditions;
+
+		std::set<VariablePointer> m_parameters;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

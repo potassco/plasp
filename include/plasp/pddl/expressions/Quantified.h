@@ -4,6 +4,7 @@
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Expression.h>
 #include <plasp/pddl/ExpressionContext.h>
+#include <plasp/pddl/expressions/DerivedPredicate.h>
 #include <plasp/pddl/expressions/Variable.h>
 
 namespace plasp
@@ -52,10 +53,11 @@ class QuantifiedCRTP: public Quantified
 		ExpressionPointer copy() override;
 
 		ExpressionPointer reduced() override;
-		ExpressionPointer negationNormalized() override;
-		ExpressionPointer prenex(Expression::Type lastExpressionType) override;
+		ExpressionPointer existentiallyQuantified() override;
 		ExpressionPointer simplified() override;
-		ExpressionPointer disjunctionNormalized() override;
+		ExpressionPointer decomposed(expressions::DerivedPredicates &derivedPredicates) override;
+
+		void collectParameters(std::set<VariablePointer> &parameters);
 
 		void print(std::ostream &ostream) const override;
 };
@@ -155,25 +157,12 @@ inline ExpressionPointer QuantifiedCRTP<Derived>::reduced()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived>
-inline ExpressionPointer QuantifiedCRTP<Derived>::negationNormalized()
+inline ExpressionPointer QuantifiedCRTP<Derived>::existentiallyQuantified()
 {
 	BOOST_ASSERT(m_argument);
 
-	m_argument = m_argument->negationNormalized();
+	m_argument = m_argument->existentiallyQuantified();
 
-	return this;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<class Derived>
-inline ExpressionPointer QuantifiedCRTP<Derived>::prenex(Expression::Type)
-{
-	BOOST_ASSERT(m_argument);
-
-	m_argument = m_argument->prenex(Derived::ExpressionType);
-
-	// Quantifiers may not move before other quantifiers, their order matters
 	return this;
 }
 
@@ -206,13 +195,28 @@ inline ExpressionPointer QuantifiedCRTP<Derived>::simplified()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived>
-inline ExpressionPointer QuantifiedCRTP<Derived>::disjunctionNormalized()
+inline ExpressionPointer QuantifiedCRTP<Derived>::decomposed(expressions::DerivedPredicates &derivedPredicates)
 {
-	BOOST_ASSERT(m_argument);
+	derivedPredicates.emplace_back(new DerivedPredicate());
+	auto &derivedPredicate = derivedPredicates.back();
 
-	m_argument = m_argument->disjunctionNormalized();
+	m_argument = m_argument->decomposed(derivedPredicates);
 
-	return this;
+	derivedPredicate->setPreconditions({{this}});
+
+	return derivedPredicate;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class Derived>
+inline void QuantifiedCRTP<Derived>::collectParameters(std::set<VariablePointer> &parameters)
+{
+	m_argument->collectParameters(parameters);
+
+	// Remove bound variables
+	for (const auto &variable : m_variables)
+		parameters.erase(variable);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

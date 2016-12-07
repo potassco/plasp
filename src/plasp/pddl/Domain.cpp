@@ -438,9 +438,9 @@ void Domain::normalize()
 		});
 
 	std::for_each(m_actions.begin(), m_actions.end(),
-		[](auto &action)
+		[&](auto &action)
 		{
-			action->normalize();
+			action->normalize(m_derivedPredicates);
 		});
 }
 

@@ -88,10 +88,10 @@ const Expression *Action::effect() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Action::normalize()
+void Action::normalize(expressions::DerivedPredicates &derivedPredicates)
 {
 	// Normalize preconditions and effects
-	m_precondition = m_precondition->normalized();
+	m_precondition = m_precondition->normalized()->decomposed(derivedPredicates);
 	m_effect = m_effect->normalized();
 
 	// Normalize parameter names

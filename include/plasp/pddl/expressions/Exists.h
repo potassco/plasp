@@ -22,9 +22,6 @@ class Exists: public QuantifiedCRTP<Exists>
 		static const Expression::Type ExpressionType = Expression::Type::Exists;
 
 		static const std::string Identifier;
-
-	public:
-		ExpressionPointer decomposed(DerivedPredicates &derivedPredicates) override;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -37,7 +37,7 @@ ExpressionPointer Expression::copy()
 
 ExpressionPointer Expression::normalized()
 {
-	return reduced()->negationNormalized()->prenex()->simplified()->disjunctionNormalized()->simplified();
+	return reduced()->simplified()->existentiallyQuantified()->simplified();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -49,17 +49,11 @@ ExpressionPointer Expression::reduced()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ExpressionPointer Expression::negationNormalized()
+ExpressionPointer Expression::existentiallyQuantified()
 {
 	return this;
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-ExpressionPointer Expression::prenex(Expression::Type)
-{
-	return this;
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -106,16 +100,9 @@ ExpressionPointer Expression::simplified()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ExpressionPointer Expression::disjunctionNormalized()
-{
-	return this;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 [[ noreturn ]] ExpressionPointer Expression::decomposed(expressions::DerivedPredicates &)
 {
-	throw output::TranslatorException("Expression is not in first-order negation normal form and cannot be decomposed");
+	throw output::TranslatorException("expression cannot be decomposed (not normalized)");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -133,6 +120,14 @@ ExpressionPointer Expression::negated()
 	notExpression->setArgument(this);
 
 	return notExpression;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// TODO: implement better (visitor pattern?)
+void Expression::collectParameters(std::set<expressions::VariablePointer> &)
+{
+	throw output::TranslatorException("expression parameters could not be collected (expression not normalized)");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

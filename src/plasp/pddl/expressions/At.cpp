@@ -54,24 +54,13 @@ ExpressionPointer At::reduced()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ExpressionPointer At::negationNormalized()
+ExpressionPointer At::existentiallyQuantified()
 {
 	BOOST_ASSERT(m_argument);
 
-	m_argument = m_argument->negationNormalized();
+	m_argument = m_argument->existentiallyQuantified();
 
 	return this;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-ExpressionPointer At::prenex(Expression::Type lastExpressionType)
-{
-	BOOST_ASSERT(m_argument);
-
-	m_argument = m_argument->prenex(lastExpressionType);
-
-	return Expression::moveUpQuantifiers(this, m_argument);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -87,13 +76,9 @@ ExpressionPointer At::simplified()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ExpressionPointer At::disjunctionNormalized()
+void At::collectParameters(std::set<VariablePointer> &parameters)
 {
-	BOOST_ASSERT(m_argument);
-
-	m_argument = m_argument->disjunctionNormalized();
-
-	return this;
+	m_argument->collectParameters(parameters);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

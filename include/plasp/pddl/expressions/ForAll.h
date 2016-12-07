@@ -24,7 +24,7 @@ class ForAll: public QuantifiedCRTP<ForAll>
 		static const std::string Identifier;
 
 	public:
-		ExpressionPointer decomposed(DerivedPredicates &derivedPredicates) override;
+		ExpressionPointer existentiallyQuantified() override;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
