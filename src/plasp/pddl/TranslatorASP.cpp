@@ -154,7 +154,7 @@ void TranslatorASP::translatePredicates() const
 	const auto printPredicateName =
 		[&](const auto &predicate)
 		{
-			if (predicate->arguments().empty())
+			if (predicate->parameters().empty())
 			{
 				m_outputStream << output::String(predicate->name().c_str());
 
@@ -162,7 +162,7 @@ void TranslatorASP::translatePredicates() const
 			}
 
 			m_outputStream << "(" << output::String(predicate->name().c_str());
-			translateVariablesHead(m_outputStream, predicate->arguments());
+			translateVariablesHead(m_outputStream, predicate->parameters());
 			m_outputStream << ")";
 		};
 
@@ -178,7 +178,7 @@ void TranslatorASP::translatePredicates() const
 
 			m_outputStream << "))";
 
-			translateVariablesBody(m_outputStream, predicate->arguments());
+			translateVariablesBody(m_outputStream, predicate->parameters());
 
 			m_outputStream << ".";
 		});

@@ -50,18 +50,18 @@ TEST_CASE("[PDDL parser] The Blocks World domain is parsed correctly", "[PDDL pa
 	const auto &on = *domain.predicates()[0];
 
 	CHECK(on.name() == "on");
-	REQUIRE(on.arguments().size() == 2u);
-	CHECK(on.arguments()[0]->name() == "x");
-	const auto &onArgument0Type = on.arguments()[0]->type()->as<expressions::PrimitiveType>();
+	REQUIRE(on.parameters().size() == 2u);
+	CHECK(on.parameters()[0]->name() == "x");
+	const auto &onArgument0Type = on.parameters()[0]->type()->as<expressions::PrimitiveType>();
 	CHECK(&onArgument0Type == &block);
-	CHECK(on.arguments()[1]->name() == "y");
-	const auto &onArgument1Type = on.arguments()[1]->type()->as<expressions::PrimitiveType>();
+	CHECK(on.parameters()[1]->name() == "y");
+	const auto &onArgument1Type = on.parameters()[1]->type()->as<expressions::PrimitiveType>();
 	CHECK(&onArgument1Type == &block);
 
 	const auto &handempty = *domain.predicates()[3];
 
 	CHECK(handempty.name() == "handempty");
-	CHECK(handempty.arguments().empty());
+	CHECK(handempty.parameters().empty());
 
 	// Actions
 	REQUIRE(domain.actions().size() == 4u);
@@ -207,19 +207,19 @@ TEST_CASE("[PDDL parser] The Storage domain is parsed correctly", "[PDDL parser]
 	const auto &on = *domain.predicates()[5];
 
 	CHECK(on.name() == "on");
-	REQUIRE(on.arguments().size() == 2u);
-	CHECK(on.arguments()[0]->name() == "c");
-	const auto &onArgument0Type = on.arguments()[0]->type()->as<expressions::PrimitiveType>();
+	REQUIRE(on.parameters().size() == 2u);
+	CHECK(on.parameters()[0]->name() == "c");
+	const auto &onArgument0Type = on.parameters()[0]->type()->as<expressions::PrimitiveType>();
 	CHECK(&onArgument0Type == &crate);
-	CHECK(on.arguments()[1]->name() == "s");
-	const auto &onArgument1Type = on.arguments()[1]->type()->as<expressions::PrimitiveType>();
+	CHECK(on.parameters()[1]->name() == "s");
+	const auto &onArgument1Type = on.parameters()[1]->type()->as<expressions::PrimitiveType>();
 	CHECK(&onArgument1Type == &storearea);
 
 	const auto &in = *domain.predicates()[1];
 	CHECK(in.name() == "in");
-	REQUIRE(in.arguments().size() == 2u);
-	CHECK(in.arguments()[0]->name() == "x");
-	const auto &inArgument0Type = in.arguments()[0]->type()->as<expressions::Either>();
+	REQUIRE(in.parameters().size() == 2u);
+	CHECK(in.parameters()[0]->name() == "x");
+	const auto &inArgument0Type = in.parameters()[0]->type()->as<expressions::Either>();
 	REQUIRE(inArgument0Type.arguments().size() == 2u);
 	const auto &inArgument0Type0 = inArgument0Type.arguments()[0]->as<expressions::PrimitiveType>();
 	CHECK(&inArgument0Type0 == &storearea);

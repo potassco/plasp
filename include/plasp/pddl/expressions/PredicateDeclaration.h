@@ -25,7 +25,7 @@ class PredicateDeclaration: public ExpressionCRTP<PredicateDeclaration>
 
 	public:
 		const std::string &name() const;
-		const Variables &arguments() const;
+		const Variables &parameters() const;
 
 		bool isDeclared() const;
 
