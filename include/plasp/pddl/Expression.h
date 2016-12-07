@@ -132,6 +132,10 @@ class Expression
 
 		template<class T>
 		bool is() const;
+		template<class T>
+		T &as();
+		template<class T>
+		const T &as() const;
 
 		virtual ExpressionPointer copy();
 
@@ -152,9 +156,6 @@ class Expression
 
 		virtual void print(std::ostream &ostream) const = 0;
 
-	protected:
-		static ExpressionPointer moveUpQuantifiers(ExpressionPointer parent, ExpressionPointer &child);
-
 	private:
 		friend void intrusive_ptr_add_ref(Expression *expression);
 		friend void intrusive_ptr_release(Expression *expression);
@@ -168,6 +169,22 @@ template<class T>
 bool Expression::is() const
 {
 	return expressionType() == T::ExpressionType;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class T>
+T &Expression::as()
+{
+	return dynamic_cast<T &>(*this);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class T>
+const T &Expression::as() const
+{
+	return dynamic_cast<const T &>(*this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

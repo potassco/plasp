@@ -185,7 +185,7 @@ inline ExpressionPointer NAry<Derived>::simplified()
 			continue;
 		}
 
-		auto &nAryExpression = dynamic_cast<Derived &>(*argument);
+		auto &nAryExpression = argument->template as<Derived>();
 
 		BOOST_ASSERT(!nAryExpression.arguments().empty());
 

@@ -30,7 +30,7 @@ class Predicate: public ExpressionCRTP<Predicate>
 
 		bool isDeclared() const;
 
-		ExpressionPointer decomposed(expressions::DerivedPredicates &derivedPredicates) override;
+		ExpressionPointer decomposed(DerivedPredicates &derivedPredicates) override;
 
 		void collectParameters(std::set<VariablePointer> &parameters) override;
 

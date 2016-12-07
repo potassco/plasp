@@ -156,7 +156,7 @@ bool Predicate::isDeclared() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ExpressionPointer Predicate::decomposed(expressions::DerivedPredicates &)
+ExpressionPointer Predicate::decomposed(DerivedPredicates &)
 {
 	// Predicates cannot be further decomposed
 	return this;

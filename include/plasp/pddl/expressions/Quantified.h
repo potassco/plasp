@@ -55,7 +55,7 @@ class QuantifiedCRTP: public Quantified
 		ExpressionPointer reduced() override;
 		ExpressionPointer existentiallyQuantified() override;
 		ExpressionPointer simplified() override;
-		ExpressionPointer decomposed(expressions::DerivedPredicates &derivedPredicates) override;
+		ExpressionPointer decomposed(DerivedPredicates &derivedPredicates) override;
 
 		void collectParameters(std::set<VariablePointer> &parameters);
 
@@ -179,7 +179,7 @@ inline ExpressionPointer QuantifiedCRTP<Derived>::simplified()
 	if (m_argument->expressionType() != Derived::ExpressionType)
 		return this;
 
-	auto &quantifiedExpression = dynamic_cast<Derived &>(*m_argument);
+	auto &quantifiedExpression = m_argument->template as<Derived>();
 
 	// Unify variables
 	m_variables.insert(m_variables.end(), quantifiedExpression.variables().begin(), quantifiedExpression.variables().end());
@@ -195,7 +195,7 @@ inline ExpressionPointer QuantifiedCRTP<Derived>::simplified()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived>
-inline ExpressionPointer QuantifiedCRTP<Derived>::decomposed(expressions::DerivedPredicates &derivedPredicates)
+inline ExpressionPointer QuantifiedCRTP<Derived>::decomposed(DerivedPredicates &derivedPredicates)
 {
 	derivedPredicates.emplace_back(new DerivedPredicate());
 	auto &derivedPredicate = derivedPredicates.back();

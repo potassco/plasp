@@ -323,7 +323,7 @@ void TranslatorASP::translateActions() const
 			{
 				case Expression::Type::And:
 				{
-					const auto &andExpression = dynamic_cast<const expressions::And &>(precondition);
+					const auto &andExpression = precondition.as<expressions::And>();
 
 					std::for_each(andExpression.arguments().cbegin(), andExpression.arguments().cend(),
 						[&](const auto argument)
@@ -360,7 +360,7 @@ void TranslatorASP::translateActions() const
 				if (effect.expressionType() != Expression::Type::And)
 					throw output::TranslatorException("only “and” expressions and (negated) predicates supported as action effects currently");
 
-				const auto &andExpression = dynamic_cast<const expressions::And &>(effect);
+				const auto &andExpression = effect.as<expressions::And>();
 
 				std::for_each(andExpression.arguments().cbegin(), andExpression.arguments().cend(),
 					[&](const auto argument)
@@ -444,7 +444,7 @@ void translateVariablesBody(output::ColorStream &outputStream, const T &variable
 			if (variable.type()->expressionType() != Expression::Type::PrimitiveType)
 				throw output::TranslatorException("only primitive types supported currently");
 
-			const auto &type = dynamic_cast<const expressions::PrimitiveType &>(*variable.type());
+			const auto &type = variable.type()->template as<expressions::PrimitiveType>();
 
 			outputStream << output::Function("has") << "("
 				<< output::Variable(variable.name().c_str()) << ", "
@@ -466,7 +466,7 @@ void translateLiteral(output::ColorStream &outputStream, const Expression &liter
 	// Translate single predicate
 	if (literal.is<expressions::Predicate>())
 	{
-		const auto &predicate = dynamic_cast<const expressions::Predicate &>(literal);
+		const auto &predicate = literal.as<expressions::Predicate>();
 
 		outputStream << output::Keyword("variable") << "(";
 		translatePredicate(outputStream, predicate);
@@ -477,12 +477,12 @@ void translateLiteral(output::ColorStream &outputStream, const Expression &liter
 	// Assuming that "not" expression may only contain a predicate
 	else if (literal.is<expressions::Not>())
 	{
-		const auto &notExpression = dynamic_cast<const expressions::Not &>(literal);
+		const auto &notExpression = literal.as<expressions::Not>();
 
 		if (notExpression.argument()->expressionType() != Expression::Type::Predicate)
 			throw output::TranslatorException("only negations of primitive predicates supported as literals currently");
 
-		const auto &predicate = dynamic_cast<const expressions::Predicate &>(*notExpression.argument());
+		const auto &predicate = notExpression.argument()->as<expressions::Predicate>();
 
 		outputStream << output::Keyword("variable") << "(";
 		translatePredicate(outputStream, predicate);
@@ -492,7 +492,7 @@ void translateLiteral(output::ColorStream &outputStream, const Expression &liter
 	}
 	else if (literal.is<expressions::DerivedPredicate>())
 	{
-		const auto &derivedPredicate = dynamic_cast<const expressions::DerivedPredicate &>(literal);
+		const auto &derivedPredicate = literal.as<expressions::DerivedPredicate>();
 
 		/*m_outputStream << output::Keyword("variable") << "(";
 		this->translatePredicate(predicate);
@@ -521,19 +521,19 @@ void translatePredicate(output::ColorStream &outputStream, const expressions::Pr
 
 	outputStream << "(" << output::String(predicate.name().c_str());
 
-	for (auto i = arguments.cbegin(); i != arguments.cend(); i++)
+	for (const auto &argument : arguments)
 	{
 		outputStream << ", ";
 
-		if ((*i)->is<expressions::Constant>())
+		if (argument->is<expressions::Constant>())
 		{
-			const auto &constant = dynamic_cast<const expressions::Constant &>(**i);
+			const auto &constant = argument->as<expressions::Constant>();
 
 			outputStream << output::Keyword("constant") << "(" << output::String(constant.name().c_str()) << ")";
 		}
-		else if ((*i)->is<expressions::Variable>())
+		else if (argument->is<expressions::Variable>())
 		{
-			const auto &variable = dynamic_cast<const expressions::Variable &>(**i);
+			const auto &variable = argument->as<expressions::Variable>();
 
 			outputStream << output::Variable(variable.name().c_str());
 		}
@@ -587,7 +587,7 @@ void TranslatorASP::translateInitialState() const
 		// Translate single predicate
 		if (fact->is<expressions::Predicate>())
 		{
-			const auto &predicate = dynamic_cast<const expressions::Predicate &>(*fact);
+			const auto &predicate = fact->as<expressions::Predicate>();
 
 			m_outputStream << output::Keyword("variable") << "(";
 			translatePredicate(m_outputStream, predicate);
@@ -598,7 +598,7 @@ void TranslatorASP::translateInitialState() const
 		// Assuming that "not" expression may only contain a predicate
 		else if (fact->is<expressions::Not>())
 		{
-			const auto &notExpression = dynamic_cast<const expressions::Not &>(*fact);
+			const auto &notExpression = fact->as<expressions::Not>();
 
 			if (notExpression.argument()->expressionType() != Expression::Type::Predicate)
 				throw output::TranslatorException("only negations of simple predicates supported in initial state currently");
@@ -642,7 +642,7 @@ void TranslatorASP::translateGoal() const
 	}
 	else if (goal.is<expressions::And>())
 	{
-		const auto &andExpression = dynamic_cast<const expressions::And &>(goal);
+		const auto &andExpression = goal.as<expressions::And>();
 
 		std::for_each(andExpression.arguments().cbegin(), andExpression.arguments().cend(),
 			[&](const auto argument)

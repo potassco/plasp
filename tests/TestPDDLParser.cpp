@@ -52,10 +52,10 @@ TEST_CASE("[PDDL parser] The Blocks World domain is parsed correctly", "[PDDL pa
 	CHECK(on.name() == "on");
 	REQUIRE(on.arguments().size() == 2u);
 	CHECK(on.arguments()[0]->name() == "x");
-	const auto &onArgument0Type = dynamic_cast<const expressions::PrimitiveType &>(*on.arguments()[0]->type());
+	const auto &onArgument0Type = on.arguments()[0]->type()->as<expressions::PrimitiveType>();
 	CHECK(&onArgument0Type == &block);
 	CHECK(on.arguments()[1]->name() == "y");
-	const auto &onArgument1Type = dynamic_cast<const expressions::PrimitiveType &>(*on.arguments()[1]->type());
+	const auto &onArgument1Type = on.arguments()[1]->type()->as<expressions::PrimitiveType>();
 	CHECK(&onArgument1Type == &block);
 
 	const auto &handempty = *domain.predicates()[3];
@@ -73,26 +73,26 @@ TEST_CASE("[PDDL parser] The Blocks World domain is parsed correctly", "[PDDL pa
 	CHECK(pickUp.parameters()[0]->name() == "x");
 	CHECK(pickUp.parameters()[0]->type() == &block);
 
-	const auto &pickUpPre = dynamic_cast<const expressions::And &>(*pickUp.precondition());
+	const auto &pickUpPre = pickUp.precondition()->as<expressions::And>();
 	REQUIRE(pickUpPre.arguments().size() == 3u);
-	const auto &pickUpPre0 = dynamic_cast<const expressions::Predicate &>(*pickUpPre.arguments()[0]);
+	const auto &pickUpPre0 = pickUpPre.arguments()[0]->as<expressions::Predicate>();
 	CHECK(pickUpPre0.name() == "clear");
 	REQUIRE(pickUpPre0.arguments().size() == 1u);
-	const auto &pickUpPre00 = dynamic_cast<const expressions::Variable &>(*pickUpPre0.arguments()[0]);
+	const auto &pickUpPre00 = pickUpPre0.arguments()[0]->as<expressions::Variable>();
 	CHECK(pickUpPre00.name() == "x");
 	CHECK(pickUpPre00.type() == &block);
 	CHECK(&pickUpPre00 == pickUp.parameters()[0].get());
-	const auto &pickUpPre2 = dynamic_cast<const expressions::Predicate &>(*pickUpPre.arguments()[2]);
+	const auto &pickUpPre2 = pickUpPre.arguments()[2]->as<expressions::Predicate>();
 	CHECK(pickUpPre2.name() == "handempty");
 	CHECK(pickUpPre2.arguments().empty());
 
-	const auto &pickUpEff = dynamic_cast<const expressions::And &>(*pickUp.effect());
+	const auto &pickUpEff = pickUp.effect()->as<expressions::And>();
 	REQUIRE(pickUpEff.arguments().size() == 4u);
-	const auto &pickUpEff0 = dynamic_cast<const expressions::Not &>(*pickUpEff.arguments()[0]);
-	const auto &pickUpEff00 = dynamic_cast<const expressions::Predicate &>(*pickUpEff0.argument());
+	const auto &pickUpEff0 = pickUpEff.arguments()[0]->as<expressions::Not>();
+	const auto &pickUpEff00 = pickUpEff0.argument()->as<expressions::Predicate>();
 	CHECK(pickUpEff00.name() == "ontable");
 	REQUIRE(pickUpEff00.arguments().size() == 1u);
-	const auto &pickUpEff000 = dynamic_cast<const expressions::Variable &>(*pickUpEff00.arguments()[0]);
+	const auto &pickUpEff000 = pickUpEff00.arguments()[0]->as<expressions::Variable>();
 	CHECK(pickUpEff000.name() == "x");
 	CHECK(pickUpEff000.type() == &block);
 }
@@ -131,34 +131,34 @@ TEST_CASE("[PDDL parser] A Blocks World problem is parsed correctly", "[PDDL par
 	const auto &facts = problem.initialState().facts();
 
 	REQUIRE(facts.size() == 9u);
-	const auto &fact0 = dynamic_cast<const expressions::Predicate &>(*facts[0].get());
+	const auto &fact0 = facts[0].get()->as<expressions::Predicate>();
 	CHECK(fact0.name() == "clear");
 	REQUIRE(fact0.arguments().size() == 1u);
-	const auto &fact00 = dynamic_cast<const expressions::Constant &>(*fact0.arguments()[0]);
+	const auto &fact00 = fact0.arguments()[0]->as<expressions::Constant>();
 	CHECK(fact00.name() == "c");
 	REQUIRE(fact00.type() != nullptr);
 	CHECK(fact00.type()->name() == "block");
-	const auto &fact8 = dynamic_cast<const expressions::Predicate &>(*facts[8].get());
+	const auto &fact8 = facts[8].get()->as<expressions::Predicate>();
 	CHECK(fact8.name() == "handempty");
 	REQUIRE(fact8.arguments().size() == 0u);
 
 	// Goal
-	const auto &goal = dynamic_cast<const expressions::And &>(problem.goal());
+	const auto &goal = problem.goal().as<expressions::And>();
 
 	REQUIRE(goal.arguments().size() == 3u);
-	const auto &goal0 = dynamic_cast<const expressions::Predicate &>(*goal.arguments()[0]);
+	const auto &goal0 = goal.arguments()[0]->as<expressions::Predicate>();
 	CHECK(goal0.name() == "on");
 	REQUIRE(goal0.arguments().size() == 2u);
-	const auto &goal00 = dynamic_cast<const expressions::Constant &>(*goal0.arguments()[0]);
+	const auto &goal00 = goal0.arguments()[0]->as<expressions::Constant>();
 	CHECK(goal00.name() == "d");
-	const auto &goal01 = dynamic_cast<const expressions::Constant &>(*goal0.arguments()[1]);
+	const auto &goal01 = goal0.arguments()[1]->as<expressions::Constant>();
 	CHECK(goal01.name() == "c");
-	const auto &goal2 = dynamic_cast<const expressions::Predicate &>(*goal.arguments()[2]);
+	const auto &goal2 = goal.arguments()[2]->as<expressions::Predicate>();
 	CHECK(goal2.name() == "on");
 	REQUIRE(goal2.arguments().size() == 2u);
-	const auto &goal20 = dynamic_cast<const expressions::Constant &>(*goal2.arguments()[0]);
+	const auto &goal20 = goal2.arguments()[0]->as<expressions::Constant>();
 	CHECK(goal20.name() == "b");
-	const auto &goal21 = dynamic_cast<const expressions::Constant &>(*goal2.arguments()[1]);
+	const auto &goal21 = goal2.arguments()[1]->as<expressions::Constant>();
 	CHECK(goal21.name() == "a");
 }
 
@@ -209,21 +209,21 @@ TEST_CASE("[PDDL parser] The Storage domain is parsed correctly", "[PDDL parser]
 	CHECK(on.name() == "on");
 	REQUIRE(on.arguments().size() == 2u);
 	CHECK(on.arguments()[0]->name() == "c");
-	const auto &onArgument0Type = dynamic_cast<const expressions::PrimitiveType &>(*on.arguments()[0]->type());
+	const auto &onArgument0Type = on.arguments()[0]->type()->as<expressions::PrimitiveType>();
 	CHECK(&onArgument0Type == &crate);
 	CHECK(on.arguments()[1]->name() == "s");
-	const auto &onArgument1Type = dynamic_cast<const expressions::PrimitiveType &>(*on.arguments()[1]->type());
+	const auto &onArgument1Type = on.arguments()[1]->type()->as<expressions::PrimitiveType>();
 	CHECK(&onArgument1Type == &storearea);
 
 	const auto &in = *domain.predicates()[1];
 	CHECK(in.name() == "in");
 	REQUIRE(in.arguments().size() == 2u);
 	CHECK(in.arguments()[0]->name() == "x");
-	const auto &inArgument0Type = dynamic_cast<const expressions::Either &>(*in.arguments()[0]->type());
+	const auto &inArgument0Type = in.arguments()[0]->type()->as<expressions::Either>();
 	REQUIRE(inArgument0Type.arguments().size() == 2u);
-	const auto &inArgument0Type0 = dynamic_cast<const expressions::PrimitiveType &>(*inArgument0Type.arguments()[0]);
+	const auto &inArgument0Type0 = inArgument0Type.arguments()[0]->as<expressions::PrimitiveType>();
 	CHECK(&inArgument0Type0 == &storearea);
-	const auto &inArgument0Type1 = dynamic_cast<const expressions::PrimitiveType &>(*inArgument0Type.arguments()[1]);
+	const auto &inArgument0Type1 = inArgument0Type.arguments()[1]->as<expressions::PrimitiveType>();
 	CHECK(&inArgument0Type1 == &crate);
 
 	// Actions
@@ -236,22 +236,22 @@ TEST_CASE("[PDDL parser] The Storage domain is parsed correctly", "[PDDL parser]
 	CHECK(drop.parameters()[3]->name() == "a2");
 	CHECK(drop.parameters()[3]->type() == &area);
 
-	const auto &dropPre = dynamic_cast<const expressions::And &>(*drop.precondition());
+	const auto &dropPre = drop.precondition()->as<expressions::And>();
 	REQUIRE(dropPre.arguments().size() == 5u);
-	const auto &dropPre2 = dynamic_cast<const expressions::Predicate &>(*dropPre.arguments()[2]);
+	const auto &dropPre2 = dropPre.arguments()[2]->as<expressions::Predicate>();
 	CHECK(dropPre2.name() == "lifting");
 	REQUIRE(dropPre2.arguments().size() == 2u);
-	const auto &dropPre21 = dynamic_cast<const expressions::Variable &>(*dropPre2.arguments()[1]);
+	const auto &dropPre21 = dropPre2.arguments()[1]->as<expressions::Variable>();
 	CHECK(dropPre21.name() == "c");
 	CHECK(dropPre21.type() == &crate);
 
-	const auto &dropEff = dynamic_cast<const expressions::And &>(*drop.effect());
+	const auto &dropEff = drop.effect()->as<expressions::And>();
 	REQUIRE(dropEff.arguments().size() == 5u);
-	const auto &dropEff2 = dynamic_cast<const expressions::Not &>(*dropEff.arguments()[2]);
-	const auto &dropEff20 = dynamic_cast<const expressions::Predicate &>(*dropEff2.argument());
+	const auto &dropEff2 = dropEff.arguments()[2]->as<expressions::Not>();
+	const auto &dropEff20 = dropEff2.argument()->as<expressions::Predicate>();
 	CHECK(dropEff20.name() == "clear");
 	REQUIRE(dropEff20.arguments().size() == 1u);
-	const auto &dropEff200 = dynamic_cast<const expressions::Variable &>(*dropEff20.arguments()[0]);
+	const auto &dropEff200 = dropEff20.arguments()[0]->as<expressions::Variable>();
 	CHECK(dropEff200.name() == "a1");
 	CHECK(dropEff200.type() == &storearea);
 }
@@ -290,31 +290,31 @@ TEST_CASE("[PDDL parser] A Storage problem is parsed correctly", "[PDDL parser]"
 	const auto &facts = problem.initialState().facts();
 
 	REQUIRE(facts.size() == 10u);
-	const auto &fact0 = dynamic_cast<const expressions::Predicate &>(*facts[0].get());
+	const auto &fact0 = facts[0].get()->as<expressions::Predicate>();
 	CHECK(fact0.name() == "in");
 	REQUIRE(fact0.arguments().size() == 2u);
-	const auto &fact01 = dynamic_cast<const expressions::Constant &>(*fact0.arguments()[1]);
+	const auto &fact01 = fact0.arguments()[1]->as<expressions::Constant>();
 	CHECK(fact01.name() == "depot0");
 	REQUIRE(fact01.type() != nullptr);
 	CHECK(fact01.type()->name() == "depot");
-	const auto &fact9 = dynamic_cast<const expressions::Predicate &>(*facts[9].get());
+	const auto &fact9 = facts[9].get()->as<expressions::Predicate>();
 	CHECK(fact9.name() == "available");
 	REQUIRE(fact9.arguments().size() == 1u);
-	const auto &fact90 = dynamic_cast<const expressions::Constant &>(*fact9.arguments()[0]);
+	const auto &fact90 = fact9.arguments()[0]->as<expressions::Constant>();
 	CHECK(fact90.name() == "hoist0");
 	REQUIRE(fact90.type() != nullptr);
 	CHECK(fact90.type()->name() == "hoist");
 
 	// Goal
-	const auto &goal = dynamic_cast<const expressions::And &>(problem.goal());
+	const auto &goal = problem.goal().as<expressions::And>();
 
 	REQUIRE(goal.arguments().size() == 1u);
-	const auto &goal0 = dynamic_cast<const expressions::Predicate &>(*goal.arguments()[0]);
+	const auto &goal0 = goal.arguments()[0]->as<expressions::Predicate>();
 	CHECK(goal0.name() == "in");
 	REQUIRE(goal0.arguments().size() == 2u);
-	const auto &goal00 = dynamic_cast<const expressions::Constant &>(*goal0.arguments()[0]);
+	const auto &goal00 = goal0.arguments()[0]->as<expressions::Constant>();
 	CHECK(goal00.name() == "crate0");
-	const auto &goal01 = dynamic_cast<const expressions::Constant &>(*goal0.arguments()[1]);
+	const auto &goal01 = goal0.arguments()[1]->as<expressions::Constant>();
 	CHECK(goal01.name() == "depot0");
 }
 

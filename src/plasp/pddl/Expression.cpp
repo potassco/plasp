@@ -54,43 +54,6 @@ ExpressionPointer Expression::existentiallyQuantified()
 	return this;
 }
 
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-ExpressionPointer Expression::moveUpQuantifiers(ExpressionPointer parent, ExpressionPointer &child)
-{
-	BOOST_ASSERT(child);
-
-	if (child->is<expressions::Exists>())
-	{
-		auto quantifiedExpression = expressions::ExistsPointer(dynamic_cast<expressions::Exists *>(child.get()));
-
-		// Move argument up
-		child = quantifiedExpression->argument();
-
-		// Move quantifier up
-		quantifiedExpression->setArgument(parent);
-
-		// Make parent point to the quantifier that has been moved up
-		return quantifiedExpression;
-	}
-	else if (child->is<expressions::ForAll>())
-	{
-		auto quantifiedExpression = expressions::ForAllPointer(dynamic_cast<expressions::ForAll *>(child.get()));
-
-		// Move argument up
-		child = quantifiedExpression->argument();
-
-		// Move quantifier up
-		quantifiedExpression->setArgument(parent);
-
-		// Make parent point to the quantifier that has been moved up
-		return quantifiedExpression;
-	}
-
-	return parent;
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ExpressionPointer Expression::simplified()
@@ -110,11 +73,7 @@ ExpressionPointer Expression::simplified()
 ExpressionPointer Expression::negated()
 {
 	if (is<expressions::Not>())
-	{
-		auto &notExpression = dynamic_cast<expressions::Not &>(*this);
-
-		return notExpression.argument();
-	}
+		return as<expressions::Not>().argument();
 
 	auto notExpression = expressions::NotPointer(new expressions::Not);
 	notExpression->setArgument(this);

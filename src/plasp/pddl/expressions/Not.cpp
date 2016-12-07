@@ -81,11 +81,11 @@ ExpressionPointer Not::simplified()
 
 	m_argument = m_argument->simplified();
 
-	if (!m_argument->is<expressions::Not>())
+	if (!m_argument->is<Not>())
 		return this;
 
 	// Remove double negations
-	const auto &notExpression = dynamic_cast<expressions::Not &>(*m_argument);
+	const auto &notExpression = m_argument->as<Not>();
 
 	return notExpression.argument();
 }
@@ -104,7 +104,7 @@ ExpressionPointer Not::decomposed(DerivedPredicates &derivedPredicates)
 	m_argument = m_argument->decomposed(derivedPredicates);
 
 	// Predicates and derived predicates can be directly negated
-	if (m_argument->is<expressions::Predicate>() || m_argument->is<expressions::DerivedPredicate>())
+	if (m_argument->is<Predicate>() || m_argument->is<DerivedPredicate>())
 		return this;
 
 	derivedPredicates.emplace_back(new DerivedPredicate());
