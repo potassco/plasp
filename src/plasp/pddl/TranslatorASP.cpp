@@ -244,7 +244,7 @@ void TranslatorASP::translateDerivedPredicates() const
 		<< output::Function("contains") << "("
 		<< output::Keyword("derivedVariable") << "(" << output::Variable("X") << "), "
 		<< output::Keyword("value") << "(" << output::Variable("X") << ", " << output::Variable("B") << ")) :- "
-		<< output::Function("variable") << "(" << output::Keyword("derivedVariable") << "(" << output::Variable("X") << ")), "
+		<< output::Function("derivedVariable") << "(" << output::Keyword("derivedVariable") << "(" << output::Variable("X") << ")), "
 		<< output::Function("boolean") << "(" << output::Variable("B") << ")."
 		<< std::endl;
 }
