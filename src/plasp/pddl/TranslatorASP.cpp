@@ -229,7 +229,7 @@ void TranslatorASP::translateDerivedPredicates() const
 			m_outputStream
 				<< std::endl
 				<< output::Function("variable") << "("
-				<< output::Keyword("variable") << "(";
+				<< output::Keyword("derived") << "(";
 
 			printDerivedPredicateName(predicate);
 
@@ -240,17 +240,7 @@ void TranslatorASP::translateDerivedPredicates() const
 			m_outputStream << ".";
 		});
 
-	m_outputStream
-		<< std::endl << std::endl
-		<< output::Function("boolean") << "(" << output::Boolean("true") << ")." << std::endl
-		<< output::Function("boolean") << "(" << output::Boolean("false") << ")." << std::endl
-		<< std::endl
-		<< output::Function("contains") << "("
-		<< output::Keyword("variable") << "(" << output::Variable("X") << "), "
-		<< output::Keyword("value") << "(" << output::Variable("X") << ", " << output::Variable("B") << ")) :- "
-		<< output::Function("variable") << "(" << output::Keyword("variable") << "(" << output::Variable("X") << ")), "
-		<< output::Function("boolean") << "(" << output::Variable("B") << ")."
-		<< std::endl;
+	m_outputStream << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
