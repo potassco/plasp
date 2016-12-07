@@ -26,6 +26,10 @@ class DerivedPredicate: public ExpressionCRTP<DerivedPredicate>
 		// TODO: consider implementing parsing functions for compatibility with older PDDL versions
 
 	public:
+		explicit DerivedPredicate(size_t id);
+
+		size_t id() const;
+
 		void setPreconditions(std::vector<Expressions> &&preconditions);
 		const std::vector<Expressions> &preconditions() const;
 
@@ -37,6 +41,8 @@ class DerivedPredicate: public ExpressionCRTP<DerivedPredicate>
 
 	private:
 		void collectParameters();
+
+		size_t m_id;
 
 		// The arguments are interpreted as a disjunction of conjunctions
 		std::vector<Expressions> m_preconditions;

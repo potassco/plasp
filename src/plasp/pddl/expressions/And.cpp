@@ -25,7 +25,7 @@ const std::string And::Identifier = "and";
 
 ExpressionPointer And::decomposed(DerivedPredicates &derivedPredicates)
 {
-	derivedPredicates.emplace_back(new DerivedPredicate());
+	derivedPredicates.emplace_back(new DerivedPredicate(derivedPredicates.size()));
 	auto &derivedPredicate = derivedPredicates.back();
 
 	for (auto &argument : m_arguments)

@@ -7,6 +7,8 @@
 #include <plasp/pddl/expressions/And.h>
 #include <plasp/pddl/expressions/Not.h>
 #include <plasp/pddl/expressions/Predicate.h>
+#include <plasp/pddl/translation/Precondition.h>
+#include <plasp/pddl/translation/Primitives.h>
 
 namespace plasp
 {
@@ -23,8 +25,6 @@ template<class T>
 void translateVariablesHead(output::ColorStream &outputStream, const T &variables);
 template<class T>
 void translateVariablesBody(output::ColorStream &outputStream, const T &variables);
-void translateLiteral(output::ColorStream &outputStream, const Expression &literal);
-void translatePredicate(output::ColorStream &outputStream, const expressions::Predicate &predicate);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -204,43 +204,49 @@ void TranslatorASP::translateDerivedPredicates() const
 
 	const auto &derivedPredicates = m_description.domain().derivedPredicates();
 
-	const auto printDerivedPredicateName =
-		[&](const auto &derivedPredicate)
-		{
-			if (derivedPredicate->parameters().empty())
+	for (const auto &derivedPredicate : derivedPredicates)
+	{
+		const auto printDerivedPredicateName =
+			[&derivedPredicate](output::ColorStream &outputStream)
 			{
-				// TODO: implement
-				//m_outputStream << output::String(derivedPredicate->name().c_str());
-				m_outputStream << "<derived>";
+				outputStream << output::Keyword("derivedVariable") << "(";
 
-				return;
-			}
+				const auto id = derivedPredicate->id();
 
-			// TODO: implement
-			//m_outputStream << output::String(derivedPredicate->name().c_str());
-			m_outputStream << "<derived>";
-			translateVariablesHead(m_outputStream, derivedPredicate->parameters());
-			m_outputStream << ")";
-		};
+				if (derivedPredicate->parameters().empty())
+				{
+					outputStream << output::Number<decltype(id)>(id) << ")";
+					return;
+				}
 
-	std::for_each(derivedPredicates.cbegin(), derivedPredicates.cend(),
-		[&](const auto &predicate)
-		{
-			m_outputStream
-				<< std::endl
-				<< output::Function("variable") << "("
-				<< output::Keyword("derived") << "(";
+				outputStream << "(" << output::Number<decltype(id)>(id);
+				translateVariablesHead(outputStream, derivedPredicate->parameters());
+				outputStream << "))";
+			};
 
-			printDerivedPredicateName(predicate);
+		m_outputStream << std::endl << output::Function("derivedVariable") << "(";
 
-			m_outputStream << "))";
+		printDerivedPredicateName(m_outputStream);
 
-			translateVariablesBody(m_outputStream, predicate->parameters());
+		m_outputStream << ")";
 
-			m_outputStream << ".";
-		});
+		translateVariablesBody(m_outputStream, derivedPredicate->parameters());
 
-	m_outputStream << std::endl;
+		m_outputStream << ".";
+
+		translation::translatePreconditionDisjunction(m_outputStream, "derivedVariable", printDerivedPredicateName, derivedPredicate->preconditions());
+
+		m_outputStream << std::endl;
+	}
+
+	m_outputStream
+		<< std::endl
+		<< output::Function("contains") << "("
+		<< output::Keyword("derivedVariable") << "(" << output::Variable("X") << "), "
+		<< output::Keyword("value") << "(" << output::Variable("X") << ", " << output::Variable("B") << ")) :- "
+		<< output::Function("variable") << "(" << output::Keyword("derivedVariable") << "(" << output::Variable("X") << ")), "
+		<< output::Function("boolean") << "(" << output::Variable("B") << ")."
+		<< std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -283,7 +289,7 @@ void TranslatorASP::translateActions() const
 
 				m_outputStream << ", ";
 
-				translateLiteral(m_outputStream, literal);
+				translation::translateLiteral(m_outputStream, literal);
 
 				m_outputStream << ") :- " << output::Function("action") << "(";
 
@@ -450,91 +456,6 @@ void translateVariablesBody(output::ColorStream &outputStream, const T &variable
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void translateLiteral(output::ColorStream &outputStream, const Expression &literal)
-{
-	// Translate single predicate
-	if (literal.is<expressions::Predicate>())
-	{
-		const auto &predicate = literal.as<expressions::Predicate>();
-
-		outputStream << output::Keyword("variable") << "(";
-		translatePredicate(outputStream, predicate);
-		outputStream << "), " << output::Keyword("value") << "(";
-		translatePredicate(outputStream, predicate);
-		outputStream << ", " << output::Boolean("true") << ")";
-	}
-	// Assuming that "not" expression may only contain a predicate
-	else if (literal.is<expressions::Not>())
-	{
-		const auto &notExpression = literal.as<expressions::Not>();
-
-		if (notExpression.argument()->expressionType() != Expression::Type::Predicate)
-			throw output::TranslatorException("only negations of primitive predicates supported as literals currently");
-
-		const auto &predicate = notExpression.argument()->as<expressions::Predicate>();
-
-		outputStream << output::Keyword("variable") << "(";
-		translatePredicate(outputStream, predicate);
-		outputStream << "), " << output::Keyword("value") << "(";
-		translatePredicate(outputStream, predicate);
-		outputStream << ", " << output::Boolean("false") << ")";
-	}
-	else if (literal.is<expressions::DerivedPredicate>())
-	{
-		const auto &derivedPredicate = literal.as<expressions::DerivedPredicate>();
-
-		/*m_outputStream << output::Keyword("variable") << "(";
-		this->translatePredicate(predicate);
-		m_outputStream << "), " << output::Keyword("value") << "(";
-		this->translatePredicate(predicate);
-		m_outputStream << ", " << output::Boolean("true") << ")";*/
-
-		outputStream << "(derived predicate)";
-	}
-	else
-		throw output::TranslatorException("only primitive predicates and their negations supported as literals currently");
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void translatePredicate(output::ColorStream &outputStream, const expressions::Predicate &predicate)
-{
-	const auto &arguments = predicate.arguments();
-
-	if (arguments.empty())
-	{
-		outputStream << output::String(predicate.name().c_str());
-
-		return;
-	}
-
-	outputStream << "(" << output::String(predicate.name().c_str());
-
-	for (const auto &argument : arguments)
-	{
-		outputStream << ", ";
-
-		if (argument->is<expressions::Constant>())
-		{
-			const auto &constant = argument->as<expressions::Constant>();
-
-			outputStream << output::Keyword("constant") << "(" << output::String(constant.name().c_str()) << ")";
-		}
-		else if (argument->is<expressions::Variable>())
-		{
-			const auto &variable = argument->as<expressions::Variable>();
-
-			outputStream << output::Variable(variable.name().c_str());
-		}
-		else
-			throw output::TranslatorException("only variables and constants supported in predicates currently");
-	}
-
-	outputStream << ")";
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 void TranslatorASP::translateProblem() const
 {
 	BOOST_ASSERT(m_description.containsProblem());
@@ -579,9 +500,9 @@ void TranslatorASP::translateInitialState() const
 			const auto &predicate = fact->as<expressions::Predicate>();
 
 			m_outputStream << output::Keyword("variable") << "(";
-			translatePredicate(m_outputStream, predicate);
+			translation::translatePredicate(m_outputStream, predicate);
 			m_outputStream << "), " << output::Keyword("value") << "(";
-			translatePredicate(m_outputStream, predicate);
+			translation::translatePredicate(m_outputStream, predicate);
 			m_outputStream << ", " << output::Boolean("true") << ")";
 		}
 		// Assuming that "not" expression may only contain a predicate
@@ -625,7 +546,7 @@ void TranslatorASP::translateGoal() const
 	{
 		m_outputStream << std::endl << output::Function("goal") << "(";
 
-		translateLiteral(m_outputStream, goal);
+		translation::translateLiteral(m_outputStream, goal);
 
 		m_outputStream << ").";
 	}
@@ -638,7 +559,7 @@ void TranslatorASP::translateGoal() const
 			{
 				m_outputStream << std::endl << output::Function("goal") << "(";
 
-				translateLiteral(m_outputStream, *argument);
+				translation::translateLiteral(m_outputStream, *argument);
 
 				m_outputStream << ").";
 			});

@@ -107,7 +107,7 @@ ExpressionPointer Not::decomposed(DerivedPredicates &derivedPredicates)
 	if (m_argument->is<Predicate>() || m_argument->is<DerivedPredicate>())
 		return this;
 
-	derivedPredicates.emplace_back(new DerivedPredicate());
+	derivedPredicates.emplace_back(new DerivedPredicate(derivedPredicates.size()));
 	auto &derivedPredicate = derivedPredicates.back();
 
 	// Move this expression’s arguments to the derived predicate

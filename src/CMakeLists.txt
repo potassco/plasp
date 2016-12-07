@@ -9,6 +9,9 @@ file(GLOB pddl_headers "../include/plasp/pddl/*.h")
 file(GLOB pddl_expressions_sources "plasp/pddl/expressions/*.cpp")
 file(GLOB pddl_expressions_headers "../include/plasp/pddl/expressions/*.h")
 
+file(GLOB pddl_translation_sources "plasp/pddl/translation/*.cpp")
+file(GLOB pddl_translation_headers "../include/plasp/pddl/translation/*.h")
+
 file(GLOB sas_sources "plasp/sas/*.cpp")
 file(GLOB sas_headers "../include/plasp/sas/*.h")
 
@@ -35,6 +38,9 @@ set(sources
 
 	${pddl_expressions_sources}
 	${pddl_expressions_headers}
+
+	${pddl_translation_sources}
+	${pddl_translation_headers}
 
 	${sas_sources}
 	${sas_headers}

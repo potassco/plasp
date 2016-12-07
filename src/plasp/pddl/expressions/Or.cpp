@@ -23,7 +23,7 @@ const std::string Or::Identifier = "or";
 
 ExpressionPointer Or::decomposed(DerivedPredicates &derivedPredicates)
 {
-	derivedPredicates.emplace_back(new DerivedPredicate());
+	derivedPredicates.emplace_back(new DerivedPredicate(derivedPredicates.size()));
 	auto &derivedPredicate = derivedPredicates.back();
 
 	std::vector<Expressions> preconditions;
