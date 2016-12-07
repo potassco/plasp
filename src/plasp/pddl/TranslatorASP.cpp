@@ -235,8 +235,7 @@ void TranslatorASP::translateDerivedPredicates() const
 
 			m_outputStream << "))";
 
-			// TODO: implement
-			//translateVariablesBody(m_outputStream, predicate->arguments());
+			translateVariablesBody(m_outputStream, predicate->parameters());
 
 			m_outputStream << ".";
 		});
