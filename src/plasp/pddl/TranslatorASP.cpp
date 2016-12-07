@@ -279,101 +279,99 @@ void TranslatorASP::translateActions() const
 			m_outputStream << "))";
 		};
 
-	std::for_each(actions.cbegin(), actions.cend(),
-		[&](const auto &action)
+	for (const auto &action : actions)
+	{
+		const auto translateExpression =
+			[&](const auto &ruleHead, const auto &literal, bool enumerateEffects = false)
+			{
+				m_outputStream << std::endl << output::Function(ruleHead) << "(";
+
+				printActionName(*action);
+
+				// TODO: implement conditional effects
+				if (enumerateEffects)
+					m_outputStream << ", " << output::Keyword("effect") << "(" << output::Reserved("unconditional") << ")";
+
+				m_outputStream << ", ";
+
+				translateLiteral(m_outputStream, literal);
+
+				m_outputStream << ") :- " << output::Function("action") << "(";
+
+				printActionName(*action);
+
+				m_outputStream << ").";
+			};
+
+		m_outputStream << std::endl;
+
+		// Name
+		m_outputStream << output::Function("action") << "(";
+		printActionName(*action);
+		m_outputStream << ")";
+
+		translateVariablesBody(m_outputStream, action->parameters());
+
+		m_outputStream << ".";
+
+		// Precondition
+		if (action->precondition())
 		{
-			const auto translateExpression =
-				[&](const auto &ruleHead, const auto &literal, bool enumerateEffects = false)
-				{
-					m_outputStream << std::endl << output::Function(ruleHead) << "(";
+			const auto &precondition = *action->precondition();
 
-					printActionName(*action);
-
-					// TODO: implement conditional effects
-					if (enumerateEffects)
-						m_outputStream << ", " << output::Keyword("effect") << "(" << output::Reserved("unconditional") << ")";
-
-					m_outputStream << ", ";
-
-					translateLiteral(m_outputStream, literal);
-
-					m_outputStream << ") :- " << output::Function("action") << "(";
-
-					printActionName(*action);
-
-					m_outputStream << ").";
-				};
-
-			m_outputStream << std::endl;
-
-			// Name
-			m_outputStream << output::Function("action") << "(";
-			printActionName(*action);
-			m_outputStream << ")";
-
-			translateVariablesBody(m_outputStream, action->parameters());
-
-			m_outputStream << ".";
-
-			// Precondition
-			if (action->precondition())
+			switch (precondition.expressionType())
 			{
-				const auto &precondition = *action->precondition();
-
-				switch (precondition.expressionType())
+				case Expression::Type::And:
 				{
-					case Expression::Type::And:
-					{
-						const auto &andExpression = dynamic_cast<const expressions::And &>(precondition);
-
-						std::for_each(andExpression.arguments().cbegin(), andExpression.arguments().cend(),
-							[&](const auto argument)
-							{
-								translateExpression("precondition", *argument);
-							});
-
-						break;
-					}
-					case Expression::Type::Predicate:
-					case Expression::Type::Not:
-					case Expression::Type::DerivedPredicate:
-					{
-						translateExpression("precondition", precondition);
-						break;
-					}
-					default:
-						throw output::TranslatorException("only “and” expressions and (negated) predicates supported as action preconditions currently (" + std::to_string((int)precondition.expressionType()) + ")");
-				}
-			}
-
-			// Effect
-			if (action->effect())
-			{
-				const auto &effect = *action->effect();
-
-				if (effect.expressionType() == Expression::Type::Predicate
-					|| effect.expressionType() == Expression::Type::Not)
-				{
-					translateExpression("postcondition", effect, true);
-				}
-				// Assuming a conjunction
-				else
-				{
-					if (effect.expressionType() != Expression::Type::And)
-						throw output::TranslatorException("only “and” expressions and (negated) predicates supported as action effects currently");
-
-					const auto &andExpression = dynamic_cast<const expressions::And &>(effect);
+					const auto &andExpression = dynamic_cast<const expressions::And &>(precondition);
 
 					std::for_each(andExpression.arguments().cbegin(), andExpression.arguments().cend(),
 						[&](const auto argument)
 						{
-							translateExpression("postcondition", *argument, true);
+							translateExpression("precondition", *argument);
 						});
-				}
-			}
 
-			m_outputStream << std::endl;
-		});
+					break;
+				}
+				case Expression::Type::Predicate:
+				case Expression::Type::Not:
+				case Expression::Type::DerivedPredicate:
+				{
+					translateExpression("precondition", precondition);
+					break;
+				}
+				default:
+					throw output::TranslatorException("only “and” expressions and (negated) predicates supported as action preconditions currently (" + std::to_string((int)precondition.expressionType()) + ")");
+			}
+		}
+
+		// Effect
+		if (action->effect())
+		{
+			const auto &effect = *action->effect();
+
+			if (effect.is<expressions::Predicate>() || effect.is<expressions::Not>())
+			{
+				translateExpression("postcondition", effect, true);
+			}
+			// Assuming a conjunction
+			else
+			{
+				if (effect.expressionType() != Expression::Type::And)
+					throw output::TranslatorException("only “and” expressions and (negated) predicates supported as action effects currently");
+
+				const auto &andExpression = dynamic_cast<const expressions::And &>(effect);
+
+				std::for_each(andExpression.arguments().cbegin(), andExpression.arguments().cend(),
+					[&](const auto argument)
+					{
+						translateExpression("postcondition", *argument, true);
+					});
+			}
+		}
+
+		m_outputStream << std::endl;
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -466,7 +464,7 @@ void translateVariablesBody(output::ColorStream &outputStream, const T &variable
 void translateLiteral(output::ColorStream &outputStream, const Expression &literal)
 {
 	// Translate single predicate
-	if (literal.expressionType() == Expression::Type::Predicate)
+	if (literal.is<expressions::Predicate>())
 	{
 		const auto &predicate = dynamic_cast<const expressions::Predicate &>(literal);
 
@@ -477,7 +475,7 @@ void translateLiteral(output::ColorStream &outputStream, const Expression &liter
 		outputStream << ", " << output::Boolean("true") << ")";
 	}
 	// Assuming that "not" expression may only contain a predicate
-	else if (literal.expressionType() == Expression::Type::Not)
+	else if (literal.is<expressions::Not>())
 	{
 		const auto &notExpression = dynamic_cast<const expressions::Not &>(literal);
 
@@ -492,7 +490,7 @@ void translateLiteral(output::ColorStream &outputStream, const Expression &liter
 		translatePredicate(outputStream, predicate);
 		outputStream << ", " << output::Boolean("false") << ")";
 	}
-	else if (literal.expressionType() == Expression::Type::DerivedPredicate)
+	else if (literal.is<expressions::DerivedPredicate>())
 	{
 		const auto &derivedPredicate = dynamic_cast<const expressions::DerivedPredicate &>(literal);
 
@@ -527,13 +525,13 @@ void translatePredicate(output::ColorStream &outputStream, const expressions::Pr
 	{
 		outputStream << ", ";
 
-		if ((*i)->expressionType() == Expression::Type::Constant)
+		if ((*i)->is<expressions::Constant>())
 		{
 			const auto &constant = dynamic_cast<const expressions::Constant &>(**i);
 
 			outputStream << output::Keyword("constant") << "(" << output::String(constant.name().c_str()) << ")";
 		}
-		else if ((*i)->expressionType() == Expression::Type::Variable)
+		else if ((*i)->is<expressions::Variable>())
 		{
 			const auto &variable = dynamic_cast<const expressions::Variable &>(**i);
 
@@ -582,35 +580,34 @@ void TranslatorASP::translateInitialState() const
 
 	const auto &initialStateFacts = m_description.problem().initialState().facts();
 
-	std::for_each(initialStateFacts.cbegin(), initialStateFacts.cend(),
-		[&](const auto &fact)
+	for (const auto &fact : initialStateFacts)
+	{
+		m_outputStream << std::endl << output::Function("initialState") << "(";
+
+		// Translate single predicate
+		if (fact->is<expressions::Predicate>())
 		{
-			m_outputStream << std::endl << output::Function("initialState") << "(";
+			const auto &predicate = dynamic_cast<const expressions::Predicate &>(*fact);
 
-			// Translate single predicate
-			if (fact->expressionType() == Expression::Type::Predicate)
-			{
-				const auto &predicate = dynamic_cast<const expressions::Predicate &>(*fact);
+			m_outputStream << output::Keyword("variable") << "(";
+			translatePredicate(m_outputStream, predicate);
+			m_outputStream << "), " << output::Keyword("value") << "(";
+			translatePredicate(m_outputStream, predicate);
+			m_outputStream << ", " << output::Boolean("true") << ")";
+		}
+		// Assuming that "not" expression may only contain a predicate
+		else if (fact->is<expressions::Not>())
+		{
+			const auto &notExpression = dynamic_cast<const expressions::Not &>(*fact);
 
-				m_outputStream << output::Keyword("variable") << "(";
-				translatePredicate(m_outputStream, predicate);
-				m_outputStream << "), " << output::Keyword("value") << "(";
-				translatePredicate(m_outputStream, predicate);
-				m_outputStream << ", " << output::Boolean("true") << ")";
-			}
-			// Assuming that "not" expression may only contain a predicate
-			else if (fact->expressionType() == Expression::Type::Not)
-			{
-				const auto &notExpression = dynamic_cast<const expressions::Not &>(*fact);
+			if (notExpression.argument()->expressionType() != Expression::Type::Predicate)
+				throw output::TranslatorException("only negations of simple predicates supported in initial state currently");
+		}
+		else
+			throw output::TranslatorException("only predicates and their negations supported in initial state currently");
 
-				if (notExpression.argument()->expressionType() != Expression::Type::Predicate)
-					throw output::TranslatorException("only negations of simple predicates supported in initial state currently");
-			}
-			else
-				throw output::TranslatorException("only predicates and their negations supported in initial state currently");
-
-			m_outputStream << ").";
-		});
+		m_outputStream << ").";
+	}
 
 	m_outputStream
 		<< std::endl << std::endl
@@ -635,8 +632,7 @@ void TranslatorASP::translateGoal() const
 
 	const auto &goal = m_description.problem().goal();
 
-	if (goal.expressionType() == Expression::Type::Predicate
-		|| goal.expressionType() == Expression::Type::Not)
+	if (goal.is<expressions::Predicate>() || goal.is<expressions::Not>())
 	{
 		m_outputStream << std::endl << output::Function("goal") << "(";
 
@@ -644,7 +640,7 @@ void TranslatorASP::translateGoal() const
 
 		m_outputStream << ").";
 	}
-	else if (goal.expressionType() == Expression::Type::And)
+	else if (goal.is<expressions::And>())
 	{
 		const auto &andExpression = dynamic_cast<const expressions::And &>(goal);
 

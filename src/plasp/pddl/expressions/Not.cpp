@@ -2,9 +2,11 @@
 
 #include <plasp/output/TranslatorException.h>
 #include <plasp/pddl/expressions/And.h>
+#include <plasp/pddl/expressions/DerivedPredicate.h>
 #include <plasp/pddl/expressions/Exists.h>
 #include <plasp/pddl/expressions/ForAll.h>
 #include <plasp/pddl/expressions/Or.h>
+#include <plasp/pddl/expressions/Predicate.h>
 
 namespace plasp
 {
@@ -79,15 +81,13 @@ ExpressionPointer Not::simplified()
 
 	m_argument = m_argument->simplified();
 
+	if (!m_argument->is<expressions::Not>())
+		return this;
+
 	// Remove double negations
-	if (m_argument->expressionType() == Expression::Type::Not)
-	{
-		const auto &notExpression = dynamic_cast<expressions::Not &>(*m_argument);
+	const auto &notExpression = dynamic_cast<expressions::Not &>(*m_argument);
 
-		return notExpression.argument();
-	}
-
-	return this;
+	return notExpression.argument();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -104,11 +104,8 @@ ExpressionPointer Not::decomposed(DerivedPredicates &derivedPredicates)
 	m_argument = m_argument->decomposed(derivedPredicates);
 
 	// Predicates and derived predicates can be directly negated
-	if (m_argument->expressionType() == Expression::Type::Predicate
-	    || m_argument->expressionType() == Expression::Type::DerivedPredicate)
-	{
+	if (m_argument->is<expressions::Predicate>() || m_argument->is<expressions::DerivedPredicate>())
 		return this;
-	}
 
 	derivedPredicates.emplace_back(new DerivedPredicate());
 	auto &derivedPredicate = derivedPredicates.back();

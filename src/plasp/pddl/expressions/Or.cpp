@@ -33,7 +33,7 @@ ExpressionPointer Or::decomposed(DerivedPredicates &derivedPredicates)
 		Expressions conjunction;
 
 		// “and” expressions can directly be inlined into the derived predicate
-		if (argument->expressionType() == Expression::Type::And)
+		if (argument->is<expressions::And>())
 		{
 			const auto &andExpression = dynamic_cast<expressions::And &>(*argument);
 

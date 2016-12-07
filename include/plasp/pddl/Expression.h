@@ -130,6 +130,9 @@ class Expression
 
 		virtual Type expressionType() const = 0;
 
+		template<class T>
+		bool is() const;
+
 		virtual ExpressionPointer copy();
 
 		// Transform into a normal form as used for the translation to ASP
@@ -158,6 +161,14 @@ class Expression
 
 		size_t m_referenceCount = 0;
 };
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class T>
+bool Expression::is() const
+{
+	return expressionType() == T::ExpressionType;
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

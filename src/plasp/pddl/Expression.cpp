@@ -61,7 +61,7 @@ ExpressionPointer Expression::moveUpQuantifiers(ExpressionPointer parent, Expres
 {
 	BOOST_ASSERT(child);
 
-	if (child->expressionType() == Expression::Type::Exists)
+	if (child->is<expressions::Exists>())
 	{
 		auto quantifiedExpression = expressions::ExistsPointer(dynamic_cast<expressions::Exists *>(child.get()));
 
@@ -74,7 +74,7 @@ ExpressionPointer Expression::moveUpQuantifiers(ExpressionPointer parent, Expres
 		// Make parent point to the quantifier that has been moved up
 		return quantifiedExpression;
 	}
-	else if (child->expressionType() == Expression::Type::ForAll)
+	else if (child->is<expressions::ForAll>())
 	{
 		auto quantifiedExpression = expressions::ForAllPointer(dynamic_cast<expressions::ForAll *>(child.get()));
 
@@ -109,7 +109,7 @@ ExpressionPointer Expression::simplified()
 
 ExpressionPointer Expression::negated()
 {
-	if (expressionType() == Type::Not)
+	if (is<expressions::Not>())
 	{
 		auto &notExpression = dynamic_cast<expressions::Not &>(*this);
 
