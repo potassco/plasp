@@ -93,6 +93,8 @@ void Action::normalize(expressions::DerivedPredicates &derivedPredicates)
 	// Normalize preconditions and effects
 	m_precondition = m_precondition->normalized()->decomposed(derivedPredicates);
 	{
+		m_precondition->print(std::cout);
+
 		// TODO: refactor
 		std::set<expressions::VariablePointer> parameters;
 		m_precondition->collectParameters(parameters);

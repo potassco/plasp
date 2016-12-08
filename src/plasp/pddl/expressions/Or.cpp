@@ -23,8 +23,10 @@ const std::string Or::Identifier = "or";
 
 ExpressionPointer Or::decomposed(DerivedPredicates &derivedPredicates)
 {
+	BOOST_ASSERT(!m_arguments.empty());
+
 	derivedPredicates.emplace_back(new DerivedPredicate(derivedPredicates.size()));
-	auto &derivedPredicate = derivedPredicates.back();
+	auto derivedPredicate = derivedPredicates.back();
 
 	std::vector<Expressions> preconditions;
 
@@ -39,14 +41,9 @@ ExpressionPointer Or::decomposed(DerivedPredicates &derivedPredicates)
 
 			for (auto &argument : conjunction)
 				argument = argument->decomposed(derivedPredicates);
-
-			break;
 		}
 		else
-		{
 			conjunction.emplace_back(argument->decomposed(derivedPredicates));
-			break;
-		}
 
 		// Move this expression’s arguments to the derived predicate
 		preconditions.emplace_back(std::move(conjunction));

@@ -78,7 +78,7 @@ void Variable::parseTypedDeclaration(Context &context, ExpressionContext &expres
 	// Parse and store variable itself
 	parseDeclaration(context, variables);
 
-	auto &variable = variables.back();
+	auto variable = variables.back();
 
 	parser.skipWhiteSpace();
 
@@ -90,15 +90,14 @@ void Variable::parseTypedDeclaration(Context &context, ExpressionContext &expres
 		[&](ExpressionPointer type)
 		{
 			// Set the argument type for all previously flagged arguments
-			std::for_each(variables.begin(), variables.end(),
-				[&](auto &variable)
-				{
-					if (!variable->isDirty())
-						return;
+			for (auto &variable : variables)
+			{
+				if (!variable->isDirty())
+					return;
 
-					variable->setType(type);
-					variable->setDirty(false);
-				});
+				variable->setType(type);
+				variable->setDirty(false);
+			}
 		};
 
 	parser.skipWhiteSpace();

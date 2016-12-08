@@ -64,7 +64,10 @@ void DerivedPredicate::collectParameters(std::set<VariablePointer> &parameters)
 {
 	for (auto &conjunction : m_preconditions)
 		for (auto &precondition : conjunction)
+		{
+			BOOST_ASSERT(precondition.get() != this);
 			precondition->collectParameters(m_parameters);
+		}
 
 	// Copy in order not to interfere with potentially bound variables in parent expressions
 	parameters = m_parameters;
@@ -74,7 +77,7 @@ void DerivedPredicate::collectParameters(std::set<VariablePointer> &parameters)
 
 void DerivedPredicate::print(std::ostream &ostream) const
 {
-	ostream << "(:derived <no name>";
+	ostream << "(:derived " << m_id << " ";
 
 	BOOST_ASSERT(m_preconditions.size() > 0);
 

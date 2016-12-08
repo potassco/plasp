@@ -108,7 +108,7 @@ ExpressionPointer Not::decomposed(DerivedPredicates &derivedPredicates)
 		return this;
 
 	derivedPredicates.emplace_back(new DerivedPredicate(derivedPredicates.size()));
-	auto &derivedPredicate = derivedPredicates.back();
+	auto derivedPredicate = derivedPredicates.back();
 
 	// Move this expression’s arguments to the derived predicate
 	derivedPredicate->setPreconditions({{this}});
