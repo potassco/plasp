@@ -8,6 +8,7 @@
 #include <plasp/pddl/expressions/Not.h>
 #include <plasp/pddl/expressions/Predicate.h>
 #include <plasp/pddl/translation/Precondition.h>
+#include <plasp/pddl/translation/Predicate.h>
 #include <plasp/pddl/translation/Primitives.h>
 #include <plasp/pddl/translation/Variables.h>
 
@@ -144,31 +145,13 @@ void TranslatorASP::translatePredicates() const
 
 	const auto &predicates = m_description.domain().predicates();
 
-	const auto printPredicateName =
-		[&](const auto &predicate)
-		{
-			if (predicate->parameters().empty())
-			{
-				m_outputStream << output::String(predicate->name().c_str());
-
-				return;
-			}
-
-			m_outputStream << "(" << output::String(predicate->name().c_str());
-			translation::translateVariablesForRuleHead(m_outputStream, predicate->parameters());
-			m_outputStream << ")";
-		};
-
 	for (const auto &predicate : predicates)
 	{
-		m_outputStream
-			<< std::endl
-			<< output::Function("variable") << "("
-			<< output::Keyword("variable") << "(";
+		m_outputStream << std::endl << output::Function("variable") << "(";
 
-		printPredicateName(predicate);
+		translation::printPredicateName(m_outputStream, *predicate);
 
-		m_outputStream << "))";
+		m_outputStream << ")";
 
 		translation::translateVariablesForRuleBody(m_outputStream, predicate->parameters());
 
@@ -198,27 +181,15 @@ void TranslatorASP::translateDerivedPredicates() const
 
 	for (const auto &derivedPredicate : derivedPredicates)
 	{
-		const auto printDerivedPredicateName =
-			[&derivedPredicate](output::ColorStream &outputStream)
+		const auto printObjectName =
+			[&](auto &outputStream)
 			{
-				outputStream << output::Keyword("derivedVariable") << "(";
-
-				const auto id = derivedPredicate->id();
-
-				if (derivedPredicate->parameters().empty())
-				{
-					outputStream << output::Number<decltype(id)>(id) << ")";
-					return;
-				}
-
-				outputStream << "(" << output::Number<decltype(id)>(id);
-				translation::translateVariablesForRuleHead(outputStream, derivedPredicate->parameters());
-				outputStream << "))";
+				translation::printDerivedPredicateName(outputStream, *derivedPredicate);
 			};
 
 		m_outputStream << std::endl << output::Function("derivedVariable") << "(";
 
-		printDerivedPredicateName(m_outputStream);
+		printObjectName(m_outputStream);
 
 		m_outputStream << ")";
 
@@ -226,7 +197,7 @@ void TranslatorASP::translateDerivedPredicates() const
 
 		m_outputStream << ".";
 
-		translation::translatePreconditionDisjunction(m_outputStream, "derivedVariable", printDerivedPredicateName, derivedPredicate->preconditions());
+		translation::translatePreconditionDisjunction(m_outputStream, "derivedVariable", printObjectName, derivedPredicate->preconditions());
 
 		m_outputStream << std::endl;
 	}
