@@ -3,9 +3,6 @@
 
 #include <plasp/output/Formatting.h>
 #include <plasp/output/TranslatorException.h>
-#include <plasp/pddl/Description.h>
-#include <plasp/pddl/expressions/Not.h>
-#include <plasp/pddl/expressions/Predicate.h>
 
 namespace plasp
 {
