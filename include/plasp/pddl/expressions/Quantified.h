@@ -198,7 +198,7 @@ template<class Derived>
 inline ExpressionPointer QuantifiedCRTP<Derived>::decomposed(DerivedPredicates &derivedPredicates)
 {
 	derivedPredicates.emplace_back(new DerivedPredicate(derivedPredicates.size()));
-	auto &derivedPredicate = derivedPredicates.back();
+	auto derivedPredicate = derivedPredicates.back();
 
 	m_argument = m_argument->decomposed(derivedPredicates);
 
