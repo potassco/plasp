@@ -56,15 +56,13 @@ inline void translateLiteral(output::ColorStream &outputStream, const Expression
 	}
 	else if (literal.is<expressions::DerivedPredicate>())
 	{
-		//const auto &derivedPredicate = literal.as<expressions::DerivedPredicate>();
+		const auto &derivedPredicate = literal.as<expressions::DerivedPredicate>();
 
-		/*m_outputStream << output::Keyword("variable") << "(";
-		translation::translatePredicate(predicate);
-		m_outputStream << "), " << output::Keyword("value") << "(";
-		translation::translatePredicate(predicate);
-		m_outputStream << ", " << output::Boolean("true") << ")";*/
-
-		outputStream << "(derived predicate)";
+		outputStream << output::Keyword("derivedVariable") << "(";
+		translation::translateDerivedPredicate(outputStream, derivedPredicate);
+		outputStream << "), " << output::Keyword("value") << "(";
+		translation::translateDerivedPredicate(outputStream, derivedPredicate);
+		outputStream << ", " << output::Boolean("true") << ")";
 	}
 	else
 		throw output::TranslatorException("only primitive predicates and their negations supported as literals currently");
