@@ -9,6 +9,7 @@
 #include <plasp/pddl/expressions/Predicate.h>
 #include <plasp/pddl/translation/Precondition.h>
 #include <plasp/pddl/translation/Primitives.h>
+#include <plasp/pddl/translation/Variables.h>
 
 namespace plasp
 {
@@ -19,13 +20,6 @@ namespace pddl
 //
 // TranslatorASP
 //
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<class T>
-void translateVariablesHead(output::ColorStream &outputStream, const T &variables);
-template<class T>
-void translateVariablesBody(output::ColorStream &outputStream, const T &variables);
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 TranslatorASP::TranslatorASP(Description &description, output::ColorStream &outputStream)
@@ -108,26 +102,25 @@ void TranslatorASP::translateTypes() const
 		return;
 	}
 
-	std::for_each(types.cbegin(), types.cend(),
-		[&](const auto &type)
-		{
-			m_outputStream
-				<< output::Function("type") << "("
-				<< output::Keyword("type") << "("
-				<< output::String(type->name().c_str())
-				<< "))." << std::endl;
+	for (const auto &type : types)
+	{
+		m_outputStream
+			<< output::Function("type") << "("
+			<< output::Keyword("type") << "("
+			<< output::String(type->name().c_str())
+			<< "))." << std::endl;
 
-			const auto &parentTypes = type->parentTypes();
+		const auto &parentTypes = type->parentTypes();
 
-			std::for_each(parentTypes.cbegin(), parentTypes.cend(),
-				[&](const auto &parentType)
-				{
-					m_outputStream
-						<< output::Function("inherits") << "(" << output::Keyword("type")
-						<< "(" << output::String(type->name().c_str()) << "), " << output::Keyword("type")
-						<< "(" << output::String(parentType->name().c_str()) << "))." << std::endl;
-				});
-		});
+		std::for_each(parentTypes.cbegin(), parentTypes.cend(),
+			[&](const auto &parentType)
+			{
+				m_outputStream
+					<< output::Function("inherits") << "(" << output::Keyword("type")
+					<< "(" << output::String(type->name().c_str()) << "), " << output::Keyword("type")
+					<< "(" << output::String(parentType->name().c_str()) << "))." << std::endl;
+			});
+	}
 
 	m_outputStream
 		<< std::endl
@@ -162,26 +155,25 @@ void TranslatorASP::translatePredicates() const
 			}
 
 			m_outputStream << "(" << output::String(predicate->name().c_str());
-			translateVariablesHead(m_outputStream, predicate->parameters());
+			translation::translateVariablesForRuleHead(m_outputStream, predicate->parameters());
 			m_outputStream << ")";
 		};
 
-	std::for_each(predicates.cbegin(), predicates.cend(),
-		[&](const auto &predicate)
-		{
-			m_outputStream
-				<< std::endl
-				<< output::Function("variable") << "("
-				<< output::Keyword("variable") << "(";
+	for (const auto &predicate : predicates)
+	{
+		m_outputStream
+			<< std::endl
+			<< output::Function("variable") << "("
+			<< output::Keyword("variable") << "(";
 
-			printPredicateName(predicate);
+		printPredicateName(predicate);
 
-			m_outputStream << "))";
+		m_outputStream << "))";
 
-			translateVariablesBody(m_outputStream, predicate->parameters());
+		translation::translateVariablesForRuleBody(m_outputStream, predicate->parameters());
 
-			m_outputStream << ".";
-		});
+		m_outputStream << ".";
+	}
 
 	m_outputStream
 		<< std::endl << std::endl
@@ -220,7 +212,7 @@ void TranslatorASP::translateDerivedPredicates() const
 				}
 
 				outputStream << "(" << output::Number<decltype(id)>(id);
-				translateVariablesHead(outputStream, derivedPredicate->parameters());
+				translation::translateVariablesForRuleHead(outputStream, derivedPredicate->parameters());
 				outputStream << "))";
 			};
 
@@ -230,7 +222,7 @@ void TranslatorASP::translateDerivedPredicates() const
 
 		m_outputStream << ")";
 
-		translateVariablesBody(m_outputStream, derivedPredicate->parameters());
+		translation::translateVariablesForRuleBody(m_outputStream, derivedPredicate->parameters());
 
 		m_outputStream << ".";
 
@@ -270,7 +262,7 @@ void TranslatorASP::translateActions() const
 			}
 
 			m_outputStream << "(" << output::String(action.name().c_str());
-			translateVariablesHead(m_outputStream, action.parameters());
+			translation::translateVariablesForRuleHead(m_outputStream, action.parameters());
 			m_outputStream << "))";
 		};
 
@@ -305,7 +297,7 @@ void TranslatorASP::translateActions() const
 		printActionName(*action);
 		m_outputStream << ")";
 
-		translateVariablesBody(m_outputStream, action->parameters());
+		translation::translateVariablesForRuleBody(m_outputStream, action->parameters());
 
 		m_outputStream << ".";
 
@@ -375,81 +367,27 @@ void TranslatorASP::translateConstants(const std::string &heading, const express
 {
 	m_outputStream << output::Heading2(heading.c_str());
 
-	std::for_each(constants.cbegin(), constants.cend(),
-		[&](const auto &constant)
-		{
-			m_outputStream << std::endl
-				<< output::Function("constant") << "("
-				<< output::Keyword("constant") << "("
-				<< output::String(constant->name().c_str())
-				<< "))." << std::endl;
-
-			const auto type = constant->type();
-
-			if (type != nullptr)
-			{
-				m_outputStream << output::Function("has") << "("
-					<< output::Keyword("constant") << "(" << output::String(constant->name().c_str()) << "), "
-					<< output::Keyword("type") << "(" << output::String(type->name().c_str()) << "))." << std::endl;
-			}
-			else
-			{
-				m_outputStream << output::Function("has") << "("
-					<< output::Keyword("constant") << "(" << output::String(constant->name().c_str()) << "), "
-					<< output::Keyword("type") << "(" << output::String("object") << "))." << std::endl;
-			}
-		});
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<class T>
-void translateVariablesHead(output::ColorStream &outputStream, const T &variables)
-{
-	if (variables.empty())
-		return;
-
-	for (auto i = variables.cbegin(); i != variables.cend(); i++)
+	for (const auto &constant : constants)
 	{
-		const auto &variable = **i;
+		m_outputStream << std::endl
+			<< output::Function("constant") << "("
+			<< output::Keyword("constant") << "("
+			<< output::String(constant->name().c_str())
+			<< "))." << std::endl;
 
-		outputStream << ", " << output::Variable(variable.name().c_str());
-	}
-}
+		const auto type = constant->type();
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<class T>
-void translateVariablesBody(output::ColorStream &outputStream, const T &variables)
-{
-	if (variables.empty())
-		return;
-
-	outputStream << " :- ";
-
-	for (auto i = variables.cbegin(); i != variables.cend(); i++)
-	{
-		const auto &variable = **i;
-
-		if (i != variables.cbegin())
-			outputStream << ", ";
-
-		if (variable.type() != nullptr)
+		if (type != nullptr)
 		{
-			if (variable.type()->expressionType() != Expression::Type::PrimitiveType)
-				throw output::TranslatorException("only primitive types supported currently");
-
-			const auto &type = variable.type()->template as<expressions::PrimitiveType>();
-
-			outputStream << output::Function("has") << "("
-				<< output::Variable(variable.name().c_str()) << ", "
-				<< output::Keyword("type") << "(" << output::String(type.name().c_str()) << "))";
+			m_outputStream << output::Function("has") << "("
+				<< output::Keyword("constant") << "(" << output::String(constant->name().c_str()) << "), "
+				<< output::Keyword("type") << "(" << output::String(type->name().c_str()) << "))." << std::endl;
 		}
 		else
 		{
-			outputStream << output::Function("has") << "("
-				<< output::Variable(variable.name().c_str()) << ", "
-				<< output::Keyword("type") << "(" << output::String("object") << "))";
+			m_outputStream << output::Function("has") << "("
+				<< output::Keyword("constant") << "(" << output::String(constant->name().c_str()) << "), "
+				<< output::Keyword("type") << "(" << output::String("object") << "))." << std::endl;
 		}
 	}
 }
