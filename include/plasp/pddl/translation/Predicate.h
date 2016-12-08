@@ -22,7 +22,6 @@ namespace translation
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// TODO: refactor (overly redundant)
 void translatePredicate(output::ColorStream &outputStream, const expressions::Predicate &predicate);
 void translateDerivedPredicate(output::ColorStream &outputStream, const expressions::DerivedPredicate &derivedPredicate);
 void printPredicateName(output::ColorStream &outputStream, const expressions::PredicateDeclaration &predicateDeclaration);
