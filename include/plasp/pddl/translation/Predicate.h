@@ -2,6 +2,7 @@
 #define __PLASP__PDDL__TRANSLATION__PREDICATE_H
 
 #include <plasp/output/Formatting.h>
+#include <plasp/pddl/expressions/Constant.h>
 #include <plasp/pddl/expressions/DerivedPredicate.h>
 #include <plasp/pddl/expressions/Predicate.h>
 #include <plasp/pddl/expressions/PredicateDeclaration.h>
