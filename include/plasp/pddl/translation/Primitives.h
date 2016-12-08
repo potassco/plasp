@@ -94,7 +94,7 @@ inline void translateLiteral(output::ColorStream &outputStream, const Expression
 	}
 	else if (literal.is<expressions::DerivedPredicate>())
 	{
-		const auto &derivedPredicate = literal.as<expressions::DerivedPredicate>();
+		//const auto &derivedPredicate = literal.as<expressions::DerivedPredicate>();
 
 		/*m_outputStream << output::Keyword("variable") << "(";
 		translation::translatePredicate(predicate);
