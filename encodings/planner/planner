@@ -17,9 +17,8 @@ import re
 verbose_option = False
 outf           = 0
 def do_print(string,verbose=True):
-    if outf == 1: string = "% " + string
     if verbose or verbose_option:
-        print string
+        print ("% " if outf==1 else "") + string
 
 
 #
@@ -53,15 +52,11 @@ class Sequential_Scheduler(Scheduler):
         self.__size = size
 
 
-    def set_inc(self,inc):
-        self.__inc  = inc
-
-
     def next(self,result):
         if result == None:
             self.__runs = [(self.__length,self.__time)]
             return self.__runs[0][0], self.__runs[0][1]
-        if result.interrupted or result.satisfiable:
+        if result.interrupted: # or result.satisfiable:
             return self.__runs[0][0], self.__runs[0][1]
         self.__length = self.__length + self.__inc
         self.__runs = [(self.__length,self.__time)]
@@ -84,14 +79,11 @@ class A_Scheduler(Scheduler):
         self.__size = size
 
 
-    def set_inc(self,inc):
-        self.__inc  = inc
-
     def next(self,result):
         if result == None:     # add all runs
             self.__runs   = [ (self.__length + (i*self.__inc), self.__time) for i in range(self.__size)]
             self.__length = self.__length + ((self.__size-1)*self.__inc)
-        elif result.interrupted or result.satisfiable: # move to the end of the queue
+        elif result.interrupted: # or result.satisfiable: # move to the end of the queue
             self.__runs.append(self.__runs[0])
             self.__runs = self.__runs[1:]
         else:
@@ -99,6 +91,59 @@ class A_Scheduler(Scheduler):
             self.__runs.append((self.__length,self.__time))
             self.__runs = self.__runs[1:]
         do_print("Queue:\t\t " + str(self.__runs),False)
+        return self.__runs[0][0], self.__runs[0][1]
+
+
+
+class B_Scheduler:
+
+
+    def __init__(self,n_start,n_inc,t_start,t_inc,gamma):
+        self.__n_next = n_start
+        self.__n_inc  = n_inc
+        self.__t      = t_start
+        self.__t_inc  = t_inc
+        self.__gamma  = gamma
+        self.__runs     = []
+        self.__unsolved = []
+        self.__step     = 0
+    
+
+    def next(self,result):
+        # result
+        if result is not None:
+            if result.interrupted:
+                self.__unsolved.append(self.__runs[0])
+            self.__runs = self.__runs[1:]
+        # if no more runs
+        if self.__runs == []:
+            # unsolved
+            tmp = []
+            for i in self.__unsolved:
+                t = int(self.__t * (self.__gamma ** i[3]))
+                if t > i[2]:
+                    # (planning time point, time for next run, total time, step)
+                    self.__runs.append((i[0],t-i[2],t,i[3])) 
+                else: 
+                    tmp.append(i)
+            self.__unsolved = tmp
+            # next ones
+            n, step = self.__n_next, self.__step
+            while True:
+                t = int(self.__t * (self.__gamma ** step))
+                if t > 0:
+                    # (planning time point, time for next run, total time, step)
+                    self.__runs.append((n,t,t,step)) 
+                    n    += self.__n_inc
+                    step += 1
+                else: 
+                    self.__t += self.__t_inc
+                    if len(self.__runs)>0:
+                        self.__n_next, self.__step = n, step
+                        break
+        # print
+        do_print("Queue:\t\t " + str(self.__runs),False)
+        # return 
         return self.__runs[0][0], self.__runs[0][1]
 
 
@@ -159,7 +204,7 @@ class Solver:
             parts = [(STEP,[t]) for t in range(self.__length+1,length+1)]
             parts = parts + [(CHECK,[length])]
             self.__ctl.release_external(clingo.Function(QUERY,[self.__length]))
-            do_print("Grounding...\n"+str(parts),False)
+            do_print("Grounding...\t "+str(parts),False)
             self.__ctl.ground(parts)
             self.__ctl.assign_external(clingo.Function(QUERY,[length]),True)
             self.__ctl.cleanup()
@@ -211,13 +256,16 @@ class Planner:
 
         # initialize
         ctl.ground([(BASE,[])])
-        scheduler = A_Scheduler(5,5,1,5) # start,inc,time
+        scheduler = B_Scheduler(5,5,1,1,0.9) # start,inc,time
         if options['S'] is not None:
             s = [int(x) for x in options['S']]
             scheduler = Sequential_Scheduler(s[0],s[1],s[2])      # start,inc,time
         elif options['A'] is not None:
             a = [int(x) for x in options['A']]
             scheduler = A_Scheduler(a[0],a[1],a[2],a[3]) # start,inc,time,queue
+        elif options['B'] is not None:
+            a = [int(x) for x in options['B'][:-1]]
+            scheduler = B_Scheduler(a[0],a[1],a[2],a[3],float(options['B'][-1])) # start,inc,time,queue
         solver    = Solver(ctl,options)
 
         # loop
@@ -252,7 +300,7 @@ Clingo Options:
 
     epilog = """
 Default command-line:
-planner.py -A 5 5 1 5
+planner.py -B 5 5 1 1 0.9
 
 planner is part of plasp in Potassco: https://potassco.org/
 Get help/report bugs via : https://potassco.org/support
@@ -281,8 +329,12 @@ Get help/report bugs via : https://potassco.org/support
         scheduler.add_argument('-S',nargs=3,dest='S',help="Sequential Scheduler starting at time point <s>,\
                                incrementing <i> time points, and solving for <t> seconds",metavar=('<s>','<i>','<t>'),default=None)
         scheduler.add_argument('-A',nargs=4,dest='A',help="Scheduler A starting at time point <s>, incrementing <i> time points,\
-                                solving for <t> seconds with a queue of <q> elements (Default: -A 5 5 1 5)",
+                                solving for <t> seconds with a queue of <q> elements",
                                 metavar=('<s>','<i>','<t>','<q>'),default=None)
+        scheduler.add_argument('-B',nargs=5,dest='B',help="Scheduler B starting at time point <s>, incrementing <i> time points,\
+                                solving initially for <t> seconds, incrementing <it> seconds,\
+                                with gamma <g> (float)",
+                                metavar=('<s>','<i>','<t>','<it>','<g>'),default=None)
 
         # parse
         options, unknown = cmd_parser.parse_known_args()
