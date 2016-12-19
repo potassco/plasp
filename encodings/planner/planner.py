@@ -288,8 +288,8 @@ Get help/report bugs via : https://potassco.org/support
         # separate files, and clingo options
         options['files'], clingo_options = [], []
         for i in unknown:
-            if (re.match(r'^-',i)):                    clingo_options.append(i)
-            else:                                        options['files'].append(i)
+            if (re.match(r'^-',i)): clingo_options.append(i)
+            else:                   options['files'].append(i)
         if options['files'] == []: options['read_stdin'] = True
 
         # add constants to clingo_options
