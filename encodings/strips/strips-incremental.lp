@@ -5,7 +5,7 @@
 
 #const _parallel = 0.
 
-#include <incmode>.
+%#include <incmode>.
 
 % BASE PROGRAM
 
@@ -60,7 +60,7 @@ change(X,t) :- holds(X,V,t-1), not holds(X,V,t).
 
 % Generate actions
 
-1 {occurs(A,t) : active(A)}.
+0 {occurs(A,t) : active(A)}.
 
 :- occurs(A,t), postcondition(A,X,V), fluent(X), not holds(X,V,t).
 
