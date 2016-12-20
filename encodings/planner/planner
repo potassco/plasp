@@ -256,7 +256,7 @@ class Planner:
 
         # initialize
         ctl.ground([(BASE,[])])
-        scheduler = B_Scheduler(5,5,1,1,0.9) # start,inc,time
+        scheduler = B_Scheduler(5,5,5,5,0.8) # start,inc,time
         if options['S'] is not None:
             s = [int(x) for x in options['S']]
             scheduler = Sequential_Scheduler(s[0],s[1],s[2])      # start,inc,time
