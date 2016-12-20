@@ -46,9 +46,11 @@ By default, `runplanner.py` uses `plasp` to translate the input to ASP facts,
 which are then handled by `planner.py`.
 
 With option `--translate`, it uses first `fast-downward` to translate the input to a [sas](http://www.fast-downward.org/TranslatorOutputFormat) file, 
-and then `plasp` to obtain ASP facts (this is buggy so far, fixing is ongoing :)
+and then `plasp` to obtain ASP facts.
 
-With option `fast-downward` it runs [fast-downward](http://www.fast-downward.org/) heuristic search planner with LAMA settings, 
+With option `--basic` it runs the [basic encoding](https://github.com/javier-romero/plasp/blob/master/encodings/planner/basic.lp) using first `fast-downward` to translate the input to a [sas](http://www.fast-downward.org/TranslatorOutputFormat) file, and then `plasp`.
+
+With option `--fast-downward` it runs [fast-downward](http://www.fast-downward.org/) heuristic search planner with LAMA settings, 
 and with option `--madagascar` it runs [madagascar](https://users.ics.aalto.fi/rintanen/jussi/satplan.html) SAT planner.
 
 Type ``--help`` for help.
