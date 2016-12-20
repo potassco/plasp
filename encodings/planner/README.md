@@ -40,13 +40,11 @@ Replace in the Examples [here](https://github.com/potassco/plasp/blob/master/enc
 $ runplanner.py instance [options]
 ```
 
-Calls `planner.py` with different encodings (see [here](https://github.com/potassco/plasp/blob/master/encodings/strips/README.md)). 
-
-By default, `runplanner.py` uses `plasp` to translate the input to ASP facts, 
-which are then handled by `planner.py`.
+`runplanner.py` uses `plasp` to translate the input to ASP facts, 
+and `planner.py` for solving the planning problem with different encodings (see [here](https://github.com/potassco/plasp/blob/master/encodings/strips/README.md), and the options with `--help`).
 
 With option `--translate`, it uses first `fast-downward` to translate the input to a [sas](http://www.fast-downward.org/TranslatorOutputFormat) file, 
-then `plasp` to obtain ASP facts, and `planner.py`for solving.
+then `plasp` to obtain ASP facts, and `planner.py`solves the problem with the mentioned encodings.
 
 Option `--basic` applies `--translate` option but uses the [basic encoding](https://github.com/javier-romero/plasp/blob/master/encodings/planner/basic.lp).
 
