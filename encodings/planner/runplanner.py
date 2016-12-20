@@ -4,7 +4,7 @@ import os
 import argparse
 
 PLASP       = os.path.dirname(os.path.realpath(__file__)) + "/../../"
-PLANNER     = PLASP + "encodings/planner/planner"
+PLANNER     = PLASP + "encodings/planner/planner.py"
 PREPROCESS  = PLASP + "encodings/strips/preprocess.lp"
 STRIPS      = PLASP + "encodings/strips/strips-incremental.lp"
 REDUNDANCY  = PLASP + "encodings/strips/redundancy.lp"
@@ -47,7 +47,7 @@ Get help/report bugs via : https://potassco.org/support
 
         # specific
         specific = cmd_parser.add_argument_group('Solving Options')
-        specific.add_argument('instance',help="PDDL instance, with corresponding domain.pddl in the same directory ")
+        specific.add_argument('instance',help="PDDL instance, with corresponding domain.pddl in the same directory")
         specific.add_argument('--closure',default=3,type=int,choices=[0,1,2,3],help='Static analysis of potentially relevant actions (default: 3)')
         specific.add_argument('--parallel',default=None,type=int,choices=[0,1,2],help='Sequential and parallel planning encoding variants (default: 0)')
         specific.add_argument('--redundancy',action='store_true',help='Enforcement of redundant actions')
