@@ -23,11 +23,13 @@ However, for using the encoding without the planner,
 this can be circumvented as follows with constant `planner_on`:
 ```bash
 #const planner_on=false.
-:- not 1 { occurs(A,t) : active(A) }, planner_on=false.
+:- not 1 { occurs(A,t) }, planner_on=false.
 ```
 
 ## Examples
 Replace in the Examples [here](https://github.com/potassco/plasp/blob/master/encodings/strips/README.md) `clingo incmode-py.lp` by `planner.py`
+
+
 
 
 # runplanner
@@ -49,7 +51,7 @@ Type ``--help`` for help.
 If there is a domain file, it should be named `domain.pddl` and appear in the same directory as the `instance`.
 
 ## Examples
-Some Example invocations (modifying the Examples [here](https://github.com/potassco/plasp/blob/master/encodings/strips/README.md):
+Some Example invocations (modifying [these](https://github.com/potassco/plasp/blob/master/encodings/strips/README.md)):
 ```bash
 runplanner.py ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl 
 
