@@ -99,7 +99,7 @@ class B_Scheduler:
         self.__runs     = []
         self.__unsolved = []
         self.__step     = 0
-    
+
 
     def next(self,result):
         # result
@@ -115,8 +115,8 @@ class B_Scheduler:
                 t = int(self.__t * (self.__gamma ** i[3]))
                 if t > i[2]:
                     # (planning time point, time for next run, total time, step)
-                    self.__runs.append((i[0],t-i[2],t,i[3])) 
-                else: 
+                    self.__runs.append((i[0],t-i[2],t,i[3]))
+                else:
                     tmp.append(i)
             self.__unsolved = tmp
             # next ones
@@ -125,17 +125,17 @@ class B_Scheduler:
                 t = int(self.__t * (self.__gamma ** step))
                 if t > 0:
                     # (planning time point, time for next run, total time, step)
-                    self.__runs.append((n,t,t,step)) 
+                    self.__runs.append((n,t,t,step))
                     n    += self.__n_inc
                     step += 1
-                else: 
+                else:
                     self.__t += self.__t_inc
                     if len(self.__runs)>0:
                         self.__n_next, self.__step = n, step
                         break
         # print
         do_print("Queue:\t\t " + str(self.__runs),False)
-        # return 
+        # return
         return self.__runs[0][0], self.__runs[0][1]
 
 
@@ -193,7 +193,7 @@ PROGRAMS      = """
 #external query(t).
 
 """
-NO_AT_LEAST_ONE_ACTION = "-c at_least_one_action=false" # added
+PLANNER_ON = "-c planner_on=true" # added
 
 
 class Solver:
@@ -208,7 +208,7 @@ class Solver:
     def __on_model(self,m):
         if self.__options['outf'] == 0:
             do_print("Answer: 1\n" + str(m))
-        else:  
+        else:
             print "ANSWER\n" + " ".join([str(x)+"." for x in m.symbols(shown=True)])
 
 
@@ -271,7 +271,7 @@ class Planner:
             ctl.load(i)
         if options['read_stdin']:
             ctl.add(BASE,[],sys.stdin.read())
-       
+
         # additional programs
         ctl.add(BASE,[],PROGRAMS)
 
@@ -338,7 +338,7 @@ Get help/report bugs via : https://potassco.org/support
 
         # command parser
         _epilog = self.clingo_help + "\nusage: " + self.usage + self.epilog
-        cmd_parser = argparse.ArgumentParser(
+        cmd_parser = argparse.ArgumentParser(description="An ASP Planner",
             usage=self.usage,epilog=_epilog,formatter_class=argparse.RawDescriptionHelpFormatter,
             add_help=False)
         # basic
@@ -376,8 +376,8 @@ Get help/report bugs via : https://potassco.org/support
         # add constants to clingo_options
         for i in options['constants']:
             clingo_options.append("-c {}".format(i))
-        clingo_options.append(NO_AT_LEAST_ONE_ACTION)
-    
+        clingo_options.append(PLANNER_ON)
+
         # set printing options
         global verbose_option
         global outf
