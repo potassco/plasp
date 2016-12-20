@@ -10,6 +10,8 @@ STRIPS      = PLASP + "encodings/strips/strips-incremental.lp"
 REDUNDANCY  = PLASP + "encodings/strips/redundancy.lp"
 POSTPROCESS = PLASP + "encodings/strips/postprocess.lp"
 TMP         = os.path.dirname(os.path.realpath(__file__)) + "/run.tmp"
+FAST_D      = "/home/wv/bin/linux/64/fast-downward-data/fast-downward.py --alias seq-sat-lama-2011"
+MADAGASCAR  = "MpC"
 
 class MyArgumentParser:
 
@@ -48,6 +50,8 @@ Get help/report bugs via : https://potassco.org/support
         specific.add_argument('--parallel',default=None,type=int,choices=[0,1,2],help='Sequential and parallel planning encoding variants')
         specific.add_argument('--redundancy',action='store_true',help='Enforcement of redundant actions')
         specific.add_argument('--postprocess',action='store_true',help='Solve, serialize, and check if solution is correct')
+        specific.add_argument('--fast-downward','-fd',dest='fast-downward',action='store_true',help='Run fast-downward planner')
+        specific.add_argument('--madagascar','-m',dest='madagascar',action='store_true',help='Run madagascar SAT planner')
 
         # parse
         options, unknown = cmd_parser.parse_known_args()
@@ -55,7 +59,9 @@ Get help/report bugs via : https://potassco.org/support
 
         # check
         if options['redundancy'] and options['parallel'] is not None:
-            raise Exception('Redundancy option must go with parallel')
+            raise Exception('command error: redundancy option must be always issued together with parallel option')
+        if options['fast-downward'] and options['madagascar']:
+            raise Exception('command error: i can plan, but only with one planner at a time, dear ;)')
 
         # return
         return options, unknown
@@ -72,6 +78,10 @@ def run():
         (" -c _parallel={} ".format(options['parallel']) if options['parallel'] is not None else "") +
         (" " + REDUNDANCY + " " if options['redundancy'] is not None else "")                        +
         (postprocess            if options['postprocess']            else ""))
+    if options['fast-downward']:
+        call = "{} {} {} {}".format(FAST_D,domain,instance," ".join(rest))
+    elif options['madagascar']:
+        call = "{} {} {} {}".format(MADAGASCAR,domain,instance," ".join(rest))
     if options['print']:
         print call
     else:

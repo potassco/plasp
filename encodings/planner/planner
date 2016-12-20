@@ -48,10 +48,6 @@ class Sequential_Scheduler(Scheduler):
         self.__runs   = []
 
 
-    def set_size(self,size):
-        self.__size = size
-
-
     def next(self,result):
         if result == None:
             self.__runs = [(self.__length,self.__time)]
@@ -67,22 +63,18 @@ class Sequential_Scheduler(Scheduler):
 class A_Scheduler(Scheduler):
 
 
-    def __init__(self,start,inc,time,size):
+    def __init__(self,start,inc,time,queue):
         self.__length = start
         self.__inc    = inc
         self.__time   = time
-        self.__size   = size
+        self.__queue  = queue
         self.__runs   = []
-
-
-    def set_size(self,size):
-        self.__size = size
 
 
     def next(self,result):
         if result == None:     # add all runs
-            self.__runs   = [ (self.__length + (i*self.__inc), self.__time) for i in range(self.__size)]
-            self.__length = self.__length + ((self.__size-1)*self.__inc)
+            self.__runs   = [ (self.__length + (i*self.__inc), self.__time) for i in range(self.__queue)]
+            self.__length = self.__length + ((self.__queue-1)*self.__inc)
         elif result.interrupted: # or result.satisfiable: # move to the end of the queue
             self.__runs.append(self.__runs[0])
             self.__runs = self.__runs[1:]
@@ -147,6 +139,33 @@ class B_Scheduler:
         return self.__runs[0][0], self.__runs[0][1]
 
 
+class C_Scheduler(Scheduler):
+
+
+    def __init__(self,time,queue):
+        self.__length = 1
+        self.__inc    = 2
+        self.__time   = time
+        self.__queue  = queue
+        self.__runs   = []
+
+
+    def next(self,result):
+        if result == None:     # add all runs
+            self.__runs   = [ (self.__inc ** i, self.__time) for i in range(self.__queue)]
+            self.__length =    self.__inc ** (self.__queue-1)
+        elif result.interrupted: # move to the end of the queue
+            self.__runs.append(self.__runs[0])
+            self.__runs = self.__runs[1:]
+        else:
+            self.__length = self.__length * self.__inc
+            self.__runs.append((self.__length,self.__time))
+            self.__runs = self.__runs[1:]
+        do_print("Queue:\t\t " + str(self.__runs),False)
+        return self.__runs[0][0], self.__runs[0][1]
+
+
+
 
 #
 # SOLVER
@@ -158,7 +177,7 @@ STEP          = "step"
 CHECK         = "check"
 QUERY         = "query"
 BASE          = "base"
-NO_ACTION     = "no_action" # new
+NO_ACTION     = "no_action" # added
 PROGRAMS      = """
 #program step(t).
 
@@ -174,6 +193,8 @@ PROGRAMS      = """
 #external query(t).
 
 """
+NO_AT_LEAST_ONE_ACTION = "-c at_least_one_action=false" # added
+
 
 class Solver:
 
@@ -266,6 +287,9 @@ class Planner:
         elif options['B'] is not None:
             a = [int(x) for x in options['B'][:-1]]
             scheduler = B_Scheduler(a[0],a[1],a[2],a[3],float(options['B'][-1])) # start,inc,time,queue
+        elif options['C'] is not None:
+            a = [int(x) for x in options['C']]
+            scheduler = C_Scheduler(a[0],a[1]) # queue
         solver    = Solver(ctl,options)
 
         # loop
@@ -335,6 +359,8 @@ Get help/report bugs via : https://potassco.org/support
                                 solving initially for <t> seconds, incrementing <it> seconds,\
                                 with gamma <g> (float)",
                                 metavar=('<s>','<i>','<t>','<it>','<g>'),default=None)
+        scheduler.add_argument('-C',nargs=2,dest='C',help="Scheduler C, solving for <t> seconds, with a queue of <q> elements",
+                                metavar=('<t>','<q>'),default=None)
 
         # parse
         options, unknown = cmd_parser.parse_known_args()
@@ -350,7 +376,8 @@ Get help/report bugs via : https://potassco.org/support
         # add constants to clingo_options
         for i in options['constants']:
             clingo_options.append("-c {}".format(i))
-
+        clingo_options.append(NO_AT_LEAST_ONE_ACTION)
+    
         # set printing options
         global verbose_option
         global outf

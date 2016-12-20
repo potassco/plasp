@@ -62,6 +62,9 @@ change(X,t) :- holds(X,V,t-1), not holds(X,V,t).
 
 0 {occurs(A,t) : active(A)}.
 
+#const at_least_one_action=true.
+:- not 1 { occurs(A,t) : active(A) }, at_least_one_action=true.
+
 :- occurs(A,t), postcondition(A,X,V), fluent(X), not holds(X,V,t).
 
 effect(X,t) :- occurs(A,t), postcondition(A,X,V), fluent(X), not precondition(A,X,V).
