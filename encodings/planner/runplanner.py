@@ -17,12 +17,14 @@ class MyArgumentParser:
 
     help = """
 Planner and Clingo Options:
-  --<option>[=<value>]\t: Set planner or clingo <option> [to <value>]
+  --<option>[=<value>]\tSet planner or clingo <option> [to <value>]
 
     """
     usage = "runplanner.py instance [options] [files]"
     epilog = " "
     epilog = """
+Default command-line:
+runplanner.py
 
 runplanner.py is part of Potassco: https://potassco.org/labs
 Get help/report bugs via : https://potassco.org/support
@@ -44,13 +46,13 @@ Get help/report bugs via : https://potassco.org/support
         #basic.add_argument('-v','--verbose',dest='verbose',action="store_true",help="Be a bit more verbose")
 
         # specific
-        specific = cmd_parser.add_argument_group('Planner Options')
+        specific = cmd_parser.add_argument_group('Solving Options')
         specific.add_argument('instance',help="PDDL instance, with corresponding domain.pddl in the same directory")
-        specific.add_argument('--closure',default=None,type=int,choices=[0,1,2],help='Static analysis of potentially relevant actions')
-        specific.add_argument('--parallel',default=None,type=int,choices=[0,1,2],help='Sequential and parallel planning encoding variants')
+        specific.add_argument('--closure',default=3,type=int,choices=[0,1,2,3],help='Static analysis of potentially relevant actions (default: 3)')
+        specific.add_argument('--parallel',default=None,type=int,choices=[0,1,2],help='Sequential and parallel planning encoding variants (default: 0)')
         specific.add_argument('--redundancy',action='store_true',help='Enforcement of redundant actions')
         specific.add_argument('--postprocess',action='store_true',help='Solve, serialize, and check if solution is correct')
-        specific.add_argument('--fast-downward','-fd',dest='fast-downward',action='store_true',help='Run fast-downward planner')
+        specific.add_argument('--fast-downward','-fd',dest='fast-downward',action='store_true',help='Run fast-downward heuristic search planner with LAMA settings')
         specific.add_argument('--madagascar','-m',dest='madagascar',action='store_true',help='Run madagascar SAT planner')
 
         # parse
