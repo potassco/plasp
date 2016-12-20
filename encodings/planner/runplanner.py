@@ -47,7 +47,7 @@ Get help/report bugs via : https://potassco.org/support
 
         # specific
         specific = cmd_parser.add_argument_group('Solving Options')
-        specific.add_argument('instance',help="PDDL instance, with corresponding domain.pddl in the same directory")
+        specific.add_argument('instance',help="PDDL instance, with corresponding domain.pddl in the same directory ")
         specific.add_argument('--closure',default=3,type=int,choices=[0,1,2,3],help='Static analysis of potentially relevant actions (default: 3)')
         specific.add_argument('--parallel',default=None,type=int,choices=[0,1,2],help='Sequential and parallel planning encoding variants (default: 0)')
         specific.add_argument('--redundancy',action='store_true',help='Enforcement of redundant actions')
