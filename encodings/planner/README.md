@@ -41,7 +41,7 @@ $ runplanner.py instance [options]
 ```
 
 `runplanner.py` uses `plasp` to translate the input to ASP facts, 
-and `planner.py` for solving the planning problem with different encodings (see [here](https://github.com/potassco/plasp/blob/master/encodings/strips/README.md), and the options with `--help`).
+and `planner.py` for solving the planning problem with different encodings (see [here](https://github.com/potassco/plasp/blob/master/encodings/strips/README.md), and the available options with `--help`).
 
 With option `--translate`, it uses first `fast-downward` to translate the input to a [sas](http://www.fast-downward.org/TranslatorOutputFormat) file, 
 then `plasp` to obtain ASP facts, and `planner.py`solves the problem with the mentioned encodings.
