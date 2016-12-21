@@ -80,5 +80,35 @@ runplanner.py ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pd
 runplanner.py ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl --parallel=1 --postprocess
 
 runplanner.py ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl --parallel=2 --postprocess
+
+runplanner.py ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl --translate
+
+runplanner.py ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl --closure=0 --translate
+
+runplanner.py ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl --closure=1 --translate
+
+runplanner.py ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl --closure=2 --translate
+
+runplanner.py ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl --parallel=1 --translate
+
+runplanner.py ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl --parallel=2 --translate
+
+runplanner.py ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl --parallel=1 --redundancy --translate
+
+runplanner.py ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl --parallel=2 --redundancy --translate
+
+runplanner.py ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl  --translate --postprocess
+
+runplanner.py ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl --parallel=1 --translate --postprocess
+
+runplanner.py ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl --parallel=2 --translate --postprocess
+
+runplanner.py ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl --basic
+
+runplanner.py ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl --basic --postprocess
+
+runplanner.py ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl --fast-downward
+
+runplanner.py ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl --madagascar
 ```
 
