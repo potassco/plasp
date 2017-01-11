@@ -3,7 +3,8 @@
 % - value '2': "exists" parallel actions that can be arranged in some sequence
 % - otherwise: sequential actions
 
-#const _parallel = 0.
+#const _parallel  = 0.
+#const planner_on = false.
 
 %#include <incmode>.
 
@@ -62,7 +63,6 @@ change(X,t) :- holds(X,V,t-1), not holds(X,V,t).
 
 0 {occurs(A,t) : active(A)}.
 
-#const planner_on=false.
 :- not 1 { occurs(A,t) : active(A) }, planner_on=false.
 
 :- occurs(A,t), postcondition(A,X,V), fluent(X), not holds(X,V,t).

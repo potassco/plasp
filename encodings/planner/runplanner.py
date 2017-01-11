@@ -80,6 +80,8 @@ def run():
     options, rest = MyArgumentParser().run()
     instance = options['instance']
     domain   = os.path.dirname(os.path.realpath(instance)) + "/domain.pddl"
+    if not os.path.isfile(domain):
+        domain = os.path.dirname(os.path.realpath(instance)) + "/domain_" + os.path.basename(instance)
 
     #
     # NORMAL CASE

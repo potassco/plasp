@@ -26,24 +26,24 @@ The included encoding files provide the following functionalities:
 
 Some example invocations (using clingo 5.1.0) are as follows:
 
-plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo incmode-py.lp - preprocess.lp strips-incremental.lp  
+plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo incmode.lp - preprocess.lp strips-incremental.lp  
 
-plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo incmode-py.lp - preprocess.lp strips-incremental.lp -c _closure=0
+plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo incmode.lp - preprocess.lp strips-incremental.lp -c _closure=0
 
-plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo incmode-py.lp - preprocess.lp strips-incremental.lp -c _closure=1
+plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo incmode.lp - preprocess.lp strips-incremental.lp -c _closure=1
 
-plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo incmode-py.lp - preprocess.lp strips-incremental.lp -c _closure=2
+plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo incmode.lp - preprocess.lp strips-incremental.lp -c _closure=2
 
-plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo incmode-py.lp - preprocess.lp strips-incremental.lp -c _parallel=1
+plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo incmode.lp - preprocess.lp strips-incremental.lp -c _parallel=1
 
-plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo incmode-py.lp - preprocess.lp strips-incremental.lp -c _parallel=2
+plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo incmode.lp - preprocess.lp strips-incremental.lp -c _parallel=2
 
-plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo incmode-py.lp - preprocess.lp strips-incremental.lp -c _parallel=1 redundancy.lp
+plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo incmode.lp - preprocess.lp strips-incremental.lp -c _parallel=1 redundancy.lp
 
-plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo incmode-py.lp - preprocess.lp strips-incremental.lp -c _parallel=2 redundancy.lp
+plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo incmode.lp - preprocess.lp strips-incremental.lp -c _parallel=2 redundancy.lp
 
-plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo incmode-py.lp - preprocess.lp strips-incremental.lp --outf=1 | grep -A1 -e "ANSWER" | tail -n1 | clingo - postprocess.lp <(plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl)
+plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo incmode.lp - preprocess.lp strips-incremental.lp --outf=1 | grep -A1 -e "ANSWER" | tail -n1 | clingo - postprocess.lp <(plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl)
 
-plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo incmode-py.lp - preprocess.lp strips-incremental.lp --outf=1 -c _parallel=1 | grep -A1 -e "ANSWER" | tail -n1 | clingo - postprocess.lp <(plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl)
+plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo incmode.lp - preprocess.lp strips-incremental.lp --outf=1 -c _parallel=1 | grep -A1 -e "ANSWER" | tail -n1 | clingo - postprocess.lp <(plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl)
 
-plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo incmode-py.lp - preprocess.lp strips-incremental.lp --outf=1 -c _parallel=2 | grep -A1 -e "ANSWER" | tail -n1 | clingo - postprocess.lp <(plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl)
+plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo incmode.lp - preprocess.lp strips-incremental.lp --outf=1 -c _parallel=2 | grep -A1 -e "ANSWER" | tail -n1 | clingo - postprocess.lp <(plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl)

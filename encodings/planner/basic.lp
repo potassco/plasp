@@ -33,8 +33,9 @@ holds(X,V,0) :- initialState(X,V). %, fluent(X).
 :- 2 #sum { 1,X,V: holds(X,V,t), contains(mutexGroup(G),X,V) }, mutex(G).
 
 % Exist-plans
+#const exists_plans = true.
 #edge((A,t),(AA,t)) : occurs(A,t), occurs(AA,t), A != AA, 
-                      precondition(A,X,V), postcondition(AA,_,X,VV), V != VV.
+                      precondition(A,X,V), postcondition(AA,_,X,VV), V != VV, exists_plans=true.
 
 #program check(t). % as strips-incremental.lp
 

@@ -27,7 +27,7 @@ this can be circumvented as follows with constant `planner_on`:
 ```
 
 ## Examples
-Replace in the Examples [here](https://github.com/potassco/plasp/blob/master/encodings/strips/README.md) `clingo incmode-py.lp` by `planner.py`
+Replace in the Examples [here](https://github.com/potassco/plasp/blob/master/encodings/strips/README.md) `clingo incmode.lp` by `planner.py`
 
 
 

@@ -8,7 +8,7 @@ import clingo
 import sys
 import argparse
 import re
-
+import json
 
 #
 # Global variables and functions
@@ -302,7 +302,11 @@ class Planner:
             result       = solver.solve(length,time)
             if result.satisfiable:
                 do_print("SATISFIABLE")
+                #print json.dumps(ctl.statistics, sort_keys=True, indent=4, separators=(',', ': '))
+                #print "###################"
+                #print "lp.bodies", ctl.statistics["problem"]["lp"]["bodies"]
                 return
+
 
 
 
