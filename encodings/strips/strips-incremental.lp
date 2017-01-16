@@ -1,6 +1,8 @@
 % Constant '_parallel' to enable parallel actions
 % - value '1': "forall" parallel actions that can be arranged in any sequence
 % - value '2': "exists" parallel actions that can be arranged in some sequence
+% - value '3': "exists" parallel actions omitting achievement of preconditions
+% - value '4': "exists" parallel actions like '3' implemented by acyclicity
 % - otherwise: sequential actions
 
 #const _parallel = 0.
@@ -13,15 +15,20 @@
 
 diverge(A1,A2,X) :- active(A1), active(A2), A1 < A2, postcondition(A1,X,V),
                     has_condition(A2,X,1), not postcondition(A2,X,V),
-                    _parallel = 1 : _parallel != 2.
+                    0 < _parallel, _parallel < 5.
 diverge(A1,A2)   :- diverge(A1,A2,X).
 
-exclude(A1,A2) :- diverge(A1,A2), precondition(A1,X,V), _parallel = 1,
+exclude(A1,A2) :- diverge(A1,A2), precondition(A1,X,V), _parallel != 2,
                   has_condition(A2,X,0), not precondition(A2,X,V).
 
 disable(A1,A2) :- active(A1), active(A2), A1 != A2, postcondition(A1,X,V),
                   has_condition(A2,X,0), not precondition(A2,X,V),
-                  _parallel = 2, not diverge(A1,A2), not diverge(A2,A1).
+                  not diverge(A1,A2), not diverge(A2,A1),
+                  not exclude(A1,A2), not exclude(A2,A1),
+                  1 < _parallel, _parallel < 5.
+
+disable :- #sum{ 1,A1 : disable(A1,A2), _parallel = 4;
+                -1,A2 : disable(A1,A2), _parallel = 4 } > 0.
 
 scope(X,V) :- active(A), precondition(A,X,V), _parallel = 2.
 
@@ -60,7 +67,9 @@ change(X,t) :- holds(X,V,t-1), not holds(X,V,t).
 
 % Generate actions
 
-1 {occurs(A,t) : active(A)}.
+{occurs(A,t) : active(A)}.
+
+:- not occurs(A,t) : active(A).
 
 :- occurs(A,t), postcondition(A,X,V), fluent(X), not holds(X,V,t).
 
@@ -70,7 +79,7 @@ effect(X,t) :- occurs(A,t), postcondition(A,X,V), fluent(X), not precondition(A,
 
 % Checks w.r.t. parallel mode
 
-:- _parallel != 1, _parallel != 2, #count{A : occurs(A,t)} > 1.
+:- _parallel != 1, _parallel != 2, _parallel != 3, _parallel != 4, #count{A : occurs(A,t)} > 1.
 
 :- _parallel != 2, occurs(A,t), precondition(A,X,V), not holds(X,V,t-1).
 
@@ -85,11 +94,15 @@ proceed(X,V,t) :- holds(X,V,t-1), scope(X,V).
 proceed(X,V,t) :- occurs(A,t), postcondition(A,X,V), scope(X,V), not precondition(A,X,V),
                   perform(A,t).
 
-perform(A1,t) :- active(A1), _parallel = 2, not occurs(A1,t).
-perform(A1,t) :- active(A1), _parallel = 2,
-                 proceed(X,V,t) : precondition(A1,X,V); perform(A2,t) : disable(A1,A2).
+perform(A1,t) :- active(A1), 1 < _parallel, _parallel < 4, not occurs(A1,t).
+perform(A1,t) :- active(A1), 1 < _parallel, _parallel < 4,
+                 proceed(X,V,t) : precondition(A1,X,V), _parallel = 2;
+                 perform(A2,t) : disable(A1,A2).
 
-:- _parallel = 2, active(A), not perform(A,t).
+:- 1 < _parallel, _parallel < 4, active(A), not perform(A,t).
+
+#edge((A1,t),(A2,t)) : occurs(A1,t), disable(A1,A2), _parallel = 4, not disable.
+#edge((A1,t),(A2,t)) : occurs(A2,t), disable(A1,A2), disable.
 
 % CHECK PROGRAM
 

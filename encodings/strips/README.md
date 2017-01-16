@@ -17,11 +17,13 @@ The included encoding files provide the following functionalities:
 * Parameters: `_parallel` (default value: `0`)
   * Value `1`: “forall” parallel actions that can be arranged in any sequence
   * Value `2`: “exists” parallel actions that can be arranged in some sequence
+  * Value `3`: “exists“ parallel actions omitting achievement of preconditions
+  * Value `4`: “exists“ parallel actions like `3` implemented by acyclicity
   * Otherwise: sequential actions
 
 ### [redundancy.lp](redundancy.lp): enforcement of ‘redundant’ actions to constrain parallel plans
 * Remarks:
-  * Only relevant together with parallel actions
+  * Only relevant together with parallel actions not implemented by acyclicity
   * Encoded constraints seem rather ineffective though
   * Heavy space overhead in combination with “exists” parallel actions
 
@@ -44,13 +46,23 @@ plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instan
 
 plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo - preprocess.lp strips-incremental.lp -c _parallel=2
 
+plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo - preprocess.lp strips-incremental.lp -c _parallel=3
+
+plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo - preprocess.lp strips-incremental.lp -c _parallel=4
+
 plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo - preprocess.lp strips-incremental.lp -c _parallel=1 redundancy.lp
 
 plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo - preprocess.lp strips-incremental.lp -c _parallel=2 redundancy.lp
+
+plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo - preprocess.lp strips-incremental.lp -c _parallel=3 redundancy.lp
 
 plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo - preprocess.lp strips-incremental.lp --outf=1 | grep -A1 -e "ANSWER" | tail -n1 | clingo - postprocess.lp <(plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl)
 
 plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo - preprocess.lp strips-incremental.lp --outf=1 -c _parallel=1 | grep -A1 -e "ANSWER" | tail -n1 | clingo - postprocess.lp <(plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl)
 
 plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo - preprocess.lp strips-incremental.lp --outf=1 -c _parallel=2 | grep -A1 -e "ANSWER" | tail -n1 | clingo - postprocess.lp <(plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl)
+
+plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo - preprocess.lp strips-incremental.lp --outf=1 -c _parallel=3 | grep -A1 -e "ANSWER" | tail -n1 | clingo - postprocess.lp <(plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl)
+
+plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl | clingo - preprocess.lp strips-incremental.lp --outf=1 -c _parallel=4 | grep -A1 -e "ANSWER" | tail -n1 | clingo - postprocess.lp <(plasp ../../instances/PDDL/ipc-2000-elevator-m10-strips/domain.pddl ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl)
 ```
