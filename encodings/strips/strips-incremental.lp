@@ -13,12 +13,15 @@
 
 % Define auxiliary predicates for actions w.r.t. parallel mode
 
+selfdefeat(A,X) :- active(A), precondition(A,X,V), has_condition(A,X,1), _parallel = 1,
+                   not postcondition(A,X,V).
+
 diverge(A1,A2,X) :- active(A1), active(A2), A1 < A2, postcondition(A1,X,V),
                     has_condition(A2,X,1), not postcondition(A2,X,V),
                     0 < _parallel, _parallel < 5.
 diverge(A1,A2)   :- diverge(A1,A2,X).
 
-exclude(A1,A2) :- diverge(A1,A2), precondition(A1,X,V), _parallel != 2,
+exclude(A1,A2) :- precondition(A1,X,V), 0 < _parallel, _parallel < 5, _parallel != 2,
                   has_condition(A2,X,0), not precondition(A2,X,V).
 
 disable(A1,A2) :- active(A1), active(A2), A1 != A2, postcondition(A1,X,V),
@@ -85,8 +88,7 @@ effect(X,t) :- occurs(A,t), postcondition(A,X,V), fluent(X), not precondition(A,
 
 :- _parallel = 1, occurs(A,t), precondition(A,X,V), not has_condition(A,X,1), not holds(X,V,t).
 
-single(X,t) :- occurs(A,t), precondition(A,X,V), _parallel = 1,
-               has_condition(A,X,1), not postcondition(A,X,V).
+single(X,t) :- occurs(A,t), selfdefeat(A,X).
 
 :- single(X,t), #count{A : occurs(A,t), postcondition(A,X,V), not precondition(A,X,V)} > 1.
 
