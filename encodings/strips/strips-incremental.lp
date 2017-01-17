@@ -7,31 +7,35 @@
 
 #const _parallel = 0.
 
-#include <incmode>.
+% Constant 'planner_on' to enable encoding support for ASP-based planner
+% - value '0': no compatibility to ASP-based planner (no idle steps permitted)
+% - otherwise: compatibility to ASP-based planner (idle steps permitted)
+
+#const planner_on = 0.
 
 % BASE PROGRAM
 
 % Define auxiliary predicates for actions w.r.t. parallel mode
 
-selfdefeat(A,X) :- active(A), precondition(A,X,V), has_condition(A,X,1), _parallel = 1,
-                   not postcondition(A,X,V).
+selfdefeat(A,X) :- active(A), precondition(A,X,V), _parallel = 1,
+                   has_condition(A,X,1), not postcondition(A,X,V).
 
-diverge(A1,A2,X) :- active(A1), active(A2), A1 < A2, postcondition(A1,X,V),
+diverge(A1,A2,X) :- active(A1), active(A2), postcondition(A1,X,V),
                     has_condition(A2,X,1), not postcondition(A2,X,V),
                     0 < _parallel, _parallel < 5.
 diverge(A1,A2)   :- diverge(A1,A2,X).
 
-exclude(A1,A2) :- precondition(A1,X,V), 0 < _parallel, _parallel < 5, _parallel != 2,
-                  has_condition(A2,X,0), not precondition(A2,X,V).
+exclude(A1,A2) :- active(A1), active(A2), precondition(A1,X,V),
+                  has_condition(A2,X,0), not precondition(A2,X,V),
+                  0 < _parallel, _parallel < 5, _parallel != 2.
 
 disable(A1,A2) :- active(A1), active(A2), A1 != A2, postcondition(A1,X,V),
                   has_condition(A2,X,0), not precondition(A2,X,V),
-                  not diverge(A1,A2), not diverge(A2,A1),
-                  not exclude(A1,A2), not exclude(A2,A1),
+                  not diverge(A1,A2), not exclude(A1,A2),
                   1 < _parallel, _parallel < 5.
 
 disable :- #sum{ 1,A1 : disable(A1,A2), _parallel = 4;
-                -1,A2 : disable(A1,A2), _parallel = 4 } > 0.
+                -1,A2 : disable(A1,A2), _parallel = 4} > 0.
 
 scope(X,V) :- active(A), precondition(A,X,V), _parallel = 2.
 
@@ -72,7 +76,7 @@ change(X,t) :- holds(X,V,t-1), not holds(X,V,t).
 
 {occurs(A,t) : active(A)}.
 
-:- not occurs(A,t) : active(A).
+:- planner_on = 0, not occurs(A,t) : active(A).
 
 :- occurs(A,t), postcondition(A,X,V), fluent(X), not holds(X,V,t).
 
