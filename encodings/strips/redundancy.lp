@@ -1,6 +1,12 @@
 % Additional rules for enforcing the inclusion of parallel actions in plans,
 % whenever such 'redundant' actions are compatible with states and other actions
 
+% BASE PROGRAM
+
+selfdefeat(A) :- _parallel = 1, active(A), precondition(A,X,V), has_condition(A,X,1),
+                 not postcondition(A,X,V).
+forall(A)     :- _parallel = 1, active(A), not selfdefeat(A).
+
 compatible(A,A1) :- active(A), active(A1), A != A1, 1 < _parallel, _parallel < 4,
                     not diverge(A,A1), not diverge(A1,A),
                     not exclude(A,A1), not exclude(A1,A).
@@ -10,15 +16,16 @@ disable(A,A1,A2) :- disable(A1,A2), compatible(A,A1), compatible(A,A2).
 disabled(A,A2)   :- disable(A,A1,A2).
 disabled(A,A2)   :- disable(A,A2).
 
+% CHECK PROGRAM
+
 #program step(t).
 
 defeated(A,t) :- active(A), postcondition(A,X,V), fluent(X), not holds(X,V,t),
-                 1 < _parallel, _parallel < 4.
+                 not selfdefeat(A), 0 < _parallel, _parallel < 4.
 
-defeated(A,t) :- _parallel = 1, active(A), precondition(A,X,V), not holds(X,V,t-1).
-defeated(A,t) :- _parallel = 1, active(A), precondition(A,X,V), not holds(X,V,t).
-defeated(A,t) :- _parallel = 1, active(A), postcondition(A,X,V), not precondition(A,X,V),
-                 single(X,t).
+defeated(A,t) :- forall(A), precondition(A,X,V), not holds(X,V,t-1).
+defeated(A,t) :- forall(A), precondition(A,X,V), not has_condition(A,X,1), not holds(X,V,t).
+defeated(A,t) :- forall(A), postcondition(A,X,V), not has_condition(A,X,0), single(X,t).
 
 defeated(A,t) :- _parallel = 3, active(A), precondition(A,X,V), not holds(X,V,t-1).
 
@@ -34,4 +41,5 @@ perform(A,A1,t) :- compatible(A,A1),
 defeated(A,t) :- compatible(A), precondition(A,X,V), not proceed(A,X,V,t), _parallel = 2.
 defeated(A,t) :- compatible(A), disable(A,A2), not perform(A,A2,t).
 
-:- active(A), not occurs(A,t), not defeated(A,t), 1 < _parallel, _parallel < 4.
+:- active(A), not selfdefeat(A), not occurs(A,t), not defeated(A,t),
+   0 < _parallel, _parallel < 4.

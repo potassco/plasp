@@ -101,8 +101,8 @@ perform(A1,t) :- active(A1), 1 < _parallel, _parallel < 4,
 
 :- 1 < _parallel, _parallel < 4, active(A), not perform(A,t).
 
-#edge((A1,t),(A2,t)) : occurs(A1,t), disable(A1,A2), _parallel = 4, not disable.
-#edge((A1,t),(A2,t)) : occurs(A2,t), disable(A1,A2), disable.
+#edge((A1,t),(A2,t)) : disable(A1,A2), occurs(A1,t), _parallel = 4, not disable.
+#edge((A1,t),(A2,t)) : disable(A1,A2), occurs(A2,t), disable.
 
 % CHECK PROGRAM
 
