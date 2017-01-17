@@ -34,8 +34,7 @@ disable(A1,A2) :- active(A1), active(A2), A1 != A2, postcondition(A1,X,V),
                   not diverge(A1,A2), not exclude(A1,A2),
                   1 < _parallel, _parallel < 5.
 
-disable :- #sum{ 1,A1 : disable(A1,A2), _parallel = 4;
-                -1,A2 : disable(A1,A2), _parallel = 4} > 0.
+disable :- _parallel = 4, #sum{1,A1 : disable(A1,A2); -1,A2 : disable(A1,A2)} > 0.
 
 scope(X,V) :- active(A), precondition(A,X,V), _parallel = 2.
 
@@ -97,15 +96,17 @@ single(X,t) :- occurs(A,t), selfdefeat(A,X).
 :- single(X,t), #count{A : occurs(A,t), postcondition(A,X,V), not precondition(A,X,V)} > 1.
 
 proceed(X,V,t) :- holds(X,V,t-1), scope(X,V).
-proceed(X,V,t) :- occurs(A,t), postcondition(A,X,V), scope(X,V), not precondition(A,X,V),
-                  perform(A,t).
+proceed(X,V,t) :- perform(A,t), scope(X,V), postcondition(A,X,V), not precondition(A,X,V),
+                  occurs(A,t).
 
-perform(A1,t) :- active(A1), 1 < _parallel, _parallel < 4, not occurs(A1,t).
-perform(A1,t) :- active(A1), 1 < _parallel, _parallel < 4,
-                 proceed(X,V,t) : precondition(A1,X,V), _parallel = 2;
-                 perform(A2,t) : disable(A1,A2).
+perform(A,t) :- active(A), 1 < _parallel, _parallel < 4,
+                proceed(X,V,t) : precondition(A,X,V), _parallel = 2;
+                alright(A1,t) : disable(A,A1).
 
-:- 1 < _parallel, _parallel < 4, active(A), not perform(A,t).
+alright(A,t) :- active(A), 1 < _parallel, _parallel < 4, not occurs(A,t).
+alright(A,t) :- perform(A,t).
+
+:- 1 < _parallel, _parallel < 4, active(A), not alright(A,t).
 
 #edge((A1,t),(A2,t)) : disable(A1,A2), occurs(A1,t), _parallel = 4, not disable.
 #edge((A1,t),(A2,t)) : disable(A1,A2), occurs(A2,t), disable.
