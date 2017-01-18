@@ -73,7 +73,7 @@ change(X,t) :- holds(X,V,t-1), not holds(X,V,t).
 
 % Generate actions
 
-{occurs(A,t) : active(A)}.
+{occurs(A,t)} :- active(A).
 
 :- planner_on = 0, not occurs(A,t) : active(A).
 
