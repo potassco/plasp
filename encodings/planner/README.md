@@ -49,11 +49,11 @@ Option `--incmode` runs `clingo incmode.lp` instead of `planner.py`.
 
 Option `--basic` applies `--translate` option but uses the [basic encoding](https://github.com/javier-romero/plasp/blob/master/encodings/planner/basic.lp).
 
-## Options for internal use at the University of Potsdam
+Type ``--help`` for help.
+
+### Internal Use Options 
 With option `--fast-downward` it runs [fast-downward](http://www.fast-downward.org/) heuristic search planner with LAMA settings, 
 and with options `--M`, `--Mp`, and `--MpC`, it runs different versions of the [madagascar](https://users.ics.aalto.fi/rintanen/jussi/satplan.html) SAT planner.
-
-Type ``--help`` for help.
 
 ## Requirements
 In the directory of the `instance` there must be a corresponding domain file, 
