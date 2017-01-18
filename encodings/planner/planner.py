@@ -276,7 +276,7 @@ class Solver:
 
         # set solving and restart policy
         self.__ctl.configuration.solve.solve_limit = "umax,"+str(options['restarts_per_solve'])
-        if options['conflicts_per_restart'] != 0:
+        if int(options['conflicts_per_restart']) != 0:
             self.__ctl.configuration.solver[0].restarts="F,"+str(options['conflicts_per_restart'])
 
 
@@ -384,7 +384,7 @@ class Planner:
         i=1
         result = None
         global verbose_option
-        if verbose_option: do_print("Memory: "+str(memory_usage())+"MB")
+        if verbose_option: do_print("Memory: "+str(memory_usage())+"MB\n")
         while True:
             do_print("Iteration "+str(i),False)
             if verbose_option: time0 = clock()
@@ -419,7 +419,7 @@ Clingo Options:
 
     epilog = """
 Default command-line:
-planner.py -B 0.9
+planner.py -B 0.9 -M 20 -S 5 -F 0 -T 3000 -i 60 -r 100
 
 planner is part of plasp in Potassco: https://potassco.org/
 Get help/report bugs via : https://potassco.org/support
@@ -468,8 +468,8 @@ Get help/report bugs via : https://potassco.org/support
                                 metavar='n',default=60,type=int)
 
         # New Options
-        scheduler.add_argument('-r',dest='restarts_per_solve',help="Number of restarts per solve call (default -r 1)",
-                                metavar='n',default=1,type=int)
+        scheduler.add_argument('-r',dest='restarts_per_solve',help="Number of restarts per solve call (default -r 100)",
+                                metavar='n',default=100,type=int)
         scheduler.add_argument('--keep-after-unsat',dest='propagate_unsat',help="After finding n to be UNSAT, do keep runs with m<n",
                                 action="store_false")
 
@@ -505,8 +505,10 @@ Get help/report bugs via : https://potassco.org/support
 #
 
 if __name__ == "__main__":
+    time0 = clock()
     options, clingo_options = PlannerArgumentParser().run()
     Planner().run(options,clingo_options)
+    print "\nTime\t\t: {:.3f}s\n".format(clock() - time0)
 
 
 
