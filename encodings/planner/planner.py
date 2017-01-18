@@ -9,10 +9,8 @@ import clingo
 import sys
 import argparse
 import re
-import json
 from time import clock
 
-# STATS, TEST, README, MEM_CHECK?
 
 #
 # Global variables and functions
@@ -53,72 +51,6 @@ def memory_usage():
     return int(float(v[1]) / scale[v[2]])
 
 
-#
-# STATS
-#
-
-class Stats:
-
-
-    def run(self,control):
-
-        summary = control.statistics['summary']
-        print
-        print "Models\t\t: {}{}".format(int(summary['models']['enumerated']),"+" if int(summary['exhausted'])==0 else "")
-        print "Calls\t\t: {}".format(int(summary['call']))
-
-        times = control.statistics['summary']['times']
-        print "Time\t\t: {:.3f} (Solving: {:.2f} 1st Model: {:.2f} Unsat: {:.2f})".format(float(times['total']),float(times['solve']),float(times['sat']),float(times['unsat']))
-        print "CPU Time\t: {:.3f}".format(float(times['cpu']))
-        print
-
-        solver = control.statistics['accu']['solving']['solvers']
-        print "Choices\t\t: {}".format(int(solver['choices']))
-        print "Conflicts\t: {}\t(Analyzed: {})".format(int(solver['conflicts']),int(solver['conflicts_analyzed']))
-        print "Restarts\t: {}\t(Average: {} Last: {})".format(int(solver['restarts']),0,int(solver['restarts_last']))
-
-        extra  = solver['extra']
-        print "Model-Level\t: {}".format(int(extra['models_level']))
-        print "Problems\t: {}\t(Average Length: {:6.2f} Splits: {})".format(0,0,0)
-        print "Lemmas\t\t: {}\t(Deleted: {})".format(int(extra['lemmas']),int(extra['lemmas_deleted']))
-        print "  Binary\t: {}\t(Ratio: {:6.2f}%)".format(int(extra['lemmas_binary']),100*float(extra['lemmas_binary'])/float(extra['lemmas']))
-        print "  Ternary\t: {}\t(Ratio: {:6.2f}%)".format(int(extra['lemmas_ternary']),100*float(extra['lemmas_ternary'])/float(extra['lemmas']))
-        print "  Conflict\t: {}\t(Average Length: {:6.2f} Ratio: {:6.2f}%)".format(int(extra['lemmas_conflict']),0,100*float(extra['lemmas_conflict'])/float(extra['lemmas']))
-        print "  Loop\t\t: {}\t(Average Length: {:6.2f} Ratio: {:6.2f}%)".format(int(extra['lemmas_conflict']),0,100*float(extra['lemmas_loop'])/float(extra['lemmas']))
-        print "  Other\t\t: {}\t(Average Length: {:6.2f} Ratio: {:6.2f}%)".format(int(extra['lemmas_other']),0,100*float(extra['lemmas_other'])/float(extra['lemmas']))
-
-        jumps = extra['jumps']
-        _jumps      = int(jumps['jumps'])
-        bounded     = int(jumps['jumps_bounded'])
-        jumpSum     = int(jumps['levels'])
-        boundSum    = int(jumps['levels_bounded'])
-        maxJump     = int(jumps['max'])
-        maxJumpEx   = int(jumps['max_executed'])
-        maxBound    = int(jumps['max_bounded'])
-        jumped      = jumpSum - boundSum
-        jumpedRatio = jumped/float(jumpSum)
-        avgBound    = boundSum/float(bounded)
-        avgJump     = jumpSum/float(_jumps)
-        avgJumpEx   = jumped/float(_jumps)
-        print "Backjumps\t: {}\t(Average: {:5.2f} Max: {:3d} Sum: {:6d} )".format(_jumps,avgJump,maxJump,jumpSum)
-        print "  Executed\t: {}\t(Average: {:5.2f} Max: {:3d} Sum: {:6d} Ratio: {:6.2f}%)".format(_jumps-bounded,avgJumpEx,maxJumpEx,jumped,jumpedRatio*100)
-        print "  Bounded\t: {}\t(Average: {:5.2f} Max: {:3d} Sum: {:6d} Ratio: {:6.2f}%)".format(bounded,avgBound,maxBound,boundSum,100-(jumpedRatio*100))
-        print
-
-        lp = control.statistics['problem']['lp']
-        print "Rules\t\t: {}\t(Original: {})".format(int(lp['rules']),0)
-        print "  Choice\t: {}".format(int(lp['rules_choice']),0)
-        print "Atoms\t\t: {}\t(Original: {} Auxiliary: {})".format(int(lp['atoms']),0,lp['atoms_aux'])
-        print "Bodies\t\t: {}\t(Original: {})".format(int(lp['bodies']),0)
-        print "  Count\t\t: {}\t(Original: {})".format(int(lp['count_bodies']),0)
-        print "Equivalences\t: {}\t(Atom=Atom: {} Body=Body: {} Other: {})".format(int(lp['eqs']),int(lp['eqs_atom']),int(lp['eqs_body']),int(lp['eqs_other']))
-        print "Tight\t\t: {}".format("Yes" if int(lp['sccs'])>0 else "No")
-
-        gen = control.statistics['problem']['generator']
-        print "Variables\t: {}\t(Eliminated: {} Frozen: {})".format(int(gen['vars']),int(gen['vars_eliminated']),int(gen['vars_frozen']))
-        print "Constraints\t: {}\t(Binary: {} Ternary: {} Other: {})".format(int(gen['complexity']),int(gen['constraints_binary']),int(gen['constraints_ternary']),int(gen['constraints']))
-        print
-
 
 
 #
@@ -138,7 +70,6 @@ class Scheduler:
 
 
 
-# TODO: Check if next slice fits into memory (is it doable?)
 class A_Scheduler(Scheduler):
 
 
@@ -467,7 +398,6 @@ class Planner:
                 do_print("SATISFIABLE")
                 break
             if verbose_option: do_print("Iteration Time:\t "+str(clock()-time0),False); do_print("",False)
-        #if '--stats' in clingo_options: Stats().run(ctl)
 
 
 
