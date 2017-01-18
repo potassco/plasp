@@ -15,8 +15,8 @@ compatible(A)    :- active(A), active(A1), A != A1, _parallel = 1, not selfdefea
 disable(A,A1,A2) :- compatible(A,A1), compatible(A,A2), compatible(A1,A2),
                     disable(A1,A2), not disable(A1,A).
 
-disabled(A,A2) :- disable(A,A1,A2).
 disabled(A,A1) :- compatible(A), disable(A,A1).
+disabled(A,A2) :- simulate(A,A1), disable(A,A1,A2).
 
 simulate(A,A1) :- compatible(A,A1), not disable(A1,A), disabled(A,A1).
 simulate(A,A1) :- compatible(A,A1), not disable(A1,A), scope(X,V),
@@ -42,7 +42,7 @@ perform(A,A1,t) :- simulate(A,A1),
                    alright(A,A2,t) : disable(A,A1,A2).
 
 alright(A,A1,t) :- disabled(A,A1), not occurs(A1,t).
-alright(A,A1,t) :- perform(A,A1,t).
+alright(A,A1,t) :- disabled(A,A1), perform(A,A1,t).
 
 defeated(A,t) :- compatible(A), precondition(A,X,V), not proceed(A,X,V,t), _parallel = 2.
 defeated(A,t) :- compatible(A), disable(A,A1), not alright(A,A1,t).
