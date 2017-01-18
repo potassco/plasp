@@ -6,7 +6,6 @@
 % - otherwise: sequential actions
 
 #const _parallel  = 0.
-#const planner_on = false.
 
 % Constant 'planner_on' to enable encoding support for ASP-based planner
 % - value '0': no compatibility to ASP-based planner (no idle steps permitted)
