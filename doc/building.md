@@ -1,4 +1,4 @@
-# Building Instructions
+# Building
 
 `plasp` requires a C++14 compiler (preferrably GCC ≥ 6.1 or clang ≥ 3.8), the `boost` libraries (≥ 1.55), and CMake for building.
 

@@ -6,6 +6,8 @@
 
 #const _closure = 3.
 
+% BASE PROGRAM
+
 % Check feature requirements
 
 :- requires(feature(actionCosts)).
