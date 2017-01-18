@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+
 #
 # IMPORTS
 #
@@ -9,16 +10,115 @@ import sys
 import argparse
 import re
 import json
+from time import clock
+
+# STATS, TEST, README, MEM_CHECK?
 
 #
 # Global variables and functions
 #
+
 
 verbose_option = False
 outf           = 0
 def do_print(string,verbose=True):
     if verbose or verbose_option:
         print ("% " if outf==1 else "") + string
+
+
+#
+# memory_usage()
+#
+import os
+def memory_usage():
+    # data
+    proc_status = '/proc/%d/status' % os.getpid()
+    #proc_stat  = '/proc/%d/stat' % os.getpid()
+    scale = {'kB': 1024.0, 'mB': 1,
+             'KB': 1024.0, 'MB': 1}
+    key = 'VmSize:'
+    # get pseudo file  /proc/<pid>/status
+    try:
+        t = open(proc_status)
+        v = t.read()
+        t.close()
+    except:
+        return 0.0  # non-Linux?
+    # get VmKey line e.g. 'VmSize:  9999  kB\n ...'
+    i = v.index(key)
+    v = v[i:].split(None, 3)  # whitespace
+    if len(v) < 3:
+        return 0.0  # invalid format?
+    # return
+    return int(float(v[1]) / scale[v[2]])
+
+
+#
+# STATS
+#
+
+class Stats:
+
+
+    def run(self,control):
+
+        summary = control.statistics['summary']
+        print
+        print "Models\t\t: {}{}".format(int(summary['models']['enumerated']),"+" if int(summary['exhausted'])==0 else "")
+        print "Calls\t\t: {}".format(int(summary['call']))
+
+        times = control.statistics['summary']['times']
+        print "Time\t\t: {:.3f} (Solving: {:.2f} 1st Model: {:.2f} Unsat: {:.2f})".format(float(times['total']),float(times['solve']),float(times['sat']),float(times['unsat']))
+        print "CPU Time\t: {:.3f}".format(float(times['cpu']))
+        print
+
+        solver = control.statistics['accu']['solving']['solvers']
+        print "Choices\t\t: {}".format(int(solver['choices']))
+        print "Conflicts\t: {}\t(Analyzed: {})".format(int(solver['conflicts']),int(solver['conflicts_analyzed']))
+        print "Restarts\t: {}\t(Average: {} Last: {})".format(int(solver['restarts']),0,int(solver['restarts_last']))
+
+        extra  = solver['extra']
+        print "Model-Level\t: {}".format(int(extra['models_level']))
+        print "Problems\t: {}\t(Average Length: {:6.2f} Splits: {})".format(0,0,0)
+        print "Lemmas\t\t: {}\t(Deleted: {})".format(int(extra['lemmas']),int(extra['lemmas_deleted']))
+        print "  Binary\t: {}\t(Ratio: {:6.2f}%)".format(int(extra['lemmas_binary']),100*float(extra['lemmas_binary'])/float(extra['lemmas']))
+        print "  Ternary\t: {}\t(Ratio: {:6.2f}%)".format(int(extra['lemmas_ternary']),100*float(extra['lemmas_ternary'])/float(extra['lemmas']))
+        print "  Conflict\t: {}\t(Average Length: {:6.2f} Ratio: {:6.2f}%)".format(int(extra['lemmas_conflict']),0,100*float(extra['lemmas_conflict'])/float(extra['lemmas']))
+        print "  Loop\t\t: {}\t(Average Length: {:6.2f} Ratio: {:6.2f}%)".format(int(extra['lemmas_conflict']),0,100*float(extra['lemmas_loop'])/float(extra['lemmas']))
+        print "  Other\t\t: {}\t(Average Length: {:6.2f} Ratio: {:6.2f}%)".format(int(extra['lemmas_other']),0,100*float(extra['lemmas_other'])/float(extra['lemmas']))
+
+        jumps = extra['jumps']
+        _jumps      = int(jumps['jumps'])
+        bounded     = int(jumps['jumps_bounded'])
+        jumpSum     = int(jumps['levels'])
+        boundSum    = int(jumps['levels_bounded'])
+        maxJump     = int(jumps['max'])
+        maxJumpEx   = int(jumps['max_executed'])
+        maxBound    = int(jumps['max_bounded'])
+        jumped      = jumpSum - boundSum
+        jumpedRatio = jumped/float(jumpSum)
+        avgBound    = boundSum/float(bounded)
+        avgJump     = jumpSum/float(_jumps)
+        avgJumpEx   = jumped/float(_jumps)
+        print "Backjumps\t: {}\t(Average: {:5.2f} Max: {:3d} Sum: {:6d} )".format(_jumps,avgJump,maxJump,jumpSum)
+        print "  Executed\t: {}\t(Average: {:5.2f} Max: {:3d} Sum: {:6d} Ratio: {:6.2f}%)".format(_jumps-bounded,avgJumpEx,maxJumpEx,jumped,jumpedRatio*100)
+        print "  Bounded\t: {}\t(Average: {:5.2f} Max: {:3d} Sum: {:6d} Ratio: {:6.2f}%)".format(bounded,avgBound,maxBound,boundSum,100-(jumpedRatio*100))
+        print
+
+        lp = control.statistics['problem']['lp']
+        print "Rules\t\t: {}\t(Original: {})".format(int(lp['rules']),0)
+        print "  Choice\t: {}".format(int(lp['rules_choice']),0)
+        print "Atoms\t\t: {}\t(Original: {} Auxiliary: {})".format(int(lp['atoms']),0,lp['atoms_aux'])
+        print "Bodies\t\t: {}\t(Original: {})".format(int(lp['bodies']),0)
+        print "  Count\t\t: {}\t(Original: {})".format(int(lp['count_bodies']),0)
+        print "Equivalences\t: {}\t(Atom=Atom: {} Body=Body: {} Other: {})".format(int(lp['eqs']),int(lp['eqs_atom']),int(lp['eqs_body']),int(lp['eqs_other']))
+        print "Tight\t\t: {}".format("Yes" if int(lp['sccs'])>0 else "No")
+
+        gen = control.statistics['problem']['generator']
+        print "Variables\t: {}\t(Eliminated: {} Frozen: {})".format(int(gen['vars']),int(gen['vars_eliminated']),int(gen['vars_frozen']))
+        print "Constraints\t: {}\t(Binary: {} Ternary: {} Other: {})".format(int(gen['complexity']),int(gen['constraints_binary']),int(gen['constraints_ternary']),int(gen['constraints']))
+        print
+
 
 
 #
@@ -38,132 +138,169 @@ class Scheduler:
 
 
 
-class Sequential_Scheduler(Scheduler):
-
-
-    def __init__(self,start,inc,time):
-        self.__length = start
-        self.__inc    = inc
-        self.__time   = time
-        self.__runs   = []
-
-
-    def next(self,result):
-        if result == None:
-            self.__runs = [(self.__length,self.__time)]
-            return self.__runs[0][0], self.__runs[0][1]
-        if result.interrupted: # or result.satisfiable:
-            return self.__runs[0][0], self.__runs[0][1]
-        self.__length = self.__length + self.__inc
-        self.__runs = [(self.__length,self.__time)]
-        return self.__runs[0][0], self.__runs[0][1]
-
-
-
+# TODO: Check if next slice fits into memory (is it doable?)
 class A_Scheduler(Scheduler):
 
 
-    def __init__(self,start,inc,time,queue):
-        self.__length = start
-        self.__inc    = inc
-        self.__time   = time
-        self.__queue  = queue
-        self.__runs   = []
+    def __init__(self,start,inc,limit,size,propagate_unsat):
+        self.__length          = start
+        self.__inc             = inc
+        self.__limit           = limit
+        self.__size            = size
+        self.__propagate_unsat = propagate_unsat
+        self.__runs            = []
 
 
     def next(self,result):
-        if result == None:     # add all runs
-            self.__runs   = [ (self.__length + (i*self.__inc), self.__time) for i in range(self.__queue)]
-            self.__length = self.__length + ((self.__queue-1)*self.__inc)
-        elif result.interrupted: # or result.satisfiable: # move to the end of the queue
+
+        # START: add all runs
+        if result == None:
+            self.__runs   = [ self.__length+(i*self.__inc) for i in range(self.__size) ]
+            self.__runs   = [ i for i in self.__runs if i<=self.__limit ]
+            self.__length = self.__length + ((self.__size-1)*self.__inc)
+
+        # UNKNOWN: enqueue and pop
+        elif result.unknown:
             self.__runs.append(self.__runs[0])
             self.__runs = self.__runs[1:]
+
+        # UNSAT
         else:
-            self.__length = self.__length + self.__inc
-            self.__runs.append((self.__length,self.__time))
-            self.__runs = self.__runs[1:]
+            if self.__propagate_unsat:                 # propagate unsat
+                current_length = self.__runs[0]
+                self.__runs = [ i for i in self.__runs if i>=current_length ]
+            next_length = self.__length + self.__inc
+            if next_length <= self.__limit:            # if inside the limit: enqueue next
+                self.__length = next_length
+                self.__runs.append(self.__length)
+            self.__runs = self.__runs[1:]              # pop
+
+        # print and return
         do_print("Queue:\t\t " + str(self.__runs),False)
-        return self.__runs[0][0], self.__runs[0][1]
+        return self.__runs[0] if len(self.__runs)>0 else None
+
+
+
+class Run:
+
+
+    def __init__(self,index,length,effort,solve):
+        self.index  = index
+        self.length = length
+        self.effort = effort
+        self.solve  = solve
+
+
+    def __repr__(self):
+        return "("+",".join([str(i) for i in [self.index,self.length,self.effort,self.solve]])+")"
 
 
 
 class B_Scheduler:
 
 
-    def __init__(self,n_start,n_inc,t_start,t_inc,gamma):
-        self.__n_next = n_start
-        self.__n_inc  = n_inc
-        self.__t      = t_start
-        self.__t_inc  = t_inc
-        self.__gamma  = gamma
-        self.__runs     = []
-        self.__unsolved = []
-        self.__step     = 0
+    def __init__(self,start,inc,limit,size,propagate_unsat,gamma):
+        self.__index           = 0
+        self.__start           = start
+        self.__inc             = inc
+        self.__limit           = limit
+        self.__size            = size
+        self.__propagate_unsat = propagate_unsat
+        self.__gamma           = gamma
+        self.__runs            = []
+        self.__next_runs       = []
 
 
     def next(self,result):
-        # result
+
+        # if not first time
         if result is not None:
-            if result.interrupted:
-                self.__unsolved.append(self.__runs[0])
+            # UNKNOWN: effort++, and append to __next_runs
+            if result.unknown:
+                self.__runs[0].effort += 1
+                self.__next_runs.append(self.__runs[0])
+            # UNSAT and propagate: reset __next_runs
+            if result.unsatisfiable and self.__propagate_unsat:
+                self.__next_runs = []
+            # UNKNOWN or UNSAT: pop __runs
             self.__runs = self.__runs[1:]
+            # move to __next_runs while not solve
+            while self.__runs != [] and not self.__runs[0].solve:
+                self.__next_runs.append(self.__runs[0])
+                self.__runs = self.__runs[1:]
+
         # if no more runs
         if self.__runs == []:
-            # unsolved
-            tmp = []
-            for i in self.__unsolved:
-                t = int(self.__t * (self.__gamma ** i[3]))
-                if t > i[2]:
-                    # (planning time point, time for next run, total time, step)
-                    self.__runs.append((i[0],t-i[2],t,i[3]))
-                else:
-                    tmp.append(i)
-            self.__unsolved = tmp
-            # next ones
-            n, step = self.__n_next, self.__step
-            while True:
-                t = int(self.__t * (self.__gamma ** step))
-                if t > 0:
-                    # (planning time point, time for next run, total time, step)
-                    self.__runs.append((n,t,t,step))
-                    n    += self.__n_inc
-                    step += 1
-                else:
-                    self.__t += self.__t_inc
-                    if len(self.__runs)>0:
-                        self.__n_next, self.__step = n, step
-                        break
-        # print
+
+            # if __next_runs is not empty: add to __runs
+            if self.__next_runs != []:
+                first = self.__next_runs[0]
+                first.solve = True
+                self.__runs = [ first ]
+                for i in self.__next_runs[1:]:
+                    i.solve = True if (i.effort < (((first.effort+1) * (self.__gamma ** (i.index - first.index)))+0.5)) else False
+                    self.__runs.append(i)
+
+            # else: add new to __runs
+            else:
+                self.__runs = [ Run(self.__index,self.__start+(self.__inc*self.__index),0,True) ]
+                self.__index += 1
+                first = self.__runs[0]
+                if first.length > self.__limit: return None
+
+            # reset __next_runs
+            self.__next_runs = []
+
+            # add next runs
+            while (0.5 < ((first.effort+1) * (self.__gamma ** (self.__index - first.index)))):
+                if len(self.__runs)>= self.__size: break
+                next_length = self.__start+(self.__inc*self.__index)
+                if next_length > self.__limit: break
+                self.__runs.append(Run(self.__index,next_length,0,True))
+                self.__index += 1
+
+        # print and return
         do_print("Queue:\t\t " + str(self.__runs),False)
-        # return
-        return self.__runs[0][0], self.__runs[0][1]
+        return self.__runs[0].length
+
 
 
 class C_Scheduler(Scheduler):
 
 
-    def __init__(self,time,queue):
-        self.__length = 1
-        self.__inc    = 2
-        self.__time   = time
-        self.__queue  = queue
-        self.__runs   = []
+    def __init__(self,start,inc,limit,propagate_unsat):
+        self.__length          = start
+        self.__inc             = inc
+        self.__limit           = limit
+        self.__propagate_unsat = propagate_unsat
+        self.__runs            = []
 
 
     def next(self,result):
-        if result == None:     # add all runs
-            self.__runs   = [ (self.__inc ** i, self.__time) for i in range(self.__queue)]
-            self.__length =    self.__inc ** (self.__queue-1)
-        elif result.interrupted: # move to the end of the queue
-            self.__runs.append(self.__runs[0])
-            self.__runs = self.__runs[1:]
-        else:
-            self.__length = self.__length * self.__inc
-            self.__runs.append((self.__length,self.__time))
-            self.__runs = self.__runs[1:]
-        do_print("Queue:\t\t " + str(self.__runs),False)
-        return self.__runs[0][0], self.__runs[0][1]
 
+        # START: add first run
+        if result == None:
+            self.__runs   = [ self.__length ]
+            self.__length = int(self.__length*self.__inc)
+
+        # ELSE: add new and handle last
+        else:
+            next_length = self.__length * self.__inc
+            if next_length <= self.__limit:
+                self.__runs.append(next_length)
+            # UNKNOWN: append
+            if result.unknown:
+                self.__runs.append(self.__runs[0])
+            # UNSAT: propagate_unsat
+            elif self.__propagate_unsat:
+                current_length = self.__runs[0]
+                self.__runs = [ i for i in self.__runs if i>=current_length ]
+            # pop
+            self.__runs = self.__runs[1:]
+
+        # print and return
+        do_print("Queue:\t\t " + str(self.__runs),False)
+        return self.__runs[0] if len(self.__runs)>0 else None
 
 
 
@@ -200,9 +337,16 @@ class Solver:
 
 
     def __init__(self,ctl,options):
+
         self.__ctl     = ctl
         self.__length  = 0
         self.__options = options
+        if options['verbose']: self.__memory = memory_usage()
+
+        # set solving and restart policy
+        self.__ctl.configuration.solve.solve_limit = "umax,"+str(options['restarts_per_solve'])
+        if options['conflicts_per_restart'] != 0:
+            self.__ctl.configuration.solver[0].restarts="F,"+str(options['conflicts_per_restart'])
 
 
     def __on_model(self,m):
@@ -212,11 +356,20 @@ class Solver:
             print "ANSWER\n" + " ".join([str(x)+"." for x in m.symbols(shown=True)])
 
 
-    def __on_finish(self,result):
-        self.__result = result
+    def __verbose_start(self):
+        self.__time0 = clock()
 
 
-    def solve(self,length,time):
+    def __verbose_end(self,string):
+        do_print(string+" Time:\t "+str(clock()-self.__time0),False)
+        memory = memory_usage()
+        do_print("Memory:\t\t "+str(memory)+"MB (+"+str(memory-self.__memory)+"MB)",False)
+        self.__memory = memory
+
+
+    def solve(self,length):
+
+        global verbose_option
 
         do_print("Grounded Until:\t {}".format(self.__length),False)
 
@@ -226,7 +379,9 @@ class Solver:
             parts = parts + [(CHECK,[length])]
             self.__ctl.release_external(clingo.Function(QUERY,[self.__length]))
             do_print("Grounding...\t "+str(parts),False)
+            if verbose_option: self.__verbose_start()
             self.__ctl.ground(parts)
+            if verbose_option: self.__verbose_end("Grounding")
             self.__ctl.assign_external(clingo.Function(QUERY,[length]),True)
             self.__ctl.cleanup()
             self.__length = length
@@ -237,10 +392,11 @@ class Solver:
             for t in range(length+1,self.__length+1):
                 self.__ctl.assign_external(clingo.Function(NO_ACTION,[t]),True)
 
-        # solve with time limit
+        # solve
         do_print("Solving...")
-        future = self.__ctl.solve_async(on_model=self.__on_model,on_finish=self.__on_finish) # sets self.__result
-        future.wait(time) or future.cancel()
+        if verbose_option: self.__verbose_start()
+        self.__result = self.__ctl.solve(on_model=self.__on_model)
+        if verbose_option: self.__verbose_end("Solving")
         do_print(str(self.__result),False)
 
         # undo no actions if necessary
@@ -252,7 +408,6 @@ class Solver:
         # return
         do_print("",False)
         return self.__result
-
 
 
 #
@@ -275,38 +430,44 @@ class Planner:
         # additional programs
         ctl.add(BASE,[],PROGRAMS)
 
-        # initialize
-        ctl.ground([(BASE,[])])
-        scheduler = B_Scheduler(5,5,5,5,0.8) # start,inc,time
-        if options['S'] is not None:
-            s = [int(x) for x in options['S']]
-            scheduler = Sequential_Scheduler(s[0],s[1],s[2])      # start,inc,time
-        elif options['A'] is not None:
-            a = [int(x) for x in options['A']]
-            scheduler = A_Scheduler(a[0],a[1],a[2],a[3]) # start,inc,time,queue
+        # ground base, and set initial query
+        ctl.ground([(BASE,[]),(CHECK,[0])])
+        ctl.assign_external(clingo.Function(QUERY,[0]),True)
+
+        # solver
+        solver = Solver(ctl,options)
+
+        # scheduler
+        if sum([1 for i in ['A','B','C'] if options[i] is not None])>1: # check argument error
+            raise Exception("Please, choose only one Scheduler: A, B, or C")
+        if options['A'] is not None:  # (start,inc,limit,restarts,size,propagate_unsat)
+            scheduler = A_Scheduler(options['start'],options['inc'],options['limit'],options['A'],options['propagate_unsat'])
         elif options['B'] is not None:
-            a = [int(x) for x in options['B'][:-1]]
-            scheduler = B_Scheduler(a[0],a[1],a[2],a[3],float(options['B'][-1])) # start,inc,time,queue
+            scheduler = B_Scheduler(options['start'],options['inc'],options['limit'],options['processes'],options['propagate_unsat'],options['B'])
         elif options['C'] is not None:
-            a = [int(x) for x in options['C']]
-            scheduler = C_Scheduler(a[0],a[1]) # queue
-        solver    = Solver(ctl,options)
+            scheduler = A_Scheduler(options['start'],options['C'],  options['limit'],options['propagate_unsat'])
+        else: # default
+            scheduler = B_Scheduler(options['start'],options['inc'],options['limit'],options['processes'],options['propagate_unsat'],0.9)
 
         # loop
         i=1
         result = None
+        global verbose_option
+        if verbose_option: do_print("Memory: "+str(memory_usage())+"MB")
         while True:
             do_print("Iteration "+str(i),False)
+            if verbose_option: time0 = clock()
             i += 1
-            length, time = scheduler.next(result)
-            result       = solver.solve(length,time)
+            length = scheduler.next(result)
+            if length == None:
+                do_print("PLAN NOT FOUND")
+                break
+            result = solver.solve(length)
             if result.satisfiable:
                 do_print("SATISFIABLE")
-                #print json.dumps(ctl.statistics, sort_keys=True, indent=4, separators=(',', ': '))
-                #print "###################"
-                #print "lp.bodies", ctl.statistics["problem"]["lp"]["bodies"]
-                return
-
+                break
+            if verbose_option: do_print("Iteration Time:\t "+str(clock()-time0),False); do_print("",False)
+        #if '--stats' in clingo_options: Stats().run(ctl)
 
 
 
@@ -328,7 +489,7 @@ Clingo Options:
 
     epilog = """
 Default command-line:
-planner.py -B 5 5 1 1 0.9
+planner.py -B 0.9
 
 planner is part of plasp in Potassco: https://potassco.org/
 Get help/report bugs via : https://potassco.org/support
@@ -345,26 +506,42 @@ Get help/report bugs via : https://potassco.org/support
         cmd_parser = argparse.ArgumentParser(description="An ASP Planner",
             usage=self.usage,epilog=_epilog,formatter_class=argparse.RawDescriptionHelpFormatter,
             add_help=False)
+
         # basic
         basic = cmd_parser.add_argument_group('Basic Options')
         basic.add_argument('-h','--help',action='help',help='Print help and exit')
         basic.add_argument('-',dest='read_stdin',action='store_true',help=argparse.SUPPRESS)
         basic.add_argument('-c','--const',dest='constants',action="append",help=argparse.SUPPRESS,default=[])
         basic.add_argument('-v','--verbose',dest='verbose',action="store_true",help="Be a bit more verbose")
-        basic.add_argument('--outf',dest='outf',type=int,metavar="<n>",help="Use {0=default|1=competition} output",default=0,choices=[0,1])
-        # scheduler
+        basic.add_argument('--outf',dest='outf',type=int,metavar="n",help="Use {0=default|1=competition} output",default=0,choices=[0,1])
+
+        # Scheduler
         scheduler = cmd_parser.add_argument_group('Scheduler Options')
-        scheduler.add_argument('-S',nargs=3,dest='S',help="Sequential Scheduler starting at time point <s>,\
-                               incrementing <i> time points, and solving for <t> seconds",metavar=('<s>','<i>','<t>'),default=None)
-        scheduler.add_argument('-A',nargs=4,dest='A',help="Scheduler A starting at time point <s>, incrementing <i> time points,\
-                                solving for <t> seconds with a queue of <q> elements",
-                                metavar=('<s>','<i>','<t>','<q>'),default=None)
-        scheduler.add_argument('-B',nargs=5,dest='B',help="Scheduler B starting at time point <s>, incrementing <i> time points,\
-                                solving initially for <t> seconds, incrementing <it> seconds,\
-                                with gamma <g> (float)",
-                                metavar=('<s>','<i>','<t>','<it>','<g>'),default=None)
-        scheduler.add_argument('-C',nargs=2,dest='C',help="Scheduler C, solving for <t> seconds, with a queue of <q> elements",
-                                metavar=('<t>','<q>'),default=None)
+
+        # A, B or C
+        scheduler.add_argument('-A',dest='A',help="Run algorithm A with parameter n (range 1 to 50)",
+                                metavar='n',default=None,type=int)
+        scheduler.add_argument('-B',dest='B',help="Run algorithm B with parameter r (range 0.1 to 0.9999) (default 0.9)",
+                                metavar='r',default=None,type=float)
+        scheduler.add_argument('-C',dest='C',help="Run algorithm C with parameter r (range 0.2 to 2.0)",
+                                metavar='r',default=None,type=float)
+        # Options
+        scheduler.add_argument('-M',dest='processes',help="With algorithm B, use maximum n processes (default -M 20)",
+                                metavar='n',default=20,type=int)
+        scheduler.add_argument('-S',dest='inc',help="Step for horizon lengths 0, n, 2n, 3n, ... (default -S 5, algorithms A and B only)",
+                                metavar='n',default=5,type=int)
+        scheduler.add_argument('-F',dest='start',help="Starting horizon length (default -F 0)",
+                                metavar='n',default=0,type=int)
+        scheduler.add_argument('-T',dest='limit',help="Ending horizon length (default -T 3000)",
+                                metavar='n',default=3000,type=int)
+        scheduler.add_argument('-i',dest='conflicts_per_restart',help="Restart interval is n (default -i 60, use 0 for leaving open the restart policy)",
+                                metavar='n',default=60,type=int)
+
+        # New Options
+        scheduler.add_argument('-r',dest='restarts_per_solve',help="Number of restarts per solve call (default -r 1)",
+                                metavar='n',default=1,type=int)
+        scheduler.add_argument('--keep-after-unsat',dest='propagate_unsat',help="After finding n to be UNSAT, do keep runs with m<n",
+                                action="store_false")
 
         # parse
         options, unknown = cmd_parser.parse_known_args()
@@ -400,4 +577,6 @@ Get help/report bugs via : https://potassco.org/support
 if __name__ == "__main__":
     options, clingo_options = PlannerArgumentParser().run()
     Planner().run(options,clingo_options)
+
+
 

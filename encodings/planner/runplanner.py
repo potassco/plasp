@@ -11,11 +11,19 @@ PREPROCESS  = PLASP_DIR + "encodings/strips/preprocess.lp"
 STRIPS      = PLASP_DIR + "encodings/strips/strips-incremental.lp"
 REDUNDANCY  = PLASP_DIR + "encodings/strips/redundancy.lp"
 POSTPROCESS = PLASP_DIR + "encodings/strips/postprocess.lp"
+INCMODE     = PLASP_DIR + "encodings/strips/incmode.lp"
 TMP         = os.path.dirname(os.path.realpath(__file__)) + "/run.tmp"
+
+# Other systems
+CLINGO      = "clingo"
 FAST_D      = "/home/wv/bin/linux/64/fast-downward-data/fast-downward.py --alias seq-sat-lama-2011"
 FAST_D_TR   = "/home/wv/bin/linux/64/fast-downward-data/fast-downward.py --translate"
 SAS_OUTPUT  = "output.sas"
-MADAGASCAR  = "MpC"
+M           = "M"
+MP          = "Mp"
+MPC         = "MpC"
+
+
 
 class MyArgumentParser:
 
@@ -48,7 +56,7 @@ Get help/report bugs via : https://potassco.org/support
         #basic.add_argument('-',dest='read_stdin',action='store_true',help=argparse.SUPPRESS)
         #basic.add_argument('-c','--const',dest='constants',action="append",help=argparse.SUPPRESS,default=[])
         #basic.add_argument('-v','--verbose',dest='verbose',action="store_true",help="Be a bit more verbose")
-        basic.add_argument('instance',help="PDDL instance, with corresponding domain.pddl in the same directory")
+        basic.add_argument('instance',help="PDDL instance, with corresponding domain file in the same directory (named either domain.pddl, or domain_instance)")
 
         # specific
         normal = cmd_parser.add_argument_group('Solving Options')
@@ -60,9 +68,12 @@ Get help/report bugs via : https://potassco.org/support
 
 
         extended = cmd_parser.add_argument_group('Other Solving Modes')
-        extended.add_argument('--basic','-b',dest='basic',action='store_true',help='Run fast-downward translator to sas, then plasp translator, and solve with the basic encoding')
+        extended.add_argument('--incmode',dest='incmode',action='store_true',help='Run clingo incmode')
+        extended.add_argument('--basic',dest='basic',action='store_true',help='Run fast-downward translator to sas, then plasp translator, and solve with the basic encoding')
         extended.add_argument('--fast-downward','-fd',dest='fast-downward',action='store_true',help='Run fast-downward heuristic search planner with LAMA settings')
-        extended.add_argument('--madagascar','-m',dest='madagascar',action='store_true',help='Run madagascar SAT planner')
+        extended.add_argument('--madagascar-M',  dest='M',  action='store_true',help='Run version   M of madagascar SAT planner')
+        extended.add_argument('--madagascar-Mp', dest='Mp', action='store_true',help='Run version  Mp of madagascar SAT planner')
+        extended.add_argument('--madagascar-MpC',dest='MpC',action='store_true',help='Run version MpC of madagascar SAT planner')
 
         # parse
         options, unknown = cmd_parser.parse_known_args()
@@ -114,15 +125,21 @@ def run():
     #
 
     # basic encoding
-    if options['basic']:
+    if options['incmode']:
+        call = call.replace(PLANNER,CLINGO + " " + INCMODE)
+    elif options['basic']:
         call = "{} {} {}; {} {} | {} - {} {}".format(FAST_D_TR,domain,instance,PLASP,SAS_OUTPUT,PLANNER,BASIC," ".join(rest) +
                (postprocess if options['postprocess'] else ""))
     # fast-downward
     elif options['fast-downward']:
         call = "{} {} {} {}".format(FAST_D,domain,instance," ".join(rest))
     # madagascar
-    elif options['madagascar']:
-        call = "{} {} {} {}".format(MADAGASCAR,domain,instance," ".join(rest))
+    elif options['M']:
+        call = "{} {} {} {}".format(  M,domain,instance," ".join(rest))
+    elif options['Mp']:
+        call = "{} {} {} {}".format( MP,domain,instance," ".join(rest))
+    elif options['MpC']:
+        call = "{} {} {} {}".format(MPC,domain,instance," ".join(rest))
 
     #
     # SOLVE

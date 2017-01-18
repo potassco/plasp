@@ -5,7 +5,7 @@
 ```bash
 $ planner.py [options] [files]
 ```
-Implements Algorithms S, A, B and C from [J. Rintanen](https://users.ics.aalto.fi/rintanen/jussi/satplan.html). 
+Implements Algorithms A, B and C from [J. Rintanen](https://users.ics.aalto.fi/rintanen/jussi/satplan.html). 
 
 Type ``--help`` for help.
 
@@ -31,7 +31,6 @@ Replace in the Examples [here](https://github.com/potassco/plasp/blob/master/enc
 
 
 
-
 # runplanner
 > Running an ASP-based PDDL planner
 
@@ -46,15 +45,19 @@ and `planner.py` for solving the planning problem with different encodings (see 
 With option `--translate`, it uses first `fast-downward` to translate the input to a [sas](http://www.fast-downward.org/TranslatorOutputFormat) file, 
 then `plasp` to obtain ASP facts, and `planner.py`solves the problem with the mentioned encodings.
 
+Option `--incmode` runs `clingo incmode.lp` instead of `planner.py`.
+
 Option `--basic` applies `--translate` option but uses the [basic encoding](https://github.com/javier-romero/plasp/blob/master/encodings/planner/basic.lp).
 
+## Options for internal use at the University of Potsdam
 With option `--fast-downward` it runs [fast-downward](http://www.fast-downward.org/) heuristic search planner with LAMA settings, 
-and with option `--madagascar` it runs [madagascar](https://users.ics.aalto.fi/rintanen/jussi/satplan.html) SAT planner.
+and with options `--M`, `--Mp`, and `--MpC`, it runs different versions of the [madagascar](https://users.ics.aalto.fi/rintanen/jussi/satplan.html) SAT planner.
 
 Type ``--help`` for help.
 
 ## Requirements
-If there is a domain file, it should be named `domain.pddl` and appear in the same directory as the `instance`.
+In the directory of the `instance` there must be a corresponding domain file, 
+named either `domain.pddl` or `domain_instance`. 
 
 ## Examples
 Some Example invocations (modifying [these](https://github.com/potassco/plasp/blob/master/encodings/strips/README.md)):
@@ -102,6 +105,8 @@ runplanner.py ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pd
 runplanner.py ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl --parallel=1 --translate --postprocess
 
 runplanner.py ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl --parallel=2 --translate --postprocess
+
+runplanner.py ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl --incmode
 
 runplanner.py ../../instances/PDDL/ipc-2000-elevator-m10-strips/problem-04-00.pddl --basic
 
