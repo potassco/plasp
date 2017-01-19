@@ -39,7 +39,11 @@ Replace in the Examples [here](https://github.com/potassco/plasp/blob/master/enc
 $ runplanner.py instance [options]
 ```
 
-`runplanner.py` uses `plasp` to translate the input to ASP facts, 
+The path of the domain file may be given with option `--domain`.
+Without this option, `runplanner.py` looks in the directory of the `instance` for a domain file 
+named either `domain.pddl` or `domain_instance`. 
+
+By default, `runplanner.py` uses `plasp` to translate the input to ASP facts, 
 and `planner.py` for solving the planning problem with different encodings (see [here](https://github.com/potassco/plasp/blob/master/encodings/strips/README.md), and the available options with `--help`).
 
 With option `--translate`, it uses first `fast-downward` to translate the input to a [sas](http://www.fast-downward.org/TranslatorOutputFormat) file, 
@@ -55,9 +59,6 @@ Type ``--help`` for help.
 With option `--fast-downward` it runs [fast-downward](http://www.fast-downward.org/) heuristic search planner with LAMA settings, 
 and with options `--M`, `--Mp`, and `--MpC`, it runs different versions of the [madagascar](https://users.ics.aalto.fi/rintanen/jussi/satplan.html) SAT planner.
 
-## Requirements
-In the directory of the `instance` there must be a corresponding domain file, 
-named either `domain.pddl` or `domain_instance`. 
 
 ## Examples
 Some Example invocations (modifying [these](https://github.com/potassco/plasp/blob/master/encodings/strips/README.md)):

@@ -56,7 +56,8 @@ Get help/report bugs via : https://potassco.org/support
         #basic.add_argument('-',dest='read_stdin',action='store_true',help=argparse.SUPPRESS)
         #basic.add_argument('-c','--const',dest='constants',action="append",help=argparse.SUPPRESS,default=[])
         #basic.add_argument('-v','--verbose',dest='verbose',action="store_true",help="Be a bit more verbose")
-        basic.add_argument('instance',help="PDDL instance, with corresponding domain file in the same directory (named either domain.pddl, or domain_instance)")
+        basic.add_argument('instance',help="PDDL instance, with corresponding domain file in the same directory (named either domain.pddl, or domain_instance), or defined via option --domain")
+        basic.add_argument('--domain',dest='domain',help="PDDL domain",default=None)
 
         # specific
         normal = cmd_parser.add_argument_group('Solving Options')
@@ -89,11 +90,20 @@ Get help/report bugs via : https://potassco.org/support
 
 def run():
 
+    # parse arguments
     options, rest = MyArgumentParser().run()
+
+    # instance and domain
     instance = options['instance']
-    domain   = os.path.dirname(os.path.realpath(instance)) + "/domain.pddl"
+    if options['domain'] is not None:
+        domain = options['domain']
+    else:
+        domain = os.path.dirname(os.path.realpath(instance)) + "/domain.pddl"
+        if not os.path.isfile(domain):
+            domain = os.path.dirname(os.path.realpath(instance)) + "/domain_" + os.path.basename(instance)
     if not os.path.isfile(domain):
-        domain = os.path.dirname(os.path.realpath(instance)) + "/domain_" + os.path.basename(instance)
+        print "Domain File not found"
+        return
 
     #
     # NORMAL CASE
