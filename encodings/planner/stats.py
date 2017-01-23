@@ -57,7 +57,7 @@ class Stats:
         concurrency = int(summary['concurrency'])
         if concurrency > 1:
             out += self.__print_key_value("Threads","{:<8}".format(concurrency))
-            out += "\n" # TODO: " (Winner: {})\n".format(winner) # no info for winner
+            out += "\n" # when winner info becomes available: " (Winner: {})\n".format(winner)
 
         return out
 
@@ -139,9 +139,9 @@ class Stats:
             intJumps    = int(extra['integrated_jumps'])
             avgIntJump  = self.__ratio(intJumps,intImps)
             out += self.__print_key_value("  Distributed","{:<8}".format(distributed))
-            out += " (Ratio: {:6.2f}% Averge LBD: {:.2f}) \n".format(distRatio*100.0,avgDistLbd)
+            out += " (Ratio: {:6.2f}% Average LBD: {:.2f}) \n".format(distRatio*100.0,avgDistLbd)
             out += self.__print_key_value("  Integrated","{:<8}".format(integrated))
-            out += " (Ratio: {:6.2f}% ".format(intRatio*100.0) # TODO: if not _accu: "("
+            out += " (Ratio: {:6.2f}% ".format(intRatio*100.0) # for not accu: if not _accu: "("
             out += "Unit: {} Average Jumps: {:.2f})\n".format(intImps,avgIntJump)
 
         # jumps
@@ -247,7 +247,7 @@ class Stats:
         gammas     = int(lp['gammas'])
         out += self.__print_key("Tight")
         if sccs==0: out += "Yes"
-        #TODO: elif sccs == PrgNode:noScc
+        # for supported models: elif sccs == PrgNode:noScc
         else: out += "{:<8} (SCCs: {} Non-Hcfs: {} Nodes: {} Gammas: {})".format("No",sccs,nonHcfs,ufsNodes,gammas)
         out += "\n"
 
@@ -256,9 +256,9 @@ class Stats:
         vars       = int(gen['vars'])
         eliminated = int(gen['vars_eliminated'])
         frozen     = int(gen['vars_frozen'])
-        sum        = int(gen['constraints'])
         binary     = int(gen['constraints_binary'])
         ternary    = int(gen['constraints_ternary'])
+        sum        = int(gen['constraints']) + binary + ternary
         acycEdges  = int(gen['acyc_edges'])
         out += self.__print_key_value("Variables","{:<8}".format(vars))
         out += " (Eliminated: {:>4} Frozen: {:>4})\n".format(eliminated,frozen)
@@ -284,19 +284,12 @@ pigeon(1..n+1). box(1..n).
 #heuristic in(X,Y) : pigeon(X), box(Y). [1,true]
 
 % disjunction
-a | b.
-a :- b.
-b :- a.
+a | b.  a :- b.  b :- a.
 
 % SAT
-%box(n+1).
+box(n+1).
 
 """
-
-program_b = """
-{c}.
-"""
-
 
 def run():
 
@@ -316,14 +309,6 @@ def run():
     with open(file, "w") as text_file:
         text_file.write(program_a)
     os.system("clingo {} {}; rm {}".format(options,file,file))
-
-    # once more with Control()
-    control.add("b",[],program_b)
-    control.ground([("b",[])])
-    control.solve(on_model=on_model)
-    print Stats().summary(control)
-    print Stats().statistics(control)
-
 
 if __name__ == "__main__":
     run()
