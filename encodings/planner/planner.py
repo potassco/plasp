@@ -10,7 +10,7 @@ import sys
 import argparse
 import re
 from time import clock
-
+import stats
 
 #
 # Global variables and functions
@@ -19,34 +19,40 @@ from time import clock
 
 verbose_option = False
 outf           = 0
-def do_print(string,verbose=True):
-    if verbose or verbose_option:
-        print ("% " if outf==1 else "") + string
+def log(string,verbose=True,force=False):
+    if force:
+        sys.stdout.write(string + "\n")
+    elif verbose or verbose_option:
+        if outf==1:
+            string = "% " + string.replace("\n","\n% ")
+        sys.stdout.write(string + "\n")
 
 
 #
-# memory_usage()
+# memory_usage for unix
 #
 import os
-def memory_usage():
+def memory_usage(key="VmSize:"):
+
     # data
     proc_status = '/proc/%d/status' % os.getpid()
-    #proc_stat  = '/proc/%d/stat' % os.getpid()
     scale = {'kB': 1024.0, 'mB': 1,
              'KB': 1024.0, 'MB': 1}
-    key = 'VmSize:'
+
     # get pseudo file  /proc/<pid>/status
     try:
         t = open(proc_status)
         v = t.read()
         t.close()
     except:
-        return 0.0  # non-Linux?
-    # get VmKey line e.g. 'VmSize:  9999  kB\n ...'
+        return -1  # non-Linux?
+
+    # get key line e.g. 'VmSize:  9999  kB\n ...'
     i = v.index(key)
     v = v[i:].split(None, 3)  # whitespace
     if len(v) < 3:
-        return 0.0  # invalid format?
+        return -1  # invalid format?
+
     # return
     return int(float(v[1]) / scale[v[2]])
 
@@ -66,7 +72,7 @@ class Scheduler:
 
 
     def next(self,result):
-        return 0,0
+        return 0
 
 
 
@@ -106,8 +112,8 @@ class A_Scheduler(Scheduler):
                 self.__runs.append(self.__length)
             self.__runs = self.__runs[1:]              # pop
 
-        # print and return
-        do_print("Queue:\t\t " + str(self.__runs),False)
+        # log and return
+        log("Queue:\t\t " + str(self.__runs),False)
         return self.__runs[0] if len(self.__runs)>0 else None
 
 
@@ -190,8 +196,8 @@ class B_Scheduler:
                 self.__runs.append(Run(self.__index,next_length,0,True))
                 self.__index += 1
 
-        # print and return
-        do_print("Queue:\t\t " + str(self.__runs),False)
+        # log and return
+        log("Queue:\t\t " + str(self.__runs),False)
         return self.__runs[0].length
 
 
@@ -229,8 +235,8 @@ class C_Scheduler(Scheduler):
             # pop
             self.__runs = self.__runs[1:]
 
-        # print and return
-        do_print("Queue:\t\t " + str(self.__runs),False)
+        # log and return
+        log("Queue:\t\t " + str(self.__runs),False)
         return self.__runs[0] if len(self.__runs)>0 else None
 
 
@@ -269,9 +275,10 @@ class Solver:
 
     def __init__(self,ctl,options):
 
-        self.__ctl     = ctl
-        self.__length  = 0
-        self.__options = options
+        self.__ctl         = ctl
+        self.__length      = 0
+        self.__last_length = 0
+        self.__options     = options
         if options['verbose']: self.__memory = memory_usage()
 
         # set solving and restart policy
@@ -282,9 +289,9 @@ class Solver:
 
     def __on_model(self,m):
         if self.__options['outf'] == 0:
-            do_print("Answer: 1\n" + str(m))
+            log("Answer: 1\n" + str(m))
         else:
-            print "ANSWER\n" + " ".join([str(x)+"." for x in m.symbols(shown=True)])
+            log("ANSWER\n" + " ".join([str(x)+"." for x in m.symbols(shown=True)]),force=True)
 
 
     def __verbose_start(self):
@@ -292,9 +299,10 @@ class Solver:
 
 
     def __verbose_end(self,string):
-        do_print(string+" Time:\t "+str(clock()-self.__time0),False)
+        log(string+" Time:\t {:.2f}".format(clock()-self.__time0),False)
         memory = memory_usage()
-        do_print("Memory:\t\t "+str(memory)+"MB (+"+str(memory-self.__memory)+"MB)",False)
+        if self.__memory == -1 or memory == -1: return
+        log("Memory:\t\t "+str(memory)+"MB (+"+str(memory-self.__memory)+"MB)",False)
         self.__memory = memory
 
 
@@ -302,14 +310,14 @@ class Solver:
 
         global verbose_option
 
-        do_print("Grounded Until:\t {}".format(self.__length),False)
+        log("Grounded Until:\t {}".format(self.__length),False)
 
         # ground if necessary
         if self.__length < length:
             parts = [(STEP,[t]) for t in range(self.__length+1,length+1)]
             parts = parts + [(CHECK,[length])]
             self.__ctl.release_external(clingo.Function(QUERY,[self.__length]))
-            do_print("Grounding...\t "+str(parts),False)
+            log("Grounding...\t "+str(parts),False)
             if verbose_option: self.__verbose_start()
             self.__ctl.ground(parts)
             if verbose_option: self.__verbose_end("Grounding")
@@ -317,27 +325,27 @@ class Solver:
             self.__ctl.cleanup()
             self.__length = length
 
-        # no actions if necessary
-        elif length < self.__length:
-            do_print("Blocking actions...",False)
-            for t in range(length+1,self.__length+1):
+        # blocking or unblocking actions
+        if length < self.__last_length:
+            log("Blocking actions...",False)
+            for t in range(length+1,self.__last_length+1):
                 self.__ctl.assign_external(clingo.Function(NO_ACTION,[t]),True)
+        elif self.__last_length < length:
+            log("Unblocking actions...",False)
+            for t in range(self.__last_length+1,length+1):
+                self.__ctl.assign_external(clingo.Function(NO_ACTION,[t]),False)
+        self.__last_length = length
+
 
         # solve
-        do_print("Solving...")
+        log("Solving...")
         if verbose_option: self.__verbose_start()
         self.__result = self.__ctl.solve(on_model=self.__on_model)
         if verbose_option: self.__verbose_end("Solving")
-        do_print(str(self.__result),False)
-
-        # undo no actions if necessary
-        if length < self.__length:
-            do_print("Unblocking actions...",False)
-            for t in range(length+1,self.__length+1):
-                self.__ctl.assign_external(clingo.Function(NO_ACTION,[t]),False)
+        log(str(self.__result),False)
 
         # return
-        do_print("",False)
+        log("",False)
         return self.__result
 
 
@@ -380,24 +388,36 @@ class Planner:
         else: # default
             scheduler = B_Scheduler(options['start'],options['inc'],options['limit'],options['processes'],options['propagate_unsat'],0.9)
 
+        # if verbose, log initial memory usage
+        global verbose_option
+        memory = memory_usage()
+        if verbose_option and memory!=-1:
+            log("\nMemory: {}MB\n".format(memory))
+
         # loop
         i=1
         result = None
-        global verbose_option
-        if verbose_option: do_print("Memory: "+str(memory_usage())+"MB\n")
         while True:
-            do_print("Iteration "+str(i),False)
+            log("Iteration "+str(i),False)
             if verbose_option: time0 = clock()
             i += 1
             length = scheduler.next(result)
             if length == None:
-                do_print("PLAN NOT FOUND")
+                log("PLAN NOT FOUND")
                 break
             result = solver.solve(length)
             if result.satisfiable:
-                do_print("SATISFIABLE")
+                log("SATISFIABLE")
                 break
-            if verbose_option: do_print("Iteration Time:\t "+str(clock()-time0),False); do_print("",False)
+            if verbose_option: log("Iteration Time:\t {:.2f}".format(clock()-time0),False)
+
+        # stats
+        log(stats.Stats().summary(ctl))
+        if options['stats']:
+            log(stats.Stats().statistics(ctl))
+            # peak memory
+            peak = memory_usage("VmPeak:")
+            if peak != -1: log("Memory Peak  : {}MB\n".format(peak))
 
 
 
@@ -429,7 +449,6 @@ Get help/report bugs via : https://potassco.org/support
 
         # version
         _version = "planner.py version " + VERSION
-        print _version
 
         # command parser
         _epilog = self.clingo_help + "\nusage: " + self.usage + self.epilog
@@ -443,6 +462,7 @@ Get help/report bugs via : https://potassco.org/support
         basic.add_argument('-',dest='read_stdin',action='store_true',help=argparse.SUPPRESS)
         basic.add_argument('-c','--const',dest='constants',action="append",help=argparse.SUPPRESS,default=[])
         basic.add_argument('-v','--verbose',dest='verbose',action="store_true",help="Be a bit more verbose")
+        basic.add_argument('--stats',dest='stats',action="store_true",help="Print statistics")
         basic.add_argument('--outf',dest='outf',type=int,metavar="n",help="Use {0=default|1=competition} output",default=0,choices=[0,1])
 
         # Scheduler
@@ -484,16 +504,23 @@ Get help/report bugs via : https://potassco.org/support
             else:                   options['files'].append(i)
         if options['files'] == []: options['read_stdin'] = True
 
+        # statistics
+        if options['stats']:
+            clingo_options.append("--stats")
+
         # add constants to clingo_options
         for i in options['constants']:
             clingo_options.append("-c {}".format(i))
         clingo_options.append(PLANNER_ON)
 
-        # set printing options
+        # set log options
         global verbose_option
         global outf
         verbose_option = options['verbose']
         outf           = options['outf']
+
+        # log version
+        log(_version)
 
         # return
         return options, clingo_options
@@ -505,10 +532,8 @@ Get help/report bugs via : https://potassco.org/support
 #
 
 if __name__ == "__main__":
-    time0 = clock()
     options, clingo_options = PlannerArgumentParser().run()
     Planner().run(options,clingo_options)
-    print "\nTime\t\t: {:.3f}s\n".format(clock() - time0)
 
 
 
