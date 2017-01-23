@@ -64,6 +64,9 @@ class Stats:
 
     def statistics(self,control):
 
+        # return "" if no stats
+        if not 'accu' in control.statistics: return ""
+
         # choices...
         solver      = control.statistics['accu']['solving']['solvers']
         extra       = solver['extra']
@@ -268,11 +271,7 @@ class Stats:
         return out
 
 
-def on_model(model):
-    sys.stdout.write("Answer: 1\n{}\n".format(str(model)))
-
-
-program_a = """
+program = """
 
 % pigeonhole problem
 #const n=8.
@@ -291,6 +290,10 @@ box(n+1).
 
 """
 
+def on_model(model):
+    sys.stdout.write("Answer: 1\n{}\n".format(str(model)))
+
+
 def run():
 
     # set options
@@ -298,7 +301,7 @@ def run():
 
     # with Control()
     control = clingo.Control(options.split())
-    control.add("a",[],program_a)
+    control.add("a",[],program)
     control.ground([("a",[])])
     control.solve(on_model=on_model)
     print Stats().summary(control)
@@ -307,7 +310,7 @@ def run():
     # with $clingo
     file = "tmp.lp"
     with open(file, "w") as text_file:
-        text_file.write(program_a)
+        text_file.write(program)
     os.system("clingo {} {}; rm {}".format(options,file,file))
 
 if __name__ == "__main__":
