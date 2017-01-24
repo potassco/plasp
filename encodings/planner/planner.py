@@ -272,6 +272,7 @@ class C_Scheduler(Scheduler):
             if current_length in self.__nones:
                 self.__nones.remove(current_length)
             next_length = self.__length * self.__inc
+            if int(next_length) == int(self.__length): next_length = self.__length + 1
             if int(next_length) <= self.__limit and not self.__nones:
                 self.__runs.append(int(next_length))
                 self.__length = next_length
