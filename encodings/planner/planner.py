@@ -365,6 +365,7 @@ class Solver:
 
     def __mem_check_limit(self,length):
         self.__mem_before = memory_usage("VmSize")
+        log("Expected Memory: {}MB".format(self.__mem_before + (self.__mem_max*length)))
         if self.__mem_limit < (self.__mem_before + (self.__mem_max*length)):
             return True
         return False
