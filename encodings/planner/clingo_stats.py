@@ -3,7 +3,6 @@
 import os
 import sys
 import clingo
-import json
 
 #
 # STATS
@@ -52,12 +51,12 @@ class Stats:
         unsatTime = float(times['unsat'])
         cpuTime   = float(times['cpu'])
         out += "{:.3f}s (Solving: {:.2f}s 1st Model: {:.2f}s Unsat: {:.2f}s)\n".format(totalTime,solveTime,satTime,unsatTime)
-        out += self.__print_key_value("CPU Time","{:.3f}s\n".format(cpuTime))
+        out += self.__print_key_value("CPU Time","{:.3f}s".format(cpuTime))
 
         concurrency = int(summary['concurrency'])
         if concurrency > 1:
-            out += self.__print_key_value("Threads","{:<8}".format(concurrency))
-            out += "\n" # when winner info becomes available: " (Winner: {})\n".format(winner)
+            out += "\n" + self.__print_key_value("Threads","{:<8}".format(concurrency))
+            # when winner info becomes available: " (Winner: {})\n".format(winner)
 
         return out
 
@@ -77,7 +76,7 @@ class Stats:
         restarts    = int(solver['restarts'])
         avgRestart  = self.__ratio(backjumps,restarts)
         lastRestart = int(solver['restarts_last'])
-        out = self.__print_key_value("Choices","{:<8}".format(choices))
+        out = "\n" + self.__print_key_value("Choices","{:<8}".format(choices))
         if domChoices: out += " (Domain: {})".format(domChoices)
         out += "\n"
         out += self.__print_key_value("Conflicts","{:<8}".format(conflicts))
@@ -290,22 +289,28 @@ box(n+1).
 
 """
 
+satisfiable = False
 def on_model(model):
+    global satisfiable
     sys.stdout.write("Answer: 1\n{}\n".format(str(model)))
+    satisfiable = True
 
 
 def run():
 
     # set options
     options = "-t4 --stats --heuristic=Domain"
+    #options = ""
 
     # with Control()
     control = clingo.Control(options.split())
     control.add("a",[],program)
     control.ground([("a",[])])
     control.solve(on_model=on_model)
-    print Stats().summary(control)
-    print Stats().statistics(control)
+    if satisfiable: sys.stdout.write("SATISFIABLE\n")
+    else:           sys.stdout.write("UNSATISFIABLE\n")
+    sys.stdout.write(Stats().summary(control)+"\n")
+    sys.stdout.write(Stats().statistics(control)+"\n")
 
     # with $clingo
     file = "tmp.lp"

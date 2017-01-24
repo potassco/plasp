@@ -10,29 +10,29 @@ import sys
 import argparse
 import re
 from time import clock
-import stats
-
-#
-# Global variables and functions
-#
-
-
-verbose_option = False
-outf           = 0
-def log(string,verbose=True,force=False):
-    if force:
-        sys.stdout.write(string + "\n")
-    elif verbose or verbose_option:
-        if outf==1:
-            string = "% " + string.replace("\n","\n% ")
-        sys.stdout.write(string + "\n")
-
-
-#
-# memory_usage for unix
-#
+import clingo_stats
 import os
-def memory_usage(key="VmSize:"):
+
+#
+# LOGGING
+#
+
+outf        = 0
+FORCE_PRINT = 1
+PRINT       = 2
+VERBOSE     = 3
+log_level   = PRINT
+def log(string,level=VERBOSE):
+    if level > log_level: return
+    if outf==1 and level != FORCE_PRINT:
+        string = "% " + string.replace("\n","\n% ")
+    sys.stdout.write(string + "\n")
+
+
+#
+# MEMORY USAGE (for Unix)
+#
+def memory_usage(key="VmSize"):
 
     # data
     proc_status = '/proc/%d/status' % os.getpid()
@@ -86,34 +86,52 @@ class A_Scheduler(Scheduler):
         self.__size            = size
         self.__propagate_unsat = propagate_unsat
         self.__runs            = []
+        self.__first           = True
+        self.__nones           = 0
 
 
     def next(self,result):
 
         # START: add all runs
-        if result == None:
+        if self.__first:
+            self.__first  = False
             self.__runs   = [ self.__length+(i*self.__inc) for i in range(self.__size) ]
             self.__runs   = [ i for i in self.__runs if i<=self.__limit ]
-            self.__length = self.__length + ((self.__size-1)*self.__inc)
+            if len(self.__runs) > 0: self.__length = self.__runs[-1]
+            self.__nones  = set()
 
-        # UNKNOWN: enqueue and pop
-        elif result.unknown:
-            self.__runs.append(self.__runs[0])
+        # NONE: check if all Nones, enqueue, and pop
+        elif result is None:
+            current_length = self.__runs[0]
+            self.__nones.add(current_length)
+            if len(self.__nones) == len(self.__runs): return None
+            self.__runs.append(current_length)
             self.__runs = self.__runs[1:]
 
-        # UNSAT
+        # not NONE
         else:
-            if self.__propagate_unsat:                 # propagate unsat
-                current_length = self.__runs[0]
-                self.__runs = [ i for i in self.__runs if i>=current_length ]
-            next_length = self.__length + self.__inc
-            if next_length <= self.__limit:            # if inside the limit: enqueue next
-                self.__length = next_length
-                self.__runs.append(self.__length)
-            self.__runs = self.__runs[1:]              # pop
+
+            current_length = self.__runs[0]
+            if current_length in self.__nones:
+                self.__nones.remove(current_length)
+
+            # UNKNOWN: enqueue and pop
+            if result.unknown:
+                self.__runs.append(current_length)
+
+            # UNSAT
+            else:
+                if self.__propagate_unsat:                            # propagate unsat
+                    self.__runs = [ i for i in self.__runs if i>=current_length ]
+                next_length = self.__length + self.__inc
+                if next_length <= self.__limit and not self.__nones:  # if inside the limit and mem: enqueue next
+                    self.__length = next_length
+                    self.__runs.append(self.__length)
+
+            self.__runs = self.__runs[1:]                             # pop
 
         # log and return
-        log("Queue:\t\t " + str(self.__runs),False)
+        log("Queue:\t\t " + str(self.__runs))
         return self.__runs[0] if len(self.__runs)>0 else None
 
 
@@ -146,31 +164,49 @@ class B_Scheduler:
         self.__gamma           = gamma
         self.__runs            = []
         self.__next_runs       = []
+        self.__first           = True
+        self.__nones           = set()
 
 
     def next(self,result):
 
         # if not first time
-        if result is not None:
-            # UNKNOWN: effort++, and append to __next_runs
-            if result.unknown:
-                self.__runs[0].effort += 1
-                self.__next_runs.append(self.__runs[0])
-            # UNSAT and propagate: reset __next_runs
-            if result.unsatisfiable and self.__propagate_unsat:
-                self.__next_runs = []
-            # UNKNOWN or UNSAT: pop __runs
+        if not self.__first:
+
+            current = self.__runs[0]
+
+            # NONE: append to __next_runs
+            if result is None:
+                self.__nones.add(current)
+                self.__next_runs.append(current)
+
+            # not NONE
+            else:
+                if current in self.__nones:
+                    self.__nones.remove(current)
+                # UNKNOWN: effort++, and append to __next_runs
+                if result.unknown:
+                    current.effort += 1
+                    self.__next_runs.append(current)
+                # UNSAT and propagate: reset __next_runs
+                elif result.unsatisfiable and self.__propagate_unsat:
+                    self.__next_runs = []
+
+            # NONE, UNKNOWN or UNSAT: pop __runs
             self.__runs = self.__runs[1:]
             # move to __next_runs while not solve
             while self.__runs != [] and not self.__runs[0].solve:
                 self.__next_runs.append(self.__runs[0])
                 self.__runs = self.__runs[1:]
 
+        self.__first = False
+
         # if no more runs
         if self.__runs == []:
 
             # if __next_runs is not empty: add to __runs
             if self.__next_runs != []:
+                if len(self.__nones) == len(self.__next_runs): return None
                 first = self.__next_runs[0]
                 first.solve = True
                 self.__runs = [ first ]
@@ -189,7 +225,7 @@ class B_Scheduler:
             self.__next_runs = []
 
             # add next runs
-            while (0.5 < ((first.effort+1) * (self.__gamma ** (self.__index - first.index)))):
+            while (0.5 < ((first.effort+1) * (self.__gamma ** (self.__index - first.index)))) and not self.__nones:
                 if len(self.__runs)>= self.__size: break
                 next_length = self.__start+(self.__inc*self.__index)
                 if next_length > self.__limit: break
@@ -197,7 +233,7 @@ class B_Scheduler:
                 self.__index += 1
 
         # log and return
-        log("Queue:\t\t " + str(self.__runs),False)
+        log("Queue:\t\t " + str(self.__runs))
         return self.__runs[0].length
 
 
@@ -207,36 +243,49 @@ class C_Scheduler(Scheduler):
 
     def __init__(self,start,inc,limit,propagate_unsat):
         self.__length          = start
-        self.__inc             = inc
+        self.__inc             = float(inc)
         self.__limit           = limit
         self.__propagate_unsat = propagate_unsat
         self.__runs            = []
+        self.__first           = True
+        self.__nones           = set()
 
 
     def next(self,result):
 
         # START: add first run
-        if result == None:
+        if self.__first:
             self.__runs   = [ self.__length ]
-            self.__length = int(self.__length*self.__inc)
+            if self.__length == 0: self.__length = 1
+            self.__first  = False
+
+        # NONE: check if all Nones, append and pop
+        elif result is None:
+            self.__nones.add(self.__runs[0])
+            if len(self.__nones) == len(self.__runs): return None
+            self.__runs.append(self.__runs[0])
+            self.__runs = self.__runs[1:]
 
         # ELSE: add new and handle last
         else:
+            current_length = self.__runs[0]
+            if current_length in self.__nones:
+                self.__nones.remove(current_length)
             next_length = self.__length * self.__inc
-            if next_length <= self.__limit:
-                self.__runs.append(next_length)
+            if int(next_length) <= self.__limit and not self.__nones:
+                self.__runs.append(int(next_length))
+                self.__length = next_length
             # UNKNOWN: append
             if result.unknown:
-                self.__runs.append(self.__runs[0])
+                self.__runs.append(current_length)
             # UNSAT: propagate_unsat
             elif self.__propagate_unsat:
-                current_length = self.__runs[0]
                 self.__runs = [ i for i in self.__runs if i>=current_length ]
             # pop
             self.__runs = self.__runs[1:]
 
         # log and return
-        log("Queue:\t\t " + str(self.__runs),False)
+        log("Queue:\t\t " + str(self.__runs))
         return self.__runs[0] if len(self.__runs)>0 else None
 
 
@@ -279,7 +328,14 @@ class Solver:
         self.__length      = 0
         self.__last_length = 0
         self.__options     = options
-        if options['verbose']: self.__memory = memory_usage()
+        self.__verbose     = options['verbose']
+        if self.__verbose: self.__memory = memory_usage()
+
+        # mem
+        self.__mem         = True if options['check_mem'] else False
+        self.__mem_limit   = options['check_mem']*0.9
+        self.__mem_max     = 0
+        self.__mem_before  = 0
 
         # set solving and restart policy
         self.__ctl.configuration.solve.solve_limit = "umax,"+str(options['restarts_per_solve'])
@@ -289,9 +345,9 @@ class Solver:
 
     def __on_model(self,m):
         if self.__options['outf'] == 0:
-            log("Answer: 1\n" + str(m))
+            log("Answer: 1\n" + str(m),PRINT)
         else:
-            log("ANSWER\n" + " ".join([str(x)+"." for x in m.symbols(shown=True)]),force=True)
+            log("ANSWER\n" + " ".join([str(x)+"." for x in m.symbols(shown=True)]),FORCE_PRINT)
 
 
     def __verbose_start(self):
@@ -299,53 +355,66 @@ class Solver:
 
 
     def __verbose_end(self,string):
-        log(string+" Time:\t {:.2f}".format(clock()-self.__time0),False)
+        log(string+" Time:\t {:.2f}s".format(clock()-self.__time0))
         memory = memory_usage()
         if self.__memory == -1 or memory == -1: return
-        log("Memory:\t\t "+str(memory)+"MB (+"+str(memory-self.__memory)+"MB)",False)
+        log("Memory:\t\t "+str(memory)+"MB (+"+str(memory-self.__memory)+"MB)")
         self.__memory = memory
+
+
+    def __mem_check_limit(self,length):
+        self.__mem_before = memory_usage("VmSize")
+        if self.__mem_limit < (self.__mem_before + (self.__mem_max*length)):
+            return True
+        return False
+
+
+    def __mem_set_max(self,length):
+        self.__mem_max = max(self.__mem_max,(memory_usage("VmSize")-self.__mem_before)/float(length))
 
 
     def solve(self,length):
 
-        global verbose_option
-
-        log("Grounded Until:\t {}".format(self.__length),False)
+        log("Grounded Until:\t {}".format(self.__length))
 
         # ground if necessary
+        grounded = 0
         if self.__length < length:
+            if self.__mem and self.__mem_check_limit(length-self.__length):
+                log("Skipping: not enough memory for grounding...\n")
+                return None
             parts = [(STEP,[t]) for t in range(self.__length+1,length+1)]
             parts = parts + [(CHECK,[length])]
             self.__ctl.release_external(clingo.Function(QUERY,[self.__length]))
-            log("Grounding...\t "+str(parts),False)
-            if verbose_option: self.__verbose_start()
+            log("Grounding...\t "+str(parts))
+            if self.__verbose: self.__verbose_start()
             self.__ctl.ground(parts)
-            if verbose_option: self.__verbose_end("Grounding")
+            if self.__verbose: self.__verbose_end("Grounding")
             self.__ctl.assign_external(clingo.Function(QUERY,[length]),True)
             self.__ctl.cleanup()
+            grounded      = length - self.__length
             self.__length = length
 
         # blocking or unblocking actions
         if length < self.__last_length:
-            log("Blocking actions...",False)
+            log("Blocking actions...")
             for t in range(length+1,self.__last_length+1):
                 self.__ctl.assign_external(clingo.Function(NO_ACTION,[t]),True)
         elif self.__last_length < length:
-            log("Unblocking actions...",False)
+            log("Unblocking actions...")
             for t in range(self.__last_length+1,length+1):
                 self.__ctl.assign_external(clingo.Function(NO_ACTION,[t]),False)
         self.__last_length = length
 
-
         # solve
-        log("Solving...")
-        if verbose_option: self.__verbose_start()
+        log("Solving...",PRINT)
+        if self.__verbose: self.__verbose_start()
         self.__result = self.__ctl.solve(on_model=self.__on_model)
-        if verbose_option: self.__verbose_end("Solving")
-        log(str(self.__result),False)
+        if self.__verbose: self.__verbose_end("Solving")
+        log(str(self.__result)+"\n")
+        if self.__mem and grounded: self.__mem_set_max(grounded)
 
         # return
-        log("",False)
         return self.__result
 
 
@@ -384,40 +453,47 @@ class Planner:
         elif options['B'] is not None:
             scheduler = B_Scheduler(options['start'],options['inc'],options['limit'],options['processes'],options['propagate_unsat'],options['B'])
         elif options['C'] is not None:
-            scheduler = A_Scheduler(options['start'],options['C'],  options['limit'],options['propagate_unsat'])
+            scheduler = C_Scheduler(options['start'],options['C'],  options['limit'],options['propagate_unsat'])
         else: # default
             scheduler = B_Scheduler(options['start'],options['inc'],options['limit'],options['processes'],options['propagate_unsat'],0.9)
 
         # if verbose, log initial memory usage
-        global verbose_option
+        verbose = options['verbose']
         memory = memory_usage()
-        if verbose_option and memory!=-1:
+        if verbose and memory!=-1:
             log("\nMemory: {}MB\n".format(memory))
 
         # loop
         i=1
         result = None
+        max_length = 0
+        sol_length = 0
         while True:
-            log("Iteration "+str(i),False)
-            if verbose_option: time0 = clock()
+            log("Iteration "+str(i))
+            if verbose: time0 = clock()
             i += 1
             length = scheduler.next(result)
             if length == None:
-                log("PLAN NOT FOUND")
+                log("PLAN NOT FOUND",PRINT)
                 break
             result = solver.solve(length)
-            if result.satisfiable:
-                log("SATISFIABLE")
+            if result is not None and length > max_length: max_length = length
+            if result is not None and result.satisfiable:
+                log("SATISFIABLE",PRINT)
+                sol_length = length
                 break
-            if verbose_option: log("Iteration Time:\t {:.2f}".format(clock()-time0),False)
+            if verbose: log("Iteration Time:\t {:.2f}s\n".format(clock()-time0))
 
         # stats
-        log(stats.Stats().summary(ctl))
+        log(clingo_stats.Stats().summary(ctl),PRINT)
         if options['stats']:
-            log(stats.Stats().statistics(ctl))
+            log(clingo_stats.Stats().statistics(ctl),PRINT)
             # peak memory
-            peak = memory_usage("VmPeak:")
-            if peak != -1: log("Memory Peak  : {}MB\n".format(peak))
+            peak = memory_usage("VmPeak")
+            if peak != -1: log("Memory Peak  : {}MB".format(peak),PRINT)
+            log("Max. Length  : {} steps".format(max_length),PRINT)
+            if sol_length: log("Sol. Length  : {} steps\n".format(sol_length),PRINT)
+            else: log("",PRINT)
 
 
 
@@ -486,6 +562,8 @@ Get help/report bugs via : https://potassco.org/support
                                 metavar='n',default=3000,type=int)
         scheduler.add_argument('-i',dest='conflicts_per_restart',help="Restart interval is n (default -i 60, use 0 for leaving open the restart policy)",
                                 metavar='n',default=60,type=int)
+        scheduler.add_argument('-m',dest='check_mem',help="Allocating max. n MB of memory (0 for not checking, default -m 0, only for UNIX)", # 8192
+                                metavar='n',default=0,type=int)
 
         # New Options
         scheduler.add_argument('-r',dest='restarts_per_solve',help="Number of restarts per solve call (default -r 100)",
@@ -514,13 +592,13 @@ Get help/report bugs via : https://potassco.org/support
         clingo_options.append(PLANNER_ON)
 
         # set log options
-        global verbose_option
+        global log_level
         global outf
-        verbose_option = options['verbose']
-        outf           = options['outf']
+        log_level = PRINT if not options['verbose'] else VERBOSE
+        outf      = options['outf']
 
         # log version
-        log(_version)
+        log(_version,PRINT)
 
         # return
         return options, clingo_options
