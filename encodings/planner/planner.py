@@ -487,7 +487,7 @@ class Planner:
             if verbose: log("Iteration Time:\t {:.2f}s\n".format(clock()-time0))
 
         # stats
-        log(clingo_stats.Stats().summary(ctl),PRINT)
+        log("\n" + clingo_stats.Stats().summary(ctl),PRINT)
         if options['stats']:
             log(clingo_stats.Stats().statistics(ctl),PRINT)
             # peak memory
@@ -584,9 +584,8 @@ Get help/report bugs via : https://potassco.org/support
             else:                   options['files'].append(i)
         if options['files'] == []: options['read_stdin'] = True
 
-        # statistics
-        if options['stats']:
-            clingo_options.append("--stats")
+        # always append statistics for using Stats()
+        clingo_options.append("--stats")
 
         # add constants to clingo_options
         for i in options['constants']:

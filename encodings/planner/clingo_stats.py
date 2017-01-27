@@ -15,6 +15,7 @@ class Stats:
         self.__width = 13
 
 
+
     def __ratio(self,x,y):
         return float(x)/float(y) if float(y)!=0 else 0
 
@@ -31,9 +32,10 @@ class Stats:
         return self.__print_key(key) + value
 
 
+    # requires Control initialized with --stats
     def summary(self,control):
 
-        out = "\n"
+        out = ""
         summary = control.statistics['summary']
         moreStr = "+" if int(summary['exhausted'])==0 else ""
         numEnum = int(summary['models']['enumerated'])
@@ -43,7 +45,10 @@ class Stats:
         step = int(summary['call'])
         out += self.__print_key_value("Calls","{}\n".format(step+1))
 
-        times = control.statistics['summary']['times']
+        # return out if no stats
+        if not 'accu' in control.statistics: return out
+
+        times = control.statistics['accu']['times']
         out += self.__print_key("Times")
         totalTime = float(times['total'])
         solveTime = float(times['solve'])
@@ -61,6 +66,7 @@ class Stats:
         return out
 
 
+    # requires Control initialized with --stats
     def statistics(self,control):
 
         # return "" if no stats
