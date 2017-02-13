@@ -9,25 +9,46 @@ Implements Algorithms A, B and C from [J. Rintanen](https://users.ics.aalto.fi/r
 
 Type ``--help`` for help.
 
-## Requirements
-The input must be in the format accepted by the clingo script [incmode-py.lp](https://github.com/potassco/clingo/blob/master/examples/clingo/iclingo/incmode-py.lp).
+## Description
+The input for the `planner` consists of subprograms `base`, `check(t)` , and `step(t)`.
+This is the format accepted by the clingo script [incmode-py.lp](https://github.com/potassco/clingo/blob/master/examples/clingo/iclingo/incmode-py.lp).
 
-The planner relies on predicate `occurs(action,t)` representing action occurrences.
+Let the program `P(n)` consist of subprograms `base`, `check` with `t=0..n`, and `step` with `t=1..n`.
+Then the `planner` returns a stable model of the program consisting of `P(n)` and fact `query(n)`, 
+for some `n>=0` such that the program is satisfiable.
 
-It adds an external predicate `no_action(t)`, which should not appear in the input encodings.
+The `planner`requires that for all `m>n`, `P(n)` with `query(n)` is satisfiable iff `P(m)` with `query(n)` is satisfiable.
 
-The planner sets constant `planner_on` to value `true`.
+## Additional predicates
+The `planner` adds the external predicates `query(t)` and `skip(t)`, 
+which can only be used in the body of the rules.
 
-The input encodings must allow for the non execution of actions at any time point.
-However, for using the encoding without the planner, 
-this can be circumvented as follows with constant `planner_on`:
+While searching for a plan of length 'n', 
+the `planner` sets both `query(n)`, and `skip(t)` for `t>n`, to `true`. 
+The rest of the instances of those predicates are set to `false`.
+
+
+## Solving Options
+
+Option `--query-at-last` sets `query(m)` to true instead of `query(n)`, where `m` is the latest time point that the `planner`i has grounded.
+
+Option `--forbid-actions`  forbids actions at time points after current plan length.
+This uses predicate `occurs/2`, and is implemented with the following program:
 ```bash
-#const planner_on=false.
-:- not 1 { occurs(A,t) }, planner_on=false.
+#program step(t).
+:- occurs(A,t), skip(t).
 ```
 
+Option `--force-actions`  forces at least one action at time points before current plan length.
+This uses predicate `occurs/2`, and is implemented with the following program:
+```bash
+#program step(t).
+:- not occurs(_,t), not skip(t).
+```
+
+
 ## Examples
-Replace in the Examples [here](https://github.com/potassco/plasp/blob/master/encodings/strips/README.md) `clingo incmode.lp` by `planner.py`
+Replace in the Examples [here](https://github.com/potassco/plasp/blob/master/encodings/strips/README.md) `clingo incmode.lp` by `planner.py`.
 
 
 
@@ -45,6 +66,7 @@ named either `domain.pddl` or `domain_instance`.
 
 By default, `runplanner.py` uses `plasp` to translate the input to ASP facts, 
 and `planner.py` for solving the planning problem with different encodings (see [here](https://github.com/potassco/plasp/blob/master/encodings/strips/README.md), and the available options with `--help`).
+The `planner` is run with options `--query-at-last --forbid-actions --force-actions`.
 
 With option `--translate`, it uses first `fast-downward` to translate the input to a [sas](http://www.fast-downward.org/TranslatorOutputFormat) file, 
 then `plasp` to obtain ASP facts, and `planner.py`solves the problem with the mentioned encodings.

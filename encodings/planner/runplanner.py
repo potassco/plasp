@@ -3,16 +3,17 @@ import sys
 import os
 import argparse
 
-PLASP       = "plasp"
-PLASP_DIR   = os.path.dirname(os.path.realpath(__file__)) + "/../../"
-PLANNER     = PLASP_DIR + "encodings/planner/planner.py"
-BASIC       = PLASP_DIR + "encodings/planner/basic.lp"
-PREPROCESS  = PLASP_DIR + "encodings/strips/preprocess.lp"
-STRIPS      = PLASP_DIR + "encodings/strips/strips-incremental.lp"
-REDUNDANCY  = PLASP_DIR + "encodings/strips/redundancy.lp"
-POSTPROCESS = PLASP_DIR + "encodings/strips/postprocess.lp"
-INCMODE     = PLASP_DIR + "encodings/strips/incmode.lp"
-TMP         = os.path.dirname(os.path.realpath(__file__)) + "/run.tmp"
+PLASP         = "plasp"
+PLASP_DIR     = os.path.dirname(os.path.realpath(__file__)) + "/../../"
+PLANNER       = PLASP_DIR + "encodings/planner/planner.py"
+BASIC         = PLASP_DIR + "encodings/planner/basic.lp"
+PREPROCESS    = PLASP_DIR + "encodings/strips/preprocess.lp"
+STRIPS        = PLASP_DIR + "encodings/strips/strips-incremental.lp"
+REDUNDANCY    = PLASP_DIR + "encodings/strips/redundancy.lp"
+POSTPROCESS   = PLASP_DIR + "encodings/strips/postprocess.lp"
+INCMODE       = PLASP_DIR + "encodings/strips/incmode.lp"
+TMP           = os.path.dirname(os.path.realpath(__file__)) + "/run.tmp"
+BASIC_OPTIONS = " --query-at-last --forbid-actions --force-actions "
 
 # Other systems
 CLINGO      = "clingo"
@@ -126,6 +127,7 @@ def run():
     # normal plan
     call += " | {} - {} {} {}".format(PLANNER,PREPROCESS,STRIPS,
         (" ".join(rest))                                           +
+         BASIC_OPTIONS                                             +
         " -c _closure={}  ".format(options['closure'])             +
         " -c _parallel={} ".format(options['parallel'])            +
         (" " + REDUNDANCY + " " if options['redundancy']  else "") +

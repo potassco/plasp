@@ -295,41 +295,36 @@ class C_Scheduler(Scheduler):
 # SOLVER
 #
 
-OCCURS        = "occurs"
-OCCURS_ARITY  = 2
-STEP          = "step"
-CHECK         = "check"
-QUERY         = "query"
-BASE          = "base"
-NO_ACTION     = "no_action" # added
-PROGRAMS      = """
-#program step(t).
-
-% no action
-#external no_action(t).
-:-     occurs(A,t),     no_action(t).
-
-% some action
-:- not occurs(_,t), not no_action(t).
-
-
-#program check(t).
-#external query(t).
-
+BASE  = "base"
+STEP  = "step"
+CHECK = "check"
+QUERY = "query"
+SKIP  = "skip"
+EXTERNALS_PROGRAM  = """
+#program step(t).  #external skip(t).
+#program check(t). #external query(t).
 """
-PLANNER_ON = "-c planner_on=true" # added
+FORBID_ACTIONS_PROGRAM = """
+#program step(t).
+:-     occurs(A,t),     skip(t). % no action
+"""
+FORCE_ACTIONS_PROGRAM = """
+#program step(t).
+:- not occurs(_,t), not skip(t). % some action
+"""
 
 
 class Solver:
 
 
-    def __init__(self,ctl,options):
+    def __init__(self, ctl, options):
 
         self.__ctl         = ctl
         self.__length      = 0
         self.__last_length = 0
         self.__options     = options
         self.__verbose     = options['verbose']
+        self.__result      = None
         if self.__verbose: self.__memory = memory_usage()
 
         # mem
@@ -342,6 +337,8 @@ class Solver:
         self.__ctl.configuration.solve.solve_limit = "umax,"+str(options['restarts_per_solve'])
         if int(options['conflicts_per_restart']) != 0:
             self.__ctl.configuration.solver[0].restarts="F,"+str(options['conflicts_per_restart'])
+
+        self.__move_query = options['move_query'] 
 
 
     def __on_model(self,m):
@@ -387,12 +384,12 @@ class Solver:
                 return None
             parts = [(STEP,[t]) for t in range(self.__length+1,length+1)]
             parts = parts + [(CHECK,[length])]
-            self.__ctl.release_external(clingo.Function(QUERY,[self.__length]))
+            if not self.__move_query: self.__ctl.release_external(clingo.Function(QUERY,[self.__length]))
             log("Grounding...\t "+str(parts))
             if self.__verbose: self.__verbose_start()
             self.__ctl.ground(parts)
             if self.__verbose: self.__verbose_end("Grounding")
-            self.__ctl.assign_external(clingo.Function(QUERY,[length]),True)
+            if not self.__move_query: self.__ctl.assign_external(clingo.Function(QUERY,[length]),True)
             self.__ctl.cleanup()
             grounded      = length - self.__length
             self.__length = length
@@ -401,20 +398,24 @@ class Solver:
         if length < self.__last_length:
             log("Blocking actions...")
             for t in range(length+1,self.__last_length+1):
-                self.__ctl.assign_external(clingo.Function(NO_ACTION,[t]),True)
+                self.__ctl.assign_external(clingo.Function(SKIP,[t]),True)
         elif self.__last_length < length:
             log("Unblocking actions...")
             for t in range(self.__last_length+1,length+1):
-                self.__ctl.assign_external(clingo.Function(NO_ACTION,[t]),False)
-        self.__last_length = length
+                self.__ctl.assign_external(clingo.Function(SKIP,[t]),False)
 
         # solve
         log("Solving...",PRINT)
         if self.__verbose: self.__verbose_start()
+        if self.__move_query: 
+            self.__ctl.assign_external(clingo.Function(QUERY,[self.__last_length]),False)
+            self.__ctl.assign_external(clingo.Function(QUERY,[length]),True)
         self.__result = self.__ctl.solve(on_model=self.__on_model)
         if self.__verbose: self.__verbose_end("Solving")
         log(str(self.__result)+"\n")
-        if self.__mem and grounded: self.__mem_set_max(grounded)
+        if self.__mem and grounded: 
+            self.__mem_set_max(grounded)
+        self.__last_length = length
 
         # return
         return self.__result
@@ -438,7 +439,9 @@ class Planner:
             ctl.add(BASE,[],sys.stdin.read())
 
         # additional programs
-        ctl.add(BASE,[],PROGRAMS)
+        ctl.add(BASE,[],EXTERNALS_PROGRAM)
+        if options['forbid_actions']: ctl.add(BASE,[],FORBID_ACTIONS_PROGRAM)
+        if options['force_actions']:  ctl.add(BASE,[],FORCE_ACTIONS_PROGRAM)
 
         # ground base, and set initial query
         ctl.ground([(BASE,[]),(CHECK,[0])])
@@ -485,6 +488,9 @@ class Planner:
                 sol_length = length
                 break
             if verbose: log("Iteration Time:\t {:.2f}s\n".format(clock()-time0))
+            #log("\n" + clingo_stats.Stats().summary(ctl),PRINT)
+            #if options['stats']:
+            #    log(clingo_stats.Stats().statistics(ctl),PRINT)
 
         # stats
         log("\n" + clingo_stats.Stats().summary(ctl),PRINT)
@@ -542,6 +548,14 @@ Get help/report bugs via : https://potassco.org/support
         basic.add_argument('-v','--verbose',dest='verbose',action="store_true",help="Be a bit more verbose")
         basic.add_argument('--stats',dest='stats',action="store_true",help="Print statistics")
         basic.add_argument('--outf',dest='outf',type=int,metavar="n",help="Use {0=default|1=competition} output",default=0,choices=[0,1])
+      
+
+        # Solving Options
+        solving = cmd_parser.add_argument_group('Solving Options')
+        solving.add_argument('--query-at-last',dest='move_query',action="store_false",help="Fix query always at the last (grounded) time point")
+        solving.add_argument('--forbid-actions',dest='forbid_actions',action="store_true",help="Forbid actions at time points after current plan length")
+        solving.add_argument('--force-actions',dest='force_actions',action="store_true",help="Force at least one action at time points before current plan length")
+
 
         # Scheduler
         scheduler = cmd_parser.add_argument_group('Scheduler Options')
@@ -590,7 +604,6 @@ Get help/report bugs via : https://potassco.org/support
         # add constants to clingo_options
         for i in options['constants']:
             clingo_options.append("-c {}".format(i))
-        clingo_options.append(PLANNER_ON)
 
         # set log options
         global log_level
