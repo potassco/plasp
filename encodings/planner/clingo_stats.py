@@ -50,7 +50,7 @@ class Stats:
         # return out if no stats
         if not 'accu' in control.statistics: return out
         times = control.statistics['accu']['times']
-        out += self.__print_key("Times")
+        out += self.__print_key("Time")
         totalTime = float(times['total'])
         solveTime = float(times['solve'])
         satTime   = float(times['sat'])
