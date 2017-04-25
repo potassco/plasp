@@ -3,6 +3,7 @@
 import os
 import sys
 import clingo
+import json
 
 #
 # STATS
@@ -33,21 +34,21 @@ class Stats:
 
 
     # requires Control initialized with --stats
-    def summary(self,control):
+    def summary(self,control,models=True):
 
         out = ""
         summary = control.statistics['summary']
         moreStr = "+" if int(summary['exhausted'])==0 else ""
         numEnum = int(summary['models']['enumerated'])
-        out += self.__print_key("Models")
-        out += "{}{}\n".format(numEnum,moreStr)
+        if models:
+            out += self.__print_key("Models")
+            out += "{}{}\n".format(numEnum,moreStr)
 
         step = int(summary['call'])
         out += self.__print_key_value("Calls","{}\n".format(step+1))
 
         # return out if no stats
         if not 'accu' in control.statistics: return out
-
         times = control.statistics['accu']['times']
         out += self.__print_key("Times")
         totalTime = float(times['total'])
