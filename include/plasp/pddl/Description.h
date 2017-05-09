@@ -1,8 +1,6 @@
 #ifndef __PLASP__PDDL__DESCRIPTION_H
 #define __PLASP__PDDL__DESCRIPTION_H
 
-#include <boost/filesystem/path.hpp>
-
 #include <plasp/pddl/Domain.h>
 #include <plasp/pddl/Problem.h>
 

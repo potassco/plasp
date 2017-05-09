@@ -3,7 +3,7 @@ project(plasp CXX)
 
 option(PLASP_BUILD_TESTS "Build unit tests" OFF)
 
-find_package(Boost 1.55.0 COMPONENTS program_options iostreams system filesystem REQUIRED)
+find_package(Boost 1.55.0 COMPONENTS program_options iostreams system REQUIRED)
 
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wpedantic -Werror")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
