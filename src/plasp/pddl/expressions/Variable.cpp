@@ -4,13 +4,14 @@
 
 #include <boost/assert.hpp>
 
-#include <plasp/input/ParserException.h>
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Domain.h>
 #include <plasp/pddl/ExpressionContext.h>
 #include <plasp/pddl/expressions/Either.h>
 #include <plasp/pddl/expressions/PrimitiveType.h>
 #include <plasp/pddl/expressions/Type.h>
+
+#include <parsebase/ParserException.h>
 
 namespace plasp
 {
@@ -60,7 +61,7 @@ void Variable::parseDeclaration(Context &context, Variables &parameters)
 		});
 
 	if (match != parameters.cend())
-		throw input::ParserException(parser.location(), "variable “" + variable->m_name + "” already declared in this scope");
+		throw parsebase::ParserException(parser.location(), "variable “" + variable->m_name + "” already declared in this scope");
 
 	// Flag variable for potentially upcoming type declaration
 	variable->setDirty();
@@ -137,7 +138,7 @@ void Variable::parseTypedDeclarations(Context &context, ExpressionContext &expre
 		expressionContext.checkRequirement(Requirement::Type::Typing);
 	// If no types are given, check that typing is not a requirement
 	else if (expressionContext.hasRequirement(Requirement::Type::Typing))
-		throw input::ParserException(parser.location(), "variable has undeclared type");
+		throw parsebase::ParserException(parser.location(), "variable has undeclared type");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -109,7 +109,7 @@ int main(int argc, char **argv)
 
 	try
 	{
-		plasp::input::Parser<plasp::input::CaseInsensitiveParserPolicy> parser;
+		parsebase::Parser<parsebase::CaseInsensitiveParserPolicy> parser;
 
 		if (variablesMap.count("input"))
 		{
@@ -160,7 +160,7 @@ int main(int argc, char **argv)
 			translator.translate();
 		}
 	}
-	catch (const plasp::input::ParserException &e)
+	catch (const parsebase::ParserException &e)
 	{
 		logger.log(plasp::output::Priority::Error, e.location(), e.message().c_str());
 		return EXIT_FAILURE;

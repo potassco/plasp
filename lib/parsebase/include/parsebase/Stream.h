@@ -1,18 +1,15 @@
-#ifndef __PLASP__INPUT__STREAM_H
-#define __PLASP__INPUT__STREAM_H
+#ifndef __PARSE_BASE__STREAM_H
+#define __PARSE_BASE__STREAM_H
 
+#include <experimental/filesystem>
 #include <iostream>
 #include <iterator>
 #include <sstream>
 #include <vector>
 
-#include <boost/filesystem.hpp>
+#include <parsebase/Location.h>
 
-#include <plasp/input/Location.h>
-
-namespace plasp
-{
-namespace input
+namespace parsebase
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -56,7 +53,7 @@ class Stream
 		~Stream() = default;
 
 		void read(std::string streamName, std::istream &istream);
-		void read(const boost::filesystem::path &path);
+		void read(const std::experimental::filesystem::path &path);
 
 		void reset();
 		void seek(Position position);
@@ -77,7 +74,6 @@ class Stream
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-}
 }
 
 #endif

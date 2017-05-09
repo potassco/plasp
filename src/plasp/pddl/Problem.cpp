@@ -2,12 +2,13 @@
 
 #include <algorithm>
 
-#include <plasp/input/ParserException.h>
 #include <plasp/pddl/ConsistencyException.h>
 #include <plasp/pddl/Domain.h>
 #include <plasp/pddl/ExpressionContext.h>
 #include <plasp/pddl/IO.h>
 #include <plasp/pddl/expressions/Constant.h>
+
+#include <parsebase/ParserException.h>
 
 namespace plasp
 {
@@ -52,7 +53,7 @@ void Problem::findSections()
 		if (unique && sectionPosition != -1)
 		{
 			parser.seek(value);
-			throw input::ParserException(parser.location(), "only one “:" + sectionName + "” section allowed");
+			throw parsebase::ParserException(parser.location(), "only one “:" + sectionName + "” section allowed");
 		}
 
 		sectionPosition = value;
@@ -97,7 +98,7 @@ void Problem::findSections()
 			const auto sectionIdentifier = parser.parseIdentifier();
 
 			parser.seek(position);
-			throw input::ParserException(parser.location(), "unknown problem section “" + sectionIdentifier + "”");
+			throw parsebase::ParserException(parser.location(), "unknown problem section “" + sectionIdentifier + "”");
 		}
 
 		// Skip section for now and parse it later
@@ -203,7 +204,7 @@ void Problem::parseDomainSection()
 	const auto domainName = parser.parseIdentifier();
 
 	if (m_domain.name() != domainName)
-		throw input::ParserException(parser.location(), "domains do not match (“" + m_domain.name() + "” and “" + domainName + "”)");
+		throw parsebase::ParserException(parser.location(), "domains do not match (“" + m_domain.name() + "” and “" + domainName + "”)");
 
 	parser.expect<std::string>(")");
 }

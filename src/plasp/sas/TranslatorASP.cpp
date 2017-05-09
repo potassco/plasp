@@ -1,5 +1,7 @@
 #include <plasp/sas/TranslatorASP.h>
 
+#include <boost/assert.hpp>
+
 #include <plasp/output/Formatting.h>
 
 namespace plasp

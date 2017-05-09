@@ -3,8 +3,9 @@
 
 #include <vector>
 
-#include <plasp/input/Parser.h>
 #include <plasp/sas/AssignedVariable.h>
+
+#include <parsebase/Parser.h>
 
 namespace plasp
 {
@@ -28,7 +29,7 @@ class MutexGroup
 		using Fact = AssignedVariable;
 		using Facts = AssignedVariables;
 
-		static MutexGroup fromSAS(input::Parser<> &parser, const Variables &variables);
+		static MutexGroup fromSAS(parsebase::Parser<> &parser, const Variables &variables);
 
 	public:
 		const Facts &facts() const;

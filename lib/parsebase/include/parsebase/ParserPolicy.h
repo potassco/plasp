@@ -1,11 +1,9 @@
-#ifndef __PLASP__INPUT__PARSER_POLICY_H
-#define __PLASP__INPUT__PARSER_POLICY_H
+#ifndef __PARSE_BASE__PARSER_POLICY_H
+#define __PARSE_BASE__PARSER_POLICY_H
 
 #include <iostream>
 
-namespace plasp
-{
-namespace input
+namespace parsebase
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -66,7 +64,6 @@ class CaseInsensitiveParserPolicy
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-}
 }
 
 #endif

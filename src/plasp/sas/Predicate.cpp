@@ -4,8 +4,9 @@
 #include <limits>
 #include <sstream>
 
-#include <plasp/input/ParserException.h>
 #include <plasp/output/Formatting.h>
+
+#include <parsebase/ParserException.h>
 
 namespace plasp
 {
@@ -18,7 +19,7 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Predicate Predicate::fromSAS(input::Parser<> &parser)
+Predicate Predicate::fromSAS(parsebase::Parser<> &parser)
 {
 	Predicate predicate;
 
@@ -43,7 +44,7 @@ Predicate Predicate::fromSAS(input::Parser<> &parser)
 	}
 	catch (const std::exception &e)
 	{
-		throw input::ParserException(parser.location(), "could not parse operator predicate");
+		throw parsebase::ParserException(parser.location(), "could not parse operator predicate");
 	}
 
 	return predicate;

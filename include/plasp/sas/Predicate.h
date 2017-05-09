@@ -5,8 +5,9 @@
 #include <string>
 #include <vector>
 
-#include <plasp/input/Parser.h>
 #include <plasp/output/ColorStream.h>
+
+#include <parsebase/Parser.h>
 
 namespace plasp
 {
@@ -22,7 +23,7 @@ namespace sas
 class Predicate
 {
 	public:
-		static Predicate fromSAS(input::Parser<> &parser);
+		static Predicate fromSAS(parsebase::Parser<> &parser);
 
 		using Arguments = std::vector<std::string>;
 

@@ -123,7 +123,7 @@ void Logger::log(Priority priority, const std::string &message)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Logger::log(Priority priority, const input::Location &location, const char *message)
+void Logger::log(Priority priority, const parsebase::Location &location, const char *message)
 {
 	const auto priorityID = static_cast<int>(priority);
 
@@ -150,7 +150,7 @@ void Logger::log(Priority priority, const input::Location &location, const char 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Logger::log(Priority priority, const input::Location &location, const std::string &message)
+void Logger::log(Priority priority, const parsebase::Location &location, const std::string &message)
 {
 	log(priority, location, message.c_str());
 }

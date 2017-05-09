@@ -1,8 +1,9 @@
 #ifndef __PLASP__SAS__GOAL_H
 #define __PLASP__SAS__GOAL_H
 
-#include <plasp/input/Parser.h>
 #include <plasp/sas/AssignedVariable.h>
+
+#include <parsebase/Parser.h>
 
 namespace plasp
 {
@@ -21,7 +22,7 @@ class Goal
 		using Fact = AssignedVariable;
 		using Facts = AssignedVariables;
 
-		static Goal fromSAS(input::Parser<> &parser, const Variables &variables);
+		static Goal fromSAS(parsebase::Parser<> &parser, const Variables &variables);
 
 	public:
 		const Facts &facts() const;

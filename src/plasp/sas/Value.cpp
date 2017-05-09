@@ -2,9 +2,10 @@
 
 #include <iostream>
 
-#include <plasp/input/ParserException.h>
 #include <plasp/output/Formatting.h>
 #include <plasp/sas/Variable.h>
+
+#include <parsebase/ParserException.h>
 
 namespace plasp
 {
@@ -54,7 +55,7 @@ Value Value::negated() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Value Value::fromSAS(input::Parser<> &parser)
+Value Value::fromSAS(parsebase::Parser<> &parser)
 {
 	const auto sasSign = parser.parse<std::string>();
 
@@ -74,7 +75,7 @@ Value Value::fromSAS(input::Parser<> &parser)
 	else if (sasSign == "NegatedAtom")
 		value.m_sign = Value::Sign::Negative;
 	else
-		throw input::ParserException(parser.location(), "invalid value sign “" + sasSign + "”");
+		throw parsebase::ParserException(parser.location(), "invalid value sign “" + sasSign + "”");
 
 	try
 	{
@@ -90,7 +91,7 @@ Value Value::fromSAS(input::Parser<> &parser)
 	}
 	catch (const std::exception &e)
 	{
-		throw input::ParserException(parser.location(), std::string("could not parse variable value (") + e.what() + ")");
+		throw parsebase::ParserException(parser.location(), std::string("could not parse variable value (") + e.what() + ")");
 	}
 
 	return value;
@@ -98,7 +99,7 @@ Value Value::fromSAS(input::Parser<> &parser)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const Value &Value::referenceFromSAS(input::Parser<> &parser, const Variable &variable)
+const Value &Value::referenceFromSAS(parsebase::Parser<> &parser, const Variable &variable)
 {
 	const auto valueID = parser.parse<int>();
 
@@ -106,7 +107,7 @@ const Value &Value::referenceFromSAS(input::Parser<> &parser, const Variable &va
 		return Value::Any;
 
 	if (valueID < 0 || static_cast<size_t>(valueID) >= variable.values().size())
-		throw input::ParserException(parser.location(), "value index out of range (variable " + variable.name() + ", index " + std::to_string(valueID) + ")");
+		throw parsebase::ParserException(parser.location(), "value index out of range (variable " + variable.name() + ", index " + std::to_string(valueID) + ")");
 
 	return variable.values()[valueID];
 }

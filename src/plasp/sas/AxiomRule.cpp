@@ -23,7 +23,7 @@ AxiomRule::AxiomRule(AxiomRule::Conditions conditions, AxiomRule::Condition post
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-AxiomRule AxiomRule::fromSAS(input::Parser<> &parser, const Variables &variables)
+AxiomRule AxiomRule::fromSAS(parsebase::Parser<> &parser, const Variables &variables)
 {
 	parser.expect<std::string>("begin_rule");
 

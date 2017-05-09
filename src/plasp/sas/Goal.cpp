@@ -13,7 +13,7 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Goal Goal::fromSAS(input::Parser<> &parser, const Variables &variables)
+Goal Goal::fromSAS(parsebase::Parser<> &parser, const Variables &variables)
 {
 	Goal goal;
 

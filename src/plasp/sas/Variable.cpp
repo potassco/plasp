@@ -2,8 +2,9 @@
 
 #include <iostream>
 
-#include <plasp/input/ParserException.h>
 #include <plasp/output/Formatting.h>
+
+#include <parsebase/ParserException.h>
 
 namespace plasp
 {
@@ -23,7 +24,7 @@ Variable::Variable()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Variable Variable::fromSAS(input::Parser<> &parser)
+Variable Variable::fromSAS(parsebase::Parser<> &parser)
 {
 	Variable variable;
 
@@ -42,7 +43,7 @@ Variable Variable::fromSAS(input::Parser<> &parser)
 
 		// <none of those> values are only allowed at the end
 		if (j < numberOfValues - 1 && variable.m_values[j] == Value::None)
-			throw input::ParserException(parser.location(), "<none of those> value must be the last value of a variable");
+			throw parsebase::ParserException(parser.location(), "<none of those> value must be the last value of a variable");
 	}
 
 	parser.expect<std::string>("end_variable");
@@ -60,12 +61,12 @@ void Variable::printNameAsASPPredicate(output::ColorStream &stream) const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const Variable &Variable::referenceFromSAS(input::Parser<> &parser, const Variables &variables)
+const Variable &Variable::referenceFromSAS(parsebase::Parser<> &parser, const Variables &variables)
 {
 	const auto variableID = parser.parse<size_t>();
 
 	if (variableID >= variables.size())
-		throw input::ParserException(parser.location(), "variable index out of range (index " + std::to_string(variableID) + ")");
+		throw parsebase::ParserException(parser.location(), "variable index out of range (index " + std::to_string(variableID) + ")");
 
 	return variables[variableID];
 }

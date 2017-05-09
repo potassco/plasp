@@ -1,20 +1,18 @@
-#ifndef __PLASP__INPUT__PARSER_H
-#define __PLASP__INPUT__PARSER_H
+#ifndef __PARSE_BASE__PARSER_H
+#define __PARSE_BASE__PARSER_H
 
+#include <algorithm>
+#include <cassert>
 #include <iostream>
 #include <iterator>
 #include <sstream>
 #include <vector>
 
-#include <boost/filesystem.hpp>
+#include <parsebase/ParserException.h>
+#include <parsebase/ParserPolicy.h>
+#include <parsebase/Stream.h>
 
-#include <plasp/input/ParserException.h>
-#include <plasp/input/ParserPolicy.h>
-#include <plasp/input/Stream.h>
-
-namespace plasp
-{
-namespace input
+namespace parsebase
 {
 
 template<typename Type>
@@ -286,7 +284,7 @@ void Parser<ParserPolicy>::removeComments(const std::string &startSequence, cons
 	const auto removeRange =
 		[&](const auto &start, const auto &end)
 		{
-			BOOST_ASSERT(start != -1);
+			assert(start != -1);
 
 			m_stream.clear();
 			m_stream.seekp(start);
@@ -564,7 +562,6 @@ bool Parser<ParserPolicy>::testImpl(bool expectedValue)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-}
 }
 
 #endif

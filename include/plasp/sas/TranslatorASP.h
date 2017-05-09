@@ -1,10 +1,10 @@
 #ifndef __PLASP__SAS__TRANSLATOR_ASP_H
 #define __PLASP__SAS__TRANSLATOR_ASP_H
 
+#include <iosfwd>
+
 #include <plasp/output/ColorStream.h>
 #include <plasp/sas/Description.h>
-
-#include <iosfwd>
 
 namespace plasp
 {

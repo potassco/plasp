@@ -1,11 +1,9 @@
-#ifndef __PLASP__INPUT__LOCATION_H
-#define __PLASP__INPUT__LOCATION_H
+#ifndef __PARSE_BASE__LOCATION_H
+#define __PARSE_BASE__LOCATION_H
 
 #include <cstdlib>
 
-namespace plasp
-{
-namespace input
+namespace parsebase
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -28,7 +26,6 @@ struct Location
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-}
 }
 
 #endif

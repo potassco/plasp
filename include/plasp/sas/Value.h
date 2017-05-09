@@ -5,8 +5,9 @@
 #include <string>
 #include <vector>
 
-#include <plasp/input/Parser.h>
 #include <plasp/output/ColorStream.h>
+
+#include <parsebase/Parser.h>
 
 namespace plasp
 {
@@ -39,8 +40,8 @@ struct Value
 		static const Value Any;
 		static const Value None;
 
-		static Value fromSAS(input::Parser<> &parser);
-		static const Value &referenceFromSAS(input::Parser<> &parser, const Variable &variable);
+		static Value fromSAS(parsebase::Parser<> &parser);
+		static const Value &referenceFromSAS(parsebase::Parser<> &parser, const Variable &variable);
 
 	public:
 		Value negated() const;

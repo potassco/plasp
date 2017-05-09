@@ -4,7 +4,7 @@
 #include <boost/assign.hpp>
 #include <boost/bimap.hpp>
 
-#include <plasp/input/ParserException.h>
+#include <parsebase/ParserException.h>
 
 namespace plasp
 {
@@ -89,7 +89,7 @@ Requirement Requirement::parse(Context &context)
 	const auto match = requirementTypesToPDDL.right.find(requirementName);
 
 	if (match == requirementTypesToPDDL.right.end())
-		throw input::ParserException(parser.location(), "unknown PDDL requirement “" + requirementName + "”");
+		throw parsebase::ParserException(parser.location(), "unknown PDDL requirement “" + requirementName + "”");
 
 	const auto requirementType = match->second;
 

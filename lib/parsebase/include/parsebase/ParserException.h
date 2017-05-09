@@ -1,14 +1,12 @@
-#ifndef __PLASP__INPUT__PARSER_EXCEPTION_H
-#define __PLASP__INPUT__PARSER_EXCEPTION_H
+#ifndef __PARSE_BASE__PARSER_EXCEPTION_H
+#define __PARSE_BASE__PARSER_EXCEPTION_H
 
 #include <exception>
 #include <string>
 
-#include <plasp/input/Location.h>
+#include <parsebase/Location.h>
 
-namespace plasp
-{
-namespace input
+namespace parsebase
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -20,17 +18,17 @@ namespace input
 class ParserException: public std::exception
 {
 	public:
-		explicit ParserException(const input::Location &location)
+		explicit ParserException(const Location &location)
 		:	ParserException(location, "unspecified parser error")
 		{
 		}
 
-		explicit ParserException(const input::Location &location, const char *message)
+		explicit ParserException(const Location &location, const char *message)
 		:	ParserException(location, static_cast<std::string>(message))
 		{
 		}
 
-		explicit ParserException(const input::Location &location, const std::string &message)
+		explicit ParserException(const Location &location, const std::string &message)
 		:	m_location{location},
 			m_message{message},
 			// TODO: refactor
@@ -48,7 +46,7 @@ class ParserException: public std::exception
 			return m_plainMessage.c_str();
 		}
 
-		const input::Location &location() const
+		const Location &location() const
 		{
 			return m_location;
 		}
@@ -59,14 +57,13 @@ class ParserException: public std::exception
 		}
 
 	private:
-		input::Location m_location;
+		Location m_location;
 		std::string m_message;
 		std::string m_plainMessage;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-}
 }
 
 #endif

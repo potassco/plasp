@@ -2,13 +2,14 @@
 
 #include <algorithm>
 
-#include <plasp/input/ParserException.h>
 #include <plasp/pddl/ConsistencyException.h>
 #include <plasp/pddl/IO.h>
 #include <plasp/pddl/expressions/Constant.h>
 #include <plasp/pddl/expressions/PredicateDeclaration.h>
 #include <plasp/pddl/expressions/PrimitiveType.h>
 #include <plasp/pddl/expressions/Variable.h>
+
+#include <parsebase/ParserException.h>
 
 namespace plasp
 {
@@ -51,7 +52,7 @@ void Domain::findSections()
 			if (unique && sectionPosition != -1)
 			{
 				parser.seek(value);
-				throw input::ParserException(parser.location(), "only one “:" + sectionName + "” section allowed");
+				throw parsebase::ParserException(parser.location(), "only one “:" + sectionName + "” section allowed");
 			}
 
 			sectionPosition = value;
@@ -101,7 +102,7 @@ void Domain::findSections()
 			const auto sectionIdentifier = parser.parseIdentifier();
 
 			parser.seek(position);
-			throw input::ParserException(parser.location(), "unknown domain section “" + sectionIdentifier + "”");
+			throw parsebase::ParserException(parser.location(), "unknown domain section “" + sectionIdentifier + "”");
 		}
 
 		// Skip section for now and parse it later
@@ -354,7 +355,7 @@ void Domain::parseTypeSection()
 	while (parser.currentCharacter() != ')')
 	{
 		if (parser.currentCharacter() == '(')
-			throw input::ParserException(parser.location(), "only primitive types are allowed in type section");
+			throw parsebase::ParserException(parser.location(), "only primitive types are allowed in type section");
 
 		expressions::PrimitiveType::parseTypedDeclaration(m_context, *this);
 

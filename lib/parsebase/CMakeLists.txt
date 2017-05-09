@@ -1,9 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
-project(plasp CXX)
+project(parsebase)
 
-option(PLASP_BUILD_TESTS "Build unit tests" OFF)
-
-find_package(Boost 1.55.0 COMPONENTS program_options iostreams system filesystem REQUIRED)
+option(PARSEBASE_BUILD_TESTS "Build unit tests" OFF)
 
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wpedantic -Werror")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
@@ -24,9 +22,7 @@ if (CMAKE_GENERATOR STREQUAL "Ninja" AND
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fdiagnostics-color=always")
 endif()
 
-add_subdirectory(lib/parsebase)
 add_subdirectory(src)
-add_subdirectory(app)
-if(PLASP_BUILD_TESTS)
+if(PARSEBASE_BUILD_TESTS)
 	add_subdirectory(tests)
-endif(PLASP_BUILD_TESTS)
+endif(PARSEBASE_BUILD_TESTS)

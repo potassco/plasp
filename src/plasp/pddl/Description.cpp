@@ -5,9 +5,10 @@
 
 #include <boost/filesystem.hpp>
 
-#include <plasp/input/ParserException.h>
 #include <plasp/pddl/ConsistencyException.h>
 #include <plasp/pddl/IO.h>
+
+#include <parsebase/ParserException.h>
 
 namespace plasp
 {
@@ -168,7 +169,7 @@ void Description::findSections()
 		if (parser.testAndSkip<std::string>("domain"))
 		{
 			if (m_domainPosition != -1)
-				throw input::ParserException(parser.location(), "PDDL description may not contain two domains");
+				throw parsebase::ParserException(parser.location(), "PDDL description may not contain two domains");
 
 			m_domainPosition = position;
 
@@ -178,7 +179,7 @@ void Description::findSections()
 		else if (m_context.parser.testAndSkip<std::string>("problem"))
 		{
 			if (m_problemPosition != -1)
-				throw input::ParserException(parser.location(), "PDDL description may currently not contain two problems");
+				throw parsebase::ParserException(parser.location(), "PDDL description may currently not contain two problems");
 
 			m_problem = std::make_unique<Problem>(Problem(m_context, *m_domain));
 
@@ -190,7 +191,7 @@ void Description::findSections()
 		else
 		{
 			const auto sectionIdentifier = parser.parse<std::string>();
-			throw input::ParserException(parser.location(), "unknown PDDL section “" + sectionIdentifier + "”");
+			throw parsebase::ParserException(parser.location(), "unknown PDDL section “" + sectionIdentifier + "”");
 		}
 
 		m_context.parser.skipWhiteSpace();

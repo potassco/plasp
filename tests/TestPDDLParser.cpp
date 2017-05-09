@@ -373,7 +373,7 @@ TEST_CASE("[PDDL parser] Missing or unmatching domain descriptions are detected"
 	}
 	SECTION("")
 	{
-		CHECK_THROWS_AS(Description::fromFiles({"data/blocksworld-problem.pddl", "data/storage-domain.pddl"}, context), plasp::input::ParserException);
+		CHECK_THROWS_AS(Description::fromFiles({"data/blocksworld-problem.pddl", "data/storage-domain.pddl"}, context), parsebase::ParserException);
 	}
 }
 

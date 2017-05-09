@@ -5,7 +5,8 @@
 
 #include <plasp/pddl/Domain.h>
 #include <plasp/pddl/Problem.h>
-#include <plasp/input/Parser.h>
+
+#include <parsebase/Parser.h>
 
 namespace plasp
 {
@@ -47,9 +48,9 @@ class Description
 
 		Context &m_context;
 
-		input::Stream::Position m_domainPosition;
+		parsebase::Stream::Position m_domainPosition;
 		std::unique_ptr<Domain> m_domain;
-		input::Stream::Position m_problemPosition;
+		parsebase::Stream::Position m_problemPosition;
 		std::unique_ptr<Problem> m_problem;
 };
 

@@ -23,7 +23,7 @@ Effect::Effect(Conditions conditions, Condition postcondition)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Effect Effect::fromSAS(input::Parser<> &parser, const Variables &variables, Conditions &preconditions)
+Effect Effect::fromSAS(parsebase::Parser<> &parser, const Variables &variables, Conditions &preconditions)
 {
 	Effect::Conditions conditions;
 

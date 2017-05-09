@@ -1,12 +1,11 @@
-#include <plasp/input/Stream.h>
+#include <parsebase/Stream.h>
 
+#include <algorithm>
 #include <fstream>
 
-#include <plasp/input/ParserException.h>
+#include <parsebase/ParserException.h>
 
-namespace plasp
-{
-namespace input
+namespace parsebase
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,9 +43,9 @@ void Stream::read(std::string streamName, std::istream &istream)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Stream::read(const boost::filesystem::path &path)
+void Stream::read(const std::experimental::filesystem::path &path)
 {
-	if (!boost::filesystem::is_regular_file(path))
+	if (!std::experimental::filesystem::is_regular_file(path))
 		throw std::runtime_error("File does not exist: “" + path.string() + "”");
 
 	std::ifstream fileStream(path.string(), std::ios::in);
@@ -160,5 +159,4 @@ void Stream::advance()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-}
 }

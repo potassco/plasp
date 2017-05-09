@@ -3,9 +3,10 @@
 
 #include <vector>
 
-#include <plasp/input/Parser.h>
 #include <plasp/pddl/Expression.h>
 #include <plasp/pddl/expressions/Variable.h>
+
+#include <parsebase/Parser.h>
 
 namespace plasp
 {

@@ -53,7 +53,7 @@ expressions::VariablePointer VariableStack::parseAndFind(plasp::pddl::Context &c
 			return match->get();
 	}
 
-	throw input::ParserException(parser.location(), "variable “" + variableName + "” used but never declared");
+	throw parsebase::ParserException(parser.location(), "variable “" + variableName + "” used but never declared");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -4,12 +4,13 @@
 
 #include <boost/assert.hpp>
 
-#include <plasp/input/ParserException.h>
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Domain.h>
 #include <plasp/pddl/ExpressionContext.h>
 #include <plasp/pddl/Problem.h>
 #include <plasp/pddl/expressions/PrimitiveType.h>
+
+#include <parsebase/ParserException.h>
 
 namespace plasp
 {
@@ -114,7 +115,7 @@ void Constant::parseTypedDeclarations(Context &context, Domain &domain)
 		domain.checkRequirement(Requirement::Type::Typing);
 	// If no types are given, check that typing is not a requirement
 	else if (domain.hasRequirement(Requirement::Type::Typing))
-		throw input::ParserException(parser.location(), "constant has undeclared type");
+		throw parsebase::ParserException(parser.location(), "constant has undeclared type");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -141,7 +142,7 @@ void Constant::parseTypedDeclarations(Context &context, Problem &problem)
 		problem.checkRequirement(Requirement::Type::Typing);
 	// If no types are given, check that typing is not a requirement
 	else if (problem.hasRequirement(Requirement::Type::Typing))
-		throw input::ParserException(parser.location(), "constant has undeclared type");
+		throw parsebase::ParserException(parser.location(), "constant has undeclared type");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -159,7 +160,7 @@ ConstantPointer Constant::parseAndFind(Context &context, const Domain &domain)
 	if (constant != nullptr)
 		return constant;
 
-	throw input::ParserException(parser.location(), "constant “" + constantName + "” used but never declared");
+	throw parsebase::ParserException(parser.location(), "constant “" + constantName + "” used but never declared");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -182,7 +183,7 @@ ConstantPointer Constant::parseAndFind(Context &context, const Problem &problem)
 	if (constant)
 		return constant;
 
-	throw input::ParserException(parser.location(), "constant “" + constantName + "” used but never declared");
+	throw parsebase::ParserException(parser.location(), "constant “" + constantName + "” used but never declared");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

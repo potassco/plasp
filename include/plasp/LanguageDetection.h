@@ -2,7 +2,8 @@
 #define __PLASP__LANGUAGE_DETECTION_H
 
 #include <plasp/Language.h>
-#include <plasp/input/Parser.h>
+
+#include <parsebase/Parser.h>
 
 namespace plasp
 {
@@ -13,7 +14,7 @@ namespace plasp
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Language::Type detectLanguage(input::Parser<input::CaseInsensitiveParserPolicy> &parser)
+Language::Type detectLanguage(parsebase::Parser<parsebase::CaseInsensitiveParserPolicy> &parser)
 {
 	parser.skipWhiteSpace();
 

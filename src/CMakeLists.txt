@@ -27,6 +27,7 @@ file(GLOB utils_headers "../include/plasp/utils/*.h")
 set(includes
 	${Boost_INCLUDE_DIRS}
 	${PROJECT_SOURCE_DIR}/include
+	${PROJECT_SOURCE_DIR}/lib/parsebase/include
 )
 
 set(sources
@@ -57,6 +58,7 @@ set(sources
 
 set(libraries
 	${Boost_LIBRARIES}
+	parsebase
 	pthread
 )
 
