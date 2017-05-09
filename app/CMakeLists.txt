@@ -3,7 +3,7 @@ set(target plasp-app)
 file(GLOB core_sources "*.cpp")
 file(GLOB core_headers "*.h")
 
-include_directories(
+set(includes
 	${Boost_INCLUDE_DIRS}
 	${PROJECT_SOURCE_DIR}/include
 )
@@ -19,5 +19,6 @@ set(libraries
 )
 
 add_executable(${target} ${sources})
+target_include_directories(${target} PRIVATE ${includes})
 target_link_libraries(${target} ${libraries})
 set_target_properties(${target} PROPERTIES OUTPUT_NAME plasp)
