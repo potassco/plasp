@@ -63,7 +63,7 @@ ExpressionPointer Expression::simplified()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-[[ noreturn ]] ExpressionPointer Expression::decomposed(expressions::DerivedPredicates &)
+ExpressionPointer Expression::decomposed(expressions::DerivedPredicates &)
 {
 	throw output::TranslatorException("expression cannot be decomposed (not normalized)");
 }

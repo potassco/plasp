@@ -57,7 +57,7 @@ class QuantifiedCRTP: public Quantified
 		ExpressionPointer simplified() override;
 		ExpressionPointer decomposed(DerivedPredicates &derivedPredicates) override;
 
-		void collectParameters(std::set<VariablePointer> &parameters);
+		void collectParameters(std::set<VariablePointer> &parameters) override;
 
 		void print(std::ostream &ostream) const override;
 };

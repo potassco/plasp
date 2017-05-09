@@ -24,8 +24,6 @@ class Logger
 		explicit Logger();
 		explicit Logger(ColorStream &&outputStream);
 		explicit Logger(ColorStream &&outputStream, ColorStream &&errorStream);
-		Logger(Logger &&other);
-		Logger &operator=(Logger &&other);
 
 		ColorStream &outputStream();
 		ColorStream &errorStream();

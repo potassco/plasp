@@ -64,25 +64,6 @@ Logger::Logger(ColorStream &&outputStream, ColorStream &&errorStream)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Logger::Logger(Logger &&other)
-:	m_outputStream{std::move(other.m_outputStream)},
-	m_errorStream{std::move(other.m_errorStream)},
-	m_logPriority{other.m_logPriority},
-	m_abortPriority{other.m_abortPriority}
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-Logger &Logger::operator=(Logger &&other)
-{
-	*this = std::move(other);
-
-	return *this;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 ColorStream &Logger::outputStream()
 {
 	return m_outputStream;
