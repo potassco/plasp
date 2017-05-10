@@ -30,27 +30,14 @@ class Stream
 		};
 
 	public:
-		explicit Stream();
+		Stream();
 		explicit Stream(std::string streamName, std::istream &istream);
+		~Stream() = default;
 
 		Stream(const Stream &other) = delete;
 		Stream &operator=(const Stream &other) = delete;
-
-		Stream(Stream &&other)
-		:	m_stream{std::move(other.m_stream)},
-			m_delimiters{std::move(other.m_delimiters)}
-		{
-		}
-
-		Stream &operator=(Stream &&other)
-		{
-			m_stream = std::move(other.m_stream);
-			m_delimiters = std::move(other.m_delimiters);
-
-			return *this;
-		}
-
-		~Stream() = default;
+		Stream(Stream &&other) = default;
+		Stream &operator=(Stream &&other) = default;
 
 		void read(std::string streamName, std::istream &istream);
 		void read(const std::experimental::filesystem::path &path);

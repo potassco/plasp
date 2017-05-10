@@ -16,32 +16,31 @@ namespace detail
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class PDDLParserPolicy
+struct PDDLParserPolicy
 {
-	public:
-		static char transformCharacter(char c) noexcept
-		{
-			return std::tolower(c);
-		}
+	static char transformCharacter(char c) noexcept
+	{
+		return std::tolower(c);
+	}
 
-		static bool isWhiteSpaceCharacter(char c)
-		{
-			return std::iswspace(c);
-		}
+	static bool isWhiteSpaceCharacter(char c)
+	{
+		return std::iswspace(c);
+	}
 
-		static bool isBlankCharacter(char c)
-		{
-			return std::isblank(c);
-		}
+	static bool isBlankCharacter(char c)
+	{
+		return std::isblank(c);
+	}
 
-		static bool isIdentifierCharacter(char c)
-		{
-			return c != '?'
-				&& c != '('
-				&& c != ')'
-				&& c != ';'
-				&& std::isgraph(c);
-		}
+	static bool isIdentifierCharacter(char c)
+	{
+		return c != '?'
+			&& c != '('
+			&& c != ')'
+			&& c != ';'
+			&& std::isgraph(c);
+	}
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

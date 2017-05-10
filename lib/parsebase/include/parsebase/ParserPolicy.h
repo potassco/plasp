@@ -12,54 +12,52 @@ namespace parsebase
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class CaseSensitiveParserPolicy
+struct CaseSensitiveParserPolicy
 {
-	public:
-		static constexpr char transformCharacter(char c) noexcept
-		{
-			return c;
-		}
+	static constexpr char transformCharacter(char c) noexcept
+	{
+		return c;
+	}
 
-		static bool isWhiteSpaceCharacter(char c)
-		{
-			return std::iswspace(c);
-		}
+	static bool isWhiteSpaceCharacter(char c)
+	{
+		return std::iswspace(c);
+	}
 
-		static bool isBlankCharacter(char c)
-		{
-			return std::isblank(c);
-		}
+	static bool isBlankCharacter(char c)
+	{
+		return std::isblank(c);
+	}
 
-		static bool isIdentifierCharacter(char c)
-		{
-			return std::isgraph(c);
-		}
+	static bool isIdentifierCharacter(char c)
+	{
+		return std::isgraph(c);
+	}
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class CaseInsensitiveParserPolicy
+struct CaseInsensitiveParserPolicy
 {
-	public:
-		static char transformCharacter(char c) noexcept
-		{
-			return std::tolower(c);
-		}
+	static char transformCharacter(char c) noexcept
+	{
+		return std::tolower(c);
+	}
 
-		static bool isWhiteSpaceCharacter(char c)
-		{
-			return std::iswspace(c);
-		}
+	static bool isWhiteSpaceCharacter(char c)
+	{
+		return std::iswspace(c);
+	}
 
-		static bool isBlankCharacter(char c)
-		{
-			return std::isblank(c);
-		}
+	static bool isBlankCharacter(char c)
+	{
+		return std::isblank(c);
+	}
 
-		static bool isIdentifierCharacter(char c)
-		{
-			return std::isgraph(c);
-		}
+	static bool isIdentifierCharacter(char c)
+	{
+		return std::isgraph(c);
+	}
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
