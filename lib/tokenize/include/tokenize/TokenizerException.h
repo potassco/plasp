@@ -1,34 +1,34 @@
-#ifndef __PARSE_BASE__PARSER_EXCEPTION_H
-#define __PARSE_BASE__PARSER_EXCEPTION_H
+#ifndef __TOKENIZE__TOKENIZER_EXCEPTION_H
+#define __TOKENIZE__TOKENIZER_EXCEPTION_H
 
 #include <exception>
 #include <string>
 
-#include <parsebase/Location.h>
+#include <tokenize/Location.h>
 
-namespace parsebase
+namespace tokenize
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// ParserException
+// TokenizerException
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class ParserException: public std::exception
+class TokenizerException: public std::exception
 {
 	public:
-		explicit ParserException(const Location &location)
-		:	ParserException(location, "unspecified parser error")
+		explicit TokenizerException(const Location &location)
+		:	TokenizerException(location, "unspecified tokenizer error")
 		{
 		}
 
-		explicit ParserException(const Location &location, const char *message)
-		:	ParserException(location, static_cast<std::string>(message))
+		explicit TokenizerException(const Location &location, const char *message)
+		:	TokenizerException(location, static_cast<std::string>(message))
 		{
 		}
 
-		explicit ParserException(const Location &location, const std::string &message)
+		explicit TokenizerException(const Location &location, const std::string &message)
 		:	m_location{location},
 			m_message{message},
 			// TODO: refactor
@@ -37,11 +37,9 @@ class ParserException: public std::exception
 		{
 		}
 
-		~ParserException() throw()
-		{
-		}
+		~TokenizerException() noexcept = default;
 
-		const char *what() const throw()
+		const char *what() const noexcept
 		{
 			return m_plainMessage.c_str();
 		}

@@ -6,7 +6,7 @@ file(GLOB core_headers "*.h")
 set(includes
 	${Boost_INCLUDE_DIRS}
 	${PROJECT_SOURCE_DIR}/include
-	${PROJECT_SOURCE_DIR}/lib/parsebase/include
+	${PROJECT_SOURCE_DIR}/lib/tokenize/include
 )
 
 set(sources

@@ -10,7 +10,7 @@
 #include <plasp/pddl/Problem.h>
 #include <plasp/pddl/expressions/PrimitiveType.h>
 
-#include <parsebase/ParserException.h>
+#include <tokenize/TokenizerException.h>
 
 namespace plasp
 {
@@ -35,11 +35,11 @@ Constant::Constant()
 
 ConstantPointer Constant::parseDeclaration(Context &context)
 {
-	context.parser.skipWhiteSpace();
+	context.tokenizer.skipWhiteSpace();
 
 	auto constant = ConstantPointer(new Constant);
 
-	constant->m_name = context.parser.parseIdentifier();
+	constant->m_name = context.tokenizer.getIdentifier();
 
 	BOOST_ASSERT(constant->m_name != "-");
 
@@ -70,10 +70,10 @@ void Constant::parseTypedDeclaration(Context &context, Domain &domain, Constants
 	// Parse and store constant
 	constants.emplace_back(parseDeclaration(context));
 
-	context.parser.skipWhiteSpace();
+	context.tokenizer.skipWhiteSpace();
 
 	// Check for typing information
-	if (!context.parser.testAndSkip<char>('-'))
+	if (!context.tokenizer.testAndSkip<char>('-'))
 		return;
 
 	// If existing, parse and store parent type
@@ -95,13 +95,13 @@ void Constant::parseTypedDeclaration(Context &context, Domain &domain, Constants
 
 void Constant::parseTypedDeclarations(Context &context, Domain &domain)
 {
-	auto &parser = context.parser;
+	auto &tokenizer = context.tokenizer;
 
-	while (parser.currentCharacter() != ')')
+	while (tokenizer.currentCharacter() != ')')
 	{
 		parseTypedDeclaration(context, domain);
 
-		parser.skipWhiteSpace();
+		tokenizer.skipWhiteSpace();
 	}
 
 	if (domain.constants().empty())
@@ -115,20 +115,20 @@ void Constant::parseTypedDeclarations(Context &context, Domain &domain)
 		domain.checkRequirement(Requirement::Type::Typing);
 	// If no types are given, check that typing is not a requirement
 	else if (domain.hasRequirement(Requirement::Type::Typing))
-		throw parsebase::ParserException(parser.location(), "constant has undeclared type");
+		throw tokenize::TokenizerException(tokenizer.location(), "constant has undeclared type");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Constant::parseTypedDeclarations(Context &context, Problem &problem)
 {
-	auto &parser = context.parser;
+	auto &tokenizer = context.tokenizer;
 
-	while (context.parser.currentCharacter() != ')')
+	while (tokenizer.currentCharacter() != ')')
 	{
 		parseTypedDeclaration(context, problem);
 
-		parser.skipWhiteSpace();
+		tokenizer.skipWhiteSpace();
 	}
 
 	if (problem.objects().empty())
@@ -142,36 +142,36 @@ void Constant::parseTypedDeclarations(Context &context, Problem &problem)
 		problem.checkRequirement(Requirement::Type::Typing);
 	// If no types are given, check that typing is not a requirement
 	else if (problem.hasRequirement(Requirement::Type::Typing))
-		throw parsebase::ParserException(parser.location(), "constant has undeclared type");
+		throw tokenize::TokenizerException(tokenizer.location(), "constant has undeclared type");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ConstantPointer Constant::parseAndFind(Context &context, const Domain &domain)
 {
-	auto &parser = context.parser;
+	auto &tokenizer = context.tokenizer;
 
-	parser.skipWhiteSpace();
+	tokenizer.skipWhiteSpace();
 
-	const auto constantName = parser.parseIdentifier();
+	const auto constantName = tokenizer.getIdentifier();
 
 	auto constant = parseAndFind(constantName, domain.constants());
 
 	if (constant != nullptr)
 		return constant;
 
-	throw parsebase::ParserException(parser.location(), "constant “" + constantName + "” used but never declared");
+	throw tokenize::TokenizerException(tokenizer.location(), "constant “" + constantName + "” used but never declared");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ConstantPointer Constant::parseAndFind(Context &context, const Problem &problem)
 {
-	auto &parser = context.parser;
+	auto &tokenizer = context.tokenizer;
 
-	parser.skipWhiteSpace();
+	tokenizer.skipWhiteSpace();
 
-	const auto constantName = parser.parseIdentifier();
+	const auto constantName = tokenizer.getIdentifier();
 
 	auto constant = parseAndFind(constantName, problem.domain().constants());
 
@@ -183,7 +183,7 @@ ConstantPointer Constant::parseAndFind(Context &context, const Problem &problem)
 	if (constant)
 		return constant;
 
-	throw parsebase::ParserException(parser.location(), "constant “" + constantName + "” used but never declared");
+	throw tokenize::TokenizerException(tokenizer.location(), "constant “" + constantName + "” used but never declared");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

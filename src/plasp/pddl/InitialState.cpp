@@ -8,7 +8,7 @@
 #include <plasp/pddl/expressions/Predicate.h>
 #include <plasp/pddl/expressions/Unsupported.h>
 
-#include <parsebase/ParserException.h>
+#include <tokenize/TokenizerException.h>
 
 namespace plasp
 {
@@ -24,7 +24,7 @@ namespace pddl
 std::unique_ptr<InitialState> InitialState::parseDeclaration(Context &context,
 	ExpressionContext &expressionContext)
 {
-	auto &parser = context.parser;
+	auto &tokenizer = context.tokenizer;
 
 	auto initialState = std::make_unique<InitialState>(InitialState());
 
@@ -40,38 +40,38 @@ std::unique_ptr<InitialState> InitialState::parseDeclaration(Context &context,
 				return expression;
 			}
 
-			const auto position = parser.position();
+			const auto position = tokenizer.position();
 
-			parser.expect<std::string>("(");
+			tokenizer.expect<std::string>("(");
 
-			const auto expressionIdentifierPosition = parser.position();
+			const auto expressionIdentifierPosition = tokenizer.position();
 
-			if (parser.testIdentifierAndSkip("="))
+			if (tokenizer.testIdentifierAndSkip("="))
 			{
-				parser.seek(expressionIdentifierPosition);
-				const auto expressionIdentifier = parser.parseIdentifier();
+				tokenizer.seek(expressionIdentifierPosition);
+				const auto expressionIdentifier = tokenizer.getIdentifier();
 
-				parser.seek(position);
+				tokenizer.seek(position);
 				return expressions::Unsupported::parse(context);
 			}
 
-			parser.seek(expressionIdentifierPosition);
-			const auto expressionIdentifier = parser.parseIdentifier();
+			tokenizer.seek(expressionIdentifierPosition);
+			const auto expressionIdentifier = tokenizer.getIdentifier();
 
-			parser.seek(position);
-			throw parsebase::ParserException(parser.location(), "expression type “" + expressionIdentifier + "” unknown or not allowed in this context");
+			tokenizer.seek(position);
+			throw tokenize::TokenizerException(tokenizer.location(), "expression type “" + expressionIdentifier + "” unknown or not allowed in this context");
 		};
 
-	parser.skipWhiteSpace();
+	tokenizer.skipWhiteSpace();
 
-	while (parser.currentCharacter() != ')')
+	while (tokenizer.currentCharacter() != ')')
 	{
 		ExpressionPointer expression;
 
 		if ((expression = parseInitialStateElement()))
 			initialState->m_facts.emplace_back(std::move(expression));
 
-		parser.skipWhiteSpace();
+		tokenizer.skipWhiteSpace();
 	}
 
 	return initialState;

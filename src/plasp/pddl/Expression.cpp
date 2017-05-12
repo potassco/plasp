@@ -16,7 +16,7 @@
 #include <plasp/pddl/expressions/Unsupported.h>
 #include <plasp/pddl/expressions/When.h>
 
-#include <parsebase/ParserException.h>
+#include <tokenize/TokenizerException.h>
 
 namespace plasp
 {
@@ -100,9 +100,9 @@ ExpressionPointer parsePredicate(Context &context, ExpressionContext &expression
 ExpressionPointer parsePreconditionExpression(Context &context,
 	ExpressionContext &expressionContext)
 {
-	auto &parser = context.parser;
+	auto &tokenizer = context.tokenizer;
 
-	parser.skipWhiteSpace();
+	tokenizer.skipWhiteSpace();
 
 	ExpressionPointer expression;
 
@@ -112,23 +112,23 @@ ExpressionPointer parsePreconditionExpression(Context &context,
 		return expression;
 	}
 
-	const auto position = parser.position();
+	const auto position = tokenizer.position();
 
-	parser.expect<std::string>("(");
+	tokenizer.expect<std::string>("(");
 
-	const auto expressionIdentifierPosition = parser.position();
+	const auto expressionIdentifierPosition = tokenizer.position();
 
-	if (parser.testIdentifierAndSkip("preference"))
+	if (tokenizer.testIdentifierAndSkip("preference"))
 	{
 		// TODO: refactor
-		parser.seek(expressionIdentifierPosition);
-		const auto expressionIdentifier = parser.parseIdentifier();
+		tokenizer.seek(expressionIdentifierPosition);
+		const auto expressionIdentifier = tokenizer.getIdentifier();
 
-		parser.seek(position);
+		tokenizer.seek(position);
 		return expressions::Unsupported::parse(context);
 	}
 
-	parser.seek(position);
+	tokenizer.seek(position);
 	return parseExpression(context, expressionContext);
 }
 
@@ -136,9 +136,9 @@ ExpressionPointer parsePreconditionExpression(Context &context,
 
 ExpressionPointer parseExpression(Context &context, ExpressionContext &expressionContext)
 {
-	auto &parser = context.parser;
+	auto &tokenizer = context.tokenizer;
 
-	parser.skipWhiteSpace();
+	tokenizer.skipWhiteSpace();
 
 	ExpressionPointer expression;
 
@@ -153,43 +153,43 @@ ExpressionPointer parseExpression(Context &context, ExpressionContext &expressio
 		return expression;
 	}
 
-	const auto position = parser.position();
+	const auto position = tokenizer.position();
 
-	parser.expect<std::string>("(");
+	tokenizer.expect<std::string>("(");
 
-	const auto expressionIdentifierPosition = parser.position();
+	const auto expressionIdentifierPosition = tokenizer.position();
 
-	if (parser.testIdentifierAndSkip("-")
-		|| parser.testIdentifierAndSkip("=")
-		|| parser.testIdentifierAndSkip("*")
-		|| parser.testIdentifierAndSkip("+")
-		|| parser.testIdentifierAndSkip("-")
-		|| parser.testIdentifierAndSkip("/")
-		|| parser.testIdentifierAndSkip(">")
-		|| parser.testIdentifierAndSkip("<")
-		|| parser.testIdentifierAndSkip("=")
-		|| parser.testIdentifierAndSkip(">=")
-		|| parser.testIdentifierAndSkip("<="))
+	if (tokenizer.testIdentifierAndSkip("-")
+		|| tokenizer.testIdentifierAndSkip("=")
+		|| tokenizer.testIdentifierAndSkip("*")
+		|| tokenizer.testIdentifierAndSkip("+")
+		|| tokenizer.testIdentifierAndSkip("-")
+		|| tokenizer.testIdentifierAndSkip("/")
+		|| tokenizer.testIdentifierAndSkip(">")
+		|| tokenizer.testIdentifierAndSkip("<")
+		|| tokenizer.testIdentifierAndSkip("=")
+		|| tokenizer.testIdentifierAndSkip(">=")
+		|| tokenizer.testIdentifierAndSkip("<="))
 	{
-		parser.seek(expressionIdentifierPosition);
-		const auto expressionIdentifier = parser.parseIdentifier();
+		tokenizer.seek(expressionIdentifierPosition);
+		const auto expressionIdentifier = tokenizer.getIdentifier();
 
-		parser.seek(position);
+		tokenizer.seek(position);
 		return expressions::Unsupported::parse(context);
 	}
 
-	parser.seek(expressionIdentifierPosition);
-	const auto expressionIdentifier = parser.parseIdentifier();
+	tokenizer.seek(expressionIdentifierPosition);
+	const auto expressionIdentifier = tokenizer.getIdentifier();
 
-	parser.seek(position);
-	throw parsebase::ParserException(parser.location(), "expression type “" + expressionIdentifier + "” unknown or not allowed in this context");
+	tokenizer.seek(position);
+	throw tokenize::TokenizerException(tokenizer.location(), "expression type “" + expressionIdentifier + "” unknown or not allowed in this context");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ExpressionPointer parseEffectExpression(Context &context, ExpressionContext &expressionContext)
 {
-	auto &parser = context.parser;
+	auto &tokenizer = context.tokenizer;
 
 	ExpressionPointer expression;
 
@@ -200,22 +200,22 @@ ExpressionPointer parseEffectExpression(Context &context, ExpressionContext &exp
 		return expression;
 	}
 
-	const auto position = parser.position();
+	const auto position = tokenizer.position();
 
-	parser.expect<std::string>("(");
+	tokenizer.expect<std::string>("(");
 
-	const auto expressionIdentifierPosition = parser.position();
+	const auto expressionIdentifierPosition = tokenizer.position();
 
-	if (parser.testIdentifierAndSkip("when"))
+	if (tokenizer.testIdentifierAndSkip("when"))
 	{
-		parser.seek(expressionIdentifierPosition);
-		const auto expressionIdentifier = parser.parseIdentifier();
+		tokenizer.seek(expressionIdentifierPosition);
+		const auto expressionIdentifier = tokenizer.getIdentifier();
 
-		parser.seek(position);
+		tokenizer.seek(position);
 		return expressions::Unsupported::parse(context);
 	}
 
-	parser.seek(position);
+	tokenizer.seek(position);
 	return parseEffectBodyExpression(context, expressionContext);
 }
 
@@ -223,7 +223,7 @@ ExpressionPointer parseEffectExpression(Context &context, ExpressionContext &exp
 
 ExpressionPointer parseEffectBodyExpression(Context &context, ExpressionContext &expressionContext)
 {
-	auto &parser = context.parser;
+	auto &tokenizer = context.tokenizer;
 
 	ExpressionPointer expression;
 
@@ -233,31 +233,31 @@ ExpressionPointer parseEffectBodyExpression(Context &context, ExpressionContext 
 		return expression;
 	}
 
-	const auto position = parser.position();
+	const auto position = tokenizer.position();
 
-	parser.expect<std::string>("(");
+	tokenizer.expect<std::string>("(");
 
-	const auto expressionIdentifierPosition = parser.position();
+	const auto expressionIdentifierPosition = tokenizer.position();
 
-	if (parser.testIdentifierAndSkip("=")
-		|| parser.testIdentifierAndSkip("assign")
-		|| parser.testIdentifierAndSkip("scale-up")
-		|| parser.testIdentifierAndSkip("scale-down")
-		|| parser.testIdentifierAndSkip("increase")
-		|| parser.testIdentifierAndSkip("decrease"))
+	if (tokenizer.testIdentifierAndSkip("=")
+		|| tokenizer.testIdentifierAndSkip("assign")
+		|| tokenizer.testIdentifierAndSkip("scale-up")
+		|| tokenizer.testIdentifierAndSkip("scale-down")
+		|| tokenizer.testIdentifierAndSkip("increase")
+		|| tokenizer.testIdentifierAndSkip("decrease"))
 	{
-		parser.seek(expressionIdentifierPosition);
-		const auto expressionIdentifier = parser.parseIdentifier();
+		tokenizer.seek(expressionIdentifierPosition);
+		const auto expressionIdentifier = tokenizer.getIdentifier();
 
-		parser.seek(position);
+		tokenizer.seek(position);
 		return expressions::Unsupported::parse(context);
 	}
 
-	parser.seek(expressionIdentifierPosition);
-	const auto expressionIdentifier = parser.parseIdentifier();
+	tokenizer.seek(expressionIdentifierPosition);
+	const auto expressionIdentifier = tokenizer.getIdentifier();
 
-	parser.seek(position);
-	throw parsebase::ParserException(parser.location(), "expression type “" + expressionIdentifier + "” unknown or not allowed in this context");
+	tokenizer.seek(position);
+	throw tokenize::TokenizerException(tokenizer.location(), "expression type “" + expressionIdentifier + "” unknown or not allowed in this context");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -276,14 +276,12 @@ ExpressionPointer parseConditionalEffectExpression(Context &context, ExpressionC
 
 ExpressionPointer parsePredicate(Context &context, ExpressionContext &expressionContext)
 {
-	auto &parser = context.parser;
-
 	ExpressionPointer expression;
 
 	if ((expression = expressions::Predicate::parse(context, expressionContext)))
 		return expression;
 
-	throw parsebase::ParserException(parser.location(), "expected predicate");
+	throw tokenize::TokenizerException(context.tokenizer.location(), "expected predicate");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -305,30 +303,30 @@ ExpressionPointer parseLiteral(Context &context, ExpressionContext &expressionCo
 
 ExpressionPointer parseAtomicFormula(Context &context, ExpressionContext &expressionContext)
 {
-	auto &parser = context.parser;
+	auto &tokenizer = context.tokenizer;
 
 	ExpressionPointer expression;
 
 	if ((expression = expressions::Predicate::parse(context, expressionContext)))
 		return expression;
 
-	const auto position = parser.position();
+	const auto position = tokenizer.position();
 
-	if (!parser.testAndSkip<std::string>("("))
+	if (!tokenizer.testAndSkip<std::string>("("))
 		return nullptr;
 
-	const auto expressionIdentifierPosition = parser.position();
+	const auto expressionIdentifierPosition = tokenizer.position();
 
-	if (parser.testIdentifierAndSkip("="))
+	if (tokenizer.testIdentifierAndSkip("="))
 	{
-		parser.seek(expressionIdentifierPosition);
-		const auto expressionIdentifier = parser.parseIdentifier();
+		tokenizer.seek(expressionIdentifierPosition);
+		const auto expressionIdentifier = tokenizer.getIdentifier();
 
-		parser.seek(position);
+		tokenizer.seek(position);
 		return expressions::Unsupported::parse(context);
 	}
 
-	parser.seek(position);
+	tokenizer.seek(position);
 	return nullptr;
 }
 

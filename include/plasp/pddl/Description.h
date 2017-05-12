@@ -4,7 +4,7 @@
 #include <plasp/pddl/Domain.h>
 #include <plasp/pddl/Problem.h>
 
-#include <parsebase/Parser.h>
+#include <tokenize/Tokenizer.h>
 
 namespace plasp
 {
@@ -46,9 +46,9 @@ class Description
 
 		Context &m_context;
 
-		parsebase::Stream::Position m_domainPosition;
+		tokenize::Stream::Position m_domainPosition;
 		std::unique_ptr<Domain> m_domain;
-		parsebase::Stream::Position m_problemPosition;
+		tokenize::Stream::Position m_problemPosition;
 		std::unique_ptr<Problem> m_problem;
 };
 

@@ -6,7 +6,7 @@
 #include <plasp/sas/Value.h>
 #include <plasp/sas/Variable.h>
 
-#include <parsebase/Parser.h>
+#include <tokenize/Tokenizer.h>
 
 namespace plasp
 {
@@ -27,7 +27,7 @@ using VariableTransitions = std::vector<VariableTransition>;
 class VariableTransition
 {
 	public:
-		static VariableTransition fromSAS(parsebase::Parser<> &parser, const Variables &variables);
+		static VariableTransition fromSAS(tokenize::Tokenizer<> &tokenizer, const Variables &variables);
 
 	public:
 		const Variable &variable() const;

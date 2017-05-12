@@ -69,23 +69,23 @@ template<typename ExpressionParser>
 boost::intrusive_ptr<Derived> QuantifiedCRTP<Derived>::parse(Context &context,
 	ExpressionContext &expressionContext, ExpressionParser parseExpression)
 {
-	auto &parser = context.parser;
+	auto &tokenizer = context.tokenizer;
 
-	const auto position = parser.position();
+	const auto position = tokenizer.position();
 
-	if (!parser.testAndSkip<std::string>("(")
-		|| !parser.testIdentifierAndSkip(Derived::Identifier))
+	if (!tokenizer.testAndSkip<std::string>("(")
+		|| !tokenizer.testIdentifierAndSkip(Derived::Identifier))
 	{
-		parser.seek(position);
+		tokenizer.seek(position);
 		return nullptr;
 	}
 
 	auto expression = boost::intrusive_ptr<Derived>(new Derived);
 
 	// Parse variable list
-	parser.expect<std::string>("(");
+	tokenizer.expect<std::string>("(");
 	Variable::parseTypedDeclarations(context, expressionContext, expression->m_variables);
-	parser.expect<std::string>(")");
+	tokenizer.expect<std::string>(")");
 
 	// Push newly parsed variables to the stack
 	expressionContext.variables.push(&expression->m_variables);
@@ -96,7 +96,7 @@ boost::intrusive_ptr<Derived> QuantifiedCRTP<Derived>::parse(Context &context,
 	// Clean up variable stack
 	expressionContext.variables.pop();
 
-	parser.expect<std::string>(")");
+	tokenizer.expect<std::string>(")");
 
 	return expression;
 }

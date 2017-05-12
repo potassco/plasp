@@ -59,33 +59,33 @@ template<typename ExpressionParser>
 AtPointer At::parse(Context &context, ExpressionContext &expressionContext,
 	ExpressionParser parseExpression)
 {
-	auto &parser = context.parser;
+	auto &tokenizer = context.tokenizer;
 
-	const auto position = parser.position();
+	const auto position = tokenizer.position();
 
-	if (!parser.testAndSkip<std::string>("(")
-		|| !parser.testIdentifierAndSkip("at"))
+	if (!tokenizer.testAndSkip<std::string>("(")
+		|| !tokenizer.testIdentifierAndSkip("at"))
 	{
-		parser.seek(position);
+		tokenizer.seek(position);
 		return nullptr;
 	}
 
 	size_t timePoint;
 
-	const auto timePointPosition = parser.position();
+	const auto timePointPosition = tokenizer.position();
 
-	if (parser.testIdentifierAndSkip("start"))
+	if (tokenizer.testIdentifierAndSkip("start"))
 		timePoint = TimePointStart;
-	else if (parser.testIdentifierAndSkip("end"))
+	else if (tokenizer.testIdentifierAndSkip("end"))
 		timePoint = TimePointEnd;
-	else if (parser.probeNumber())
+	else if (tokenizer.probeNumber())
 	{
-		parser.seek(timePointPosition);
-		timePoint = parser.parse<size_t>();
+		tokenizer.seek(timePointPosition);
+		timePoint = tokenizer.get<size_t>();
 	}
 	else
 	{
-		parser.seek(position);
+		tokenizer.seek(position);
 		return nullptr;
 	}
 
@@ -93,12 +93,12 @@ AtPointer At::parse(Context &context, ExpressionContext &expressionContext,
 
 	expression->m_timePoint = timePoint;
 
-	context.parser.skipWhiteSpace();
+	tokenizer.skipWhiteSpace();
 
 	// Parse argument
 	expression->setArgument(parseExpression(context, expressionContext));
 
-	parser.expect<std::string>(")");
+	tokenizer.expect<std::string>(")");
 
 	return expression;
 }

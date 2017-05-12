@@ -6,7 +6,7 @@
 #include <vector>
 
 #include <plasp/output/Logger.h>
-#include <plasp/pddl/Parser.h>
+#include <plasp/pddl/Tokenizer.h>
 
 namespace plasp
 {
@@ -25,8 +25,8 @@ class Context
 		Context() = default;
 		~Context() = default;
 
-		explicit Context(Parser &&otherParser, output::Logger &otherLogger)
-		:	parser{std::move(otherParser)},
+		explicit Context(Tokenizer &&otherTokenizer, output::Logger &otherLogger)
+		:	tokenizer{std::move(otherTokenizer)},
 			logger(otherLogger)
 		{
 		}
@@ -35,7 +35,7 @@ class Context
 		Context &operator=(const Context &other) = delete;
 
 		Context(Context &&other)
-		:	parser(std::move(other.parser)),
+		:	tokenizer(std::move(other.tokenizer)),
 			logger(other.logger)
 		{
 		}
@@ -47,7 +47,7 @@ class Context
 			return "__plasp_";
 		}
 
-		Parser parser;
+		Tokenizer tokenizer;
 		output::Logger &logger;
 };
 

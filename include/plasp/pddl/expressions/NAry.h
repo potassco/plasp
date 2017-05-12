@@ -55,33 +55,33 @@ template<typename ExpressionParser>
 boost::intrusive_ptr<Derived> NAry<Derived>::parse(Context &context,
 	ExpressionContext &expressionContext, ExpressionParser parseExpression)
 {
-	auto &parser = context.parser;
+	auto &tokenizer = context.tokenizer;
 
-	const auto position = parser.position();
+	const auto position = tokenizer.position();
 
-	if (!parser.testAndSkip<std::string>("(")
-		|| !parser.testIdentifierAndSkip(Derived::Identifier))
+	if (!tokenizer.testAndSkip<std::string>("(")
+		|| !tokenizer.testIdentifierAndSkip(Derived::Identifier))
 	{
-		parser.seek(position);
+		tokenizer.seek(position);
 		return nullptr;
 	}
 
 	auto expression = boost::intrusive_ptr<Derived>(new Derived);
 
-	parser.skipWhiteSpace();
+	tokenizer.skipWhiteSpace();
 
 	// Parse arguments of the expression
-	while (parser.currentCharacter() != ')')
+	while (tokenizer.currentCharacter() != ')')
 	{
 		expression->addArgument(parseExpression(context, expressionContext));
 
-		parser.skipWhiteSpace();
+		tokenizer.skipWhiteSpace();
 	}
 
 	if (expression->m_arguments.empty())
-		context.logger.log(output::Priority::Warning, parser.location(), "“" + Derived::Identifier + "” expressions should not be empty");
+		context.logger.log(output::Priority::Warning, tokenizer.location(), "“" + Derived::Identifier + "” expressions should not be empty");
 
-	parser.expect<std::string>(")");
+	tokenizer.expect<std::string>(")");
 
 	return expression;
 }

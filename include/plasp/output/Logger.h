@@ -6,7 +6,7 @@
 #include <plasp/output/ColorStream.h>
 #include <plasp/output/Priority.h>
 
-#include <parsebase/Location.h>
+#include <tokenize/Location.h>
 
 namespace plasp
 {
@@ -37,8 +37,8 @@ class Logger
 
 		void log(Priority priority, const char *message);
 		void log(Priority priority, const std::string &message);
-		void log(Priority priority, const parsebase::Location &location, const char *message);
-		void log(Priority priority, const parsebase::Location &location, const std::string &message);
+		void log(Priority priority, const tokenize::Location &location, const char *message);
+		void log(Priority priority, const tokenize::Location &location, const std::string &message);
 
 	private:
 		ColorStream m_outputStream;

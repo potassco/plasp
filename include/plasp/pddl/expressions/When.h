@@ -36,14 +36,14 @@ WhenPointer When::parse(Context &context, ExpressionContext &expressionContext,
 	ConditionExpressionParser parseConditionExpression,
 	ImplicationExpressionParser parseImplicationExpression)
 {
-	auto &parser = context.parser;
+	auto &tokenizer = context.tokenizer;
 
-	const auto position = parser.position();
+	const auto position = tokenizer.position();
 
-	if (!parser.testAndSkip<std::string>("(")
-		|| !parser.testIdentifierAndSkip(Identifier))
+	if (!tokenizer.testAndSkip<std::string>("(")
+		|| !tokenizer.testIdentifierAndSkip(Identifier))
 	{
-		parser.seek(position);
+		tokenizer.seek(position);
 		return nullptr;
 	}
 
@@ -53,7 +53,7 @@ WhenPointer When::parse(Context &context, ExpressionContext &expressionContext,
 	expression->setArgument(0, parseConditionExpression(context, expressionContext));
 	expression->setArgument(1, parseImplicationExpression(context, expressionContext));
 
-	parser.expect<std::string>(")");
+	tokenizer.expect<std::string>(")");
 
 	return expression;
 }

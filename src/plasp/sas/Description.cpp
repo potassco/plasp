@@ -7,7 +7,7 @@
 
 #include <plasp/sas/VariableTransition.h>
 
-#include <parsebase/ParserException.h>
+#include <tokenize/TokenizerException.h>
 
 namespace plasp
 {
@@ -27,10 +27,10 @@ Description::Description()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Description Description::fromParser(parsebase::Parser<> &&parser)
+Description Description::fromTokenizer(tokenize::Tokenizer<> &&tokenizer)
 {
 	Description description;
-	description.parseContent(parser);
+	description.parseContent(tokenizer);
 
 	return description;
 }
@@ -39,11 +39,11 @@ Description Description::fromParser(parsebase::Parser<> &&parser)
 
 Description Description::fromStream(std::istream &istream)
 {
-	parsebase::Parser<> parser;
-	parser.read("std::cin", istream);
+	tokenize::Tokenizer<> tokenizer;
+	tokenizer.read("std::cin", istream);
 
 	Description description;
-	description.parseContent(parser);
+	description.parseContent(tokenizer);
 
 	return description;
 }
@@ -55,11 +55,11 @@ Description Description::fromFile(const std::experimental::filesystem::path &pat
 	if (!std::experimental::filesystem::is_regular_file(path))
 		throw std::runtime_error("File does not exist: “" + path.string() + "”");
 
-	parsebase::Parser<> parser;
-	parser.read(path);
+	tokenize::Tokenizer<> tokenizer;
+	tokenizer.read(path);
 
 	Description description;
-	description.parseContent(parser);
+	description.parseContent(tokenizer);
 
 	return description;
 }
@@ -159,104 +159,104 @@ bool Description::hasRequirements() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Description::parseContent(parsebase::Parser<> &parser)
+void Description::parseContent(tokenize::Tokenizer<> &tokenizer)
 {
-	parseVersionSection(parser);
-	parseMetricSection(parser);
-	parseVariablesSection(parser);
-	parseMutexSection(parser);
-	parseInitialStateSection(parser);
-	parseGoalSection(parser);
-	parseOperatorSection(parser);
-	parseAxiomSection(parser);
+	parseVersionSection(tokenizer);
+	parseMetricSection(tokenizer);
+	parseVariablesSection(tokenizer);
+	parseMutexSection(tokenizer);
+	parseInitialStateSection(tokenizer);
+	parseGoalSection(tokenizer);
+	parseOperatorSection(tokenizer);
+	parseAxiomSection(tokenizer);
 
-	parser.skipWhiteSpace();
+	tokenizer.skipWhiteSpace();
 
-	if (!parser.atEnd())
-		throw parsebase::ParserException(parser.location(), "expected end of SAS description (perhaps, input contains two SAS descriptions?)");
+	if (!tokenizer.atEnd())
+		throw tokenize::TokenizerException(tokenizer.location(), "expected end of SAS description (perhaps, input contains two SAS descriptions?)");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Description::parseVersionSection(parsebase::Parser<> &parser) const
+void Description::parseVersionSection(tokenize::Tokenizer<> &tokenizer) const
 {
-	parser.expect<std::string>("begin_version");
+	tokenizer.expect<std::string>("begin_version");
 
-	const auto formatVersion = parser.parse<size_t>();
+	const auto formatVersion = tokenizer.get<size_t>();
 
 	if (formatVersion != 3)
-		throw parsebase::ParserException(parser.location(), "unsupported SAS format version (" + std::to_string(formatVersion) + ")");
+		throw tokenize::TokenizerException(tokenizer.location(), "unsupported SAS format version (" + std::to_string(formatVersion) + ")");
 
-	parser.expect<std::string>("end_version");
+	tokenizer.expect<std::string>("end_version");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Description::parseMetricSection(parsebase::Parser<> &parser)
+void Description::parseMetricSection(tokenize::Tokenizer<> &tokenizer)
 {
-	parser.expect<std::string>("begin_metric");
+	tokenizer.expect<std::string>("begin_metric");
 
-	m_usesActionCosts = parser.parse<bool>();
+	m_usesActionCosts = tokenizer.get<bool>();
 
-	parser.expect<std::string>("end_metric");
+	tokenizer.expect<std::string>("end_metric");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Description::parseVariablesSection(parsebase::Parser<> &parser)
+void Description::parseVariablesSection(tokenize::Tokenizer<> &tokenizer)
 {
-	const auto numberOfVariables = parser.parse<size_t>();
+	const auto numberOfVariables = tokenizer.get<size_t>();
 	m_variables.reserve(numberOfVariables);
 
 	for (size_t i = 0; i < numberOfVariables; i++)
-		m_variables.emplace_back(Variable::fromSAS(parser));
+		m_variables.emplace_back(Variable::fromSAS(tokenizer));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Description::parseMutexSection(parsebase::Parser<> &parser)
+void Description::parseMutexSection(tokenize::Tokenizer<> &tokenizer)
 {
-	const auto numberOfMutexGroups = parser.parse<size_t>();
+	const auto numberOfMutexGroups = tokenizer.get<size_t>();
 	m_mutexGroups.reserve(numberOfMutexGroups);
 
 	for (size_t i = 0; i < numberOfMutexGroups; i++)
-		m_mutexGroups.emplace_back(MutexGroup::fromSAS(parser, m_variables));
+		m_mutexGroups.emplace_back(MutexGroup::fromSAS(tokenizer, m_variables));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Description::parseInitialStateSection(parsebase::Parser<> &parser)
+void Description::parseInitialStateSection(tokenize::Tokenizer<> &tokenizer)
 {
-	m_initialState = std::make_unique<InitialState>(InitialState::fromSAS(parser, m_variables));
+	m_initialState = std::make_unique<InitialState>(InitialState::fromSAS(tokenizer, m_variables));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Description::parseGoalSection(parsebase::Parser<> &parser)
+void Description::parseGoalSection(tokenize::Tokenizer<> &tokenizer)
 {
-	m_goal = std::make_unique<Goal>(Goal::fromSAS(parser, m_variables));
+	m_goal = std::make_unique<Goal>(Goal::fromSAS(tokenizer, m_variables));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Description::parseOperatorSection(parsebase::Parser<> &parser)
+void Description::parseOperatorSection(tokenize::Tokenizer<> &tokenizer)
 {
-	const auto numberOfOperators = parser.parse<size_t>();
+	const auto numberOfOperators = tokenizer.get<size_t>();
 	m_operators.reserve(numberOfOperators);
 
 	for (size_t i = 0; i < numberOfOperators; i++)
-		m_operators.emplace_back(Operator::fromSAS(parser, m_variables));
+		m_operators.emplace_back(Operator::fromSAS(tokenizer, m_variables));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Description::parseAxiomSection(parsebase::Parser<> &parser)
+void Description::parseAxiomSection(tokenize::Tokenizer<> &tokenizer)
 {
-	const auto numberOfAxiomRules = parser.parse<size_t>();
+	const auto numberOfAxiomRules = tokenizer.get<size_t>();
 	m_axiomRules.reserve(numberOfAxiomRules);
 
 	for (size_t i = 0; i < numberOfAxiomRules; i++)
-		m_axiomRules.emplace_back(AxiomRule::fromSAS(parser, m_variables));
+		m_axiomRules.emplace_back(AxiomRule::fromSAS(tokenizer, m_variables));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

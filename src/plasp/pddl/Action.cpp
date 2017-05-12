@@ -20,14 +20,14 @@ namespace pddl
 
 void Action::parseDeclaration(Context &context, Domain &domain)
 {
-	auto &parser = context.parser;
+	auto &tokenizer = context.tokenizer;
 
 	auto action = std::make_unique<Action>(Action());
 
-	action->m_name = parser.parseIdentifier();
+	action->m_name = tokenizer.getIdentifier();
 
-	parser.expect<std::string>(":parameters");
-	parser.expect<std::string>("(");
+	tokenizer.expect<std::string>(":parameters");
+	tokenizer.expect<std::string>("(");
 
 	ExpressionContext expressionContext(domain);
 	expressionContext.variables.push(&action->m_parameters);
@@ -35,19 +35,19 @@ void Action::parseDeclaration(Context &context, Domain &domain)
 	// Read parameters
 	expressions::Variable::parseTypedDeclarations(context, expressionContext, action->m_parameters);
 
-	parser.expect<std::string>(")");
+	tokenizer.expect<std::string>(")");
 
 	// Parse preconditions and effects
-	while (!parser.testAndReturn(')'))
+	while (!tokenizer.testAndReturn(')'))
 	{
-		parser.expect<std::string>(":");
+		tokenizer.expect<std::string>(":");
 
-		if (parser.testIdentifierAndSkip("precondition"))
+		if (tokenizer.testIdentifierAndSkip("precondition"))
 			action->m_precondition = parsePreconditionExpression(context, expressionContext);
-		else if (parser.testIdentifierAndSkip("effect"))
+		else if (tokenizer.testIdentifierAndSkip("effect"))
 			action->m_effect = parseEffectExpression(context, expressionContext);
 
-		parser.skipWhiteSpace();
+		tokenizer.skipWhiteSpace();
 	}
 
 	// Store new action

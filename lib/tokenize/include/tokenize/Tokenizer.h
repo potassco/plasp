@@ -1,5 +1,5 @@
-#ifndef __PARSE_BASE__PARSER_H
-#define __PARSE_BASE__PARSER_H
+#ifndef __TOKENIZE__TOKENIZER_H
+#define __TOKENIZE__TOKENIZER_H
 
 #include <algorithm>
 #include <cassert>
@@ -8,11 +8,11 @@
 #include <sstream>
 #include <vector>
 
-#include <parsebase/ParserException.h>
-#include <parsebase/ParserPolicy.h>
-#include <parsebase/Stream.h>
+#include <tokenize/TokenizerException.h>
+#include <tokenize/TokenizerPolicy.h>
+#include <tokenize/Stream.h>
 
-namespace parsebase
+namespace tokenize
 {
 
 template<typename Type>
@@ -22,25 +22,25 @@ struct Tag
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// Parser
+// Tokenizer
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class ParserPolicy = CaseSensitiveParserPolicy>
-class Parser: public Stream, public ParserPolicy
+template<class TokenizerPolicy = CaseSensitiveTokenizerPolicy>
+class Tokenizer: public Stream, public TokenizerPolicy
 {
-	template<class OtherParserPolicy>
-	friend class Parser;
+	template<class OtherTokenizerPolicy>
+	friend class Tokenizer;
 
 	public:
-		explicit Parser();
-		explicit Parser(std::string streamName, std::istream &istream);
+		explicit Tokenizer();
+		explicit Tokenizer(std::string streamName, std::istream &istream);
 
-		template<class OtherParser>
-		Parser(OtherParser &&otherParser)
+		template<class OtherTokenizer>
+		Tokenizer(OtherTokenizer &&otherTokenizer)
 		{
-			m_stream = std::move(otherParser.m_stream);
-			m_delimiters = std::move(otherParser.m_delimiters);
+			m_stream = std::move(otherTokenizer.m_stream);
+			m_delimiters = std::move(otherTokenizer.m_delimiters);
 		}
 
 		void removeComments(const std::string &startSequence, const std::string &endSequence, bool removeEnd);
@@ -48,7 +48,7 @@ class Parser: public Stream, public ParserPolicy
 		char currentCharacter() const;
 
 		template<typename Type>
-		Type parse();
+		Type get();
 
 		template<typename Type>
 		bool testAndReturn(const Type &expectedValue);
@@ -59,27 +59,28 @@ class Parser: public Stream, public ParserPolicy
 		template<typename Type>
 		void expect(const Type &expectedValue);
 
-		std::string parseIdentifier();
+		// TODO: refactor
+		std::string getIdentifier();
 		bool testIdentifierAndReturn(const std::string &identifier);
 		bool testIdentifierAndSkip(const std::string &identifier);
 
 		// TODO: remove
 		bool probeNumber();
 
-		std::string parseLine();
+		std::string getLine();
 
 		void skipWhiteSpace();
 		void skipBlankSpace();
 		void skipLine();
 
 	private:
-		std::string parseImpl(Tag<std::string>);
-		char parseImpl(Tag<char>);
-		uint64_t parseImpl(Tag<uint64_t>);
-		int64_t parseImpl(Tag<int64_t>);
-		uint32_t parseImpl(Tag<uint32_t>);
-		int32_t parseImpl(Tag<int32_t>);
-		bool parseImpl(Tag<bool>);
+		std::string getImpl(Tag<std::string>);
+		char getImpl(Tag<char>);
+		uint64_t getImpl(Tag<uint64_t>);
+		int64_t getImpl(Tag<int64_t>);
+		uint32_t getImpl(Tag<uint32_t>);
+		int32_t getImpl(Tag<int32_t>);
+		bool getImpl(Tag<bool>);
 
 		bool testImpl(const std::string &expectedValue);
 		bool testImpl(char expectedValue);
@@ -89,13 +90,13 @@ class Parser: public Stream, public ParserPolicy
 		bool testImpl(int32_t expectedValue);
 		bool testImpl(bool expectedValue);
 
-		uint64_t parseIntegerBody();
+		uint64_t getIntegerBody();
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class ParserPolicy>
-Parser<ParserPolicy>::Parser()
+template<class TokenizerPolicy>
+Tokenizer<TokenizerPolicy>::Tokenizer()
 :	Stream()
 {
 }
@@ -103,38 +104,38 @@ Parser<ParserPolicy>::Parser()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class ParserPolicy>
-Parser<ParserPolicy>::Parser(std::string streamName, std::istream &istream)
+template<class TokenizerPolicy>
+Tokenizer<TokenizerPolicy>::Tokenizer(std::string streamName, std::istream &istream)
 :	Stream(streamName, istream)
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class ParserPolicy>
-void Parser<ParserPolicy>::skipWhiteSpace()
+template<class TokenizerPolicy>
+void Tokenizer<TokenizerPolicy>::skipWhiteSpace()
 {
 	check();
 
-	while (!atEnd() && ParserPolicy::isWhiteSpaceCharacter(currentCharacter()))
+	while (!atEnd() && TokenizerPolicy::isWhiteSpaceCharacter(currentCharacter()))
 		advance();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class ParserPolicy>
-void Parser<ParserPolicy>::skipBlankSpace()
+template<class TokenizerPolicy>
+void Tokenizer<TokenizerPolicy>::skipBlankSpace()
 {
 	check();
 
-	while (!atEnd() && ParserPolicy::isBlankCharacter(currentCharacter()))
+	while (!atEnd() && TokenizerPolicy::isBlankCharacter(currentCharacter()))
 		advance();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class ParserPolicy>
-void Parser<ParserPolicy>::skipLine()
+template<class TokenizerPolicy>
+void Tokenizer<TokenizerPolicy>::skipLine()
 {
 	check();
 
@@ -146,18 +147,18 @@ void Parser<ParserPolicy>::skipLine()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class ParserPolicy>
+template<class TokenizerPolicy>
 template<typename Type>
-Type Parser<ParserPolicy>::parse()
+Type Tokenizer<TokenizerPolicy>::get()
 {
-	return parseImpl(Tag<Type>());
+	return getImpl(Tag<Type>());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class ParserPolicy>
+template<class TokenizerPolicy>
 template<typename Type>
-bool Parser<ParserPolicy>::testAndReturn(const Type &expectedValue)
+bool Tokenizer<TokenizerPolicy>::testAndReturn(const Type &expectedValue)
 {
 	const auto previousPosition = position();
 
@@ -170,9 +171,9 @@ bool Parser<ParserPolicy>::testAndReturn(const Type &expectedValue)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class ParserPolicy>
+template<class TokenizerPolicy>
 template<typename Type>
-bool Parser<ParserPolicy>::testAndSkip(const Type &expectedValue)
+bool Tokenizer<TokenizerPolicy>::testAndSkip(const Type &expectedValue)
 {
 	const auto previousPosition = position();
 
@@ -186,9 +187,9 @@ bool Parser<ParserPolicy>::testAndSkip(const Type &expectedValue)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class ParserPolicy>
+template<class TokenizerPolicy>
 template<typename Type>
-void Parser<ParserPolicy>::expect(const Type &expectedValue)
+void Tokenizer<TokenizerPolicy>::expect(const Type &expectedValue)
 {
 	if (testAndSkip(expectedValue))
 		return;
@@ -196,13 +197,13 @@ void Parser<ParserPolicy>::expect(const Type &expectedValue)
 	std::stringstream message;
 	message << "unexpected value, expected “" << expectedValue << "”";
 
-	throw ParserException(location(), message.str());
+	throw TokenizerException(location(), message.str());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class ParserPolicy>
-std::string Parser<ParserPolicy>::parseIdentifier()
+template<class TokenizerPolicy>
+std::string Tokenizer<TokenizerPolicy>::getIdentifier()
 {
 	skipWhiteSpace();
 
@@ -212,7 +213,7 @@ std::string Parser<ParserPolicy>::parseIdentifier()
 	{
 		const auto character = currentCharacter();
 
-		if (!ParserPolicy::isIdentifierCharacter(character))
+		if (!TokenizerPolicy::isIdentifierCharacter(character))
 			return value;
 
 		value.push_back(character);
@@ -222,22 +223,22 @@ std::string Parser<ParserPolicy>::parseIdentifier()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class ParserPolicy>
-bool Parser<ParserPolicy>::testIdentifierAndSkip(const std::string &expectedValue)
+template<class TokenizerPolicy>
+bool Tokenizer<TokenizerPolicy>::testIdentifierAndSkip(const std::string &expectedValue)
 {
-	return testAndSkip(expectedValue) && !ParserPolicy::isIdentifierCharacter(currentCharacter());
+	return testAndSkip(expectedValue) && !TokenizerPolicy::isIdentifierCharacter(currentCharacter());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class ParserPolicy>
-bool Parser<ParserPolicy>::probeNumber()
+template<class TokenizerPolicy>
+bool Tokenizer<TokenizerPolicy>::probeNumber()
 {
 	const auto previousPosition = position();
 
 	skipWhiteSpace();
 
-	while (!ParserPolicy::isWhiteSpaceCharacter(currentCharacter()))
+	while (!TokenizerPolicy::isWhiteSpaceCharacter(currentCharacter()))
 		if (!std::isdigit(currentCharacter()))
 		{
 			seek(previousPosition);
@@ -250,8 +251,8 @@ bool Parser<ParserPolicy>::probeNumber()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class ParserPolicy>
-std::string Parser<ParserPolicy>::parseLine()
+template<class TokenizerPolicy>
+std::string Tokenizer<TokenizerPolicy>::getLine()
 {
 	std::string value;
 
@@ -273,8 +274,8 @@ std::string Parser<ParserPolicy>::parseLine()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class ParserPolicy>
-void Parser<ParserPolicy>::removeComments(const std::string &startSequence, const std::string &endSequence, bool removeEnd)
+template<class TokenizerPolicy>
+void Tokenizer<TokenizerPolicy>::removeComments(const std::string &startSequence, const std::string &endSequence, bool removeEnd)
 {
 	const auto inPosition = m_stream.tellg();
 	const auto outPosition = m_stream.tellp();
@@ -344,22 +345,22 @@ void Parser<ParserPolicy>::removeComments(const std::string &startSequence, cons
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class ParserPolicy>
-char Parser<ParserPolicy>::currentCharacter() const
+template<class TokenizerPolicy>
+char Tokenizer<TokenizerPolicy>::currentCharacter() const
 {
-	return ParserPolicy::transformCharacter(Stream::currentCharacter());
+	return TokenizerPolicy::transformCharacter(Stream::currentCharacter());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class ParserPolicy>
-std::string Parser<ParserPolicy>::parseImpl(Tag<std::string>)
+template<class TokenizerPolicy>
+std::string Tokenizer<TokenizerPolicy>::getImpl(Tag<std::string>)
 {
 	skipWhiteSpace();
 
 	const auto startPosition = position();
 
-	while (!ParserPolicy::isWhiteSpaceCharacter(currentCharacter()))
+	while (!TokenizerPolicy::isWhiteSpaceCharacter(currentCharacter()))
 		advance();
 
 	const auto endPosition = position();
@@ -381,8 +382,8 @@ std::string Parser<ParserPolicy>::parseImpl(Tag<std::string>)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class ParserPolicy>
-char Parser<ParserPolicy>::parseImpl(Tag<char>)
+template<class TokenizerPolicy>
+char Tokenizer<TokenizerPolicy>::getImpl(Tag<char>)
 {
 	const auto value = currentCharacter();
 
@@ -393,13 +394,13 @@ char Parser<ParserPolicy>::parseImpl(Tag<char>)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class ParserPolicy>
-uint64_t Parser<ParserPolicy>::parseIntegerBody()
+template<class TokenizerPolicy>
+uint64_t Tokenizer<TokenizerPolicy>::getIntegerBody()
 {
 	check();
 
 	if (!std::isdigit(currentCharacter()))
-		throw ParserException(location(), "could not parse integer value");
+		throw TokenizerException(location(), "could not read integer value");
 
 	uint64_t value = 0;
 
@@ -421,51 +422,51 @@ uint64_t Parser<ParserPolicy>::parseIntegerBody()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class ParserPolicy>
-int64_t Parser<ParserPolicy>::parseImpl(Tag<int64_t>)
+template<class TokenizerPolicy>
+int64_t Tokenizer<TokenizerPolicy>::getImpl(Tag<int64_t>)
 {
 	skipWhiteSpace();
 
 	bool positive = testAndSkip<char>('+') || !testAndSkip<char>('-');
 
-	const auto value = parseIntegerBody();
+	const auto value = getIntegerBody();
 
 	return (positive ? value : -value);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class ParserPolicy>
-uint64_t Parser<ParserPolicy>::parseImpl(Tag<uint64_t>)
+template<class TokenizerPolicy>
+uint64_t Tokenizer<TokenizerPolicy>::getImpl(Tag<uint64_t>)
 {
 	skipWhiteSpace();
 
 	if (currentCharacter() == '-')
-		throw ParserException(location(), "expected unsigned integer, got signed one");
+		throw TokenizerException(location(), "expected unsigned integer, got signed one");
 
-	return parseIntegerBody();
+	return getIntegerBody();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class ParserPolicy>
-int32_t Parser<ParserPolicy>::parseImpl(Tag<int32_t>)
+template<class TokenizerPolicy>
+int32_t Tokenizer<TokenizerPolicy>::getImpl(Tag<int32_t>)
 {
-	return static_cast<int32_t>(parseImpl(Tag<int64_t>()));
+	return static_cast<int32_t>(getImpl(Tag<int64_t>()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class ParserPolicy>
-uint32_t Parser<ParserPolicy>::parseImpl(Tag<uint32_t>)
+template<class TokenizerPolicy>
+uint32_t Tokenizer<TokenizerPolicy>::getImpl(Tag<uint32_t>)
 {
-	return static_cast<uint32_t>(parseImpl(Tag<uint64_t>()));
+	return static_cast<uint32_t>(getImpl(Tag<uint64_t>()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class ParserPolicy>
-bool Parser<ParserPolicy>::parseImpl(Tag<bool>)
+template<class TokenizerPolicy>
+bool Tokenizer<TokenizerPolicy>::getImpl(Tag<bool>)
 {
 	skipWhiteSpace();
 
@@ -475,15 +476,15 @@ bool Parser<ParserPolicy>::parseImpl(Tag<bool>)
 	if (testAndSkip<char>('1'))
 		return true;
 
-	throw ParserException(location(), "could not parse Boolean value");
+	throw TokenizerException(location(), "could not read Boolean value");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class ParserPolicy>
-bool Parser<ParserPolicy>::testImpl(const std::string &expectedValue)
+template<class TokenizerPolicy>
+bool Tokenizer<TokenizerPolicy>::testImpl(const std::string &expectedValue)
 {
-	if (!ParserPolicy::isWhiteSpaceCharacter(expectedValue.front()))
+	if (!TokenizerPolicy::isWhiteSpaceCharacter(expectedValue.front()))
 		skipWhiteSpace();
 
 	const auto match = std::find_if(expectedValue.cbegin(), expectedValue.cend(),
@@ -504,8 +505,8 @@ bool Parser<ParserPolicy>::testImpl(const std::string &expectedValue)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class ParserPolicy>
-bool Parser<ParserPolicy>::testImpl(char expectedValue)
+template<class TokenizerPolicy>
+bool Tokenizer<TokenizerPolicy>::testImpl(char expectedValue)
 {
 	const auto result = (currentCharacter() == expectedValue);
 
@@ -516,46 +517,46 @@ bool Parser<ParserPolicy>::testImpl(char expectedValue)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class ParserPolicy>
-bool Parser<ParserPolicy>::testImpl(int64_t expectedValue)
+template<class TokenizerPolicy>
+bool Tokenizer<TokenizerPolicy>::testImpl(int64_t expectedValue)
 {
-	const auto value = parseImpl(Tag<int64_t>());
+	const auto value = getImpl(Tag<int64_t>());
 
 	return (value == expectedValue);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class ParserPolicy>
-bool Parser<ParserPolicy>::testImpl(uint64_t expectedValue)
+template<class TokenizerPolicy>
+bool Tokenizer<TokenizerPolicy>::testImpl(uint64_t expectedValue)
 {
-	const auto value = parseImpl(Tag<uint64_t>());
+	const auto value = getImpl(Tag<uint64_t>());
 
 	return (value == expectedValue);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class ParserPolicy>
-bool Parser<ParserPolicy>::testImpl(int32_t expectedValue)
+template<class TokenizerPolicy>
+bool Tokenizer<TokenizerPolicy>::testImpl(int32_t expectedValue)
 {
 	return testImpl(static_cast<int64_t>(expectedValue));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class ParserPolicy>
-bool Parser<ParserPolicy>::testImpl(uint32_t expectedValue)
+template<class TokenizerPolicy>
+bool Tokenizer<TokenizerPolicy>::testImpl(uint32_t expectedValue)
 {
 	return testImpl(static_cast<uint64_t>(expectedValue));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class ParserPolicy>
-bool Parser<ParserPolicy>::testImpl(bool expectedValue)
+template<class TokenizerPolicy>
+bool Tokenizer<TokenizerPolicy>::testImpl(bool expectedValue)
 {
-	const auto value = parseImpl(Tag<bool>());
+	const auto value = getImpl(Tag<bool>());
 
 	return (value == expectedValue);
 }

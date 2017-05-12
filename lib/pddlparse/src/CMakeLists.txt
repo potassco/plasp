@@ -8,7 +8,7 @@ file(GLOB detail_headers "../include/pddlparse/detail/*.h")
 
 set(includes
 	${PROJECT_SOURCE_DIR}/include
-	${PROJECT_SOURCE_DIR}/../../lib/parsebase/include
+	${PROJECT_SOURCE_DIR}/../../lib/tokenize/include
 )
 
 set(sources
@@ -20,7 +20,7 @@ set(sources
 )
 
 set(libraries
-	parsebase
+	tokenize
 )
 
 add_library(${target} ${sources})

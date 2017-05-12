@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include <parsebase/ParserException.h>
+#include <tokenize/TokenizerException.h>
 
 namespace plasp
 {
@@ -15,24 +15,24 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-MutexGroup MutexGroup::fromSAS(parsebase::Parser<> &parser, const Variables &variables)
+MutexGroup MutexGroup::fromSAS(tokenize::Tokenizer<> &tokenizer, const Variables &variables)
 {
 	MutexGroup mutexGroup;
 
-	parser.expect<std::string>("begin_mutex_group");
+	tokenizer.expect<std::string>("begin_mutex_group");
 
-	const auto numberOfFacts = parser.parse<size_t>();
+	const auto numberOfFacts = tokenizer.get<size_t>();
 	mutexGroup.m_facts.reserve(numberOfFacts);
 
 	for (size_t j = 0; j < numberOfFacts; j++)
 	{
-		mutexGroup.m_facts.emplace_back(Fact::fromSAS(parser, variables));
+		mutexGroup.m_facts.emplace_back(Fact::fromSAS(tokenizer, variables));
 
 		if (mutexGroup.m_facts[j].value() == Value::None)
-			throw parsebase::ParserException(parser.location(), "mutex groups must not contain <none of those> values");
+			throw tokenize::TokenizerException(tokenizer.location(), "mutex groups must not contain <none of those> values");
 	}
 
-	parser.expect<std::string>("end_mutex_group");
+	tokenizer.expect<std::string>("end_mutex_group");
 
 	return mutexGroup;
 }

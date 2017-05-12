@@ -6,7 +6,7 @@
 #include <plasp/sas/AssignedVariable.h>
 #include <plasp/sas/Variable.h>
 
-#include <parsebase/Parser.h>
+#include <tokenize/Tokenizer.h>
 
 namespace plasp
 {
@@ -30,7 +30,7 @@ class AxiomRule
 		using Condition = AssignedVariable;
 		using Conditions = AssignedVariables;
 
-		static AxiomRule fromSAS(parsebase::Parser<> &parser, const Variables &variables);
+		static AxiomRule fromSAS(tokenize::Tokenizer<> &tokenizer, const Variables &variables);
 
 	public:
 		const Conditions &conditions() const;

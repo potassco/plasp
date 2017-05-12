@@ -17,17 +17,17 @@ namespace expressions
 
 UnsupportedPointer Unsupported::parse(Context &context)
 {
-	auto &parser = context.parser;
+	auto &tokenizer = context.tokenizer;
 
 	auto expression = UnsupportedPointer(new Unsupported);
 
-	parser.expect<std::string>("(");
+	tokenizer.expect<std::string>("(");
 
-	expression->m_type = parser.parseIdentifier();
+	expression->m_type = tokenizer.getIdentifier();
 
-	context.logger.log(output::Priority::Warning, parser.location(), "expression type “" + expression->m_type + "” currently unsupported in this context");
+	context.logger.log(output::Priority::Warning, tokenizer.location(), "expression type “" + expression->m_type + "” currently unsupported in this context");
 
-	skipSection(parser);
+	skipSection(tokenizer);
 
 	return expression;
 }

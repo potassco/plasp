@@ -28,16 +28,18 @@ PredicateDeclaration::PredicateDeclaration()
 
 void PredicateDeclaration::parse(Context &context, Domain &domain)
 {
-	context.parser.expect<std::string>("(");
+	auto &tokenizer = context.tokenizer;
+
+	tokenizer.expect<std::string>("(");
 
 	auto predicate = PredicateDeclarationPointer(new PredicateDeclaration);
 
-	predicate->m_name = context.parser.parseIdentifier();
+	predicate->m_name = tokenizer.getIdentifier();
 
 	// Flag predicate as correctly declared in the types section
 	predicate->setDeclared();
 
-	context.parser.skipWhiteSpace();
+	tokenizer.skipWhiteSpace();
 
 	ExpressionContext expressionContext(domain);
 	expressionContext.variables.push(&predicate->m_parameters);
@@ -45,7 +47,7 @@ void PredicateDeclaration::parse(Context &context, Domain &domain)
 	// Parse parameters
 	Variable::parseTypedDeclarations(context, expressionContext, predicate->m_parameters);
 
-	context.parser.expect<std::string>(")");
+	tokenizer.expect<std::string>(")");
 
 	domain.predicates().emplace_back(std::move(predicate));
 }

@@ -6,7 +6,7 @@
 #include <plasp/pddl/ConsistencyException.h>
 #include <plasp/pddl/IO.h>
 
-#include <parsebase/ParserException.h>
+#include <tokenize/TokenizerException.h>
 
 namespace plasp
 {
@@ -44,7 +44,7 @@ Description Description::fromStream(std::istream &istream, Context &context)
 {
 	Description description(context);
 
-	description.m_context.parser.read("std::cin", istream);
+	description.m_context.tokenizer.read("std::cin", istream);
 	description.parse();
 
 	return description;
@@ -56,7 +56,7 @@ Description Description::fromFile(const std::string &path, Context &context)
 {
 	Description description(context);
 
-	description.m_context.parser.read(path);
+	description.m_context.tokenizer.read(path);
 	description.parse();
 
 	return description;
@@ -75,7 +75,7 @@ Description Description::fromFiles(const std::vector<std::string> &paths, Contex
 	std::for_each(paths.cbegin(), paths.cend(),
 		[&](const auto &path)
 		{
-			description.m_context.parser.read(path);
+			description.m_context.tokenizer.read(path);
 		});
 
 	description.parse();
@@ -126,9 +126,9 @@ const Problem &Description::problem() const
 
 void Description::parse()
 {
-	auto &parser = m_context.parser;
+	auto &tokenizer = m_context.tokenizer;
 
-	parser.removeComments(";", "\n", false);
+	tokenizer.removeComments(";", "\n", false);
 
 	// First, determine the locations of domain and problem
 	findSections();
@@ -136,12 +136,12 @@ void Description::parse()
 	if (m_domainPosition == -1)
 		throw ConsistencyException("no PDDL domain specified");
 
-	parser.seek(m_domainPosition);
+	tokenizer.seek(m_domainPosition);
 	m_domain->parse();
 
 	if (m_problemPosition != -1)
 	{
-		parser.seek(m_problemPosition);
+		tokenizer.seek(m_problemPosition);
 		m_problem->parse();
 	}
 
@@ -152,47 +152,47 @@ void Description::parse()
 
 void Description::findSections()
 {
-	auto &parser = m_context.parser;
+	auto &tokenizer = m_context.tokenizer;
 
-	parser.skipWhiteSpace();
+	tokenizer.skipWhiteSpace();
 
-	while (!parser.atEnd())
+	while (!tokenizer.atEnd())
 	{
-		const auto position = parser.position();
+		const auto position = tokenizer.position();
 
-		parser.expect<std::string>("(");
-		parser.expect<std::string>("define");
-		parser.expect<std::string>("(");
+		tokenizer.expect<std::string>("(");
+		tokenizer.expect<std::string>("define");
+		tokenizer.expect<std::string>("(");
 
-		if (parser.testAndSkip<std::string>("domain"))
+		if (tokenizer.testAndSkip<std::string>("domain"))
 		{
 			if (m_domainPosition != -1)
-				throw parsebase::ParserException(parser.location(), "PDDL description may not contain two domains");
+				throw tokenize::TokenizerException(tokenizer.location(), "PDDL description may not contain two domains");
 
 			m_domainPosition = position;
 
-			parser.seek(position);
+			tokenizer.seek(position);
 			m_domain->findSections();
 		}
-		else if (m_context.parser.testAndSkip<std::string>("problem"))
+		else if (tokenizer.testAndSkip<std::string>("problem"))
 		{
 			if (m_problemPosition != -1)
-				throw parsebase::ParserException(parser.location(), "PDDL description may currently not contain two problems");
+				throw tokenize::TokenizerException(tokenizer.location(), "PDDL description may currently not contain two problems");
 
 			m_problem = std::make_unique<Problem>(Problem(m_context, *m_domain));
 
 			m_problemPosition = position;
 
-			parser.seek(position);
+			tokenizer.seek(position);
 			m_problem->findSections();
 		}
 		else
 		{
-			const auto sectionIdentifier = parser.parse<std::string>();
-			throw parsebase::ParserException(parser.location(), "unknown PDDL section “" + sectionIdentifier + "”");
+			const auto sectionIdentifier = tokenizer.get<std::string>();
+			throw tokenize::TokenizerException(tokenizer.location(), "unknown PDDL section “" + sectionIdentifier + "”");
 		}
 
-		m_context.parser.skipWhiteSpace();
+		tokenizer.skipWhiteSpace();
 	}
 }
 

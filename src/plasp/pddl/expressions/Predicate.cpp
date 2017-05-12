@@ -29,17 +29,17 @@ Predicate::Predicate()
 
 PredicatePointer Predicate::parse(Context &context, ExpressionContext &expressionContext)
 {
-	auto &parser = context.parser;
+	auto &tokenizer = context.tokenizer;
 
-	const auto position = parser.position();
+	const auto position = tokenizer.position();
 
-	if (!parser.testAndSkip<std::string>("("))
+	if (!tokenizer.testAndSkip<std::string>("("))
 	{
-		parser.seek(position);
+		tokenizer.seek(position);
 		return nullptr;
 	}
 
-	const auto predicateName = parser.parseIdentifier();
+	const auto predicateName = tokenizer.getIdentifier();
 	const auto &predicates = expressionContext.domain.predicates();
 
 	const auto matchingPredicate = std::find_if(predicates.cbegin(), predicates.cend(),
@@ -50,7 +50,7 @@ PredicatePointer Predicate::parse(Context &context, ExpressionContext &expressio
 
 	if (matchingPredicate == predicates.cend())
 	{
-		parser.seek(position);
+		tokenizer.seek(position);
 		return nullptr;
 	}
 
@@ -58,13 +58,13 @@ PredicatePointer Predicate::parse(Context &context, ExpressionContext &expressio
 
 	predicate->m_name = predicateName;
 
-	context.parser.skipWhiteSpace();
+	tokenizer.skipWhiteSpace();
 
 	// Parse arguments
-	while (context.parser.currentCharacter() != ')')
+	while (tokenizer.currentCharacter() != ')')
 	{
 		// Parse variables
-		if (context.parser.currentCharacter() == '?')
+		if (tokenizer.currentCharacter() == '?')
 		{
 			const auto variable = expressionContext.variables.parseAndFind(context);
 			predicate->m_arguments.emplace_back(variable);
@@ -78,12 +78,12 @@ PredicatePointer Predicate::parse(Context &context, ExpressionContext &expressio
 			predicate->m_arguments.emplace_back(constant);
 		}
 
-		context.parser.skipWhiteSpace();
+		tokenizer.skipWhiteSpace();
 	}
 
 	// TODO: check that signature matches one of the declared ones
 
-	parser.expect<std::string>(")");
+	tokenizer.expect<std::string>(")");
 
 	return predicate;
 }
@@ -92,17 +92,17 @@ PredicatePointer Predicate::parse(Context &context, ExpressionContext &expressio
 
 PredicatePointer Predicate::parse(Context &context, const Problem &problem)
 {
-	auto &parser = context.parser;
+	auto &tokenizer = context.tokenizer;
 
-	const auto position = parser.position();
+	const auto position = tokenizer.position();
 
-	if (!parser.testAndSkip<std::string>("("))
+	if (!tokenizer.testAndSkip<std::string>("("))
 	{
-		parser.seek(position);
+		tokenizer.seek(position);
 		return nullptr;
 	}
 
-	const auto predicateName = parser.parseIdentifier();
+	const auto predicateName = tokenizer.getIdentifier();
 	const auto &predicates = problem.domain().predicates();
 
 	const auto matchingPredicate = std::find_if(predicates.cbegin(), predicates.cend(),
@@ -113,7 +113,7 @@ PredicatePointer Predicate::parse(Context &context, const Problem &problem)
 
 	if (matchingPredicate == predicates.cend())
 	{
-		parser.seek(position);
+		tokenizer.seek(position);
 		return nullptr;
 	}
 
@@ -121,12 +121,12 @@ PredicatePointer Predicate::parse(Context &context, const Problem &problem)
 
 	predicate->m_name = predicateName;
 
-	parser.skipWhiteSpace();
+	tokenizer.skipWhiteSpace();
 
-	while (parser.currentCharacter() != ')')
+	while (tokenizer.currentCharacter() != ')')
 	{
-		if (parser.currentCharacter() == '?')
-			throw parsebase::ParserException(parser.location(), "variables not allowed in this context");
+		if (tokenizer.currentCharacter() == '?')
+			throw tokenize::TokenizerException(tokenizer.location(), "variables not allowed in this context");
 
 		// Parse objects and constants
 		const auto constant = Constant::parseAndFind(context, problem);
@@ -135,7 +135,7 @@ PredicatePointer Predicate::parse(Context &context, const Problem &problem)
 
 	// TODO: check that signature matches one of the declared ones
 
-	parser.expect<std::string>(")");
+	tokenizer.expect<std::string>(")");
 
 	return predicate;
 }

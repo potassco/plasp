@@ -8,7 +8,7 @@
 #include <plasp/output/ColorStream.h>
 #include <plasp/sas/Value.h>
 
-#include <parsebase/Parser.h>
+#include <tokenize/Tokenizer.h>
 
 namespace plasp
 {
@@ -29,8 +29,8 @@ using Variables = std::vector<Variable>;
 class Variable
 {
 	public:
-		static Variable fromSAS(parsebase::Parser<> &parser);
-		static const Variable &referenceFromSAS(parsebase::Parser<> &parser, const Variables &variables);
+		static Variable fromSAS(tokenize::Tokenizer<> &tokenizer);
+		static const Variable &referenceFromSAS(tokenize::Tokenizer<> &tokenizer, const Variables &variables);
 
 	public:
 		void printNameAsASPPredicate(output::ColorStream &outputStream) const;

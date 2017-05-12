@@ -8,7 +8,7 @@
 #include <plasp/pddl/Domain.h>
 #include <plasp/pddl/ExpressionContext.h>
 
-#include <parsebase/ParserException.h>
+#include <tokenize/TokenizerException.h>
 
 namespace plasp
 {
@@ -43,9 +43,9 @@ void PrimitiveType::parseDeclaration(Context &context, Domain &domain)
 {
 	auto &types = domain.types();
 
-	context.parser.skipWhiteSpace();
+	context.tokenizer.skipWhiteSpace();
 
-	const auto typeName = context.parser.parseIdentifier();
+	const auto typeName = context.tokenizer.getIdentifier();
 
 	const auto match = std::find_if(types.cbegin(), types.cend(),
 		[&](const auto &primitiveType)
@@ -75,10 +75,10 @@ void PrimitiveType::parseTypedDeclaration(Context &context, Domain &domain)
 	// Parse and store type
 	parseDeclaration(context, domain);
 
-	context.parser.skipWhiteSpace();
+	context.tokenizer.skipWhiteSpace();
 
 	// Check for type inheritance
-	if (!context.parser.testAndSkip<char>('-'))
+	if (!context.tokenizer.testAndSkip<char>('-'))
 		return;
 
 	domain.checkRequirement(Requirement::Type::Typing);
@@ -104,16 +104,16 @@ void PrimitiveType::parseTypedDeclaration(Context &context, Domain &domain)
 
 PrimitiveTypePointer PrimitiveType::parseAndFind(Context &context, Domain &domain)
 {
-	auto &parser = context.parser;
+	auto &tokenizer = context.tokenizer;
 
 	auto &types = domain.types();
 
-	parser.skipWhiteSpace();
+	tokenizer.skipWhiteSpace();
 
-	const auto typeName = parser.parseIdentifier();
+	const auto typeName = tokenizer.getIdentifier();
 
 	if (typeName.empty())
-		throw parsebase::ParserException(parser.location(), "no type supplied");
+		throw tokenize::TokenizerException(tokenizer.location(), "no type supplied");
 
 	const auto match = std::find_if(types.cbegin(), types.cend(),
 		[&](const auto &primitiveType)
@@ -126,11 +126,11 @@ PrimitiveTypePointer PrimitiveType::parseAndFind(Context &context, Domain &domai
 		// Only "object" is allowed as an implicit type
 		if (typeName == "object" || typeName == "objects")
 		{
-			context.logger.log(output::Priority::Warning, parser.location(), "primitive type “" + typeName + "” should be declared");
+			context.logger.log(output::Priority::Warning, tokenizer.location(), "primitive type “" + typeName + "” should be declared");
 			types.emplace_back(PrimitiveTypePointer(new PrimitiveType(typeName)));
 		}
 		else
-			throw parsebase::ParserException(parser.location(), "type “" + typeName + "” used but never declared");
+			throw tokenize::TokenizerException(tokenizer.location(), "type “" + typeName + "” used but never declared");
 
 		return types.back().get();
 	}

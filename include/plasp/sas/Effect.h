@@ -6,7 +6,7 @@
 #include <plasp/sas/AssignedVariable.h>
 #include <plasp/sas/Variable.h>
 
-#include <parsebase/Parser.h>
+#include <tokenize/Tokenizer.h>
 
 namespace plasp
 {
@@ -30,7 +30,7 @@ class Effect
 		using Condition = AssignedVariable;
 		using Conditions = AssignedVariables;
 
-		static Effect fromSAS(parsebase::Parser<> &parser, const Variables &variables, Conditions &preconditions);
+		static Effect fromSAS(tokenize::Tokenizer<> &tokenizer, const Variables &variables, Conditions &preconditions);
 
 	public:
 		const Conditions &conditions() const;

@@ -8,7 +8,7 @@
 #include <plasp/pddl/IO.h>
 #include <plasp/pddl/expressions/Constant.h>
 
-#include <parsebase/ParserException.h>
+#include <tokenize/TokenizerException.h>
 
 namespace plasp
 {
@@ -36,114 +36,114 @@ Problem::Problem(Context &context, Domain &domain)
 
 void Problem::findSections()
 {
-	auto &parser = m_context.parser;
+	auto &tokenizer = m_context.tokenizer;
 
-	parser.expect<std::string>("(");
-	parser.expect<std::string>("define");
-	parser.expect<std::string>("(");
-	parser.expect<std::string>("problem");
+	tokenizer.expect<std::string>("(");
+	tokenizer.expect<std::string>("define");
+	tokenizer.expect<std::string>("(");
+	tokenizer.expect<std::string>("problem");
 
-	m_name = parser.parseIdentifier();
+	m_name = tokenizer.getIdentifier();
 
-	parser.expect<std::string>(")");
+	tokenizer.expect<std::string>(")");
 
 	const auto setSectionPosition =
 	[&](const std::string &sectionName, auto &sectionPosition, const auto value, bool unique = false)
 	{
 		if (unique && sectionPosition != -1)
 		{
-			parser.seek(value);
-			throw parsebase::ParserException(parser.location(), "only one “:" + sectionName + "” section allowed");
+			tokenizer.seek(value);
+			throw tokenize::TokenizerException(tokenizer.location(), "only one “:" + sectionName + "” section allowed");
 		}
 
 		sectionPosition = value;
 	};
 
-	parser.skipWhiteSpace();
+	tokenizer.skipWhiteSpace();
 
-	while (parser.currentCharacter() != ')')
+	while (tokenizer.currentCharacter() != ')')
 	{
-		const auto position = parser.position();
+		const auto position = tokenizer.position();
 
-		parser.expect<std::string>("(");
-		parser.expect<std::string>(":");
+		tokenizer.expect<std::string>("(");
+		tokenizer.expect<std::string>(":");
 
-		const auto sectionIdentifierPosition = parser.position();
+		const auto sectionIdentifierPosition = tokenizer.position();
 
 		// TODO: check order of the sections
-		if (parser.testIdentifierAndSkip("domain"))
+		if (tokenizer.testIdentifierAndSkip("domain"))
 			setSectionPosition("domain", m_domainPosition, position, true);
-		else if (parser.testIdentifierAndSkip("requirements"))
+		else if (tokenizer.testIdentifierAndSkip("requirements"))
 			setSectionPosition("requirements", m_requirementsPosition, position, true);
-		else if (parser.testIdentifierAndSkip("objects"))
+		else if (tokenizer.testIdentifierAndSkip("objects"))
 			setSectionPosition("objects", m_objectsPosition, position, true);
-		else if (parser.testIdentifierAndSkip("init"))
+		else if (tokenizer.testIdentifierAndSkip("init"))
 			setSectionPosition("init", m_initialStatePosition, position, true);
-		else if (parser.testIdentifierAndSkip("goal"))
+		else if (tokenizer.testIdentifierAndSkip("goal"))
 			setSectionPosition("goal", m_goalPosition, position, true);
-		else if (parser.testIdentifierAndSkip("constraints")
-			|| parser.testIdentifierAndSkip("metric")
-			|| parser.testIdentifierAndSkip("length"))
+		else if (tokenizer.testIdentifierAndSkip("constraints")
+			|| tokenizer.testIdentifierAndSkip("metric")
+			|| tokenizer.testIdentifierAndSkip("length"))
 		{
-			parser.seek(sectionIdentifierPosition);
+			tokenizer.seek(sectionIdentifierPosition);
 
-			const auto sectionIdentifier = parser.parseIdentifier();
+			const auto sectionIdentifier = tokenizer.getIdentifier();
 
-			m_context.logger.log(output::Priority::Warning, parser.location(), "section type “" + sectionIdentifier + "” currently unsupported");
+			m_context.logger.log(output::Priority::Warning, tokenizer.location(), "section type “" + sectionIdentifier + "” currently unsupported");
 
-			parser.seek(sectionIdentifierPosition);
+			tokenizer.seek(sectionIdentifierPosition);
 		}
 		else
 		{
-			const auto sectionIdentifier = parser.parseIdentifier();
+			const auto sectionIdentifier = tokenizer.getIdentifier();
 
-			parser.seek(position);
-			throw parsebase::ParserException(parser.location(), "unknown problem section “" + sectionIdentifier + "”");
+			tokenizer.seek(position);
+			throw tokenize::TokenizerException(tokenizer.location(), "unknown problem section “" + sectionIdentifier + "”");
 		}
 
 		// Skip section for now and parse it later
-		skipSection(parser);
+		skipSection(tokenizer);
 
-		parser.skipWhiteSpace();
+		tokenizer.skipWhiteSpace();
 	}
 
-	parser.expect<std::string>(")");
+	tokenizer.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Problem::parse()
 {
-	auto &parser = m_context.parser;
+	auto &tokenizer = m_context.tokenizer;
 
 	if (m_domainPosition == -1)
 		throw ConsistencyException("problem description does not specify the corresponding domain");
 
-	parser.seek(m_domainPosition);
+	tokenizer.seek(m_domainPosition);
 	parseDomainSection();
 
 	if (m_requirementsPosition != -1)
 	{
-		parser.seek(m_requirementsPosition);
+		tokenizer.seek(m_requirementsPosition);
 		parseRequirementSection();
 	}
 
 	if (m_objectsPosition != -1)
 	{
-		parser.seek(m_objectsPosition);
+		tokenizer.seek(m_objectsPosition);
 		parseObjectSection();
 	}
 
 	if (m_initialStatePosition == -1)
 		throw ConsistencyException("problem description does not specify an initial state");
 
-	parser.seek(m_initialStatePosition);
+	tokenizer.seek(m_initialStatePosition);
 	parseInitialStateSection();
 
 	if (m_goalPosition == -1)
 		throw ConsistencyException("problem description does not specify a goal");
 
-	parser.seek(m_goalPosition);
+	tokenizer.seek(m_goalPosition);
 	parseGoalSection();
 }
 
@@ -193,41 +193,41 @@ const expressions::Constants &Problem::objects() const
 
 void Problem::parseDomainSection()
 {
-	auto &parser = m_context.parser;
+	auto &tokenizer = m_context.tokenizer;
 
-	parser.expect<std::string>("(");
-	parser.expect<std::string>(":");
-	parser.expect<std::string>("domain");
+	tokenizer.expect<std::string>("(");
+	tokenizer.expect<std::string>(":");
+	tokenizer.expect<std::string>("domain");
 
-	parser.skipWhiteSpace();
+	tokenizer.skipWhiteSpace();
 
-	const auto domainName = parser.parseIdentifier();
+	const auto domainName = tokenizer.getIdentifier();
 
 	if (m_domain.name() != domainName)
-		throw parsebase::ParserException(parser.location(), "domains do not match (“" + m_domain.name() + "” and “" + domainName + "”)");
+		throw tokenize::TokenizerException(tokenizer.location(), "domains do not match (“" + m_domain.name() + "” and “" + domainName + "”)");
 
-	parser.expect<std::string>(")");
+	tokenizer.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Problem::parseRequirementSection()
 {
-	auto &parser = m_context.parser;
+	auto &tokenizer = m_context.tokenizer;
 
-	parser.expect<std::string>("(");
-	parser.expect<std::string>(":");
-	parser.expect<std::string>("requirements");
+	tokenizer.expect<std::string>("(");
+	tokenizer.expect<std::string>(":");
+	tokenizer.expect<std::string>("requirements");
 
-	parser.skipWhiteSpace();
+	tokenizer.skipWhiteSpace();
 
-	while (parser.currentCharacter() != ')')
+	while (tokenizer.currentCharacter() != ')')
 	{
-		parser.expect<std::string>(":");
+		tokenizer.expect<std::string>(":");
 
 		m_requirements.emplace_back(Requirement::parse(m_context));
 
-		parser.skipWhiteSpace();
+		tokenizer.skipWhiteSpace();
 	}
 
 	// TODO: do this check only once the domain is parsed
@@ -235,7 +235,7 @@ void Problem::parseRequirementSection()
 	if (m_requirements.empty())
 		m_requirements.emplace_back(Requirement::Type::STRIPS);
 
-	parser.expect<std::string>(")");
+	tokenizer.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -261,7 +261,7 @@ void Problem::checkRequirement(Requirement::Type requirementType)
 	if (hasRequirement(requirementType))
 		return;
 
-	m_context.logger.log(output::Priority::Warning, m_context.parser.location(), "requirement “" + Requirement(requirementType).toPDDL() + "” used but never declared");
+	m_context.logger.log(output::Priority::Warning, m_context.tokenizer.location(), "requirement “" + Requirement(requirementType).toPDDL() + "” used but never declared");
 
 	m_requirements.push_back(requirementType);
 }
@@ -310,52 +310,52 @@ void Problem::computeDerivedRequirements()
 
 void Problem::parseObjectSection()
 {
-	auto &parser = m_context.parser;
+	auto &tokenizer = m_context.tokenizer;
 
-	parser.expect<std::string>("(");
-	parser.expect<std::string>(":");
-	parser.expect<std::string>("objects");
+	tokenizer.expect<std::string>("(");
+	tokenizer.expect<std::string>(":");
+	tokenizer.expect<std::string>("objects");
 
-	parser.skipWhiteSpace();
+	tokenizer.skipWhiteSpace();
 
 	// Store constants
 	expressions::Constant::parseTypedDeclarations(m_context, *this);
 
-	parser.expect<std::string>(")");
+	tokenizer.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Problem::parseInitialStateSection()
 {
-	auto &parser = m_context.parser;
+	auto &tokenizer = m_context.tokenizer;
 
-	parser.expect<std::string>("(");
-	parser.expect<std::string>(":");
-	parser.expect<std::string>("init");
+	tokenizer.expect<std::string>("(");
+	tokenizer.expect<std::string>(":");
+	tokenizer.expect<std::string>("init");
 
 	ExpressionContext expressionContext(m_domain, this);
 
 	m_initialState = InitialState::parseDeclaration(m_context, expressionContext);
 
-	parser.expect<std::string>(")");
+	tokenizer.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Problem::parseGoalSection()
 {
-	auto &parser = m_context.parser;
+	auto &tokenizer = m_context.tokenizer;
 
-	parser.expect<std::string>("(");
-	parser.expect<std::string>(":");
-	parser.expect<std::string>("goal");
+	tokenizer.expect<std::string>("(");
+	tokenizer.expect<std::string>(":");
+	tokenizer.expect<std::string>("goal");
 
 	ExpressionContext expressionContext(m_domain, this);
 
 	m_goal = parsePreconditionExpression(m_context, expressionContext);
 
-	parser.expect<std::string>(")");
+	tokenizer.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

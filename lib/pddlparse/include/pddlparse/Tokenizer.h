@@ -1,22 +1,20 @@
-#ifndef __PDDL_PARSE__DETAIL__PARSER_H
-#define __PDDL_PARSE__DETAIL__PARSER_H
+#ifndef __PDDL_PARSE__TOKENIZER_H
+#define __PDDL_PARSE__TOKENIZER_H
 
 #include <iostream>
 
-#include <parsebase/Parser.h>
+#include <tokenize/Tokenizer.h>
 
 namespace pddl
 {
-namespace detail
-{
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// Parser
+// Tokenizer
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct PDDLParserPolicy
+struct PDDLTokenizerPolicy
 {
 	static char transformCharacter(char c) noexcept
 	{
@@ -45,11 +43,10 @@ struct PDDLParserPolicy
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-using Parser = parsebase::Parser<PDDLParserPolicy>;
+using Tokenizer = tokenize::Tokenizer<PDDLTokenizerPolicy>;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-}
 }
 
 #endif

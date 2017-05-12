@@ -3,7 +3,7 @@
 
 #include <plasp/sas/AssignedVariable.h>
 
-#include <parsebase/Parser.h>
+#include <tokenize/Tokenizer.h>
 
 namespace plasp
 {
@@ -22,7 +22,7 @@ class Goal
 		using Fact = AssignedVariable;
 		using Facts = AssignedVariables;
 
-		static Goal fromSAS(parsebase::Parser<> &parser, const Variables &variables);
+		static Goal fromSAS(tokenize::Tokenizer<> &tokenizer, const Variables &variables);
 
 	public:
 		const Facts &facts() const;

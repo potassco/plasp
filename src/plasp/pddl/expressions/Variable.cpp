@@ -11,7 +11,7 @@
 #include <plasp/pddl/expressions/PrimitiveType.h>
 #include <plasp/pddl/expressions/Type.h>
 
-#include <parsebase/ParserException.h>
+#include <tokenize/TokenizerException.h>
 
 namespace plasp
 {
@@ -43,15 +43,15 @@ Variable::Variable(std::string name)
 
 void Variable::parseDeclaration(Context &context, Variables &parameters)
 {
-	auto &parser = context.parser;
+	auto &tokenizer = context.tokenizer;
 
-	parser.skipWhiteSpace();
+	tokenizer.skipWhiteSpace();
 
-	parser.expect<std::string>("?");
+	tokenizer.expect<std::string>("?");
 
 	auto variable = VariablePointer(new Variable);
 
-	variable->m_name = parser.parseIdentifier();
+	variable->m_name = tokenizer.getIdentifier();
 
 	// Check if variable of that name already exists in the current scope
 	const auto match = std::find_if(parameters.cbegin(), parameters.cend(),
@@ -61,7 +61,7 @@ void Variable::parseDeclaration(Context &context, Variables &parameters)
 		});
 
 	if (match != parameters.cend())
-		throw parsebase::ParserException(parser.location(), "variable “" + variable->m_name + "” already declared in this scope");
+		throw tokenize::TokenizerException(tokenizer.location(), "variable “" + variable->m_name + "” already declared in this scope");
 
 	// Flag variable for potentially upcoming type declaration
 	variable->setDirty();
@@ -74,17 +74,17 @@ void Variable::parseDeclaration(Context &context, Variables &parameters)
 void Variable::parseTypedDeclaration(Context &context, ExpressionContext &expressionContext,
 		Variables &variables)
 {
-	auto &parser = context.parser;
+	auto &tokenizer = context.tokenizer;
 
 	// Parse and store variable itself
 	parseDeclaration(context, variables);
 
 	auto variable = variables.back();
 
-	parser.skipWhiteSpace();
+	tokenizer.skipWhiteSpace();
 
 	// Check if the variable has a type declaration
-	if (!parser.testAndSkip<char>('-'))
+	if (!tokenizer.testAndSkip<char>('-'))
 		return;
 
 	const auto setType =
@@ -101,7 +101,7 @@ void Variable::parseTypedDeclaration(Context &context, ExpressionContext &expres
 			}
 		};
 
-	parser.skipWhiteSpace();
+	tokenizer.skipWhiteSpace();
 
 	// Parse argument if it has "either" type (always begins with opening parenthesis)
 	variable->m_type = Either::parse(context, expressionContext, parseExistingPrimitiveType);
@@ -118,13 +118,13 @@ void Variable::parseTypedDeclaration(Context &context, ExpressionContext &expres
 void Variable::parseTypedDeclarations(Context &context, ExpressionContext &expressionContext,
 	Variables &variables)
 {
-	auto &parser = context.parser;
+	auto &tokenizer = context.tokenizer;
 
-	while (parser.currentCharacter() != ')')
+	while (tokenizer.currentCharacter() != ')')
 	{
 		parseTypedDeclaration(context, expressionContext, variables);
 
-		parser.skipWhiteSpace();
+		tokenizer.skipWhiteSpace();
 	}
 
 	if (variables.empty())
@@ -138,7 +138,7 @@ void Variable::parseTypedDeclarations(Context &context, ExpressionContext &expre
 		expressionContext.checkRequirement(Requirement::Type::Typing);
 	// If no types are given, check that typing is not a requirement
 	else if (expressionContext.hasRequirement(Requirement::Type::Typing))
-		throw parsebase::ParserException(parser.location(), "variable has undeclared type");
+		throw tokenize::TokenizerException(tokenizer.location(), "variable has undeclared type");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

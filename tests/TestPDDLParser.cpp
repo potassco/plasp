@@ -20,7 +20,7 @@ using namespace plasp::pddl;
 TEST_CASE("[PDDL parser] The Blocks World domain is parsed correctly", "[PDDL parser]")
 {
 	plasp::output::Logger logger;
-	Context context(Parser(), logger);
+	Context context(Tokenizer(), logger);
 
 	const auto description = Description::fromFile("data/blocksworld-domain.pddl", context);
 
@@ -102,7 +102,7 @@ TEST_CASE("[PDDL parser] The Blocks World domain is parsed correctly", "[PDDL pa
 TEST_CASE("[PDDL parser] A Blocks World problem is parsed correctly", "[PDDL parser]")
 {
 	plasp::output::Logger logger;
-	Context context(Parser(), logger);
+	Context context(Tokenizer(), logger);
 
 	const auto description = Description::fromFiles({"data/blocksworld-domain.pddl", "data/blocksworld-problem.pddl"}, context);
 
@@ -167,7 +167,7 @@ TEST_CASE("[PDDL parser] A Blocks World problem is parsed correctly", "[PDDL par
 TEST_CASE("[PDDL parser] The Storage domain is parsed correctly", "[PDDL parser]")
 {
 	plasp::output::Logger logger;
-	Context context(Parser(), logger);
+	Context context(Tokenizer(), logger);
 
 	const auto description = plasp::pddl::Description::fromFile("data/storage-domain.pddl", context);
 
@@ -261,7 +261,7 @@ TEST_CASE("[PDDL parser] The Storage domain is parsed correctly", "[PDDL parser]
 TEST_CASE("[PDDL parser] A Storage problem is parsed correctly", "[PDDL parser]")
 {
 	plasp::output::Logger logger;
-	Context context(Parser(), logger);
+	Context context(Tokenizer(), logger);
 
 	const auto description = Description::fromFiles({"data/storage-domain.pddl", "data/storage-problem.pddl"}, context);
 
@@ -323,7 +323,7 @@ TEST_CASE("[PDDL parser] A Storage problem is parsed correctly", "[PDDL parser]"
 TEST_CASE("[PDDL parser] Constants are parsed correctly", "[PDDL parser]")
 {
 	plasp::output::Logger logger;
-	Context context(Parser(), logger);
+	Context context(Tokenizer(), logger);
 
 	const auto description = Description::fromFile("data/woodworking-domain.pddl", context);
 
@@ -355,7 +355,7 @@ TEST_CASE("[PDDL parser] Constants are parsed correctly", "[PDDL parser]")
 TEST_CASE("[PDDL parser] White spaces are ignored", "[PDDL parser]")
 {
 	plasp::output::Logger logger;
-	Context context(Parser(), logger);
+	Context context(Tokenizer(), logger);
 
 	CHECK_NOTHROW(Description::fromFile("data/white-space-test.pddl", context));
 }
@@ -365,7 +365,7 @@ TEST_CASE("[PDDL parser] White spaces are ignored", "[PDDL parser]")
 TEST_CASE("[PDDL parser] Missing or unmatching domain descriptions are detected", "[PDDL parser]")
 {
 	plasp::output::Logger logger;
-	Context context(Parser(), logger);
+	Context context(Tokenizer(), logger);
 
 	SECTION("")
 	{
@@ -373,7 +373,7 @@ TEST_CASE("[PDDL parser] Missing or unmatching domain descriptions are detected"
 	}
 	SECTION("")
 	{
-		CHECK_THROWS_AS(Description::fromFiles({"data/blocksworld-problem.pddl", "data/storage-domain.pddl"}, context), parsebase::ParserException);
+		CHECK_THROWS_AS(Description::fromFiles({"data/blocksworld-problem.pddl", "data/storage-domain.pddl"}, context), tokenize::TokenizerException);
 	}
 }
 
@@ -382,7 +382,7 @@ TEST_CASE("[PDDL parser] Missing or unmatching domain descriptions are detected"
 TEST_CASE("[PDDL parser] Common PDDL syntax errors are detected", "[PDDL parser]")
 {
 	plasp::output::Logger logger;
-	Context context(Parser(), logger);
+	Context context(Tokenizer(), logger);
 
 	SECTION("")
 	{
@@ -513,7 +513,7 @@ TEST_CASE("[PDDL parser] Common PDDL syntax errors are detected", "[PDDL parser]
 TEST_CASE("[PDDL parser] Former issues are fixed", "[PDDL parser]")
 {
 	plasp::output::Logger logger;
-	Context context(Parser(), logger);
+	Context context(Tokenizer(), logger);
 
 	SECTION("white space issues with constants and parsing unsupported sections")
 	{

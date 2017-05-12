@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
-project(parsebase)
+project(tokenize)
 
-option(PARSEBASE_BUILD_TESTS "Build unit tests" OFF)
+option(TOKENIZE_BUILD_TESTS "Build unit tests" OFF)
 
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wpedantic -Werror")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
@@ -23,6 +23,6 @@ if (CMAKE_GENERATOR STREQUAL "Ninja" AND
 endif()
 
 add_subdirectory(src)
-if(PARSEBASE_BUILD_TESTS)
+if(TOKENIZE_BUILD_TESTS)
 	add_subdirectory(tests)
-endif(PARSEBASE_BUILD_TESTS)
+endif(TOKENIZE_BUILD_TESTS)

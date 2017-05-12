@@ -6,7 +6,7 @@
 #include <plasp/pddl/Expression.h>
 #include <plasp/pddl/expressions/Variable.h>
 
-#include <parsebase/Parser.h>
+#include <tokenize/Tokenizer.h>
 
 namespace plasp
 {

@@ -4,7 +4,7 @@
 #include <boost/assign.hpp>
 #include <boost/bimap.hpp>
 
-#include <parsebase/ParserException.h>
+#include <tokenize/TokenizerException.h>
 
 namespace plasp
 {
@@ -82,19 +82,19 @@ Requirement::Requirement(Requirement::Type type)
 
 Requirement Requirement::parse(Context &context)
 {
-	auto &parser = context.parser;
+	auto &tokenizer = context.tokenizer;
 
-	const auto requirementName = parser.parseIdentifier();
+	const auto requirementName = tokenizer.getIdentifier();
 
 	const auto match = requirementTypesToPDDL.right.find(requirementName);
 
 	if (match == requirementTypesToPDDL.right.end())
-		throw parsebase::ParserException(parser.location(), "unknown PDDL requirement “" + requirementName + "”");
+		throw tokenize::TokenizerException(tokenizer.location(), "unknown PDDL requirement “" + requirementName + "”");
 
 	const auto requirementType = match->second;
 
 	if (requirementType == Requirement::Type::GoalUtilities)
-		context.logger.log(output::Priority::Warning, parser.location(), "requirement “goal-utilities” is not part of the PDDL 3.1 specification");
+		context.logger.log(output::Priority::Warning, tokenizer.location(), "requirement “goal-utilities” is not part of the PDDL 3.1 specification");
 
 	return Requirement(match->second);
 }

@@ -14,7 +14,7 @@
 #include <plasp/sas/Operator.h>
 #include <plasp/sas/Variable.h>
 
-#include <parsebase/Parser.h>
+#include <tokenize/Tokenizer.h>
 
 namespace plasp
 {
@@ -30,7 +30,7 @@ namespace sas
 class Description
 {
 	public:
-		static Description fromParser(parsebase::Parser<> &&parser);
+		static Description fromTokenizer(tokenize::Tokenizer<> &&tokenizer);
 		static Description fromStream(std::istream &istream);
 		static Description fromFile(const std::experimental::filesystem::path &path);
 
@@ -51,16 +51,16 @@ class Description
 	private:
 		Description();
 
-		void parseContent(parsebase::Parser<> &parser);
+		void parseContent(tokenize::Tokenizer<> &tokenizer);
 
-		void parseVersionSection(parsebase::Parser<> &parser) const;
-		void parseMetricSection(parsebase::Parser<> &parser);
-		void parseVariablesSection(parsebase::Parser<> &parser);
-		void parseMutexSection(parsebase::Parser<> &parser);
-		void parseInitialStateSection(parsebase::Parser<> &parser);
-		void parseGoalSection(parsebase::Parser<> &parser);
-		void parseOperatorSection(parsebase::Parser<> &parser);
-		void parseAxiomSection(parsebase::Parser<> &parser);
+		void parseVersionSection(tokenize::Tokenizer<> &tokenizer) const;
+		void parseMetricSection(tokenize::Tokenizer<> &tokenizer);
+		void parseVariablesSection(tokenize::Tokenizer<> &tokenizer);
+		void parseMutexSection(tokenize::Tokenizer<> &tokenizer);
+		void parseInitialStateSection(tokenize::Tokenizer<> &tokenizer);
+		void parseGoalSection(tokenize::Tokenizer<> &tokenizer);
+		void parseOperatorSection(tokenize::Tokenizer<> &tokenizer);
+		void parseAxiomSection(tokenize::Tokenizer<> &tokenizer);
 
 		bool m_usesActionCosts;
 

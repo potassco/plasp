@@ -10,7 +10,7 @@
 #include <plasp/sas/Predicate.h>
 #include <plasp/sas/Variable.h>
 
-#include <parsebase/Parser.h>
+#include <tokenize/Tokenizer.h>
 
 namespace plasp
 {
@@ -34,7 +34,7 @@ class Operator
 		using Condition = AssignedVariable;
 		using Conditions = AssignedVariables;
 
-		static Operator fromSAS(parsebase::Parser<> &parser, const Variables &variables);
+		static Operator fromSAS(tokenize::Tokenizer<> &tokenizer, const Variables &variables);
 
 	public:
 		void printPredicateAsASP(output::ColorStream &stream) const;

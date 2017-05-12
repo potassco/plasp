@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include <plasp/pddl/Parser.h>
+#include <plasp/pddl/Tokenizer.h>
 
 namespace plasp
 {
@@ -16,14 +16,14 @@ namespace pddl
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline void skipSection(Parser &parser)
+inline void skipSection(Tokenizer &tokenizer)
 {
 	size_t openParentheses = 1;
 
 	while (true)
 	{
-		const auto character = parser.currentCharacter();
-		parser.advance();
+		const auto character = tokenizer.currentCharacter();
+		tokenizer.advance();
 
 		if (character == '(')
 			openParentheses++;

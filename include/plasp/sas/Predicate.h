@@ -7,7 +7,7 @@
 
 #include <plasp/output/ColorStream.h>
 
-#include <parsebase/Parser.h>
+#include <tokenize/Tokenizer.h>
 
 namespace plasp
 {
@@ -23,7 +23,7 @@ namespace sas
 class Predicate
 {
 	public:
-		static Predicate fromSAS(parsebase::Parser<> &parser);
+		static Predicate fromSAS(tokenize::Tokenizer<> &tokenizer);
 
 		using Arguments = std::vector<std::string>;
 

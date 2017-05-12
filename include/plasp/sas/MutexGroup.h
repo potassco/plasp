@@ -5,7 +5,7 @@
 
 #include <plasp/sas/AssignedVariable.h>
 
-#include <parsebase/Parser.h>
+#include <tokenize/Tokenizer.h>
 
 namespace plasp
 {
@@ -29,7 +29,7 @@ class MutexGroup
 		using Fact = AssignedVariable;
 		using Facts = AssignedVariables;
 
-		static MutexGroup fromSAS(parsebase::Parser<> &parser, const Variables &variables);
+		static MutexGroup fromSAS(tokenize::Tokenizer<> &tokenizer, const Variables &variables);
 
 	public:
 		const Facts &facts() const;

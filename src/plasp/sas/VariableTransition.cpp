@@ -24,13 +24,13 @@ VariableTransition::VariableTransition()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-VariableTransition VariableTransition::fromSAS(parsebase::Parser<> &parser, const Variables &variables)
+VariableTransition VariableTransition::fromSAS(tokenize::Tokenizer<> &tokenizer, const Variables &variables)
 {
 	VariableTransition variableTransition;
 
-	variableTransition.m_variable = &Variable::referenceFromSAS(parser, variables);
-	variableTransition.m_valueBefore = &Value::referenceFromSAS(parser, *variableTransition.m_variable);
-	variableTransition.m_valueAfter = &Value::referenceFromSAS(parser, *variableTransition.m_variable);
+	variableTransition.m_variable = &Variable::referenceFromSAS(tokenizer, variables);
+	variableTransition.m_valueBefore = &Value::referenceFromSAS(tokenizer, *variableTransition.m_variable);
+	variableTransition.m_valueAfter = &Value::referenceFromSAS(tokenizer, *variableTransition.m_variable);
 
 	return variableTransition;
 }

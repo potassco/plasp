@@ -7,7 +7,7 @@
 
 #include <plasp/output/ColorStream.h>
 
-#include <parsebase/Parser.h>
+#include <tokenize/Tokenizer.h>
 
 namespace plasp
 {
@@ -40,8 +40,8 @@ struct Value
 		static const Value Any;
 		static const Value None;
 
-		static Value fromSAS(parsebase::Parser<> &parser);
-		static const Value &referenceFromSAS(parsebase::Parser<> &parser, const Variable &variable);
+		static Value fromSAS(tokenize::Tokenizer<> &tokenizer);
+		static const Value &referenceFromSAS(tokenize::Tokenizer<> &tokenizer, const Variable &variable);
 
 	public:
 		Value negated() const;

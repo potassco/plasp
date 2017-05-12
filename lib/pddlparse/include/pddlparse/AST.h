@@ -7,8 +7,6 @@
 #include <type_traits>
 #include <vector>
 
-#include <parsebase/Stream.h>
-
 #include <pddlparse/ASTForward.h>
 
 namespace pddl

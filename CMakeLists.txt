@@ -24,7 +24,7 @@ if (CMAKE_GENERATOR STREQUAL "Ninja" AND
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fdiagnostics-color=always")
 endif()
 
-add_subdirectory(lib/parsebase)
+add_subdirectory(lib/tokenize)
 add_subdirectory(lib/pddlparse)
 add_subdirectory(src)
 add_subdirectory(app)

@@ -54,14 +54,14 @@ template<typename ExpressionParser>
 boost::intrusive_ptr<Derived> Binary<Derived>::parse(Context &context,
 	ExpressionContext &expressionContext, ExpressionParser parseExpression)
 {
-	auto &parser = context.parser;
+	auto &tokenizer = context.tokenizer;
 
-	const auto position = parser.position();
+	const auto position = tokenizer.position();
 
-	if (!parser.testAndSkip<std::string>("(")
-		|| !parser.testIdentifierAndSkip(Derived::Identifier))
+	if (!tokenizer.testAndSkip<std::string>("(")
+		|| !tokenizer.testIdentifierAndSkip(Derived::Identifier))
 	{
-		parser.seek(position);
+		tokenizer.seek(position);
 		return nullptr;
 	}
 
@@ -71,7 +71,7 @@ boost::intrusive_ptr<Derived> Binary<Derived>::parse(Context &context,
 	expression->Binary<Derived>::setArgument(0, parseExpression(context, expressionContext));
 	expression->Binary<Derived>::setArgument(1, parseExpression(context, expressionContext));
 
-	parser.expect<std::string>(")");
+	tokenizer.expect<std::string>(")");
 
 	return expression;
 }

@@ -1,11 +1,11 @@
-#include <parsebase/Stream.h>
+#include <tokenize/Stream.h>
 
 #include <algorithm>
 #include <fstream>
 
-#include <parsebase/ParserException.h>
+#include <tokenize/TokenizerException.h>
 
-namespace parsebase
+namespace tokenize
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -89,7 +89,7 @@ Location Stream::location() const
 			return currentPosition >= fileDelimiter.position;
 		});
 
-	// If the parser is at the end of the stream, still count from the beginning of the last section
+	// If the tokenizer is at the end of the stream, still count from the beginning of the last section
 	if (currentFile == m_delimiters.crend())
 		currentFile = m_delimiters.crbegin();
 
@@ -143,10 +143,10 @@ bool Stream::atEnd() const
 void Stream::check() const
 {
 	if (atEnd())
-		throw ParserException(location(), "reading past end of file");
+		throw TokenizerException(location(), "reading past end of file");
 
 	if (m_stream.fail())
-		throw ParserException(location());
+		throw TokenizerException(location());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

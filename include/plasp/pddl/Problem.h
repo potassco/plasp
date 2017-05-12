@@ -4,8 +4,8 @@
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Expression.h>
 #include <plasp/pddl/InitialState.h>
-#include <plasp/pddl/Parser.h>
 #include <plasp/pddl/Requirement.h>
+#include <plasp/pddl/Tokenizer.h>
 
 namespace plasp
 {
@@ -64,18 +64,18 @@ class Problem
 
 		std::string m_name;
 
-		parsebase::Stream::Position m_domainPosition;
+		tokenize::Stream::Position m_domainPosition;
 
-		parsebase::Stream::Position m_requirementsPosition;
+		tokenize::Stream::Position m_requirementsPosition;
 		Requirements m_requirements;
 
-		parsebase::Stream::Position m_objectsPosition;
+		tokenize::Stream::Position m_objectsPosition;
 		expressions::Constants m_objects;
 
-		parsebase::Stream::Position m_initialStatePosition;
+		tokenize::Stream::Position m_initialStatePosition;
 		std::unique_ptr<InitialState> m_initialState;
 
-		parsebase::Stream::Position m_goalPosition;
+		tokenize::Stream::Position m_goalPosition;
 		ExpressionPointer m_goal;
 };
 

@@ -1,7 +1,7 @@
-set(target parsebase)
+set(target tokenize)
 
-file(GLOB core_sources "parsebase/*.cpp")
-file(GLOB core_headers "../include/parsebase/*.h")
+file(GLOB core_sources "tokenize/*.cpp")
+file(GLOB core_headers "../include/tokenize/*.h")
 
 set(includes
 	${PROJECT_SOURCE_DIR}/include

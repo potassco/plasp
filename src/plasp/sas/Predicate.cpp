@@ -6,7 +6,7 @@
 
 #include <plasp/output/Formatting.h>
 
-#include <parsebase/ParserException.h>
+#include <tokenize/TokenizerException.h>
 
 namespace plasp
 {
@@ -19,32 +19,32 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Predicate Predicate::fromSAS(parsebase::Parser<> &parser)
+Predicate Predicate::fromSAS(tokenize::Tokenizer<> &tokenizer)
 {
 	Predicate predicate;
 
 	try
 	{
-		parser.skipLine();
+		tokenizer.skipLine();
 
-		predicate.m_name = parser.parse<std::string>();
+		predicate.m_name = tokenizer.get<std::string>();
 
 		while (true)
 		{
 			// Skip whitespace but not newlines
-			parser.skipBlankSpace();
+			tokenizer.skipBlankSpace();
 
 			// TODO: check \r handling
-			if (parser.currentCharacter() == '\n')
+			if (tokenizer.currentCharacter() == '\n')
 				break;
 
-			const auto value = parser.parse<std::string>();
+			const auto value = tokenizer.get<std::string>();
 			predicate.m_arguments.emplace_back(std::move(value));
 		}
 	}
 	catch (const std::exception &e)
 	{
-		throw parsebase::ParserException(parser.location(), "could not parse operator predicate");
+		throw tokenize::TokenizerException(tokenizer.location(), "could not parse operator predicate");
 	}
 
 	return predicate;

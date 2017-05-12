@@ -6,7 +6,7 @@
 
 #include <boost/intrusive_ptr.hpp>
 
-#include <parsebase/Parser.h>
+#include <tokenize/Tokenizer.h>
 
 namespace plasp
 {

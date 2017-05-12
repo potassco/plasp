@@ -4,8 +4,8 @@
 #include <plasp/pddl/Action.h>
 #include <plasp/pddl/Context.h>
 #include <plasp/pddl/Expression.h>
-#include <plasp/pddl/Parser.h>
 #include <plasp/pddl/Requirement.h>
+#include <plasp/pddl/Tokenizer.h>
 #include <plasp/pddl/expressions/Constant.h>
 #include <plasp/pddl/expressions/DerivedPredicate.h>
 #include <plasp/pddl/expressions/PredicateDeclaration.h>
@@ -75,19 +75,19 @@ class Domain
 
 		std::string m_name;
 
-		parsebase::Stream::Position m_requirementsPosition;
+		tokenize::Stream::Position m_requirementsPosition;
 		Requirements m_requirements;
 
-		parsebase::Stream::Position m_typesPosition;
+		tokenize::Stream::Position m_typesPosition;
 		expressions::PrimitiveTypes m_types;
 
-		parsebase::Stream::Position m_constantsPosition;
+		tokenize::Stream::Position m_constantsPosition;
 		expressions::Constants m_constants;
 
-		parsebase::Stream::Position m_predicatesPosition;
+		tokenize::Stream::Position m_predicatesPosition;
 		expressions::PredicateDeclarations m_predicates;
 
-		std::vector<parsebase::Stream::Position> m_actionPositions;
+		std::vector<tokenize::Stream::Position> m_actionPositions;
 		std::vector<std::unique_ptr<Action>> m_actions;
 
 		expressions::DerivedPredicates m_derivedPredicates;

@@ -1,18 +1,18 @@
-#ifndef __PARSE_BASE__PARSER_POLICY_H
-#define __PARSE_BASE__PARSER_POLICY_H
+#ifndef __TOKENIZE__TOKENIZER_POLICY_H
+#define __TOKENIZE__TOKENIZER_POLICY_H
 
 #include <iostream>
 
-namespace parsebase
+namespace tokenize
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// ParserPolicy
+// TokenizerPolicy
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct CaseSensitiveParserPolicy
+struct CaseSensitiveTokenizerPolicy
 {
 	static constexpr char transformCharacter(char c) noexcept
 	{
@@ -37,7 +37,7 @@ struct CaseSensitiveParserPolicy
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct CaseInsensitiveParserPolicy
+struct CaseInsensitiveTokenizerPolicy
 {
 	static char transformCharacter(char c) noexcept
 	{

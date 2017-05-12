@@ -5,7 +5,7 @@
 #include <plasp/output/Formatting.h>
 #include <plasp/sas/Variable.h>
 
-#include <parsebase/ParserException.h>
+#include <tokenize/TokenizerException.h>
 
 namespace plasp
 {
@@ -55,14 +55,14 @@ Value Value::negated() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Value Value::fromSAS(parsebase::Parser<> &parser)
+Value Value::fromSAS(tokenize::Tokenizer<> &tokenizer)
 {
-	const auto sasSign = parser.parse<std::string>();
+	const auto sasSign = tokenizer.get<std::string>();
 
 	if (sasSign == "<none")
 	{
-		parser.expect<std::string>("of");
-		parser.expect<std::string>("those>");
+		tokenizer.expect<std::string>("of");
+		tokenizer.expect<std::string>("those>");
 
 		// TODO: do not return a copy of Value::None
 		return Value::None;
@@ -75,12 +75,12 @@ Value Value::fromSAS(parsebase::Parser<> &parser)
 	else if (sasSign == "NegatedAtom")
 		value.m_sign = Value::Sign::Negative;
 	else
-		throw parsebase::ParserException(parser.location(), "invalid value sign “" + sasSign + "”");
+		throw tokenize::TokenizerException(tokenizer.location(), "invalid value sign “" + sasSign + "”");
 
 	try
 	{
-		parser.skipWhiteSpace();
-		value.m_name = parser.parseLine();
+		tokenizer.skipWhiteSpace();
+		value.m_name = tokenizer.getLine();
 
 		// Remove trailing ()
 		if (value.m_name.find("()") != std::string::npos)
@@ -91,7 +91,7 @@ Value Value::fromSAS(parsebase::Parser<> &parser)
 	}
 	catch (const std::exception &e)
 	{
-		throw parsebase::ParserException(parser.location(), std::string("could not parse variable value (") + e.what() + ")");
+		throw tokenize::TokenizerException(tokenizer.location(), std::string("could not parse variable value (") + e.what() + ")");
 	}
 
 	return value;
@@ -99,15 +99,15 @@ Value Value::fromSAS(parsebase::Parser<> &parser)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const Value &Value::referenceFromSAS(parsebase::Parser<> &parser, const Variable &variable)
+const Value &Value::referenceFromSAS(tokenize::Tokenizer<> &tokenizer, const Variable &variable)
 {
-	const auto valueID = parser.parse<int>();
+	const auto valueID = tokenizer.get<int>();
 
 	if (valueID == -1)
 		return Value::Any;
 
 	if (valueID < 0 || static_cast<size_t>(valueID) >= variable.values().size())
-		throw parsebase::ParserException(parser.location(), "value index out of range (variable " + variable.name() + ", index " + std::to_string(valueID) + ")");
+		throw tokenize::TokenizerException(tokenizer.location(), "value index out of range (variable " + variable.name() + ", index " + std::to_string(valueID) + ")");
 
 	return variable.values()[valueID];
 }

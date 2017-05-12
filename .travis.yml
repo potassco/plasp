@@ -42,5 +42,5 @@ script:
   - git submodule update --recursive --init
   - mkdir -p build/debug
   - cd build/debug
-  - cmake ../.. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=$_CXX -DPLASP_BUILD_TESTS=ON -DPARSEBASE_BUILD_TESTS=ON
-  - make -j3 plasp-app && make -j3 run-parsebase-tests && make -j3 run-tests
+  - cmake ../.. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=$_CXX -DPLASP_BUILD_TESTS=ON -DTOKENIZE_BUILD_TESTS=ON
+  - make -j3 plasp-app && make -j3 run-tokenize-tests && make -j3 run-tests

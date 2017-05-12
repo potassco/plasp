@@ -9,7 +9,7 @@
 #include <plasp/pddl/expressions/PrimitiveType.h>
 #include <plasp/pddl/expressions/Variable.h>
 
-#include <parsebase/ParserException.h>
+#include <tokenize/TokenizerException.h>
 
 namespace plasp
 {
@@ -35,119 +35,119 @@ Domain::Domain(Context &context)
 
 void Domain::findSections()
 {
-	auto &parser = m_context.parser;
+	auto &tokenizer = m_context.tokenizer;
 
-	parser.expect<std::string>("(");
-	parser.expect<std::string>("define");
-	parser.expect<std::string>("(");
-	parser.expect<std::string>("domain");
+	tokenizer.expect<std::string>("(");
+	tokenizer.expect<std::string>("define");
+	tokenizer.expect<std::string>("(");
+	tokenizer.expect<std::string>("domain");
 
-	m_name = m_context.parser.parseIdentifier();
+	m_name = tokenizer.getIdentifier();
 
-	parser.expect<std::string>(")");
+	tokenizer.expect<std::string>(")");
 
 	const auto setSectionPosition =
 		[&](const std::string &sectionName, auto &sectionPosition, const auto value, bool unique = false)
 		{
 			if (unique && sectionPosition != -1)
 			{
-				parser.seek(value);
-				throw parsebase::ParserException(parser.location(), "only one “:" + sectionName + "” section allowed");
+				tokenizer.seek(value);
+				throw tokenize::TokenizerException(tokenizer.location(), "only one “:" + sectionName + "” section allowed");
 			}
 
 			sectionPosition = value;
 		};
 
-	parser.skipWhiteSpace();
+	tokenizer.skipWhiteSpace();
 
 	// Find sections
-	while (parser.currentCharacter() != ')')
+	while (tokenizer.currentCharacter() != ')')
 	{
-		const auto position = parser.position();
+		const auto position = tokenizer.position();
 
-		parser.expect<std::string>("(");
-		parser.expect<std::string>(":");
+		tokenizer.expect<std::string>("(");
+		tokenizer.expect<std::string>(":");
 
-		const auto sectionIdentifierPosition = parser.position();
+		const auto sectionIdentifierPosition = tokenizer.position();
 
-		// Save the parser position of the individual sections for later parsing
-		if (parser.testIdentifierAndSkip("requirements"))
+		// Save the tokenizer position of the individual sections for later parsing
+		if (tokenizer.testIdentifierAndSkip("requirements"))
 			setSectionPosition("requirements", m_requirementsPosition, position, true);
-		else if (parser.testIdentifierAndSkip("types"))
+		else if (tokenizer.testIdentifierAndSkip("types"))
 			setSectionPosition("types", m_typesPosition, position, true);
-		else if (parser.testIdentifierAndSkip("constants"))
+		else if (tokenizer.testIdentifierAndSkip("constants"))
 			setSectionPosition("constants", m_constantsPosition, position, true);
-		else if (parser.testIdentifierAndSkip("predicates"))
+		else if (tokenizer.testIdentifierAndSkip("predicates"))
 			setSectionPosition("predicates", m_predicatesPosition, position, true);
-		else if (parser.testIdentifierAndSkip("action"))
+		else if (tokenizer.testIdentifierAndSkip("action"))
 		{
 			m_actionPositions.emplace_back(-1);
 			setSectionPosition("action", m_actionPositions.back(), position);
 		}
-		else if (parser.testIdentifierAndSkip("functions")
-			|| parser.testIdentifierAndSkip("constraints")
-			|| parser.testIdentifierAndSkip("durative-action")
-			|| parser.testIdentifierAndSkip("derived"))
+		else if (tokenizer.testIdentifierAndSkip("functions")
+			|| tokenizer.testIdentifierAndSkip("constraints")
+			|| tokenizer.testIdentifierAndSkip("durative-action")
+			|| tokenizer.testIdentifierAndSkip("derived"))
 		{
-			parser.seek(sectionIdentifierPosition);
+			tokenizer.seek(sectionIdentifierPosition);
 
-			const auto sectionIdentifier = parser.parseIdentifier();
+			const auto sectionIdentifier = tokenizer.getIdentifier();
 
-			m_context.logger.log(output::Priority::Warning, parser.location(), "section type “" + sectionIdentifier + "” currently unsupported");
+			m_context.logger.log(output::Priority::Warning, tokenizer.location(), "section type “" + sectionIdentifier + "” currently unsupported");
 
-			parser.seek(sectionIdentifierPosition);
+			tokenizer.seek(sectionIdentifierPosition);
 		}
 		else
 		{
-			const auto sectionIdentifier = parser.parseIdentifier();
+			const auto sectionIdentifier = tokenizer.getIdentifier();
 
-			parser.seek(position);
-			throw parsebase::ParserException(parser.location(), "unknown domain section “" + sectionIdentifier + "”");
+			tokenizer.seek(position);
+			throw tokenize::TokenizerException(tokenizer.location(), "unknown domain section “" + sectionIdentifier + "”");
 		}
 
 		// Skip section for now and parse it later
-		skipSection(parser);
+		skipSection(tokenizer);
 
-		parser.skipWhiteSpace();
+		tokenizer.skipWhiteSpace();
 	}
 
-	parser.expect<std::string>(")");
+	tokenizer.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Domain::parse()
 {
-	auto &parser = m_context.parser;
+	auto &tokenizer = m_context.tokenizer;
 
 	if (m_requirementsPosition != -1)
 	{
-		parser.seek(m_requirementsPosition);
+		tokenizer.seek(m_requirementsPosition);
 		parseRequirementSection();
 	}
 
 	if (m_typesPosition != -1)
 	{
-		parser.seek(m_typesPosition);
+		tokenizer.seek(m_typesPosition);
 		parseTypeSection();
 	}
 
 	if (m_constantsPosition != -1)
 	{
-		parser.seek(m_constantsPosition);
+		tokenizer.seek(m_constantsPosition);
 		parseConstantSection();
 	}
 
 	if (m_predicatesPosition != -1)
 	{
-		parser.seek(m_predicatesPosition);
+		tokenizer.seek(m_predicatesPosition);
 		parsePredicateSection();
 	}
 
 	for (size_t i = 0; i < m_actionPositions.size(); i++)
 		if (m_actionPositions[i] != -1)
 		{
-			parser.seek(m_actionPositions[i]);
+			tokenizer.seek(m_actionPositions[i]);
 			parseActionSection();
 		}
 
@@ -249,19 +249,19 @@ const expressions::DerivedPredicates &Domain::derivedPredicates() const
 
 void Domain::parseRequirementSection()
 {
-	auto &parser = m_context.parser;
+	auto &tokenizer = m_context.tokenizer;
 
-	parser.expect<std::string>("(");
-	parser.expect<std::string>(":");
-	parser.expect<std::string>("requirements");
+	tokenizer.expect<std::string>("(");
+	tokenizer.expect<std::string>(":");
+	tokenizer.expect<std::string>("requirements");
 
-	while (parser.currentCharacter() != ')')
+	while (tokenizer.currentCharacter() != ')')
 	{
-		parser.expect<std::string>(":");
+		tokenizer.expect<std::string>(":");
 
 		m_requirements.emplace_back(Requirement::parse(m_context));
 
-		parser.skipWhiteSpace();
+		tokenizer.skipWhiteSpace();
 	}
 
 	// TODO: do this check only once the problem is parsed
@@ -269,7 +269,7 @@ void Domain::parseRequirementSection()
 	if (m_requirements.empty())
 		m_requirements.emplace_back(Requirement::Type::STRIPS);
 
-	parser.expect<std::string>(")");
+	tokenizer.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -292,7 +292,7 @@ void Domain::checkRequirement(Requirement::Type requirementType)
 	if (hasRequirement(requirementType))
 		return;
 
-	m_context.logger.log(output::Priority::Warning, m_context.parser.location(), "requirement “" + Requirement(requirementType).toPDDL() + "” used but never declared");
+	m_context.logger.log(output::Priority::Warning, m_context.tokenizer.location(), "requirement “" + Requirement(requirementType).toPDDL() + "” used but never declared");
 
 	m_requirements.push_back(requirementType);
 }
@@ -341,82 +341,82 @@ void Domain::computeDerivedRequirements()
 
 void Domain::parseTypeSection()
 {
-	auto &parser = m_context.parser;
+	auto &tokenizer = m_context.tokenizer;
 
-	parser.expect<std::string>("(");
-	parser.expect<std::string>(":");
-	parser.expect<std::string>("types");
+	tokenizer.expect<std::string>("(");
+	tokenizer.expect<std::string>(":");
+	tokenizer.expect<std::string>("types");
 
 	checkRequirement(Requirement::Type::Typing);
 
-	parser.skipWhiteSpace();
+	tokenizer.skipWhiteSpace();
 
 	// Store types and their parent types
-	while (parser.currentCharacter() != ')')
+	while (tokenizer.currentCharacter() != ')')
 	{
-		if (parser.currentCharacter() == '(')
-			throw parsebase::ParserException(parser.location(), "only primitive types are allowed in type section");
+		if (tokenizer.currentCharacter() == '(')
+			throw tokenize::TokenizerException(tokenizer.location(), "only primitive types are allowed in type section");
 
 		expressions::PrimitiveType::parseTypedDeclaration(m_context, *this);
 
-		parser.skipWhiteSpace();
+		tokenizer.skipWhiteSpace();
 	}
 
-	parser.expect<std::string>(")");
+	tokenizer.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Domain::parseConstantSection()
 {
-	auto &parser = m_context.parser;
+	auto &tokenizer = m_context.tokenizer;
 
-	parser.expect<std::string>("(");
-	parser.expect<std::string>(":");
-	parser.expect<std::string>("constants");
+	tokenizer.expect<std::string>("(");
+	tokenizer.expect<std::string>(":");
+	tokenizer.expect<std::string>("constants");
 
 	// Store constants
 	expressions::Constant::parseTypedDeclarations(m_context, *this);
 
-	parser.expect<std::string>(")");
+	tokenizer.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Domain::parsePredicateSection()
 {
-	auto &parser = m_context.parser;
+	auto &tokenizer = m_context.tokenizer;
 
-	parser.expect<std::string>("(");
-	parser.expect<std::string>(":");
-	parser.expect<std::string>("predicates");
+	tokenizer.expect<std::string>("(");
+	tokenizer.expect<std::string>(":");
+	tokenizer.expect<std::string>("predicates");
 
-	parser.skipWhiteSpace();
+	tokenizer.skipWhiteSpace();
 
 	// Store predicates and their arguments
-	while (parser.currentCharacter() != ')')
+	while (tokenizer.currentCharacter() != ')')
 	{
 		expressions::PredicateDeclaration::parse(m_context, *this);
 
-		parser.skipWhiteSpace();
+		tokenizer.skipWhiteSpace();
 	}
 
-	parser.expect<std::string>(")");
+	tokenizer.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Domain::parseActionSection()
 {
-	auto &parser = m_context.parser;
+	auto &tokenizer = m_context.tokenizer;
 
-	parser.expect<std::string>("(");
-	parser.expect<std::string>(":");
-	parser.expect<std::string>("action");
+	tokenizer.expect<std::string>("(");
+	tokenizer.expect<std::string>(":");
+	tokenizer.expect<std::string>("action");
 
 	Action::parseDeclaration(m_context, *this);
 
-	parser.expect<std::string>(")");
+	tokenizer.expect<std::string>(")");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

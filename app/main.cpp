@@ -109,7 +109,7 @@ int main(int argc, char **argv)
 
 	try
 	{
-		parsebase::Parser<parsebase::CaseInsensitiveParserPolicy> parser;
+		tokenize::Tokenizer<tokenize::CaseInsensitiveTokenizerPolicy> tokenizer;
 
 		if (variablesMap.count("input"))
 		{
@@ -118,11 +118,11 @@ int main(int argc, char **argv)
 			std::for_each(inputFiles.cbegin(), inputFiles.cend(),
 				[&](const auto &inputFile)
 				{
-					parser.read(inputFile);
+					tokenizer.read(inputFile);
 				});
 		}
 		else
-			parser.read("std::cin", std::cin);
+			tokenizer.read("std::cin", std::cin);
 
 		const auto detectLanguage =
 			[&]()
@@ -131,7 +131,7 @@ int main(int argc, char **argv)
 				const auto language = plasp::Language::fromString(languageName);
 
 				if (language == plasp::Language::Type::Automatic)
-					return plasp::detectLanguage(parser);
+					return plasp::detectLanguage(tokenizer);
 
 				return language;
 			};
@@ -148,19 +148,19 @@ int main(int argc, char **argv)
 
 		if (language == plasp::Language::Type::PDDL)
 		{
-			auto context = plasp::pddl::Context(std::move(parser), logger);
+			auto context = plasp::pddl::Context(std::move(tokenizer), logger);
 			auto description = plasp::pddl::Description::fromContext(context);
 			const auto translator = plasp::pddl::TranslatorASP(description, logger.outputStream());
 			translator.translate();
 		}
 		else if (language == plasp::Language::Type::SAS)
 		{
-			const auto description = plasp::sas::Description::fromParser(std::move(parser));
+			const auto description = plasp::sas::Description::fromTokenizer(std::move(tokenizer));
 			const auto translator = plasp::sas::TranslatorASP(description, logger.outputStream());
 			translator.translate();
 		}
 	}
-	catch (const parsebase::ParserException &e)
+	catch (const tokenize::TokenizerException &e)
 	{
 		logger.log(plasp::output::Priority::Error, e.location(), e.message().c_str());
 		return EXIT_FAILURE;

@@ -1,9 +1,9 @@
-#ifndef __PARSE_BASE__LOCATION_H
-#define __PARSE_BASE__LOCATION_H
+#ifndef __TOKENIZE__LOCATION_H
+#define __TOKENIZE__LOCATION_H
 
 #include <cstdlib>
 
-namespace parsebase
+namespace tokenize
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -1,5 +1,5 @@
-#ifndef __PARSE_BASE__STREAM_H
-#define __PARSE_BASE__STREAM_H
+#ifndef __TOKENIZE__STREAM_H
+#define __TOKENIZE__STREAM_H
 
 #include <experimental/filesystem>
 #include <iostream>
@@ -7,9 +7,9 @@
 #include <sstream>
 #include <vector>
 
-#include <parsebase/Location.h>
+#include <tokenize/Location.h>
 
-namespace parsebase
+namespace tokenize
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

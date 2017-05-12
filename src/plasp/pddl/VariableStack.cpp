@@ -29,13 +29,13 @@ void VariableStack::pop()
 
 expressions::VariablePointer VariableStack::parseAndFind(plasp::pddl::Context &context)
 {
-	auto &parser = context.parser;
+	auto &tokenizer = context.tokenizer;
 
-	parser.skipWhiteSpace();
+	tokenizer.skipWhiteSpace();
 
-	parser.expect<std::string>("?");
+	tokenizer.expect<std::string>("?");
 
-	const auto variableName = parser.parseIdentifier();
+	const auto variableName = tokenizer.getIdentifier();
 
 	for (auto i = m_variableStack.crbegin(); i != m_variableStack.crend(); i++)
 	{
@@ -53,7 +53,7 @@ expressions::VariablePointer VariableStack::parseAndFind(plasp::pddl::Context &c
 			return match->get();
 	}
 
-	throw parsebase::ParserException(parser.location(), "variable “" + variableName + "” used but never declared");
+	throw tokenize::TokenizerException(tokenizer.location(), "variable “" + variableName + "” used but never declared");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

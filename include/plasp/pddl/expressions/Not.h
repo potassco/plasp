@@ -53,25 +53,25 @@ template<typename ExpressionParser>
 NotPointer Not::parse(Context &context, ExpressionContext &expressionContext,
 	ExpressionParser parseExpression)
 {
-	auto &parser = context.parser;
+	auto &tokenizer = context.tokenizer;
 
-	const auto position = parser.position();
+	const auto position = tokenizer.position();
 
-	if (!parser.testAndSkip<std::string>("(")
-		|| !parser.testIdentifierAndSkip("not"))
+	if (!tokenizer.testAndSkip<std::string>("(")
+		|| !tokenizer.testIdentifierAndSkip("not"))
 	{
-		parser.seek(position);
+		tokenizer.seek(position);
 		return nullptr;
 	}
 
 	auto expression = NotPointer(new Not);
 
-	context.parser.skipWhiteSpace();
+	tokenizer.skipWhiteSpace();
 
 	// Parse argument
 	expression->setArgument(parseExpression(context, expressionContext));
 
-	parser.expect<std::string>(")");
+	tokenizer.expect<std::string>(")");
 
 	return expression;
 }

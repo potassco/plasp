@@ -1,33 +1,33 @@
 #include <catch.hpp>
 
-#include <parsebase/Parser.h>
-#include <parsebase/ParserException.h>
+#include <tokenize/Tokenizer.h>
+#include <tokenize/TokenizerException.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST_CASE("[parser] Simple strings are parsed correctly", "[parser]")
+TEST_CASE("[tokenizer] Simple strings are tokenized correctly", "[tokenizer]")
 {
 	std::stringstream s("  identifier  5   \n-51\t 0 1 100 200 -300 -400");
-	parsebase::Parser<> p("input", s);
+	tokenize::Tokenizer<> p("input", s);
 
-	REQUIRE(p.parse<std::string>() == "identifier");
-	REQUIRE(p.parse<size_t>() == 5u);
-	REQUIRE(p.parse<int>() == -51);
-	REQUIRE(p.parse<bool>() == false);
-	REQUIRE(p.parse<bool>() == true);
+	REQUIRE(p.get<std::string>() == "identifier");
+	REQUIRE(p.get<size_t>() == 5u);
+	REQUIRE(p.get<int>() == -51);
+	REQUIRE(p.get<bool>() == false);
+	REQUIRE(p.get<bool>() == true);
 
-	REQUIRE(p.parse<int>() == 100);
-	REQUIRE(p.parse<size_t>() == 200u);
-	REQUIRE(p.parse<int>() == -300);
-	REQUIRE_THROWS_AS(p.parse<size_t>(), parsebase::ParserException);
+	REQUIRE(p.get<int>() == 100);
+	REQUIRE(p.get<size_t>() == 200u);
+	REQUIRE(p.get<int>() == -300);
+	REQUIRE_THROWS_AS(p.get<size_t>(), tokenize::TokenizerException);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST_CASE("[parser] Parsing exceptions are correctly reported", "[parser]")
+TEST_CASE("[tokenizer] Tokenizing exceptions are correctly reported", "[tokenizer]")
 {
 	std::stringstream s("  identifier  5   \n-51\t 0 1 100 200 -300 -400");
-	parsebase::Parser<> p("input", s);
+	tokenize::Tokenizer<> p("input", s);
 
 	REQUIRE_NOTHROW(p.expect<std::string>("identifier"));
 	REQUIRE_NOTHROW(p.expect<size_t>(5u));
@@ -38,41 +38,41 @@ TEST_CASE("[parser] Parsing exceptions are correctly reported", "[parser]")
 	REQUIRE_NOTHROW(p.expect<int>(100));
 	REQUIRE_NOTHROW(p.expect<size_t>(200u));
 	REQUIRE_NOTHROW(p.expect<int>(-300));
-	REQUIRE_THROWS_AS(p.expect<size_t>(-400), parsebase::ParserException);
+	REQUIRE_THROWS_AS(p.expect<size_t>(-400), tokenize::TokenizerException);
 
 	p.seek(0);
-	REQUIRE_THROWS_AS(p.expect<std::string>("error"), parsebase::ParserException);
+	REQUIRE_THROWS_AS(p.expect<std::string>("error"), tokenize::TokenizerException);
 
 	p.seek(14);
-	REQUIRE_THROWS_AS(p.expect<size_t>(6u), parsebase::ParserException);
+	REQUIRE_THROWS_AS(p.expect<size_t>(6u), tokenize::TokenizerException);
 
 	p.seek(17);
-	REQUIRE_THROWS_AS(p.expect<int>(-50), parsebase::ParserException);
+	REQUIRE_THROWS_AS(p.expect<int>(-50), tokenize::TokenizerException);
 
 	p.seek(24);
-	REQUIRE_THROWS_AS(p.expect<bool>(true), parsebase::ParserException);
+	REQUIRE_THROWS_AS(p.expect<bool>(true), tokenize::TokenizerException);
 
 	p.seek(26);
-	REQUIRE_THROWS_AS(p.expect<bool>(false), parsebase::ParserException);
+	REQUIRE_THROWS_AS(p.expect<bool>(false), tokenize::TokenizerException);
 
 	p.seek(28);
-	REQUIRE_THROWS_AS(p.expect<int>(101), parsebase::ParserException);
+	REQUIRE_THROWS_AS(p.expect<int>(101), tokenize::TokenizerException);
 
 	p.seek(31);
-	REQUIRE_THROWS_AS(p.expect<size_t>(201), parsebase::ParserException);
+	REQUIRE_THROWS_AS(p.expect<size_t>(201), tokenize::TokenizerException);
 
 	p.seek(34);
-	REQUIRE_THROWS_AS(p.expect<int>(-299), parsebase::ParserException);
+	REQUIRE_THROWS_AS(p.expect<int>(-299), tokenize::TokenizerException);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST_CASE("[parser] While parsing, the cursor position is as expected", "[parser]")
+TEST_CASE("[tokenizer] While tokenizing, the cursor position is as expected", "[tokenizer]")
 {
 	std::stringstream s("  identifier  5   \n-51\t 0 1");
-	parsebase::Parser<> p("input", s);
+	tokenize::Tokenizer<> p("input", s);
 
-	parsebase::Parser<>::Position pos;
+	tokenize::Tokenizer<>::Position pos;
 
 	pos = p.position();
 	REQUIRE(p.testAndReturn<std::string>("error") == false);
@@ -127,61 +127,61 @@ TEST_CASE("[parser] While parsing, the cursor position is as expected", "[parser
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST_CASE("[parser] The end of the input stream is correctly handled", "[parser]")
+TEST_CASE("[tokenizer] The end of the input stream is correctly handled", "[tokenizer]")
 {
 	std::stringstream s1("test");
-	parsebase::Parser<> p1("input", s1);
+	tokenize::Tokenizer<> p1("input", s1);
 
 	REQUIRE_NOTHROW(p1.expect<std::string>("test"));
-	REQUIRE_THROWS_AS(p1.parse<std::string>(), parsebase::ParserException);
+	REQUIRE_THROWS_AS(p1.get<std::string>(), tokenize::TokenizerException);
 
 	std::stringstream s2("test1 test2 test3");
-	parsebase::Parser<> p2("input", s2);
+	tokenize::Tokenizer<> p2("input", s2);
 
 	REQUIRE_NOTHROW(p2.expect<std::string>("test1"));
 	REQUIRE_NOTHROW(p2.expect<std::string>("test2"));
 	REQUIRE_NOTHROW(p2.expect<std::string>("test3"));
-	REQUIRE_THROWS_AS(p2.parse<std::string>(), parsebase::ParserException);
+	REQUIRE_THROWS_AS(p2.get<std::string>(), tokenize::TokenizerException);
 
 	std::stringstream s3("-127");
-	parsebase::Parser<> p3("input", s3);
+	tokenize::Tokenizer<> p3("input", s3);
 
 	p3.expect<int>(-127);
-	REQUIRE_THROWS_AS(p3.parse<int>(), parsebase::ParserException);
+	REQUIRE_THROWS_AS(p3.get<int>(), tokenize::TokenizerException);
 
 	std::stringstream s4("128 -1023 -4095");
-	parsebase::Parser<> p4("input", s4);
+	tokenize::Tokenizer<> p4("input", s4);
 
 	REQUIRE_NOTHROW(p4.expect<size_t>(128));
 	REQUIRE_NOTHROW(p4.expect<int>(-1023));
 	REQUIRE_NOTHROW(p4.expect<int>(-4095));
-	REQUIRE_THROWS_AS(p4.parse<int>(), parsebase::ParserException);
+	REQUIRE_THROWS_AS(p4.get<int>(), tokenize::TokenizerException);
 
 	std::stringstream s5("0");
-	parsebase::Parser<> p5("input", s5);
+	tokenize::Tokenizer<> p5("input", s5);
 
 	p5.expect<bool>(false);
-	REQUIRE_THROWS_AS(p5.parse<bool>(), parsebase::ParserException);
+	REQUIRE_THROWS_AS(p5.get<bool>(), tokenize::TokenizerException);
 
 	std::stringstream s6("0 1 0");
-	parsebase::Parser<> p6("input", s6);
+	tokenize::Tokenizer<> p6("input", s6);
 
 	REQUIRE_NOTHROW(p6.expect<bool>(false));
 	REQUIRE_NOTHROW(p6.expect<bool>(true));
 	REQUIRE_NOTHROW(p6.expect<bool>(false));
-	REQUIRE_THROWS_AS(p6.parse<bool>(), parsebase::ParserException);
+	REQUIRE_THROWS_AS(p6.get<bool>(), tokenize::TokenizerException);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST_CASE("[parser] While parsing, the cursor location is as expcected", "[parser]")
+TEST_CASE("[tokenizer] While tokenizing, the cursor location is as expcected", "[tokenizer]")
 {
 	std::stringstream s("123 \n4\ntest1\n test2\ntest3 \ntest4\n\n\n\n");
-	parsebase::Parser<> p("input", s);
+	tokenize::Tokenizer<> p("input", s);
 
 	const auto startPosition = p.position();
 
-	parsebase::Location l;
+	tokenize::Location l;
 
 	l = p.location();
 	REQUIRE(l.rowStart == 1u);
@@ -277,19 +277,19 @@ TEST_CASE("[parser] While parsing, the cursor location is as expcected", "[parse
 
 	REQUIRE_NOTHROW(p.expect<std::string>("test1"));
 
-	// TODO: test parser with multiple sections
+	// TODO: test tokenizer with multiple sections
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST_CASE("[parser] Comments are correctly removed", "[parser]")
+TEST_CASE("[tokenizer] Comments are correctly removed", "[tokenizer]")
 {
 	std::stringstream s1("; comment at beginning\ntest1; comment in between\ntest2; comment at end");
-	parsebase::Parser<> p1("input", s1);
+	tokenize::Tokenizer<> p1("input", s1);
 
 	p1.removeComments(";", "\n", false);
 
-	parsebase::Location l;
+	tokenize::Location l;
 
 	REQUIRE_NOTHROW(p1.expect<std::string>("test1"));
 
@@ -308,7 +308,7 @@ TEST_CASE("[parser] Comments are correctly removed", "[parser]")
 	REQUIRE(p1.atEnd());
 
 	std::stringstream s2("test;");
-	parsebase::Parser<> p2("input", s2);
+	tokenize::Tokenizer<> p2("input", s2);
 
 	p2.removeComments(";", "\n", false);
 
@@ -319,7 +319,7 @@ TEST_CASE("[parser] Comments are correctly removed", "[parser]")
 	REQUIRE(p2.atEnd());
 
 	std::stringstream s3("/* comment at start */ test1 /* comment in between */ test2 /*");
-	parsebase::Parser<> p3("input", s3);
+	tokenize::Tokenizer<> p3("input", s3);
 
 	p3.removeComments("/*", "*/", true);
 

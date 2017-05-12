@@ -15,7 +15,7 @@ boost::iostreams::stream<boost::iostreams::null_sink> nullStream((boost::iostrea
 TEST_CASE("[PDDL translation] Former issues are fixed", "[PDDL translation]")
 {
 	plasp::output::Logger logger;
-	Context context(Parser(), logger);
+	Context context(Tokenizer(), logger);
 
 	SECTION("translating domains without typing information works")
 	{
