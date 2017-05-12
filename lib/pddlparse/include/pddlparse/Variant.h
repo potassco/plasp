@@ -127,55 +127,6 @@ struct VariantHolder<n, T, U...> : VariantHolder<n+1, U...>{
 
 }
 
-template <class T>
-class Optional {
-public:
-	Optional() { }
-	Optional(T const &x) : data_(new T(x)) { }
-	Optional(T &x) : data_(new T(x)) { }
-	Optional(T &&x) : data_(new T(std::move(x))) { }
-	template <class... Args>
-	Optional(Args&&... x) : data_(new T{std::forward<Args>(x)...}) { }
-	Optional(Optional &&opt) noexcept : data_(opt.data_.release()) { }
-	Optional(Optional const &opt) : data_(opt ? new T(*opt.get()) : nullptr) { }
-	Optional &operator=(T const &x) {
-		clear();
-		data_.reset(new T(x));
-	}
-	Optional &operator=(T &x) {
-		clear();
-		data_.reset(new T(x));
-	}
-	Optional &operator=(T &&x) {
-		clear();
-		data_.reset(new T(std::move(x)));
-	}
-	Optional &operator=(Optional &&opt) noexcept {
-		data_ = std::move(opt.data_);
-	}
-	Optional &operator=(Optional const &opt) {
-		clear();
-		data_.reset(opt ? new T(*opt.get()) : nullptr);
-	}
-	T *get() { return data_.get(); }
-	T const *get() const { return data_.get(); }
-	T *operator->() { return get(); }
-	T const *operator->() const { return get(); }
-	T &operator*() & { return *get(); }
-	T const &operator*() const & { return *get(); }
-	T &&operator*() && { return std::move(*get()); }
-	T const &&operator*() const && { return std::move(*get()); }
-	template <class... Args>
-	void emplace(Args&&... x) {
-		clear();
-		data_(new T{std::forward<Args>(x)...});
-	}
-	void clear() { data_.reset(nullptr); }
-	explicit operator bool() const { return data_.get() != nullptr; }
-private:
-	std::unique_ptr<T> data_;
-};
-
 template <class... T>
 class Variant {
 	using Holder = detail::VariantHolder<1, T...>;
