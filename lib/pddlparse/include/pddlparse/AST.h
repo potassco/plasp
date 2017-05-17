@@ -26,7 +26,7 @@ namespace ast
 
 struct Constant
 {
-	explicit Constant(ConstantDeclaration *declaration)
+	explicit Constant(ConstantDeclaration &declaration)
 	:	declaration{declaration}
 	{
 	}
@@ -36,7 +36,7 @@ struct Constant
 	Constant(Constant &&other) = default;
 	Constant &operator=(Constant &&other) = default;
 
-	ConstantDeclaration *declaration{nullptr};
+	ConstantDeclaration &declaration;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
