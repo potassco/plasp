@@ -429,6 +429,8 @@ struct When: public Binary<When<ArgumentLeft, ArgumentRight>, ArgumentLeft, Argu
 
 struct Action
 {
+	Action() = default;
+
 	Action(const Action &other) = delete;
 	Action &operator=(const Action &&other) = delete;
 	Action(Action &&other) = default;
@@ -445,6 +447,8 @@ struct Action
 
 struct Domain
 {
+	Domain() = default;
+
 	Domain(const Domain &other) = delete;
 	Domain &operator=(const Domain &&other) = delete;
 	Domain(Domain &&other) = default;
@@ -462,6 +466,8 @@ struct Domain
 
 struct InitialState
 {
+	InitialState() = default;
+
 	InitialState(const InitialState &other) = delete;
 	InitialState &operator=(const InitialState &&other) = delete;
 	InitialState(InitialState &&other) = default;
@@ -474,6 +480,8 @@ struct InitialState
 
 struct Problem
 {
+	Problem() = default;
+
 	Problem(const Problem &other) = delete;
 	Problem &operator=(const Problem &&other) = delete;
 	Problem(Problem &&other) = default;
@@ -519,6 +527,8 @@ enum class Requirement
 
 struct Description
 {
+	Description() = default;
+
 	Description(const Description &other) = delete;
 	Description &operator=(const Description &&other) = delete;
 	Description(Description &&other) = default;
