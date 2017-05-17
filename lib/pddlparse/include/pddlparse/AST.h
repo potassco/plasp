@@ -179,7 +179,6 @@ struct Predicate
 	Predicate(Predicate &&other) = default;
 	Predicate &operator=(Predicate &&other) = default;
 
-	std::string name;
 	Terms arguments;
 
 	PredicateDeclaration &declaration;
