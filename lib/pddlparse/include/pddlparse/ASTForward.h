@@ -85,32 +85,40 @@ using Requirements = std::vector<Requirement>;
 // Variants
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace detail
+{
 using TermT = Variant<
 	Constant,
 	Variable>;
+}
 
-class Term : public TermT
+class Term : public detail::TermT
 {
-	using TermT::TermT;
+	using detail::TermT::TermT;
 };
 
 using Terms = std::vector<Term>;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace detail
+{
 using AtomicFormulaT = Variant<
 	Predicate,
 	Unsupported>;
+}
 
-class AtomicFormula : public AtomicFormulaT
+class AtomicFormula : public detail::AtomicFormulaT
 {
-	using AtomicFormulaT::AtomicFormulaT;
+	using detail::AtomicFormulaT::AtomicFormulaT;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class Precondition;
 
+namespace detail
+{
 using PreconditionT = Variant<
 	AtomicFormula,
 	And<Precondition>,
@@ -120,10 +128,11 @@ using PreconditionT = Variant<
 	Not<Precondition>,
 	Or<Precondition>,
 	Unsupported>;
+}
 
-class Precondition : public PreconditionT
+class Precondition : public detail::PreconditionT
 {
-	using PreconditionT::PreconditionT;
+	using detail::PreconditionT::PreconditionT;
 };
 
 using Preconditions = std::vector<Precondition>;
@@ -132,6 +141,8 @@ using Preconditions = std::vector<Precondition>;
 
 class Effect;
 
+namespace detail
+{
 using EffectT = Variant<
 	AtomicFormula,
 	And<Effect>,
@@ -139,45 +150,55 @@ using EffectT = Variant<
 	Not<Effect>,
 	When<Precondition, Effect>,
 	Unsupported>;
+}
 
-class Effect : public EffectT
+class Effect : public detail::EffectT
 {
-	using EffectT::EffectT;
+	using detail::EffectT::EffectT;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace detail
+{
 using TypeT = Variant<
 	Either<PrimitiveType>,
 	PrimitiveType>;
+}
 
-class Type : public TypeT
+class Type : public detail::TypeT
 {
-	using TypeT::TypeT;
+	using detail::TypeT::TypeT;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace detail
+{
 using LiteralT = Variant<
 	AtomicFormula,
 	Not<AtomicFormula>>;
+}
 
-class Literal : public LiteralT
+class Literal : public detail::LiteralT
 {
-	using LiteralT::LiteralT;
+	using detail::LiteralT::LiteralT;
 };
 
 using Literals = std::vector<Literal>;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace detail
+{
 using FactT = Variant<
 	AtomicFormula,
 	At<Literal>>;
+}
 
-class Fact : public FactT
+class Fact : public detail::FactT
 {
-	using FactT::FactT;
+	using detail::FactT::FactT;
 };
 
 using Facts = std::vector<Fact>;
