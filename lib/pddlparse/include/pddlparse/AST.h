@@ -243,18 +243,6 @@ struct NAry
 	NAry &operator=(NAry &&other) = default;
 
 	Arguments arguments;
-
-	protected:
-		static Arguments copyArguments(const NAry<Derived, Argument> &other)
-		{
-			Arguments arguments;
-			arguments.reserve(other.arguments.size());
-
-			for (const auto &argument : other.arguments)
-				arguments.emplace_back(std::move(deepCopyVariant(argument)));
-
-			return arguments;
-		}
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -328,11 +316,6 @@ struct Either: public NAry<Either<Argument>, Argument>
 
 	explicit Either(Arguments &&arguments) noexcept
 	:	NAry<Either<Argument>, Argument>(std::move(arguments))
-	{
-	}
-
-	Either(const Either &other)
-	:	NAry<Either<Argument>, Argument>(this->copyArguments(other))
 	{
 	}
 };
