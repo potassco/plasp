@@ -1,6 +1,7 @@
 #ifndef __PDDL_PARSE__VARIANT_H
 #define __PDDL_PARSE__VARIANT_H
 
+#include <cassert>
 #include <memory>
 #include <ostream>
 #include <type_traits>
