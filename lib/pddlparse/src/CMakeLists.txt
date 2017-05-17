@@ -6,6 +6,9 @@ file(GLOB core_headers "../include/pddlparse/*.h")
 file(GLOB detail_sources "pddlparse/detail/*.cpp")
 file(GLOB detail_headers "../include/pddlparse/detail/*.h")
 
+file(GLOB detail_parsing_sources "pddlparse/detail/parsing/*.cpp")
+file(GLOB detail_parsing_headers "../include/pddlparse/detail/parsing/*.h")
+
 set(includes
 	${PROJECT_SOURCE_DIR}/include
 	${PROJECT_SOURCE_DIR}/../../lib/tokenize/include
@@ -17,6 +20,9 @@ set(sources
 
 	${detail_sources}
 	${detail_headers}
+
+	${detail_parsing_sources}
+	${detail_parsing_headers}
 )
 
 set(libraries
