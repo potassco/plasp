@@ -43,10 +43,9 @@ struct Constant
 
 struct ConstantDeclaration
 {
-	explicit ConstantDeclaration(std::string &&name, std::experimental::optional<Type> &&type = std::experimental::nullopt, bool isDirty = true)
+	explicit ConstantDeclaration(std::string &&name, std::experimental::optional<Type> &&type = std::experimental::nullopt)
 	:	name{std::move(name)},
-		type{std::move(type)},
-		isDirty{isDirty}
+		type{std::move(type)}
 	{
 	}
 
@@ -57,7 +56,6 @@ struct ConstantDeclaration
 
 	std::string name;
 	std::experimental::optional<Type> type;
-	bool isDirty{true};
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -146,10 +144,9 @@ struct Variable
 
 struct VariableDeclaration
 {
-	explicit VariableDeclaration(std::string &&name, std::experimental::optional<Type> type = std::experimental::nullopt, bool isDirty = true)
+	explicit VariableDeclaration(std::string &&name, std::experimental::optional<Type> type = std::experimental::nullopt)
 	:	name{std::move(name)},
-		type{std::move(type)},
-		isDirty{isDirty}
+		type{std::move(type)}
 	{
 	}
 
@@ -160,7 +157,6 @@ struct VariableDeclaration
 
 	std::string name;
 	std::experimental::optional<Type> type;
-	bool isDirty{true};
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
