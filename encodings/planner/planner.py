@@ -382,8 +382,9 @@ class Solver:
             if self.__mem and self.__mem_check_limit(length-self.__length):
                 log("Skipping: not enough memory for grounding...\n")
                 return None
-            parts = [(STEP,[t]) for t in range(self.__length+1,length+1)]
-            parts = parts + [(CHECK,[length])]
+            parts  = [(STEP, [t]) for t in range(self.__length+1,length+1)]
+            # parts = parts + [(CHECK,[length])]
+            parts += [(CHECK,[t]) for t in range(self.__length+1,length+1)]
             if not self.__move_query: self.__ctl.release_external(clingo.Function(QUERY,[self.__length]))
             log("Grounding...\t "+str(parts))
             if self.__verbose: self.__verbose_start()
