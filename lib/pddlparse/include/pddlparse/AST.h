@@ -26,7 +26,7 @@ namespace ast
 
 struct Constant
 {
-	explicit Constant(ConstantDeclaration &declaration)
+	explicit Constant(ConstantDeclaration *declaration)
 	:	declaration{declaration}
 	{
 	}
@@ -36,7 +36,7 @@ struct Constant
 	Constant(Constant &&other) = default;
 	Constant &operator=(Constant &&other) = default;
 
-	ConstantDeclaration &declaration;
+	ConstantDeclaration *declaration;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -51,8 +51,8 @@ struct ConstantDeclaration
 
 	ConstantDeclaration(const ConstantDeclaration &other) = delete;
 	ConstantDeclaration &operator=(const ConstantDeclaration &&other) = delete;
-	ConstantDeclaration(ConstantDeclaration &&other) = default;
-	ConstantDeclaration &operator=(ConstantDeclaration &&other) = default;
+	ConstantDeclaration(ConstantDeclaration &&other) = delete;
+	ConstantDeclaration &operator=(ConstantDeclaration &&other) = delete;
 
 	std::string name;
 	std::experimental::optional<Type> type;
@@ -79,7 +79,7 @@ struct Dummy
 
 struct PrimitiveType
 {
-	explicit PrimitiveType(PrimitiveTypeDeclaration &declaration)
+	explicit PrimitiveType(PrimitiveTypeDeclaration *declaration)
 	:	declaration{declaration}
 	{
 	}
@@ -89,7 +89,7 @@ struct PrimitiveType
 	PrimitiveType(PrimitiveType &&other) = default;
 	PrimitiveType &operator=(PrimitiveType &&other) = default;
 
-	PrimitiveTypeDeclaration &declaration;
+	PrimitiveTypeDeclaration *declaration;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -103,11 +103,11 @@ struct PrimitiveTypeDeclaration
 
 	PrimitiveTypeDeclaration(const PrimitiveTypeDeclaration &other) = delete;
 	PrimitiveTypeDeclaration &operator=(const PrimitiveTypeDeclaration &&other) = delete;
-	PrimitiveTypeDeclaration(PrimitiveTypeDeclaration &&other) = default;
-	PrimitiveTypeDeclaration &operator=(PrimitiveTypeDeclaration &&other) = default;
+	PrimitiveTypeDeclaration(PrimitiveTypeDeclaration &&other) = delete;
+	PrimitiveTypeDeclaration &operator=(PrimitiveTypeDeclaration &&other) = delete;
 
 	std::string name;
-	std::vector<PrimitiveType> parentTypes;
+	std::vector<PrimitiveTypePointer> parentTypes;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -127,7 +127,7 @@ struct Unsupported
 
 struct Variable
 {
-	explicit Variable(VariableDeclaration &declaration)
+	explicit Variable(VariableDeclaration *declaration)
 	:	declaration{declaration}
 	{
 	}
@@ -137,7 +137,7 @@ struct Variable
 	Variable(Variable &&other) = default;
 	Variable &operator=(Variable &&other) = default;
 
-	VariableDeclaration &declaration;
+	VariableDeclaration *declaration;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -152,8 +152,8 @@ struct VariableDeclaration
 
 	VariableDeclaration(const VariableDeclaration &other) = delete;
 	VariableDeclaration &operator=(const VariableDeclaration &&other) = delete;
-	VariableDeclaration(VariableDeclaration &&other) = default;
-	VariableDeclaration &operator=(VariableDeclaration &&other) = default;
+	VariableDeclaration(VariableDeclaration &&other) = delete;
+	VariableDeclaration &operator=(VariableDeclaration &&other) = delete;
 
 	std::string name;
 	std::experimental::optional<Type> type;
@@ -165,7 +165,7 @@ struct VariableDeclaration
 
 struct Predicate
 {
-	explicit Predicate(PredicateDeclaration &declaration)
+	explicit Predicate(PredicateDeclaration *declaration)
 	:	declaration{declaration}
 	{
 	}
@@ -176,8 +176,7 @@ struct Predicate
 	Predicate &operator=(Predicate &&other) = default;
 
 	Terms arguments;
-
-	PredicateDeclaration &declaration;
+	PredicateDeclaration *declaration;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -416,9 +415,9 @@ struct Action
 
 	std::string name;
 
-	ast::VariableDeclarations parameters;
-	std::experimental::optional<ast::Precondition> precondition;
-	std::experimental::optional<ast::Effect> effect;
+	VariableDeclarations parameters;
+	std::experimental::optional<Precondition> precondition;
+	std::experimental::optional<Effect> effect;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -429,15 +428,15 @@ struct Domain
 
 	Domain(const Domain &other) = delete;
 	Domain &operator=(const Domain &&other) = delete;
-	Domain(Domain &&other) = default;
-	Domain &operator=(Domain &&other) = default;
+	Domain(Domain &&other) = delete;
+	Domain &operator=(Domain &&other) = delete;
 
 	std::string name;
 	Requirements requirements;
-	ast::PrimitiveTypeDeclarations types;
-	ast::ConstantDeclarations constants;
-	ast::PredicateDeclarations predicates;
-	std::vector<Action> actions;
+	PrimitiveTypeDeclarations types;
+	ConstantDeclarations constants;
+	PredicateDeclarations predicates;
+	Actions actions;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -451,7 +450,7 @@ struct InitialState
 	InitialState(InitialState &&other) = default;
 	InitialState &operator=(InitialState &&other) = default;
 
-	ast::Facts facts;
+	Facts facts;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -460,17 +459,22 @@ struct Problem
 {
 	Problem() = default;
 
+	Problem(Domain *domain)
+	:	domain{domain}
+	{
+	}
+
 	Problem(const Problem &other) = delete;
 	Problem &operator=(const Problem &&other) = delete;
 	Problem(Problem &&other) = default;
 	Problem &operator=(Problem &&other) = default;
 
-	Domain &domain;
+	Domain *domain;
 	std::string name;
 	Requirements requirements;
-	ast::ConstantDeclarations objects;
+	ConstantDeclarations objects;
 	InitialState initialState;
-	std::experimental::optional<ast::Goal> goal;
+	std::experimental::optional<Goal> goal;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -512,8 +516,8 @@ struct Description
 	Description(Description &&other) = default;
 	Description &operator=(Description &&other) = default;
 
-	Domain domain;
-	std::experimental::optional<Problem> problem;
+	DomainPointer domain;
+	std::experimental::optional<ProblemPointer> problem;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

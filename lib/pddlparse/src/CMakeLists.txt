@@ -12,6 +12,7 @@ file(GLOB detail_parsing_headers "../include/pddlparse/detail/parsing/*.h")
 set(includes
 	${PROJECT_SOURCE_DIR}/include
 	${PROJECT_SOURCE_DIR}/../../lib/tokenize/include
+	${PROJECT_SOURCE_DIR}/../../lib/variant/include
 )
 
 set(sources

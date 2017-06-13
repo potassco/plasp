@@ -26,27 +26,37 @@ namespace ast
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 struct Constant;
+using ConstantPointer = std::unique_ptr<Constant>;
 struct ConstantDeclaration;
-using ConstantDeclarations = std::vector<ConstantDeclaration>;
+using ConstantDeclarationPointer = std::unique_ptr<ConstantDeclaration>;
+using ConstantDeclarations = std::vector<ConstantDeclarationPointer>;
 struct Dummy;
+using DummyPointer = std::unique_ptr<Dummy>;
 struct PrimitiveType;
-using PrimitiveTypes = std::vector<PrimitiveType>;
+using PrimitiveTypePointer = std::unique_ptr<PrimitiveType>;
+using PrimitiveTypes = std::vector<PrimitiveTypePointer>;
 struct PrimitiveTypeDeclaration;
-using PrimitiveTypeDeclarations = std::vector<PrimitiveTypeDeclaration>;
+using PrimitiveTypeDeclarationPointer = std::unique_ptr<PrimitiveTypeDeclaration>;
+using PrimitiveTypeDeclarations = std::vector<PrimitiveTypeDeclarationPointer>;
 struct Unsupported;
+using UnsupportedPointer = std::unique_ptr<Unsupported>;
 struct Variable;
-using Variables = std::vector<Variable>;
+using VariablePointer = std::unique_ptr<Variable>;
+using Variables = std::vector<VariablePointer>;
 struct VariableDeclaration;
-using VariableDeclarations = std::vector<VariableDeclaration>;
+using VariableDeclarationPointer = std::unique_ptr<VariableDeclaration>;
+using VariableDeclarations = std::vector<VariableDeclarationPointer>;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Compounds
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 struct Predicate;
-using Predicates = std::vector<Predicate>;
+using PredicatePointer = std::unique_ptr<Predicate>;
+using Predicates = std::vector<PredicatePointer>;
 struct PredicateDeclaration;
-using PredicateDeclarations = std::vector<PredicateDeclaration>;
+using PredicateDeclarationPointer = std::unique_ptr<PredicateDeclaration>;
+using PredicateDeclarations = std::vector<PredicateDeclarationPointer>;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Expressions
@@ -55,29 +65,53 @@ using PredicateDeclarations = std::vector<PredicateDeclaration>;
 template<class Argument>
 struct And;
 template<class Argument>
+using AndPointer = std::unique_ptr<And<Argument>>;
+template<class Argument>
 struct At;
+template<class Argument>
+using AtPointer = std::unique_ptr<At<Argument>>;
 template<class Argument>
 struct Either;
 template<class Argument>
+using EitherPointer = std::unique_ptr<Either<Argument>>;
+template<class Argument>
 struct Exists;
+template<class Argument>
+using ExistsPointer = std::unique_ptr<Exists<Argument>>;
 template<class Argument>
 struct ForAll;
 template<class Argument>
+using ForAllPointer = std::unique_ptr<ForAll<Argument>>;
+template<class Argument>
 struct Imply;
+template<class Argument>
+using ImplyPointer = std::unique_ptr<Imply<Argument>>;
 template<class Argument>
 struct Not;
 template<class Argument>
+using NotPointer = std::unique_ptr<Not<Argument>>;
+template<class Argument>
 struct Or;
+template<class Argument>
+using OrPointer = std::unique_ptr<Or<Argument>>;
 template<class ArgumentLeft, class ArgumentRight>
 struct When;
+template<class ArgumentLeft, class ArgumentRight>
+using WhenPointer = std::unique_ptr<When<ArgumentLeft, ArgumentRight>>;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // PDDL Structure
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+struct Action;
+using ActionPointer = std::unique_ptr<Action>;
+using Actions = std::vector<ActionPointer>;
 struct Description;
+using DescriptionPointer = std::unique_ptr<Description>;
 struct Domain;
+using DomainPointer = std::unique_ptr<Domain>;
 struct Problem;
+using ProblemPointer = std::unique_ptr<Problem>;
 enum class Requirement;
 using Requirements = std::vector<Requirement>;
 
@@ -88,8 +122,8 @@ using Requirements = std::vector<Requirement>;
 namespace detail
 {
 using TermT = Variant<
-	Constant,
-	Variable>;
+	ConstantPointer,
+	VariablePointer>;
 }
 
 class Term : public detail::TermT
@@ -104,8 +138,8 @@ using Terms = std::vector<Term>;
 namespace detail
 {
 using AtomicFormulaT = Variant<
-	Predicate,
-	Unsupported>;
+	PredicatePointer,
+	UnsupportedPointer>;
 }
 
 class AtomicFormula : public detail::AtomicFormulaT
@@ -121,13 +155,13 @@ namespace detail
 {
 using PreconditionT = Variant<
 	AtomicFormula,
-	And<Precondition>,
-	Exists<Precondition>,
-	ForAll<Precondition>,
-	Imply<Precondition>,
-	Not<Precondition>,
-	Or<Precondition>,
-	Unsupported>;
+	AndPointer<Precondition>,
+	ExistsPointer<Precondition>,
+	ForAllPointer<Precondition>,
+	ImplyPointer<Precondition>,
+	NotPointer<Precondition>,
+	OrPointer<Precondition>,
+	UnsupportedPointer>;
 }
 
 class Precondition : public detail::PreconditionT
@@ -145,11 +179,11 @@ namespace detail
 {
 using EffectT = Variant<
 	AtomicFormula,
-	And<Effect>,
-	ForAll<Effect>,
-	Not<Effect>,
-	When<Precondition, Effect>,
-	Unsupported>;
+	AndPointer<Effect>,
+	ForAllPointer<Effect>,
+	NotPointer<Effect>,
+	WhenPointer<Precondition, Effect>,
+	UnsupportedPointer>;
 }
 
 class Effect : public detail::EffectT
@@ -162,8 +196,8 @@ class Effect : public detail::EffectT
 namespace detail
 {
 using TypeT = Variant<
-	Either<PrimitiveType>,
-	PrimitiveType>;
+	EitherPointer<PrimitiveTypePointer>,
+	PrimitiveTypePointer>;
 }
 
 class Type : public detail::TypeT
@@ -177,7 +211,7 @@ namespace detail
 {
 using LiteralT = Variant<
 	AtomicFormula,
-	Not<AtomicFormula>>;
+	NotPointer<AtomicFormula>>;
 }
 
 class Literal : public detail::LiteralT
@@ -193,7 +227,7 @@ namespace detail
 {
 using FactT = Variant<
 	AtomicFormula,
-	At<Literal>>;
+	AtPointer<Literal>>;
 }
 
 class Fact : public detail::FactT

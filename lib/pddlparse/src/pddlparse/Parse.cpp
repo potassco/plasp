@@ -1,20 +1,22 @@
-#ifndef __PDDL_PARSE__VARIANT_H
-#define __PDDL_PARSE__VARIANT_H
+#include <pddlparse/Parse.h>
 
-#include <mapbox/variant.hpp>
+#include <pddlparse/AST.h>
+#include <pddlparse/detail/parsing/Description.h>
 
 namespace pddl
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<class... Types>
-using Variant = mapbox::util::variant<Types...>;
-
+//
+// Parse
+//
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+ast::Description parseDescription(Context &context)
+{
+	return detail::DescriptionParser(context).parse();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#endif
+}

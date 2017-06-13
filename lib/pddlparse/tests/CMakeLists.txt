@@ -5,6 +5,8 @@ file(GLOB core_sources "*.cpp")
 set(includes
 	${PROJECT_SOURCE_DIR}/include
 	${PROJECT_SOURCE_DIR}/../../lib/catch/single_include
+	${PROJECT_SOURCE_DIR}/../../lib/tokenize/include
+	${PROJECT_SOURCE_DIR}/../../lib/variant/include
 )
 
 set(libraries
@@ -18,4 +20,4 @@ target_link_libraries(${target} ${libraries})
 add_custom_target(run-pddlparse-tests
 	COMMAND ${CMAKE_BINARY_DIR}/bin/pddlparse-tests
 	DEPENDS ${target}
-	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests)
+	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/../../tests)
