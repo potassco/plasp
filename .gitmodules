@@ -4,3 +4,6 @@
 [submodule "lib/variant"]
 	path = lib/variant
 	url = https://github.com/mapbox/variant
+[submodule "tests/data/pddl-instances"]
+	path = tests/data/pddl-instances
+	url = https://github.com/potassco/pddl-instances.git

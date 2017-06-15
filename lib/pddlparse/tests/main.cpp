@@ -7,6 +7,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// TODO: reimplement unit tests
 int main()
 {
 	const pddl::Context::WarningCallback ignoreWarnings = [](const auto &, const auto &){};
@@ -19,4 +20,8 @@ int main()
 	const auto description = pddl::parseDescription(context);
 
 	std::cout << description.domain->requirements.size() << std::endl;
+	std::cout << description.domain->predicates.size() << std::endl;
+	std::cout << description.domain->actions.size() << std::endl;
+	std::cout << description.problem.value()->name << std::endl;
+	std::cout << description.problem.value()->objects.size() << std::endl;
 }
