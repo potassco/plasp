@@ -70,6 +70,17 @@ void DescriptionParser::findSections()
 		const auto position = tokenizer.position();
 
 		tokenizer.expect<std::string>("(");
+
+		if (tokenizer.testAndReturn<std::string>("in-package"))
+		{
+			m_context.warningCallback(tokenizer.location(), "ignoring “in-package” section, which is not part of the PDDL 3.1 specification");
+
+			skipSection(tokenizer);
+			tokenizer.skipWhiteSpace();
+
+			continue;
+		}
+
 		tokenizer.expect<std::string>("define");
 		tokenizer.expect<std::string>("(");
 
