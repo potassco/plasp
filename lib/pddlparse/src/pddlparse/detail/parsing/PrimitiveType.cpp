@@ -32,18 +32,14 @@ ast::PrimitiveTypePointer parsePrimitiveType(Context &context, ast::Domain &doma
 			return primitiveTypeDeclaration->name == typeName;
 		});
 
+	// If the type has not been declared yet, add it but issue a warning
 	if (matchingType == types.end())
 	{
-		// Only “object” is allowed as an implicit type
-		if (typeName == "object" || typeName == "objects")
-		{
-			context.warningCallback(tokenizer.location(), "primitive type “" + typeName + "” should be declared");
-			types.emplace_back(std::make_unique<ast::PrimitiveTypeDeclaration>(std::move(typeName)));
+		context.warningCallback(tokenizer.location(), "primitive type “" + typeName + "” used without or before declaration");
 
-			return std::make_unique<ast::PrimitiveType>(types.back().get());
-		}
-		else
-			throw tokenize::TokenizerException(tokenizer.location(), "type “" + typeName + "” used but never declared");
+		types.emplace_back(std::make_unique<ast::PrimitiveTypeDeclaration>(std::move(typeName)));
+
+		return std::make_unique<ast::PrimitiveType>(types.back().get());
 	}
 
 	return std::make_unique<ast::PrimitiveType>(matchingType->get());
