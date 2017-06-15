@@ -51,34 +51,25 @@ static const RequirementNameMap requirementNameMap =
 		{"preferences", ast::Requirement::Preferences},
 		{"constraints", ast::Requirement::Constraints},
 		{"action-costs", ast::Requirement::ActionCosts},
-		{"goal-utilities", ast::Requirement::GoalUtilities},
 	};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ast::Requirement parseRequirement(Tokenizer &tokenizer)
-{
-	const auto requirementName = tokenizer.getIdentifier();
-	const auto matchingRequirement = requirementNameMap.find(requirementName.c_str());
-
-	if (matchingRequirement == requirementNameMap.cend())
-		throw ParserException(tokenizer.location(), "unknown PDDL requirement “" + requirementName + "”");
-
-	return matchingRequirement->second;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-ast::Requirement parseRequirement(Context &context)
+std::experimental::optional<ast::Requirement> parseRequirement(Context &context)
 {
 	auto &tokenizer = context.tokenizer;
 
-	auto requirement = parseRequirement(tokenizer);
+	const auto requirementName = tokenizer.getIdentifier();
 
-	if (requirement == ast::Requirement::GoalUtilities)
-		context.warningCallback(tokenizer.location(), "requirement “goal-utilities” is not part of the PDDL 3.1 specification");
+	const auto matchingRequirement = requirementNameMap.find(requirementName.c_str());
 
-	return requirement;
+	if (matchingRequirement != requirementNameMap.cend())
+		return matchingRequirement->second;
+
+	if (requirementName == "goal-utilities" || requirementName == "domain-axioms")
+		context.warningCallback(tokenizer.location(), "ignoring requirement “" + requirementName + "”, which is not part of the PDDL 3.1 specification");
+
+	return std::experimental::nullopt;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

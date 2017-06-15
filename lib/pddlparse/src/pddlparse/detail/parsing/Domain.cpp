@@ -172,7 +172,10 @@ void DomainParser::parseRequirementSection(ast::Domain &domain)
 	{
 		tokenizer.expect<std::string>(":");
 
-		domain.requirements.emplace_back(parseRequirement(m_context));
+		const auto requirement = parseRequirement(m_context);
+
+		if (requirement)
+			domain.requirements.emplace_back(requirement.value());
 
 		tokenizer.skipWhiteSpace();
 	}

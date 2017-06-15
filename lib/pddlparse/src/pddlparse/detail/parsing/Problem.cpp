@@ -183,7 +183,10 @@ void ProblemParser::parseRequirementSection(ast::Problem &problem)
 	{
 		tokenizer.expect<std::string>(":");
 
-		problem.requirements.emplace_back(parseRequirement(m_context));
+		const auto requirement = parseRequirement(m_context);
+
+		if (requirement)
+			problem.requirements.emplace_back(requirement.value());
 
 		tokenizer.skipWhiteSpace();
 	}
