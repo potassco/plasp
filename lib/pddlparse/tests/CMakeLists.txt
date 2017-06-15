@@ -18,6 +18,6 @@ target_include_directories(${target} PRIVATE ${includes})
 target_link_libraries(${target} ${libraries})
 
 add_custom_target(run-pddlparse-tests
-	COMMAND ${CMAKE_BINARY_DIR}/bin/pddlparse-tests
+	COMMAND ${CMAKE_BINARY_DIR}/bin/pddlparse-tests --use-colour=yes
 	DEPENDS ${target}
 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/../../tests)
