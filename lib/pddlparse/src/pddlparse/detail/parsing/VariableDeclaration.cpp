@@ -48,6 +48,8 @@ ast::VariableDeclarations parseVariableDeclarations(Context &context, ast::Domai
 		if (!tokenizer.testAndSkip<char>('-'))
 			continue;
 
+		// TODO: reimplement parsing “either” types
+
 		// If existing, parse and store parent type
 		auto parentType = parsePrimitiveType(context, domain);
 
