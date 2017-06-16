@@ -3,6 +3,7 @@
 
 #include <pddlparse/ASTForward.h>
 #include <pddlparse/Context.h>
+#include <pddlparse/detail/ASTContext.h>
 
 namespace pddl
 {
@@ -15,8 +16,7 @@ namespace detail
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ast::ConstantPointer parseConstant(Context &context, ast::Domain &domain);
-ast::ConstantPointer parseConstant(Context &context, ast::Problem &problem);
+ast::ConstantPointer parseConstant(Context &context, ASTContext &astContext);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

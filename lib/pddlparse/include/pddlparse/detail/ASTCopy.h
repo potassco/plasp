@@ -2,6 +2,7 @@
 #define __PDDL_PARSE__DETAIL__AST_COPY_H
 
 #include <pddlparse/AST.h>
+#include <pddlparse/Variant.h>
 
 namespace pddl
 {
@@ -27,11 +28,11 @@ inline Variable deepCopy(Variable &other);
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived, class ArgumentLeft, class ArgumentRight = ArgumentLeft>
-inline Binary<Derived, ArgumentLeft, ArgumentRight> deepCopy(Binary<Derived, ArgumentLeft, ArgumentRight> &other);
+inline Derived deepCopy(Binary<Derived, ArgumentLeft, ArgumentRight> &other);
 template<class Derived, class Argument>
-inline NAry<Derived, Argument> deepCopy(NAry<Derived, Argument> &other);
+inline Derived deepCopy(NAry<Derived, Argument> &other);
 template<class Derived, class Argument>
-inline Quantified<Derived, Argument> deepCopy(Quantified<Derived, Argument> &other);
+inline Derived deepCopy(Quantified<Derived, Argument> &other);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Expressions
@@ -46,7 +47,14 @@ inline Not<Argument> deepCopy(Not<Argument> &other);
 // Variants
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline ast::Term deepCopy(ast::Term &other);
+inline ast::Type deepCopy(ast::Type &other);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Unique Pointers
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class T>
+std::unique_ptr<T> deepCopy(std::unique_ptr<T> &other);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Primitives
@@ -76,10 +84,10 @@ Variable deepCopy(Variable &other)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived, class ArgumentLeft, class ArgumentRight>
-Binary<Derived, ArgumentLeft, ArgumentRight> deepCopy(Binary<Derived, ArgumentLeft, ArgumentRight> &other)
+Derived deepCopy(Binary<Derived, ArgumentLeft, ArgumentRight> &other)
 {
-	auto argumentLeft = deepCopy(other.argumentLeft);
-	auto argumentRight = deepCopy(other.argumentRight);
+	auto argumentLeft{deepCopy(other.argumentLeft)};
+	auto argumentRight{deepCopy(other.argumentRight)};
 
 	return Binary<Derived, ArgumentLeft, ArgumentRight>(std::move(argumentLeft), std::move(argumentRight));
 }
@@ -87,23 +95,23 @@ Binary<Derived, ArgumentLeft, ArgumentRight> deepCopy(Binary<Derived, ArgumentLe
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived, class Argument>
-NAry<Derived, Argument> deepCopy(NAry<Derived, Argument> &other)
+Derived deepCopy(NAry<Derived, Argument> &other)
 {
-	typename NAry<Derived, Argument>::Arguments arguments;
+	typename Derived::Arguments arguments;
 	arguments.reserve(other.arguments.size());
 
 	for (auto &argument : other.arguments)
 		arguments.emplace_back(deepCopy(argument));
 
-	return NAry<Derived, Argument>(std::move(arguments));
+	return Derived(std::move(arguments));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived, class Argument>
-Quantified<Derived, Argument> deepCopy(Quantified<Derived, Argument> &other)
+Derived deepCopy(Quantified<Derived, Argument> &other)
 {
-	auto argument = deepCopy(other.argument);
+	auto argument{deepCopy(other.argument)};
 
 	return Quantified<Derived, Argument>(std::move(argument));
 }
@@ -115,17 +123,27 @@ Quantified<Derived, Argument> deepCopy(Quantified<Derived, Argument> &other)
 template<class Argument>
 At<Argument> deepCopy(At<Argument> &other)
 {
-	auto argument = deepCopy(other.argument);
+	auto argument{deepCopy(other.argument)};
 
 	return At<Argument>(other.timePoint, std::move(argument));
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+template<class Argument>
+Either<Argument> deepCopy(Either<Argument> &other)
+{
+	auto argument{deepCopy(other.argument)};
+
+	return Not<Argument>(std::move(argument));
+}*/
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Argument>
 Not<Argument> deepCopy(Not<Argument> &other)
 {
-	auto argument = deepCopy(other.argument);
+	auto argument{deepCopy(other.argument)};
 
 	return Not<Argument>(std::move(argument));
 }
@@ -142,6 +160,13 @@ struct DeepCopyVisitor
 		return deepCopy(other);
 	}
 };
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ast::Type deepCopy(ast::Type &other)
+{
+	return other.match([](auto &x){deepCopy(x); return std::make_unique<ast::PrimitiveType>(nullptr);});
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Unique Pointers

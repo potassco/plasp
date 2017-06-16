@@ -63,12 +63,12 @@ std::experimental::optional<std::unique_ptr<Derived>> parseBinary(Context &conte
 	auto argumentLeft = parseArgument(context, astContext, variableStack);
 
 	if (!argumentLeft)
-		throw ParserException(tokenizer.location(), "could not parse argument of “" + Derived::Identifier + "” expression");
+		throw ParserException(tokenizer.location(), "could not parse argument of “" + std::string(Derived::Identifier) + "” expression");
 
 	auto argumentRight = parseArgument(context, astContext, variableStack);
 
 	if (!argumentRight)
-		throw ParserException(tokenizer.location(), "could not parse argument of “" + Derived::Identifier + "” expression");
+		throw ParserException(tokenizer.location(), "could not parse argument of “" + std::string(Derived::Identifier) + "” expression");
 
 	tokenizer.expect<std::string>(")");
 
@@ -99,18 +99,18 @@ std::experimental::optional<std::unique_ptr<Derived>> parseNAry(Context &context
 	// Parse arguments of the expression
 	while (tokenizer.currentCharacter() != ')')
 	{
-		auto &argument = parseArgument(context, astContext, variableStack);
+		auto argument = parseArgument(context, astContext, variableStack);
 
 		if (!argument)
-			throw ParserException(tokenizer.location(), "could not parse argument of “" + Derived::Identifier + "” expression");
+			throw ParserException(tokenizer.location(), "could not parse argument of “" + std::string(Derived::Identifier) + "” expression");
 
-		arguments.emplace_back(std::move(argument.value));
+		arguments.emplace_back(std::move(argument.value()));
 
 		tokenizer.skipWhiteSpace();
 	}
 
 	if (arguments.empty())
-		context.warningCallback(tokenizer.location(), "“" + Derived::Identifier + "” expressions should not be empty");
+		context.warningCallback(tokenizer.location(), "“" + std::string(Derived::Identifier) + "” expressions should not be empty");
 
 	tokenizer.expect<std::string>(")");
 

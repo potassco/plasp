@@ -17,11 +17,16 @@ namespace detail
 class VariableStack
 {
 	public:
-		void push(ast::VariableDeclarations *variables);
+		using Layer = ast::VariableDeclarations *;
+
+	public:
+		void push(Layer layer);
 		void pop();
 
+		std::experimental::optional<ast::VariableDeclaration *> findVariableDeclaration(const std::string &variableName);
+
 	private:
-		std::vector<ast::VariableDeclarations *> m_variableStack;
+		std::vector<Layer> m_layers;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -114,7 +114,11 @@ struct PrimitiveTypeDeclaration
 
 struct Unsupported
 {
-	explicit Unsupported() = default;
+	explicit Unsupported(std::string &&type)
+	:	type{std::move(type)}
+	{
+	}
+
 	Unsupported(const Unsupported &other) = delete;
 	Unsupported &operator=(const Unsupported &&other) = delete;
 	Unsupported(Unsupported &&other) = default;
@@ -165,8 +169,11 @@ struct VariableDeclaration
 
 struct Predicate
 {
-	explicit Predicate(PredicateDeclaration *declaration)
-	:	declaration{declaration}
+	using Arguments = Terms;
+
+	explicit Predicate(Arguments &&arguments, PredicateDeclaration *declaration)
+	:	arguments{std::move(arguments)},
+		declaration{declaration}
 	{
 	}
 
@@ -175,7 +182,7 @@ struct Predicate
 	Predicate(Predicate &&other) = default;
 	Predicate &operator=(Predicate &&other) = default;
 
-	Terms arguments;
+	Arguments arguments;
 	PredicateDeclaration *declaration;
 };
 

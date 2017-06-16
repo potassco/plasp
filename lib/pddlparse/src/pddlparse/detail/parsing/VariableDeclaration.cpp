@@ -3,7 +3,7 @@
 #include <pddlparse/AST.h>
 #include <pddlparse/ParserException.h>
 #include <pddlparse/detail/ASTCopy.h>
-#include <pddlparse/detail/parsing/PrimitiveType.h>
+#include <pddlparse/detail/parsing/Type.h>
 
 namespace pddl
 {
@@ -48,10 +48,8 @@ ast::VariableDeclarations parseVariableDeclarations(Context &context, ast::Domai
 		if (!tokenizer.testAndSkip<char>('-'))
 			continue;
 
-		// TODO: reimplement parsing “either” types
-
-		// If existing, parse and store parent type
-		auto parentType = parsePrimitiveType(context, domain);
+		auto parentType = parseType(context, domain);
+		parentType = ast::deepCopy(parentType);
 
 		for (size_t i = inheritanceIndex; i < variableDeclarations.size(); i++)
 			variableDeclarations[i]->type = ast::deepCopy(parentType);

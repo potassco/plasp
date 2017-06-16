@@ -30,6 +30,7 @@ std::experimental::optional<ast::ConstantPointer> findConstant(const std::string
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// TODO: remove if unneeded
 ast::ConstantPointer parseConstant(Context &context, ast::Domain &domain)
 {
 	auto &tokenizer = context.tokenizer;
@@ -45,6 +46,7 @@ ast::ConstantPointer parseConstant(Context &context, ast::Domain &domain)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// TODO: remove if unneeded
 ast::ConstantPointer parseConstant(Context &context, ast::Problem &problem)
 {
 	auto &tokenizer = context.tokenizer;
@@ -59,6 +61,26 @@ ast::ConstantPointer parseConstant(Context &context, ast::Problem &problem)
 
 	if (object)
 		return std::move(object.value());
+
+	throw ParserException(tokenizer.location(), "constant “" + constantName + "” used but never declared");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ast::ConstantPointer parseConstant(Context &context, ASTContext &astContext)
+{
+	auto &tokenizer = context.tokenizer;
+	const auto constantName = tokenizer.getIdentifier();
+
+	auto constant = findConstant(constantName, astContext.domain->constants);
+
+	if (constant)
+		return std::move(constant.value());
+
+	constant = findConstant(constantName, astContext.problem.value()->objects);
+
+	if (constant)
+		return std::move(constant.value());
 
 	throw ParserException(tokenizer.location(), "constant “" + constantName + "” used but never declared");
 }

@@ -51,7 +51,7 @@ ast::Description DescriptionParser::parse()
 	// TODO: check consistency
 	// * check typing requirement
 	// * check that typing is used consistently
-	// * check that constants, variables, and predicates aren't declared twice
+	// * check that constants/objects, variables, and predicates aren't declared twice
 	// * check section order
 	// * check that preconditions and effects are well-formed
 	return {std::move(domain), std::move(problem)};
