@@ -294,7 +294,7 @@ void DomainParser::parsePredicateSection(ast::Domain &domain)
 
 void DomainParser::parseActionSection(ast::Domain &domain)
 {
-	parseAndAddAction(m_context, domain);
+	domain.actions.emplace_back(ActionParser(m_context, domain).parse());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -146,7 +146,7 @@ std::experimental::optional<std::unique_ptr<Derived>> parseQuantified(Context &c
 	auto argument = parseArgument(context, astContext, variableStack);
 
 	if (!argument)
-		throw ParserException(tokenizer.location(), "could not parse argument of “" + Derived::Identifier + "” expression");
+		throw ParserException(tokenizer.location(), "could not parse argument of “" + std::string(Derived::Identifier) + "” expression");
 
 	// Clean up variable stack
 	variableStack.pop();
@@ -177,9 +177,54 @@ std::experimental::optional<ast::EitherPointer<Argument>> parseEither(Context &c
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename Argument, typename ArgumentParser>
+std::experimental::optional<ast::ExistsPointer<Argument>> parseExists(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument)
+{
+	return parseQuantified<ast::Exists<Argument>, ArgumentParser>(context, astContext, variableStack, parseArgument);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<typename Argument, typename ArgumentParser>
+std::experimental::optional<ast::ForAllPointer<Argument>> parseForAll(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument)
+{
+	return parseQuantified<ast::ForAll<Argument>, ArgumentParser>(context, astContext, variableStack, parseArgument);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<typename Argument, typename ArgumentParser>
 std::experimental::optional<ast::ImplyPointer<Argument>> parseImply(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument)
 {
 	return parseBinary<ast::Imply<Argument>, ArgumentParser>(context, astContext, variableStack, parseArgument);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<typename Argument, typename ArgumentParser>
+std::experimental::optional<ast::NotPointer<Argument>> parseNot(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument)
+{
+	auto &tokenizer = context.tokenizer;
+
+	const auto position = tokenizer.position();
+
+	if (!tokenizer.testAndSkip<std::string>("(")
+		|| !tokenizer.testIdentifierAndSkip("not"))
+	{
+		tokenizer.seek(position);
+		return std::experimental::nullopt;
+	}
+
+	tokenizer.skipWhiteSpace();
+
+	// Parse argument
+	auto argument = parseArgument(context, astContext, variableStack);
+
+	if (!argument)
+		throw ParserException(tokenizer.location(), "could not parse argument of “not” expression");
+
+	tokenizer.expect<std::string>(")");
+
+	return std::make_unique<ast::Not<Argument>>(std::move(argument.value()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

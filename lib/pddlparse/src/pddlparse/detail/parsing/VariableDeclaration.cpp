@@ -29,10 +29,8 @@ void parseAndAddUntypedVariableDeclaration(Context &context, ast::VariableDeclar
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ast::VariableDeclarations parseVariableDeclarations(Context &context, ast::Domain &domain)
+void parseAndAddVariableDeclarations(Context &context, ast::Domain &domain, ast::VariableDeclarations &variableDeclarations)
 {
-	ast::VariableDeclarations variableDeclarations;
-
 	auto &tokenizer = context.tokenizer;
 	tokenizer.skipWhiteSpace();
 
@@ -58,8 +56,17 @@ ast::VariableDeclarations parseVariableDeclarations(Context &context, ast::Domai
 
 		tokenizer.skipWhiteSpace();
 	}
+}
 
-	return variableDeclarations;
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ast::VariableDeclarations parseVariableDeclarations(Context &context, ast::Domain &domain)
+{
+	ast::VariableDeclarations result;
+
+	parseAndAddVariableDeclarations(context, domain, result);
+
+	return result;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
