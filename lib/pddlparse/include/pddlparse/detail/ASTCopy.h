@@ -129,16 +129,6 @@ At<Argument> deepCopy(At<Argument> &other)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-template<class Argument>
-Either<Argument> deepCopy(Either<Argument> &other)
-{
-	auto argument{deepCopy(other.argument)};
-
-	return Not<Argument>(std::move(argument));
-}*/
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Argument>
 Not<Argument> deepCopy(Not<Argument> &other)
@@ -152,20 +142,9 @@ Not<Argument> deepCopy(Not<Argument> &other)
 // Variants
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct DeepCopyVisitor
-{
-	template<class Argument>
-	Argument visit(Argument &other)
-	{
-		return deepCopy(other);
-	}
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 ast::Type deepCopy(ast::Type &other)
 {
-	return other.match([](auto &x){deepCopy(x); return std::make_unique<ast::PrimitiveType>(nullptr);});
+	return other.match([](auto &x) -> ast::Type {return deepCopy(x);});
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -23,9 +23,8 @@ ast::Type parseType(Context &context, ast::Domain &domain)
 
 	if (tokenizer.testAndReturn<char>('('))
 	{
-		// TODO: put into Type parsing unit
 		// TODO: refactor
-		auto p =
+		auto parsePrimitiveTypeWrapper =
 			[](auto &context, auto &astContext, auto &) -> std::experimental::optional<ast::PrimitiveTypePointer>
 			{
 				return parsePrimitiveType(context, *astContext.domain);
@@ -35,7 +34,7 @@ ast::Type parseType(Context &context, ast::Domain &domain)
 		ASTContext astContext(domain);
 		VariableStack variableStack;
 
-		auto eitherType = parseEither<ast::PrimitiveTypePointer>(context, astContext, variableStack, p);
+		auto eitherType = parseEither<ast::PrimitiveTypePointer>(context, astContext, variableStack, parsePrimitiveTypeWrapper);
 
 		if (!eitherType)
 			throw ParserException(tokenizer.location(), "expected primitive type or “either” expression");

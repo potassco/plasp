@@ -49,13 +49,12 @@ ast::VariableDeclarations parseVariableDeclarations(Context &context, ast::Domai
 			continue;
 
 		auto parentType = parseType(context, domain);
-		parentType = ast::deepCopy(parentType);
 
 		for (size_t i = inheritanceIndex; i < variableDeclarations.size(); i++)
 			variableDeclarations[i]->type = ast::deepCopy(parentType);
 
 		// All types up to now are labeled with their parent types
-		inheritanceIndex = variableDeclarations.size() + 1;
+		inheritanceIndex = variableDeclarations.size();
 
 		tokenizer.skipWhiteSpace();
 	}

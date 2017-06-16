@@ -7,13 +7,14 @@
 
 namespace fs = std::experimental::filesystem;
 
+const pddl::Context::WarningCallback ignoreWarnings = [](const auto &, const auto &){};
+const auto pddlInstanceBasePath = fs::path("data") / "pddl-instances";
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST_CASE("[PDDL parser acceptance] All the IPC domains are parsed without errors", "[PDDL parser acceptance]")
+TEST_CASE("[PDDL parser acceptance] All official PDDL domains are parsed without errors", "[PDDL parser acceptance]")
 {
-	const pddl::Context::WarningCallback ignoreWarnings = [](const auto &, const auto &){};
-
-	for (const auto &competitionDirectory : fs::directory_iterator("data/pddl-instances"))
+	for (const auto &competitionDirectory : fs::directory_iterator(pddlInstanceBasePath))
 	{
 		if (!fs::is_directory(competitionDirectory))
 			continue;
@@ -36,11 +37,9 @@ TEST_CASE("[PDDL parser acceptance] All the IPC domains are parsed without error
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST_CASE("[PDDL parser acceptance] The first instance of every IPC domain is parsed without errors", "[PDDL parser acceptance]")
+TEST_CASE("[PDDL parser acceptance] The first instance for all official PDDL domains is parsed without errors", "[PDDL parser acceptance]")
 {
-	const pddl::Context::WarningCallback ignoreWarnings = [](const auto &, const auto &){};
-
-	for (const auto &competitionDirectory : fs::directory_iterator("data/pddl-instances"))
+	for (const auto &competitionDirectory : fs::directory_iterator(pddlInstanceBasePath))
 	{
 		if (!fs::is_directory(competitionDirectory))
 			continue;
