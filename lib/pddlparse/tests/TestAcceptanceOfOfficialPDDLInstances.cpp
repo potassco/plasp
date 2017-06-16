@@ -9,7 +9,7 @@ namespace fs = std::experimental::filesystem;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST_CASE("[PDDL parser] All the IPC domains are parsed without errors", "[PDDL parser]")
+TEST_CASE("[PDDL parser acceptance] All the IPC domains are parsed without errors", "[PDDL parser acceptance]")
 {
 	const pddl::Context::WarningCallback ignoreWarnings = [](const auto &, const auto &){};
 
@@ -36,7 +36,7 @@ TEST_CASE("[PDDL parser] All the IPC domains are parsed without errors", "[PDDL 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST_CASE("[PDDL parser] The first instance of every IPC domain is parsed without errors", "[PDDL parser]")
+TEST_CASE("[PDDL parser acceptance] The first instance of every IPC domain is parsed without errors", "[PDDL parser acceptance]")
 {
 	const pddl::Context::WarningCallback ignoreWarnings = [](const auto &, const auto &){};
 
