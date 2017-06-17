@@ -39,14 +39,8 @@ std::experimental::optional<ast::Precondition> parsePrecondition(Context &contex
 
 	tokenizer.expect<std::string>("(");
 
-	const auto expressionIdentifierPosition = tokenizer.position();
-
-	if (tokenizer.testIdentifierAndSkip("preference"))
+	if (tokenizer.testIdentifierAndReturn("preference"))
 	{
-		// TODO: refactor
-		tokenizer.seek(expressionIdentifierPosition);
-		const auto expressionIdentifier = tokenizer.getIdentifier();
-
 		tokenizer.seek(position);
 		return parseUnsupported(context);
 	}
