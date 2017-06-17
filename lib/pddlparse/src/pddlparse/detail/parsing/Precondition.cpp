@@ -95,10 +95,7 @@ std::experimental::optional<ast::Precondition> parsePreconditionBody(Context &co
 		|| tokenizer.testIdentifierAndReturn(">=")
 		|| tokenizer.testIdentifierAndReturn("<="))
 	{
-		const auto expressionIdentifier = tokenizer.getIdentifier();
-		tokenizer.expect<std::string>("(");
-
-		skipSection(tokenizer);
+		tokenizer.seek(position);
 		return parseUnsupported(context);
 	}
 
