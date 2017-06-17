@@ -1,9 +1,9 @@
 #include <pddlparse/detail/parsing/Effect.h>
 
 #include <pddlparse/AST.h>
+#include <pddlparse/detail/parsing/AtomicFormula.h>
 #include <pddlparse/detail/parsing/Expressions.h>
 #include <pddlparse/detail/parsing/Precondition.h>
-#include <pddlparse/detail/parsing/Predicate.h>
 #include <pddlparse/detail/parsing/Unsupported.h>
 #include <pddlparse/detail/parsing/Utils.h>
 
@@ -58,8 +58,7 @@ std::experimental::optional<ast::Effect> parseEffectBody(Context &context, ASTCo
 
 	const auto expressionIdentifierPosition = tokenizer.position();
 
-	if (tokenizer.testIdentifierAndReturn("=")
-		|| tokenizer.testIdentifierAndReturn("assign")
+	if (tokenizer.testIdentifierAndReturn("assign")
 		|| tokenizer.testIdentifierAndReturn("scale-up")
 		|| tokenizer.testIdentifierAndReturn("scale-down")
 		|| tokenizer.testIdentifierAndReturn("increase")
@@ -74,8 +73,8 @@ std::experimental::optional<ast::Effect> parseEffectBody(Context &context, ASTCo
 	// Now, test supported expressions
 	std::experimental::optional<ast::Effect> effect;
 
-	if ((effect = parseNot<ast::Effect>(context, astContext, variableStack, parsePredicate))
-		|| (effect = parsePredicate(context, astContext, variableStack)))
+	if ((effect = parseNot<ast::Effect>(context, astContext, variableStack, parseAtomicFormula))
+		|| (effect = parseAtomicFormula(context, astContext, variableStack)))
 	{
 		return std::move(effect.value());
 	}
@@ -135,8 +134,8 @@ std::experimental::optional<ast::ConditionalEffect> parseConditionalEffectBody(C
 	// Now, test supported expressions
 	std::experimental::optional<ast::ConditionalEffect> conditionalEffect;
 
-	if ((conditionalEffect = parseNot<ast::ConditionalEffect>(context, astContext, variableStack, parsePredicate))
-		|| (conditionalEffect = parsePredicate(context, astContext, variableStack)))
+	if ((conditionalEffect = parseNot<ast::ConditionalEffect>(context, astContext, variableStack, parseAtomicFormula))
+		|| (conditionalEffect = parseAtomicFormula(context, astContext, variableStack)))
 	{
 		return std::move(conditionalEffect.value());
 	}

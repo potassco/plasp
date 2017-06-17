@@ -1,8 +1,8 @@
 #include <pddlparse/detail/parsing/Precondition.h>
 
 #include <pddlparse/AST.h>
+#include <pddlparse/detail/parsing/AtomicFormula.h>
 #include <pddlparse/detail/parsing/Expressions.h>
-#include <pddlparse/detail/parsing/Predicate.h>
 #include <pddlparse/detail/parsing/Unsupported.h>
 #include <pddlparse/detail/parsing/Utils.h>
 
@@ -66,14 +66,12 @@ std::experimental::optional<ast::Precondition> parsePreconditionBody(Context &co
 	const auto expressionIdentifierPosition = tokenizer.position();
 
 	if (tokenizer.testIdentifierAndReturn("-")
-		|| tokenizer.testIdentifierAndReturn("=")
 		|| tokenizer.testIdentifierAndReturn("*")
 		|| tokenizer.testIdentifierAndReturn("+")
 		|| tokenizer.testIdentifierAndReturn("-")
 		|| tokenizer.testIdentifierAndReturn("/")
 		|| tokenizer.testIdentifierAndReturn(">")
 		|| tokenizer.testIdentifierAndReturn("<")
-		|| tokenizer.testIdentifierAndReturn("=")
 		|| tokenizer.testIdentifierAndReturn(">=")
 		|| tokenizer.testIdentifierAndReturn("<="))
 	{
@@ -92,7 +90,7 @@ std::experimental::optional<ast::Precondition> parsePreconditionBody(Context &co
 	    || (precondition = parseForAll<ast::Precondition>(context, astContext, variableStack, parsePrecondition))
 		|| (precondition = parseNot<ast::Precondition>(context, astContext, variableStack, parsePrecondition))
 	    || (precondition = parseImply<ast::Precondition>(context, astContext, variableStack, parsePrecondition))
-	    || (precondition = parsePredicate(context, astContext, variableStack)))
+	    || (precondition = parseAtomicFormula(context, astContext, variableStack)))
 	{
 		return std::move(precondition.value());
 	}
