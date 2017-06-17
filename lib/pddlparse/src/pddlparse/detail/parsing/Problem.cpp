@@ -93,7 +93,7 @@ void ProblemParser::findSections(ast::Problem &problem)
 			if (unique && sectionPosition != -1)
 			{
 				tokenizer.seek(value);
-				throw tokenize::TokenizerException(tokenizer.location(), "only one “:" + sectionName + "” section allowed");
+				throw ParserException(tokenizer.location(), "only one “:" + sectionName + "” section allowed");
 			}
 
 			sectionPosition = value;
@@ -137,7 +137,7 @@ void ProblemParser::findSections(ast::Problem &problem)
 			const auto sectionIdentifier = tokenizer.getIdentifier();
 
 			tokenizer.seek(position);
-			throw tokenize::TokenizerException(tokenizer.location(), "unknown problem section “" + sectionIdentifier + "”");
+			throw ParserException(tokenizer.location(), "unknown problem section “" + sectionIdentifier + "”");
 		}
 
 		// Skip section for now and parse it later
@@ -164,7 +164,7 @@ void ProblemParser::parseDomainSection(ast::Problem &problem)
 	const auto domainName = tokenizer.getIdentifier();
 
 	if (problem.domain->name != domainName)
-		throw tokenize::TokenizerException(tokenizer.location(), "domains do not match (“" + problem.domain->name + "” and “" + domainName + "”)");
+		throw ParserException(tokenizer.location(), "domains do not match (“" + problem.domain->name + "” and “" + domainName + "”)");
 
 	tokenizer.expect<std::string>(")");
 }

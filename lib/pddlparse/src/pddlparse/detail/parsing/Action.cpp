@@ -1,6 +1,7 @@
 #include <pddlparse/detail/parsing/Action.h>
 
 #include <pddlparse/AST.h>
+#include <pddlparse/ParserException.h>
 #include <pddlparse/detail/ASTContext.h>
 #include <pddlparse/detail/VariableStack.h>
 #include <pddlparse/detail/parsing/Effect.h>
@@ -86,7 +87,7 @@ void ActionParser::findSections(ast::Action &action)
 			if (unique && sectionPosition != -1)
 			{
 				tokenizer.seek(value);
-				throw tokenize::TokenizerException(tokenizer.location(), "only one “:" + sectionName + "” section allowed");
+				throw ParserException(tokenizer.location(), "only one “:" + sectionName + "” section allowed");
 			}
 
 			sectionPosition = value;
@@ -113,7 +114,7 @@ void ActionParser::findSections(ast::Action &action)
 			const auto sectionIdentifier = tokenizer.getIdentifier();
 
 			tokenizer.seek(position);
-			throw tokenize::TokenizerException(tokenizer.location(), "unknown action section “" + sectionIdentifier + "”");
+			throw ParserException(tokenizer.location(), "unknown action section “" + sectionIdentifier + "”");
 		}
 
 		tokenizer.expect<std::string>("(");

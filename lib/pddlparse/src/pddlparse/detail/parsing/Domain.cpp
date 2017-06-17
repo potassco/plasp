@@ -96,7 +96,7 @@ void DomainParser::findSections(ast::Domain &domain)
 			if (unique && sectionPosition != -1)
 			{
 				tokenizer.seek(value);
-				throw tokenize::TokenizerException(tokenizer.location(), "only one “:" + sectionName + "” section allowed");
+				throw ParserException(tokenizer.location(), "only one “:" + sectionName + "” section allowed");
 			}
 
 			sectionPosition = value;
@@ -146,7 +146,7 @@ void DomainParser::findSections(ast::Domain &domain)
 			const auto sectionIdentifier = tokenizer.getIdentifier();
 
 			tokenizer.seek(position);
-			throw tokenize::TokenizerException(tokenizer.location(), "unknown domain section “" + sectionIdentifier + "”");
+			throw ParserException(tokenizer.location(), "unknown domain section “" + sectionIdentifier + "”");
 		}
 
 		// Skip section for now and parse it later

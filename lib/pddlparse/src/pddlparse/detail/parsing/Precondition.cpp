@@ -99,7 +99,7 @@ std::experimental::optional<ast::Precondition> parsePreconditionBody(Context &co
 	const auto expressionIdentifier = tokenizer.getIdentifier();
 
 	tokenizer.seek(position);
-	throw tokenize::TokenizerException(tokenizer.location(), "expression type “" + expressionIdentifier + "” unknown or not allowed in precondition body");
+	throw ParserException(tokenizer.location(), "expression type “" + expressionIdentifier + "” unknown or not allowed in precondition body");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

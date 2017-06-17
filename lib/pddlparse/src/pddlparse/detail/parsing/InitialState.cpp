@@ -1,8 +1,7 @@
 #include <pddlparse/detail/parsing/InitialState.h>
 
 #include <pddlparse/AST.h>
-// TODO: remove
-#include <pddlparse/detail/parsing/Utils.h>
+#include <pddlparse/ParserException.h>
 
 namespace pddl
 {
