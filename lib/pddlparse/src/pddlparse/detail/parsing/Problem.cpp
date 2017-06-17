@@ -4,6 +4,7 @@
 #include <pddlparse/detail/Requirements.h>
 #include <pddlparse/detail/parsing/ConstantDeclaration.h>
 #include <pddlparse/detail/parsing/InitialState.h>
+#include <pddlparse/detail/parsing/Precondition.h>
 #include <pddlparse/detail/parsing/Requirement.h>
 #include <pddlparse/detail/parsing/Utils.h>
 
@@ -285,13 +286,10 @@ void ProblemParser::parseGoalSection(ast::Problem &problem)
 	tokenizer.expect<std::string>(":");
 	tokenizer.expect<std::string>("goal");
 
-	ASTContext expressionContext(problem);
+	ASTContext astContext(problem);
+	VariableStack variableStack;
 
-	m_context.warningCallback(tokenizer.location(), "goal parser under construction, section is currently ignored");
-
-	// TODO: reimplement
-	//problem.goal = parsePreconditionExpression(m_context, expressionContext);
-	//tokenizer.expect<std::string>(")");
+	problem.goal = parsePrecondition(m_context, astContext, variableStack);
 
 	skipSection(tokenizer);
 }
