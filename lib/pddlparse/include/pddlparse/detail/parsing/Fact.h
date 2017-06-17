@@ -1,8 +1,10 @@
-#ifndef __PDDL_PARSE__DETAIL__PARSING__INITIAL_STATE_H
-#define __PDDL_PARSE__DETAIL__PARSING__INITIAL_STATE_H
+#ifndef __PDDL_PARSE__DETAIL__PARSING__FACT_H
+#define __PDDL_PARSE__DETAIL__PARSING__FACT_H
 
+#include <pddlparse/ASTForward.h>
 #include <pddlparse/Context.h>
 #include <pddlparse/detail/ASTContext.h>
+#include <pddlparse/detail/VariableStack.h>
 
 namespace pddl
 {
@@ -11,11 +13,11 @@ namespace detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// InitialState
+// Fact
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ast::InitialState parseInitialState(Context &context, ASTContext &astContext, VariableStack &variableStack);
+std::experimental::optional<ast::Fact> parseFact(Context &context, ASTContext &astContext, VariableStack &variableStack);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

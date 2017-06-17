@@ -267,12 +267,10 @@ void ProblemParser::parseInitialStateSection(ast::Problem &problem)
 	tokenizer.expect<std::string>("init");
 
 	ASTContext astContext(problem);
+	VariableStack variableStack;
 
-	m_context.warningCallback(tokenizer.location(), "initial state parser under construction, section is currently ignored");
-
-	// TODO: reimplement
-	//problem.initialState = parseInitialState(m_context, astContext);
-	//tokenizer.expect<std::string>(")");
+	problem.initialState = parseInitialState(m_context, astContext, variableStack);
+	tokenizer.expect<std::string>(")");
 
 	skipSection(tokenizer);
 }

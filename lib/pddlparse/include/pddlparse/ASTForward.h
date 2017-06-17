@@ -241,11 +241,14 @@ using Literals = std::vector<Literal>;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+class Fact;
+
 namespace detail
 {
 using FactT = Variant<
 	AtomicFormula,
-	AtPointer<Literal>>;
+	AtPointer<Literal>,
+	NotPointer<Fact>>;
 }
 
 class Fact : public detail::FactT
