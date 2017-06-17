@@ -77,10 +77,13 @@ ast::ConstantPointer parseConstant(Context &context, ASTContext &astContext)
 	if (constant)
 		return std::move(constant.value());
 
-	constant = findConstant(constantName, astContext.problem.value()->objects);
+	if (astContext.problem)
+	{
+		constant = findConstant(constantName, astContext.problem.value()->objects);
 
-	if (constant)
-		return std::move(constant.value());
+		if (constant)
+			return std::move(constant.value());
+	}
 
 	throw ParserException(tokenizer.location(), "constant “" + constantName + "” used but never declared");
 }
