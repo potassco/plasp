@@ -124,12 +124,10 @@ TEST_CASE("[PDDL parser] The official PDDL instances are parsed correctly", "[PD
 		REQUIRE(predicates[0]->parameters.size() == 2);
 		REQUIRE(predicates[0]->parameters[0]->name == "x");
 		REQUIRE(predicates[0]->parameters[0]->type);
-		REQUIRE(predicates[0]->parameters[0]->type.value().is<pddl::ast::EitherPointer<pddl::ast::PrimitiveTypePointer>>());
 		CHECK(predicates[0]->parameters[0]->type.value().get<pddl::ast::EitherPointer<pddl::ast::PrimitiveTypePointer>>()->arguments[0]->declaration->name == "person");
 		CHECK(predicates[0]->parameters[0]->type.value().get<pddl::ast::EitherPointer<pddl::ast::PrimitiveTypePointer>>()->arguments[1]->declaration->name == "aircraft");
 		REQUIRE(predicates[0]->parameters[1]->name == "c");
 		REQUIRE(predicates[0]->parameters[1]->type);
-		REQUIRE(predicates[0]->parameters[1]->type.value().is<pddl::ast::PrimitiveTypePointer>());
 		CHECK(predicates[0]->parameters[1]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "city");
 	}
 }
