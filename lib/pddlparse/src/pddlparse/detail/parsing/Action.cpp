@@ -3,8 +3,8 @@
 #include <pddlparse/AST.h>
 #include <pddlparse/detail/ASTContext.h>
 #include <pddlparse/detail/VariableStack.h>
+#include <pddlparse/detail/parsing/Effect.h>
 #include <pddlparse/detail/parsing/Precondition.h>
-// TODO: remove
 #include <pddlparse/detail/parsing/Utils.h>
 #include <pddlparse/detail/parsing/VariableDeclaration.h>
 
@@ -159,26 +159,18 @@ void ActionParser::parsePreconditionSection(ast::Action &action)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void ActionParser::parseEffectSection(ast::Action &)
+void ActionParser::parseEffectSection(ast::Action &action)
 {
 	auto &tokenizer = m_context.tokenizer;
 
 	tokenizer.expect<std::string>(":effect");
-	tokenizer.expect<std::string>("(");
 
-	m_context.warningCallback(tokenizer.location(), "effect parser under construction, section is currently ignored");
+	VariableStack variableStack;
+	variableStack.push(&action.parameters);
 
-	// TODO: reimplement
-	//VariableStack variableStack;
-	//variableStack.push(&action.parameters);
+	ASTContext astContext(m_domain);
 
-	//ASTContext astContext(m_domain);
-
-	//action.precondition = parseEffect(m_context, astContext, variableStack);
-
-	//tokenizer.expect<std::string>(")");
-
-	skipSection(tokenizer);
+	action.effect = parseEffect(m_context, astContext, variableStack);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

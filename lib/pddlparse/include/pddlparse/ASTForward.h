@@ -173,6 +173,24 @@ using Preconditions = std::vector<Precondition>;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+class ConditionalEffect;
+
+namespace detail
+{
+using ConditionalEffectT = Variant<
+	AtomicFormula,
+	AndPointer<ConditionalEffect>,
+	NotPointer<ConditionalEffect>,
+	UnsupportedPointer>;
+}
+
+class ConditionalEffect : public detail::ConditionalEffectT
+{
+	using detail::ConditionalEffectT::ConditionalEffectT;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class Effect;
 
 namespace detail
@@ -182,7 +200,7 @@ using EffectT = Variant<
 	AndPointer<Effect>,
 	ForAllPointer<Effect>,
 	NotPointer<Effect>,
-	WhenPointer<Precondition, Effect>,
+	WhenPointer<Precondition, ConditionalEffect>,
 	UnsupportedPointer>;
 }
 

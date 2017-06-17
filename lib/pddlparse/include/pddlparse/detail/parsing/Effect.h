@@ -1,5 +1,5 @@
-#ifndef __PDDL_PARSE__DETAIL__PARSING__PRECONDITION_H
-#define __PDDL_PARSE__DETAIL__PARSING__PRECONDITION_H
+#ifndef __PDDL_PARSE__DETAIL__PARSING__EFFECT_H
+#define __PDDL_PARSE__DETAIL__PARSING__EFFECT_H
 
 #include <pddlparse/ASTForward.h>
 #include <pddlparse/Context.h>
@@ -13,12 +13,11 @@ namespace detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// Precondition
+// Effect
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::experimental::optional<ast::Precondition> parsePrecondition(Context &context, ASTContext &astContext, VariableStack &variableStack);
-std::experimental::optional<ast::Precondition> parsePreconditionBody(Context &context, ASTContext &astContext, VariableStack &variableStack);
+std::experimental::optional<ast::Effect> parseEffect(Context &context, ASTContext &astContext, VariableStack &variableStack);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
