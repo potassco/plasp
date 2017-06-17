@@ -35,16 +35,17 @@ template<typename Argument, typename ArgumentParser>
 std::experimental::optional<ast::NotPointer<Argument>> parseNot(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument);
 template<typename Argument, typename ArgumentParser>
 std::experimental::optional<ast::OrPointer<Argument>> parseOr(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument);
-template<typename ArgumentLeft, typename ArgumentRight, typename ArgumentParser>
-std::experimental::optional<ast::WhenPointer<ArgumentLeft, ArgumentRight>> parseWhen(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument);
+template<typename ArgumentLeft, typename ArgumentRight, typename ArgumentLeftParser, typename ArgumentRightParser>
+std::experimental::optional<ast::WhenPointer<ArgumentLeft, ArgumentRight>> parseWhen(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentLeftParser parseArgumentLeft, ArgumentRightParser parseArgumentRight);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Expressions: Base Classes
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class Derived, typename ArgumentParser>
+template<class Derived, typename ArgumentLeftParser, typename ArgumentRightParser>
 std::experimental::optional<std::unique_ptr<Derived>> parseBinary(Context &context,
-	ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument)
+	ASTContext &astContext, VariableStack &variableStack, ArgumentLeftParser parseArgumentLeft,
+	ArgumentRightParser parseArgumentRight)
 {
 	auto &tokenizer = context.tokenizer;
 
@@ -60,12 +61,12 @@ std::experimental::optional<std::unique_ptr<Derived>> parseBinary(Context &conte
 	tokenizer.skipWhiteSpace();
 
 	// Parse arguments of the expression
-	auto argumentLeft = parseArgument(context, astContext, variableStack);
+	auto argumentLeft = parseArgumentLeft(context, astContext, variableStack);
 
 	if (!argumentLeft)
 		throw ParserException(tokenizer.location(), "could not parse argument of “" + std::string(Derived::Identifier) + "” expression");
 
-	auto argumentRight = parseArgument(context, astContext, variableStack);
+	auto argumentRight = parseArgumentRight(context, astContext, variableStack);
 
 	if (!argumentRight)
 		throw ParserException(tokenizer.location(), "could not parse argument of “" + std::string(Derived::Identifier) + "” expression");
@@ -195,7 +196,7 @@ std::experimental::optional<ast::ForAllPointer<Argument>> parseForAll(Context &c
 template<typename Argument, typename ArgumentParser>
 std::experimental::optional<ast::ImplyPointer<Argument>> parseImply(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument)
 {
-	return parseBinary<ast::Imply<Argument>, ArgumentParser>(context, astContext, variableStack, parseArgument);
+	return parseBinary<ast::Imply<Argument>, ArgumentParser, ArgumentParser>(context, astContext, variableStack, parseArgument, parseArgument);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -237,10 +238,10 @@ std::experimental::optional<ast::OrPointer<Argument>> parseOr(Context &context, 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<typename ArgumentLeft, typename ArgumentRight, typename ArgumentParser>
-std::experimental::optional<ast::WhenPointer<ArgumentLeft, ArgumentRight>> parseImply(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument)
+template<typename ArgumentLeft, typename ArgumentRight, typename ArgumentLeftParser, typename ArgumentRightParser>
+std::experimental::optional<ast::WhenPointer<ArgumentLeft, ArgumentRight>> parseWhen(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentLeftParser parseArgumentLeft, ArgumentRightParser parseArgumentRight)
 {
-	return parseBinary<ast::When<ArgumentLeft, ArgumentRight>, ArgumentParser>(context, astContext, variableStack, parseArgument);
+	return parseBinary<ast::When<ArgumentLeft, ArgumentRight>, ArgumentLeftParser, ArgumentRightParser>(context, astContext, variableStack, parseArgumentLeft, parseArgumentRight);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
