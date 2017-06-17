@@ -26,11 +26,17 @@ TEST_CASE("[PDDL parser acceptance] All official PDDL domains are parsed without
 
 			const auto domainFile = domainDirectory / "domain.pddl";
 
-			pddl::Tokenizer tokenizer;
-			tokenizer.read(domainFile);
-			pddl::Context context(std::move(tokenizer), ignoreWarnings);
+			const auto testSectionName = competitionDirectory.path().stem().string() + ", "
+				+ domainDirectory.path().stem().string();
 
-			CHECK_NOTHROW(pddl::parseDescription(context));
+			SECTION("domain [" + testSectionName + "]")
+			{
+				pddl::Tokenizer tokenizer;
+				tokenizer.read(domainFile);
+				pddl::Context context(std::move(tokenizer), ignoreWarnings);
+
+				CHECK_NOTHROW(pddl::parseDescription(context));
+			}
 		}
 	}
 }
@@ -52,12 +58,19 @@ TEST_CASE("[PDDL parser acceptance] The first instance for all official PDDL dom
 			const auto domainFile = domainDirectory / "domain.pddl";
 			const auto instanceFile = domainDirectory / "instances" / "instance-1.pddl";
 
-			pddl::Tokenizer tokenizer;
-			tokenizer.read(domainFile);
-			tokenizer.read(instanceFile);
-			pddl::Context context(std::move(tokenizer), ignoreWarnings);
+			const auto testSectionName = competitionDirectory.path().stem().string() + ", "
+				+ domainDirectory.path().stem().string() + ", "
+				+ instanceFile.stem().string();
 
-			CHECK_NOTHROW(pddl::parseDescription(context));
+			SECTION("instance [" + testSectionName + "]")
+			{
+				pddl::Tokenizer tokenizer;
+				tokenizer.read(domainFile);
+				tokenizer.read(instanceFile);
+				pddl::Context context(std::move(tokenizer), ignoreWarnings);
+
+				CHECK_NOTHROW(pddl::parseDescription(context));
+			}
 		}
 	}
 }
