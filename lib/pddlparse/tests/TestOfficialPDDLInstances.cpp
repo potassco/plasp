@@ -114,6 +114,78 @@ TEST_CASE("[PDDL parser] The official PDDL instances are parsed correctly", "[PD
 		CHECK(effectNot4->arguments[1].get<pddl::ast::VariablePointer>()->declaration->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration == typeBlock.get());
 	}
 
+	SECTION("types, predicates, and actions in blocksworld instance")
+	{
+		const auto domainFile = pddlInstanceBasePath / "ipc-2000" / "domains" / "blocks-strips-typed" / "domain.pddl";
+		const auto instanceFile = pddlInstanceBasePath / "ipc-2000" / "domains" / "blocks-strips-typed" / "instances" / "instance-1.pddl";
+		context.tokenizer.read(domainFile);
+		context.tokenizer.read(instanceFile);
+		auto description = pddl::parseDescription(context);
+
+		const auto &types = description.domain->types;
+		const auto &typeBlock = types[0];
+
+		REQUIRE(description.problem);
+
+		const auto &problem = description.problem.value();
+
+		CHECK(problem->name == "blocks-4-0");
+		CHECK(problem->domain->name == "blocks");
+
+		const auto &objects = problem->objects;
+
+		REQUIRE(objects.size() == 4);
+		CHECK(objects[0]->name == "d");
+		CHECK(objects[1]->name == "b");
+		CHECK(objects[2]->name == "a");
+		CHECK(objects[3]->name == "c");
+
+		const auto &facts = problem->initialState.facts;
+
+		REQUIRE(facts.size() == 9);
+		const auto &fact0 = facts[0].get<pddl::ast::AtomicFormula>().get<pddl::ast::PredicatePointer>();
+		// TODO: check declaration once implemented
+		REQUIRE(fact0->arguments.size() == 1);
+		CHECK(fact0->arguments[0].get<pddl::ast::ConstantPointer>()->declaration->name == "c");
+		CHECK(fact0->arguments[0].get<pddl::ast::ConstantPointer>()->declaration->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration == typeBlock.get());
+		const auto &fact5 = facts[5].get<pddl::ast::AtomicFormula>().get<pddl::ast::PredicatePointer>();
+		// TODO: check declaration once implemented
+		REQUIRE(fact5->arguments.size() == 1);
+		CHECK(fact5->arguments[0].get<pddl::ast::ConstantPointer>()->declaration->name == "a");
+		CHECK(fact5->arguments[0].get<pddl::ast::ConstantPointer>()->declaration->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration == typeBlock.get());
+		const auto &fact8 = facts[8].get<pddl::ast::AtomicFormula>().get<pddl::ast::PredicatePointer>();
+		// TODO: check declaration once implemented
+		REQUIRE(fact8->arguments.empty());
+
+		REQUIRE(problem->goal);
+
+		const auto &goal = problem->goal.value();
+		const auto &goalAnd = goal.get<pddl::ast::AndPointer<pddl::ast::Precondition>>();
+
+		REQUIRE(goalAnd->arguments.size() == 3);
+		const auto &goal0 = goalAnd->arguments[0].get<pddl::ast::AtomicFormula>().get<pddl::ast::PredicatePointer>();
+		// TODO: check declaration once implemented
+		REQUIRE(goal0->arguments.size() == 2);
+		CHECK(goal0->arguments[0].get<pddl::ast::ConstantPointer>()->declaration->name == "d");
+		CHECK(goal0->arguments[0].get<pddl::ast::ConstantPointer>()->declaration->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration == typeBlock.get());
+		CHECK(goal0->arguments[1].get<pddl::ast::ConstantPointer>()->declaration->name == "c");
+		CHECK(goal0->arguments[1].get<pddl::ast::ConstantPointer>()->declaration->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration == typeBlock.get());
+		const auto &goal1 = goalAnd->arguments[1].get<pddl::ast::AtomicFormula>().get<pddl::ast::PredicatePointer>();
+		// TODO: check declaration once implemented
+		REQUIRE(goal0->arguments.size() == 2);
+		CHECK(goal1->arguments[0].get<pddl::ast::ConstantPointer>()->declaration->name == "c");
+		CHECK(goal1->arguments[0].get<pddl::ast::ConstantPointer>()->declaration->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration == typeBlock.get());
+		CHECK(goal1->arguments[1].get<pddl::ast::ConstantPointer>()->declaration->name == "b");
+		CHECK(goal1->arguments[1].get<pddl::ast::ConstantPointer>()->declaration->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration == typeBlock.get());
+		const auto &goal2 = goalAnd->arguments[2].get<pddl::ast::AtomicFormula>().get<pddl::ast::PredicatePointer>();
+		// TODO: check declaration once implemented
+		REQUIRE(goal0->arguments.size() == 2);
+		CHECK(goal2->arguments[0].get<pddl::ast::ConstantPointer>()->declaration->name == "b");
+		CHECK(goal2->arguments[0].get<pddl::ast::ConstantPointer>()->declaration->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration == typeBlock.get());
+		CHECK(goal2->arguments[1].get<pddl::ast::ConstantPointer>()->declaration->name == "a");
+		CHECK(goal2->arguments[1].get<pddl::ast::ConstantPointer>()->declaration->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration == typeBlock.get());
+	}
+
 	SECTION("“either” type in zenotravel domain")
 	{
 		const auto domainFile = pddlInstanceBasePath / "ipc-2002" / "domains" / "zenotravel-numeric-hand-coded" / "domain.pddl";
