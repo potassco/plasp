@@ -236,4 +236,46 @@ TEST_CASE("[PDDL parser] The official PDDL instances are parsed correctly", "[PD
 		CHECK(constants[13]->name == "smooth");
 		CHECK(constants[13]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "surface");
 	}
+
+	SECTION("type inheritance in logistics domain")
+	{
+		context.mode = pddl::Mode::Compatibility;
+
+		const auto domainFile = pddlInstanceBasePath / "ipc-2000" / "domains" / "logistics-strips-typed" / "domain.pddl";
+		context.tokenizer.read(domainFile);
+		auto description = pddl::parseDescription(context);
+
+		const auto &types = description.domain->types;
+
+		REQUIRE(types.size() == 10);
+		CHECK(types[0]->name == "truck");
+		REQUIRE(types[0]->parentTypes.size() == 1);
+		CHECK(types[0]->parentTypes[0]->declaration->name == "vehicle");
+		CHECK(types[1]->name == "airplane");
+		REQUIRE(types[1]->parentTypes.size() == 1);
+		CHECK(types[1]->parentTypes[0]->declaration->name == "vehicle");
+		CHECK(types[2]->name == "package");
+		REQUIRE(types[2]->parentTypes.size() == 1);
+		CHECK(types[2]->parentTypes[0]->declaration->name == "physobj");
+		CHECK(types[3]->name == "vehicle");
+		REQUIRE(types[3]->parentTypes.size() == 1);
+		CHECK(types[3]->parentTypes[0]->declaration->name == "physobj");
+		CHECK(types[4]->name == "airport");
+		REQUIRE(types[4]->parentTypes.size() == 1);
+		CHECK(types[4]->parentTypes[0]->declaration->name == "place");
+		CHECK(types[5]->name == "location");
+		REQUIRE(types[5]->parentTypes.size() == 1);
+		CHECK(types[5]->parentTypes[0]->declaration->name == "place");
+		CHECK(types[6]->name == "city");
+		REQUIRE(types[6]->parentTypes.size() == 1);
+		CHECK(types[6]->parentTypes[0]->declaration->name == "object");
+		CHECK(types[7]->name == "place");
+		REQUIRE(types[7]->parentTypes.size() == 1);
+		CHECK(types[7]->parentTypes[0]->declaration->name == "object");
+		CHECK(types[8]->name == "physobj");
+		REQUIRE(types[8]->parentTypes.size() == 1);
+		CHECK(types[8]->parentTypes[0]->declaration->name == "object");
+		CHECK(types[9]->name == "object");
+		REQUIRE(types[9]->parentTypes.empty());
+	}
 }

@@ -44,9 +44,9 @@ void parseAndAddPrimitiveTypeDeclarations(Context &context, ast::Domain &domain)
 	auto &tokenizer = context.tokenizer;
 	tokenizer.skipWhiteSpace();
 
-	// Index on the first element of the current inheritance list
-	size_t inheritanceIndex = 0;
+	const auto position = tokenizer.position();
 
+	// First pass: collect all primitive types
 	while (tokenizer.currentCharacter() != ')')
 	{
 		parseAndAddUntypedPrimitiveTypeDeclaration(context, domain);
@@ -56,18 +56,43 @@ void parseAndAddPrimitiveTypeDeclarations(Context &context, ast::Domain &domain)
 		if (!tokenizer.testAndSkip<char>('-'))
 			continue;
 
+		// Skip parent type information for now
+		tokenizer.getIdentifier();
+	}
+
+	tokenizer.seek(position);
+
+	// Second pass: link parent types correctly
+	// Index on the first element of the current inheritance list
+	size_t inheritanceIndex = 0;
+	size_t i = 0;
+
+	while (tokenizer.currentCharacter() != ')')
+	{
+		// Skip type declaration
+		tokenizer.getIdentifier();
+		tokenizer.skipWhiteSpace();
+
+		if (!tokenizer.testAndSkip<char>('-'))
+		{
+			i++;
+			continue;
+		}
+
 		// If existing, parse and store parent type
 		auto parentType = parsePrimitiveType(context, domain);
 
 		auto &types = domain.types;
 
-		for (size_t i = inheritanceIndex; i < types.size(); i++)
-			types[i]->parentTypes.emplace_back(ast::deepCopy(parentType));
+		for (size_t j = inheritanceIndex; j <= i; j++)
+			types[j]->parentTypes.emplace_back(ast::deepCopy(parentType));
 
 		// All types up to now are labeled with their parent types
-		inheritanceIndex = types.size();
+		inheritanceIndex = i + 1;
 
 		tokenizer.skipWhiteSpace();
+
+		i++;
 	}
 }
 
