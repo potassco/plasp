@@ -23,6 +23,9 @@ TEST_CASE("[PDDL parser] The official PDDL instances are parsed correctly", "[PD
 		context.tokenizer.read(domainFile);
 		auto description = pddl::parseDescription(context);
 
+		CHECK(description.domain->name == "blocks");
+		CHECK(description.domain->constants.empty());
+
 		const auto &types = description.domain->types;
 
 		REQUIRE(types.size() == 1);
