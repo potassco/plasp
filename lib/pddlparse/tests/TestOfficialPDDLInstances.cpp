@@ -207,4 +207,33 @@ TEST_CASE("[PDDL parser] The official PDDL instances are parsed correctly", "[PD
 		REQUIRE(predicates[0]->parameters[1]->type);
 		CHECK(predicates[0]->parameters[1]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "city");
 	}
+
+	SECTION("typed constants in schedule domain")
+	{
+		context.mode = pddl::Mode::Compatibility;
+
+		const auto domainFile = pddlInstanceBasePath / "ipc-2000" / "domains" / "schedule-adl-typed" / "domain.pddl";
+		context.tokenizer.read(domainFile);
+		auto description = pddl::parseDescription(context);
+
+		const auto &constants = description.domain->constants;
+
+		REQUIRE(constants.size() == 14);
+		CHECK(constants[0]->name == "cold");
+		CHECK(constants[0]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "temperature");
+		CHECK(constants[1]->name == "hot");
+		CHECK(constants[1]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "temperature");
+		CHECK(constants[2]->name == "cylindrical");
+		CHECK(constants[2]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "ashape");
+		CHECK(constants[3]->name == "polisher");
+		CHECK(constants[3]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "machine");
+		CHECK(constants[4]->name == "roller");
+		CHECK(constants[4]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "machine");
+		CHECK(constants[10]->name == "immersion-painter");
+		CHECK(constants[10]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "machine");
+		CHECK(constants[11]->name == "polished");
+		CHECK(constants[11]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "surface");
+		CHECK(constants[13]->name == "smooth");
+		CHECK(constants[13]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "surface");
+	}
 }

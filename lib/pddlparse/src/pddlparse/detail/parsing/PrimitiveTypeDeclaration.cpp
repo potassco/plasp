@@ -65,7 +65,7 @@ void parseAndAddPrimitiveTypeDeclarations(Context &context, ast::Domain &domain)
 			types[i]->parentTypes.emplace_back(ast::deepCopy(parentType));
 
 		// All types up to now are labeled with their parent types
-		inheritanceIndex = types.size() + 1;
+		inheritanceIndex = types.size();
 
 		tokenizer.skipWhiteSpace();
 	}

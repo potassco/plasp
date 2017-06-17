@@ -52,7 +52,7 @@ void parseAndAddConstantDeclarations(Context &context, ast::Domain &domain, ast:
 			constantDeclarations[i]->type = ast::deepCopy(parentType);
 
 		// All types up to now are labeled with their parent types
-		inheritanceIndex = constantDeclarations.size() + 1;
+		inheritanceIndex = constantDeclarations.size();
 
 		tokenizer.skipWhiteSpace();
 	}
