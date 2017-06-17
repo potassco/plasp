@@ -20,11 +20,11 @@ std::experimental::optional<ast::PredicatePointer> parsePredicate(Context &conte
 {
 	auto &tokenizer = context.tokenizer;
 
-	const auto position = tokenizer.position();
+	const auto previousPosition = tokenizer.position();
 
 	if (!tokenizer.testAndSkip<std::string>("("))
 	{
-		tokenizer.seek(position);
+		tokenizer.seek(previousPosition);
 		return std::experimental::nullopt;
 	}
 
@@ -53,14 +53,31 @@ std::experimental::optional<ast::PredicatePointer> parsePredicate(Context &conte
 	// Parse arguments
 	while (tokenizer.currentCharacter() != ')')
 	{
-		// Parse variables
-		if (tokenizer.currentCharacter() == '?')
-			arguments.emplace_back(parseVariable(context, variableStack));
-		// Parse constants
-		else
-			arguments.emplace_back(parseConstant(context, astContext));
+		// Parse argument if it is a variable
+		auto variable = testParsingVariable(context, variableStack);
 
-		tokenizer.skipWhiteSpace();
+		if (variable)
+		{
+			arguments.emplace_back(std::move(variable.value()));
+
+			tokenizer.skipWhiteSpace();
+			continue;
+		}
+
+		// Parse argument if it is a constant
+		auto constant = testParsingConstant(context, astContext);
+
+		if (constant)
+		{
+			arguments.emplace_back(std::move(constant.value()));
+
+			tokenizer.skipWhiteSpace();
+			continue;
+		}
+
+		// If argument is neither variable nor constant, this is not a valid predicate
+		tokenizer.seek(previousPosition);
+		return std::experimental::nullopt;
 	}
 
 	//const auto &predicates = astContext.domain->predicates;

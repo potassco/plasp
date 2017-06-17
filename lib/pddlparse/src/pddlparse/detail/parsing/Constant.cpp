@@ -30,48 +30,8 @@ std::experimental::optional<ast::ConstantPointer> findConstant(const std::string
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// TODO: remove if unneeded
-ast::ConstantPointer parseConstant(Context &context, ast::Domain &domain)
+std::experimental::optional<ast::ConstantPointer> findConstant(const std::string &constantName, ASTContext &astContext)
 {
-	auto &tokenizer = context.tokenizer;
-	const auto constantName = tokenizer.getIdentifier();
-
-	auto constant = findConstant(constantName, domain.constants);
-
-	if (constant)
-		return std::move(constant.value());
-
-	throw ParserException(tokenizer.location(), "constant “" + constantName + "” used but never declared");
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// TODO: remove if unneeded
-ast::ConstantPointer parseConstant(Context &context, ast::Problem &problem)
-{
-	auto &tokenizer = context.tokenizer;
-	const auto constantName = tokenizer.getIdentifier();
-
-	auto constant = findConstant(constantName, problem.domain->constants);
-
-	if (constant)
-		return std::move(constant.value());
-
-	auto object = findConstant(constantName, problem.objects);
-
-	if (object)
-		return std::move(object.value());
-
-	throw ParserException(tokenizer.location(), "constant “" + constantName + "” used but never declared");
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-ast::ConstantPointer parseConstant(Context &context, ASTContext &astContext)
-{
-	auto &tokenizer = context.tokenizer;
-	const auto constantName = tokenizer.getIdentifier();
-
 	auto constant = findConstant(constantName, astContext.domain->constants);
 
 	if (constant)
@@ -85,7 +45,37 @@ ast::ConstantPointer parseConstant(Context &context, ASTContext &astContext)
 			return std::move(constant.value());
 	}
 
-	throw ParserException(tokenizer.location(), "constant “" + constantName + "” used but never declared");
+	return std::experimental::nullopt;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+std::experimental::optional<ast::ConstantPointer> testParsingConstant(Context &context, ASTContext &astContext)
+{
+	auto &tokenizer = context.tokenizer;
+
+	const auto constantName = tokenizer.getIdentifier();
+	auto constant = findConstant(constantName, astContext);
+
+	if (!constant)
+		return std::experimental::nullopt;
+
+	return std::move(constant.value());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ast::ConstantPointer parseConstant(Context &context, ASTContext &astContext)
+{
+	auto &tokenizer = context.tokenizer;
+
+	const auto constantName = tokenizer.getIdentifier();
+	auto constant = findConstant(constantName, astContext);
+
+	if (!constant)
+		throw ParserException(tokenizer.location(), "undeclared constant “" + constantName + "”");
+
+	return std::move(constant.value());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
