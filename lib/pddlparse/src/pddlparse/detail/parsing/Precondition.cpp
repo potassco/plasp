@@ -4,6 +4,7 @@
 #include <pddlparse/detail/parsing/Expressions.h>
 #include <pddlparse/detail/parsing/Predicate.h>
 #include <pddlparse/detail/parsing/Unsupported.h>
+#include <pddlparse/detail/parsing/Utils.h>
 
 namespace pddl
 {
@@ -78,25 +79,26 @@ std::experimental::optional<ast::Precondition> parsePreconditionBody(Context &co
 	const auto position = tokenizer.position();
 
 	tokenizer.expect<std::string>("(");
+	tokenizer.skipWhiteSpace();
 
 	const auto expressionIdentifierPosition = tokenizer.position();
 
-	if (tokenizer.testIdentifierAndSkip("-")
-		|| tokenizer.testIdentifierAndSkip("=")
-		|| tokenizer.testIdentifierAndSkip("*")
-		|| tokenizer.testIdentifierAndSkip("+")
-		|| tokenizer.testIdentifierAndSkip("-")
-		|| tokenizer.testIdentifierAndSkip("/")
-		|| tokenizer.testIdentifierAndSkip(">")
-		|| tokenizer.testIdentifierAndSkip("<")
-		|| tokenizer.testIdentifierAndSkip("=")
-		|| tokenizer.testIdentifierAndSkip(">=")
-		|| tokenizer.testIdentifierAndSkip("<="))
+	if (tokenizer.testIdentifierAndReturn("-")
+		|| tokenizer.testIdentifierAndReturn("=")
+		|| tokenizer.testIdentifierAndReturn("*")
+		|| tokenizer.testIdentifierAndReturn("+")
+		|| tokenizer.testIdentifierAndReturn("-")
+		|| tokenizer.testIdentifierAndReturn("/")
+		|| tokenizer.testIdentifierAndReturn(">")
+		|| tokenizer.testIdentifierAndReturn("<")
+		|| tokenizer.testIdentifierAndReturn("=")
+		|| tokenizer.testIdentifierAndReturn(">=")
+		|| tokenizer.testIdentifierAndReturn("<="))
 	{
-		tokenizer.seek(expressionIdentifierPosition);
 		const auto expressionIdentifier = tokenizer.getIdentifier();
+		tokenizer.expect<std::string>("(");
 
-		tokenizer.seek(position);
+		skipSection(tokenizer);
 		return parseUnsupported(context);
 	}
 
