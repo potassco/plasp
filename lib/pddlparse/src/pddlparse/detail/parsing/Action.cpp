@@ -166,6 +166,8 @@ void ActionParser::parseEffectSection(ast::Action &)
 	tokenizer.expect<std::string>(":effect");
 	tokenizer.expect<std::string>("(");
 
+	m_context.warningCallback(tokenizer.location(), "effect parser under construction, section is currently ignored");
+
 	// TODO: reimplement
 	//VariableStack variableStack;
 	//variableStack.push(&action.parameters);

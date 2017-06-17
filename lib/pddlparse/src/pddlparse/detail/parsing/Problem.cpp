@@ -268,6 +268,8 @@ void ProblemParser::parseInitialStateSection(ast::Problem &problem)
 
 	ASTContext astContext(problem);
 
+	m_context.warningCallback(tokenizer.location(), "initial state parser under construction, section is currently ignored");
+
 	// TODO: reimplement
 	//problem.initialState = parseInitialState(m_context, astContext);
 	//tokenizer.expect<std::string>(")");
@@ -286,6 +288,8 @@ void ProblemParser::parseGoalSection(ast::Problem &problem)
 	tokenizer.expect<std::string>("goal");
 
 	ASTContext expressionContext(problem);
+
+	m_context.warningCallback(tokenizer.location(), "goal parser under construction, section is currently ignored");
 
 	// TODO: reimplement
 	//problem.goal = parsePreconditionExpression(m_context, expressionContext);

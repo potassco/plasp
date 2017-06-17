@@ -21,6 +21,8 @@ ast::InitialState parseInitialState(Context &context, ASTContext &)
 
 	ast::InitialState initialState;
 
+	context.warningCallback(tokenizer.location(), "initial state parser under construction, section is currently ignored");
+
 	// TODO: reimplement
 	/*const auto parseInitialStateElement =
 		[&]() -> ExpressionPointer
