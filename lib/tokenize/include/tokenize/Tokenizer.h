@@ -61,8 +61,8 @@ class Tokenizer: public Stream, public TokenizerPolicy
 
 		// TODO: refactor
 		std::string getIdentifier();
-		bool testIdentifierAndReturn(const std::string &identifier);
 		bool testIdentifierAndSkip(const std::string &identifier);
+		bool testIdentifierAndReturn(const std::string &identifier);
 
 		// TODO: remove
 		bool probeNumber();
@@ -219,6 +219,20 @@ std::string Tokenizer<TokenizerPolicy>::getIdentifier()
 		value.push_back(character);
 		advance();
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class TokenizerPolicy>
+bool Tokenizer<TokenizerPolicy>::testIdentifierAndReturn(const std::string &expectedValue)
+{
+	const auto previousPosition = position();
+
+	const auto result = testIdentifierAndSkip(expectedValue);
+
+	seek(previousPosition);
+
+	return result;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
