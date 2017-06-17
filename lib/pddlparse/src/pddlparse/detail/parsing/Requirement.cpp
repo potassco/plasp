@@ -67,7 +67,7 @@ std::experimental::optional<ast::Requirement> parseRequirement(Context &context)
 		return matchingRequirement->second;
 
 	if (requirementName == "goal-utilities" || requirementName == "domain-axioms")
-		context.warningCallback(tokenizer.location(), "ignoring requirement “" + requirementName + "”, which is not part of the PDDL 3.1 specification");
+		context.warningCallback(tokenizer.location(), "“" + requirementName + "” requirement is not part of the PDDL 3.1 specification, ignoring requirement");
 
 	return std::experimental::nullopt;
 }

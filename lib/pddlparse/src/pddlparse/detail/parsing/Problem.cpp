@@ -128,7 +128,7 @@ void ProblemParser::findSections(ast::Problem &problem)
 
 			const auto sectionIdentifier = tokenizer.getIdentifier();
 
-			m_context.warningCallback(tokenizer.location(), "section type “" + sectionIdentifier + "” currently unsupported");
+			m_context.warningCallback(tokenizer.location(), "section type “" + sectionIdentifier + "” currently unsupported, ignoring section");
 
 			tokenizer.seek(sectionIdentifierPosition);
 		}

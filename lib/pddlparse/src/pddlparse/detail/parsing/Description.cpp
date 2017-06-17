@@ -73,7 +73,7 @@ void DescriptionParser::findSections()
 
 		if (tokenizer.testAndReturn<std::string>("in-package"))
 		{
-			m_context.warningCallback(tokenizer.location(), "ignoring “in-package” section, which is not part of the PDDL 3.1 specification");
+			m_context.warningCallback(tokenizer.location(), "“in-package” section is not part of the PDDL 3.1 specification, ignoring section");
 
 			skipSection(tokenizer);
 			tokenizer.skipWhiteSpace();

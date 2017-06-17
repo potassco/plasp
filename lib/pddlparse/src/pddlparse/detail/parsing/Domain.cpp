@@ -137,7 +137,7 @@ void DomainParser::findSections(ast::Domain &domain)
 
 			const auto sectionIdentifier = tokenizer.getIdentifier();
 
-			m_context.warningCallback(tokenizer.location(), "section type “" + sectionIdentifier + "” currently unsupported");
+			m_context.warningCallback(tokenizer.location(), "section type “" + sectionIdentifier + "” currently unsupported, ignoring section");
 
 			tokenizer.seek(sectionIdentifierPosition);
 		}
