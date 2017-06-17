@@ -3,6 +3,7 @@
 
 #include <functional>
 
+#include <pddlparse/Mode.h>
 #include <pddlparse/Tokenizer.h>
 
 namespace pddl
@@ -27,9 +28,10 @@ struct Context
 	Context() = default;
 	~Context() = default;
 
-	explicit Context(Tokenizer &&tokenizer, WarningCallback warningCallback)
+	explicit Context(Tokenizer &&tokenizer, WarningCallback warningCallback, Mode mode = Mode::Strict)
 	:	tokenizer{std::move(tokenizer)},
-		warningCallback{warningCallback}
+		warningCallback{warningCallback},
+		mode{mode}
 	{
 	}
 
@@ -40,6 +42,8 @@ struct Context
 
 	Tokenizer tokenizer;
 	WarningCallback warningCallback;
+
+	Mode mode;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

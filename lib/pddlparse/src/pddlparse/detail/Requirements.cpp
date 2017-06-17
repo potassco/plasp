@@ -2,6 +2,7 @@
 
 #include <algorithm>
 
+#include <pddlparse/Exception.h>
 #include <pddlparse/detail/parsing/Requirement.h>
 
 namespace pddl
@@ -59,7 +60,10 @@ void checkRequirement(ast::Domain &domain, ast::Requirement requirement, Context
 	if (hasRequirement(domain, requirement))
 		return;
 
-	context.warningCallback(context.tokenizer.location(), "requirement “" + std::string(toString(requirement)) + "” used but never declared, silently adding requirement");
+	if (context.mode == Mode::Compatibility)
+		context.warningCallback(context.tokenizer.location(), "requirement “" + std::string(toString(requirement)) + "” used but never declared, silently adding requirement");
+	else
+		throw ParserException(context.tokenizer.location(), "requirement “" + std::string(toString(requirement)) + "” used but never declared");
 
 	domain.requirements.push_back(requirement);
 }
@@ -71,7 +75,10 @@ void checkRequirement(ast::Problem &problem, ast::Requirement requirement, Conte
 	if (hasRequirement(problem, requirement))
 		return;
 
-	context.warningCallback(context.tokenizer.location(), "requirement “" + std::string(toString(requirement)) + "” used but never declared, silently adding requirement");
+	if (context.mode == Mode::Compatibility)
+		context.warningCallback(context.tokenizer.location(), "requirement “" + std::string(toString(requirement)) + "” used but never declared, silently adding requirement");
+	else
+		throw ParserException(context.tokenizer.location(), "requirement “" + std::string(toString(requirement)) + "” used but never declared");
 
 	problem.requirements.push_back(requirement);
 }

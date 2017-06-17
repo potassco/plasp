@@ -107,7 +107,7 @@ void ActionParser::findSections(ast::Action &action)
 			setSectionPosition("precondition", m_preconditionPosition, position, true);
 		else if (tokenizer.testIdentifierAndSkip("effect"))
 			setSectionPosition("effect", m_effectPosition, position, true);
-		else if (tokenizer.testIdentifierAndSkip("vars"))
+		else if (m_context.mode == Mode::Compatibility && tokenizer.testIdentifierAndSkip("vars"))
 			setSectionPosition("vars", m_varsPosition, position, true);
 		else
 		{

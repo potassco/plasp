@@ -35,6 +35,9 @@ ast::PrimitiveTypePointer parsePrimitiveType(Context &context, ast::Domain &doma
 	// If the type has not been declared yet, add it but issue a warning
 	if (matchingType == types.end())
 	{
+		if (context.mode != Mode::Compatibility)
+			throw ParserException(tokenizer.location(), "primitive type “" + typeName + "” used without or before declaration");
+
 		context.warningCallback(tokenizer.location(), "primitive type “" + typeName + "” used without or before declaration, silently adding declaration");
 
 		types.emplace_back(std::make_unique<ast::PrimitiveTypeDeclaration>(std::move(typeName)));

@@ -33,7 +33,7 @@ TEST_CASE("[PDDL parser acceptance] All official PDDL domains are parsed without
 			{
 				pddl::Tokenizer tokenizer;
 				tokenizer.read(domainFile);
-				pddl::Context context(std::move(tokenizer), ignoreWarnings);
+				pddl::Context context(std::move(tokenizer), ignoreWarnings, pddl::Mode::Compatibility);
 
 				CHECK_NOTHROW(pddl::parseDescription(context));
 			}
@@ -67,7 +67,7 @@ TEST_CASE("[PDDL parser acceptance] The first instance for all official PDDL dom
 				pddl::Tokenizer tokenizer;
 				tokenizer.read(domainFile);
 				tokenizer.read(instanceFile);
-				pddl::Context context(std::move(tokenizer), ignoreWarnings);
+				pddl::Context context(std::move(tokenizer), ignoreWarnings, pddl::Mode::Compatibility);
 
 				CHECK_NOTHROW(pddl::parseDescription(context));
 			}

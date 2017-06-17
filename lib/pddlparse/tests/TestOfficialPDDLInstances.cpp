@@ -188,6 +188,8 @@ TEST_CASE("[PDDL parser] The official PDDL instances are parsed correctly", "[PD
 
 	SECTION("“either” type in zenotravel domain")
 	{
+		context.mode = pddl::Mode::Compatibility;
+
 		const auto domainFile = pddlInstanceBasePath / "ipc-2002" / "domains" / "zenotravel-numeric-hand-coded" / "domain.pddl";
 		context.tokenizer.read(domainFile);
 		auto description = pddl::parseDescription(context);
