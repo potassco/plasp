@@ -486,6 +486,7 @@ struct Problem
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// TODO: think about ignoring requirement statements entirely and computing them instead
 enum class Requirement
 {
 	STRIPS,
