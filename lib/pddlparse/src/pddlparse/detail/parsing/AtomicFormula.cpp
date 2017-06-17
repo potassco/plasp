@@ -34,13 +34,7 @@ std::experimental::optional<ast::AtomicFormula> parseAtomicFormula(Context &cont
 	tokenizer.seek(position);
 
 	// Now, test supported expressions
-	std::experimental::optional<ast::AtomicFormula> atomicFormula;
-
-	if ((atomicFormula = parsePredicate(context, astContext, variableStack)))
-		return std::move(atomicFormula.value());
-
-	tokenizer.seek(position);
-	return std::experimental::nullopt;
+	return parsePredicate(context, astContext, variableStack);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
