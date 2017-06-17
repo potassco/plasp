@@ -1,7 +1,7 @@
 #include <pddlparse/detail/parsing/Description.h>
 
 #include <pddlparse/AST.h>
-#include <pddlparse/ParserException.h>
+#include <pddlparse/Exception.h>
 #include <pddlparse/detail/parsing/Domain.h>
 #include <pddlparse/detail/parsing/Problem.h>
 #include <pddlparse/detail/parsing/Utils.h>

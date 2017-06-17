@@ -1,6 +1,6 @@
 #include <pddlparse/detail/parsing/PrimitiveTypeDeclaration.h>
 
-#include <pddlparse/ParserException.h>
+#include <pddlparse/Exception.h>
 #include <pddlparse/detail/ASTCopy.h>
 #include <pddlparse/detail/parsing/PrimitiveType.h>
 

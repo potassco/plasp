@@ -1,6 +1,6 @@
 #include <pddlparse/detail/parsing/PrimitiveType.h>
 
-#include <pddlparse/ParserException.h>
+#include <pddlparse/Exception.h>
 #include <pddlparse/detail/Requirements.h>
 
 namespace pddl

@@ -1,7 +1,7 @@
 #include <pddlparse/detail/parsing/InitialState.h>
 
 #include <pddlparse/AST.h>
-#include <pddlparse/ParserException.h>
+#include <pddlparse/Exception.h>
 #include <pddlparse/detail/parsing/Fact.h>
 
 namespace pddl

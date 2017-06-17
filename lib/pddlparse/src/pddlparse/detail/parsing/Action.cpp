@@ -1,7 +1,7 @@
 #include <pddlparse/detail/parsing/Action.h>
 
 #include <pddlparse/AST.h>
-#include <pddlparse/ParserException.h>
+#include <pddlparse/Exception.h>
 #include <pddlparse/detail/ASTContext.h>
 #include <pddlparse/detail/VariableStack.h>
 #include <pddlparse/detail/parsing/Effect.h>

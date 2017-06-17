@@ -1,6 +1,6 @@
 #include <pddlparse/detail/parsing/Type.h>
 
-#include <pddlparse/ParserException.h>
+#include <pddlparse/Exception.h>
 #include <pddlparse/detail/parsing/Expressions.h>
 #include <pddlparse/detail/parsing/PrimitiveType.h>
 

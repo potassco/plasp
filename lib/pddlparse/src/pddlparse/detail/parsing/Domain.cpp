@@ -1,6 +1,6 @@
 #include <pddlparse/detail/parsing/Domain.h>
 
-#include <pddlparse/ParserException.h>
+#include <pddlparse/Exception.h>
 #include <pddlparse/detail/Requirements.h>
 #include <pddlparse/detail/parsing/Action.h>
 #include <pddlparse/detail/parsing/ConstantDeclaration.h>

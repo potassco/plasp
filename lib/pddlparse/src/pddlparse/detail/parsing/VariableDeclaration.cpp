@@ -1,7 +1,7 @@
 #include <pddlparse/detail/parsing/VariableDeclaration.h>
 
 #include <pddlparse/AST.h>
-#include <pddlparse/ParserException.h>
+#include <pddlparse/Exception.h>
 #include <pddlparse/detail/ASTCopy.h>
 #include <pddlparse/detail/parsing/Type.h>
 

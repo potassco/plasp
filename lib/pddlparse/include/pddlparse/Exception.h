@@ -1,5 +1,5 @@
-#ifndef __PDDL_PARSE__PARSER_EXCEPTION_H
-#define __PDDL_PARSE__PARSER_EXCEPTION_H
+#ifndef __PDDL_PARSE__EXCEPTION_H
+#define __PDDL_PARSE__EXCEPTION_H
 
 #include <exception>
 #include <string>
@@ -11,39 +11,39 @@ namespace pddl
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// ParserException
+// Exception
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class ParserException: public std::exception
+class Exception: public std::exception
 {
 	public:
-		explicit ParserException()
-		:	ParserException("unspecified parser error")
+		explicit Exception()
+		:	Exception("unspecified parser error")
 		{
 		}
 
-		explicit ParserException(const char *message)
-		:	ParserException(static_cast<std::string>(message))
+		explicit Exception(const char *message)
+		:	Exception(static_cast<std::string>(message))
 		{
 		}
 
-		explicit ParserException(const std::string &message)
+		explicit Exception(const std::string &message)
 		:	m_message{message}
 		{
 		}
 
-		explicit ParserException(const tokenize::Location &location)
-		:	ParserException(location, "unspecified parser error")
+		explicit Exception(const tokenize::Location &location)
+		:	Exception(location, "unspecified parser error")
 		{
 		}
 
-		explicit ParserException(const tokenize::Location &location, const char *message)
-		:	ParserException(location, static_cast<std::string>(message))
+		explicit Exception(const tokenize::Location &location, const char *message)
+		:	Exception(location, static_cast<std::string>(message))
 		{
 		}
 
-		explicit ParserException(const tokenize::Location &location, const std::string &message)
+		explicit Exception(const tokenize::Location &location, const std::string &message)
 		:	m_location{location},
 			m_message{message},
 			// TODO: refactor
@@ -52,7 +52,7 @@ class ParserException: public std::exception
 		{
 		}
 
-		~ParserException() noexcept = default;
+		~Exception() noexcept = default;
 
 		const char *what() const throw()
 		{
@@ -73,6 +73,14 @@ class ParserException: public std::exception
 		tokenize::Location m_location;
 		std::string m_message;
 		std::string m_plainMessage;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class ParserException : public Exception
+{
+	public:
+		using Exception::Exception;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

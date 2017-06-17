@@ -4,7 +4,7 @@
 #include <map>
 
 #include <pddlparse/AST.h>
-#include <pddlparse/ParserException.h>
+#include <pddlparse/Exception.h>
 
 namespace pddl
 {

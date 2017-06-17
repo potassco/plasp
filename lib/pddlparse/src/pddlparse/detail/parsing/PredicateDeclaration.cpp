@@ -1,6 +1,6 @@
 #include <pddlparse/detail/parsing/PredicateDeclaration.h>
 
-#include <pddlparse/ParserException.h>
+#include <pddlparse/Exception.h>
 #include <pddlparse/detail/ASTContext.h>
 #include <pddlparse/detail/parsing/VariableDeclaration.h>
 

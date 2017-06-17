@@ -1,6 +1,6 @@
 #include <pddlparse/detail/parsing/Problem.h>
 
-#include <pddlparse/ParserException.h>
+#include <pddlparse/Exception.h>
 #include <pddlparse/detail/Requirements.h>
 #include <pddlparse/detail/parsing/ConstantDeclaration.h>
 #include <pddlparse/detail/parsing/InitialState.h>
