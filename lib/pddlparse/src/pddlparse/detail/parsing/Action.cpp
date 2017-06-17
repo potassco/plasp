@@ -150,10 +150,9 @@ void ActionParser::parsePreconditionSection(ast::Action &action)
 
 	tokenizer.expect<std::string>(":precondition");
 
+	ASTContext astContext(m_domain);
 	VariableStack variableStack;
 	variableStack.push(&action.parameters);
-
-	ASTContext astContext(m_domain);
 
 	action.precondition = parsePrecondition(m_context, astContext, variableStack);
 }
@@ -166,10 +165,9 @@ void ActionParser::parseEffectSection(ast::Action &action)
 
 	tokenizer.expect<std::string>(":effect");
 
+	ASTContext astContext(m_domain);
 	VariableStack variableStack;
 	variableStack.push(&action.parameters);
-
-	ASTContext astContext(m_domain);
 
 	action.effect = parseEffect(m_context, astContext, variableStack);
 }
