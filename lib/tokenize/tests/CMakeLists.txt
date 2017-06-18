@@ -16,6 +16,6 @@ target_include_directories(${target} PRIVATE ${includes})
 target_link_libraries(${target} ${libraries})
 
 add_custom_target(run-tokenize-tests
-	COMMAND ${CMAKE_BINARY_DIR}/bin/tokenize-tests
+	COMMAND ${CMAKE_BINARY_DIR}/bin/tokenize-tests --use-colour=yes
 	DEPENDS ${target}
 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/tests)
