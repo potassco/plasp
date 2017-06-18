@@ -1,8 +1,6 @@
 #ifndef __PDDL_PARSE__DETAIL__REQUIREMENTS_H
 #define __PDDL_PARSE__DETAIL__REQUIREMENTS_H
 
-#include <iostream>
-
 #include <pddlparse/Context.h>
 #include <pddlparse/detail/ASTContext.h>
 
