@@ -70,3 +70,64 @@ TEST_CASE("[PDDL parser] The PDDL parser behaves correctly", "[PDDL parser]")
 		CHECK_THROWS(pddl::parseDescription(context));
 	}
 }
+
+TEST_CASE("[PDDL parser] Syntax errors are correctly recognized", "[PDDL parser]")
+{
+	pddl::Tokenizer tokenizer;
+	pddl::Context context(std::move(tokenizer), ignoreWarnings);
+
+	SECTION("valid domain")
+	{
+		const auto domainFile = fs::path("data") / "pddl-syntax" / "domain-valid.pddl";
+		context.tokenizer.read(domainFile);
+		CHECK_NOTHROW(pddl::parseDescription(context));
+	}
+
+	for (size_t i = 1; i <= 3; i++)
+		SECTION("syntax errors in expressions (" + std::to_string(i) + ")")
+		{
+			const auto domainFile = fs::path("data") / "pddl-syntax" / ("domain-expressions-" + std::to_string(i) + ".pddl");
+			context.tokenizer.read(domainFile);
+			CHECK_THROWS(pddl::parseDescription(context));
+		}
+
+	for (size_t i = 1; i <= 3; i++)
+		SECTION("syntax errors in expression names (" + std::to_string(i) + ")")
+		{
+			const auto domainFile = fs::path("data") / "pddl-syntax" / ("domain-expression-name-" + std::to_string(i) + ".pddl");
+			context.tokenizer.read(domainFile);
+			CHECK_THROWS(pddl::parseDescription(context));
+		}
+
+	for (size_t i = 1; i <= 8; i++)
+		SECTION("syntax errors with parentheses (" + std::to_string(i) + ")")
+		{
+			const auto domainFile = fs::path("data") / "pddl-syntax" / ("domain-parentheses-" + std::to_string(i) + ".pddl");
+			context.tokenizer.read(domainFile);
+			CHECK_THROWS(pddl::parseDescription(context));
+		}
+
+	for (size_t i = 1; i <= 7; i++)
+		SECTION("syntax errors in section names (" + std::to_string(i) + ")")
+		{
+			const auto domainFile = fs::path("data") / "pddl-syntax" / ("domain-section-name-" + std::to_string(i) + ".pddl");
+			context.tokenizer.read(domainFile);
+			CHECK_THROWS(pddl::parseDescription(context));
+		}
+
+	for (size_t i = 1; i <= 4; i++)
+		SECTION("syntax errors in types (" + std::to_string(i) + ")")
+		{
+			const auto domainFile = fs::path("data") / "pddl-syntax" / ("domain-types-" + std::to_string(i) + ".pddl");
+			context.tokenizer.read(domainFile);
+			CHECK_THROWS(pddl::parseDescription(context));
+		}
+
+	for (size_t i = 1; i <= 3; i++)
+		SECTION("syntax errors in variables (" + std::to_string(i) + ")")
+		{
+			const auto domainFile = fs::path("data") / "pddl-syntax" / ("domain-variables-" + std::to_string(i) + ".pddl");
+			context.tokenizer.read(domainFile);
+			CHECK_THROWS(pddl::parseDescription(context));
+		}
+}
