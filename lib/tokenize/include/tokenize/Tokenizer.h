@@ -315,17 +315,39 @@ void Tokenizer<TokenizerPolicy>::removeComments(const std::string &startSequence
 
 	m_position = 0;
 
+	// TODO: refactor
 	while (!atEnd())
 	{
-		while (!atEnd() && !testAndSkip(startSequence))
+		bool startSequenceFound = false;
+
+		while (!atEnd())
+		{
+			if ((startSequenceFound = testAndSkip(startSequence)))
+				break;
+
 			advance();
+		}
 
-		auto startPosition = m_position - startSequence.size();
+		if (!startSequenceFound && atEnd())
+			break;
 
-		while (!atEnd() && !testAndSkip(endSequence))
+		const auto startPosition = m_position - startSequence.size();
+
+		bool endSequenceFound = false;
+
+		while (!atEnd())
+		{
+			if ((endSequenceFound = testAndSkip(endSequence)))
+				break;
+
 			advance();
+		}
 
-		auto endPosition = (removeEnd) ? m_position : m_position - endSequence.size();
+		// If the end sequence is to be removed or could not be found, remove entire range
+		const auto endPosition =
+			(removeEnd || !endSequenceFound)
+			? m_position
+			: m_position - endSequence.size();
 
 		removeRange(startPosition, endPosition);
 

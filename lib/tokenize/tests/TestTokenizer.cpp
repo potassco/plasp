@@ -329,4 +329,16 @@ TEST_CASE("[tokenizer] Comments are correctly removed", "[tokenizer]")
 	p3.skipWhiteSpace();
 
 	REQUIRE(p3.atEnd());
+
+	// Check that if there are no comments, the end is not accidentally truncated
+	std::stringstream s4("test foo bar");
+	tokenize::Tokenizer<> p4("input", s4);
+
+	p4.removeComments(";", "\n", false);
+
+	REQUIRE_NOTHROW(p4.expect<std::string>("test"));
+	REQUIRE_NOTHROW(p4.expect<std::string>("foo"));
+	REQUIRE_NOTHROW(p4.expect<std::string>("bar"));
+
+	REQUIRE(p4.atEnd());
 }
