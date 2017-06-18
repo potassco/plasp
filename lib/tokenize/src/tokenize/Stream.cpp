@@ -3,8 +3,6 @@
 #include <algorithm>
 #include <fstream>
 
-#include <tokenize/TokenizerException.h>
-
 namespace tokenize
 {
 
@@ -14,12 +12,14 @@ namespace tokenize
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+const Stream::Position Stream::InvalidPosition{std::numeric_limits<Position>::max()};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 Stream::Stream()
+:	m_position{0}
 {
 	std::setlocale(LC_NUMERIC, "C");
-
-	// Don’t skip whitespace
-	m_stream.exceptions(std::istream::badbit);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -34,11 +34,18 @@ Stream::Stream(std::string streamName, std::istream &istream)
 void Stream::read(std::string streamName, std::istream &istream)
 {
 	// Store position of new section
-	const auto position = m_stream.tellp();
+	const auto position = m_stream.size();
 
 	m_delimiters.push_back({position, streamName});
 
-	m_stream << istream.rdbuf();
+	istream.seekg(0, std::ios::end);
+	const auto streamSize = istream.tellg();
+	istream.seekg(0, std::ios::beg);
+
+	const auto startPosition = m_stream.size();
+
+	m_stream.resize(m_stream.size() + streamSize);
+	std::copy(std::istreambuf_iterator<char>(istream), std::istreambuf_iterator<char>(), m_stream.begin() + startPosition);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -57,23 +64,21 @@ void Stream::read(const std::experimental::filesystem::path &path)
 
 void Stream::reset()
 {
-	m_stream.clear();
-	seek(0);
+	m_position = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Stream::seek(Position position)
 {
-	m_stream.clear();
-	m_stream.seekg(position);
+	m_position = position;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 typename Stream::Position Stream::position() const
 {
-	return m_stream.tellg();
+	return m_position;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -94,8 +99,7 @@ Location Stream::location() const
 		currentFile = m_delimiters.crbegin();
 
 	// Go back to beginning of section
-	m_stream.clear();
-	m_stream.seekg(currentFile->position);
+	m_position = currentFile->position;
 
 	size_t row = 1;
 	size_t column = 1;
@@ -103,9 +107,9 @@ Location Stream::location() const
 	// Compute the location character by character
 	while (true)
 	{
-		if (currentPosition == -1 && atEnd())
+		if (currentPosition >= m_stream.size() && atEnd())
 			break;
-		else if (currentPosition >= 0 && position() >= currentPosition)
+		else if (currentPosition < m_stream.size() && position() >= currentPosition)
 			break;
 
 		const auto character = currentCharacter();
@@ -118,44 +122,10 @@ Location Stream::location() const
 		else if (std::isblank(character) || std::isprint(character))
 			column++;
 
-		m_stream.ignore(1);
+		m_position++;
 	}
 
 	return {currentFile->sectionName.c_str(), currentFile->sectionName.c_str(), row, row, column, column};
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-char Stream::currentCharacter() const
-{
-	// TODO: check if this should be secured by check()
-	return m_stream.peek();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-bool Stream::atEnd() const
-{
-	return position() == -1;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void Stream::check() const
-{
-	if (atEnd())
-		throw TokenizerException(location(), "reading past end of file");
-
-	if (m_stream.fail())
-		throw TokenizerException(location());
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void Stream::advance()
-{
-	check();
-	m_stream.ignore(1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

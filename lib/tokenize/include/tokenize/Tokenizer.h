@@ -45,8 +45,6 @@ class Tokenizer: public Stream, public TokenizerPolicy
 
 		void removeComments(const std::string &startSequence, const std::string &endSequence, bool removeEnd);
 
-		char currentCharacter() const;
-
 		template<typename Type>
 		Type get();
 
@@ -115,8 +113,6 @@ Tokenizer<TokenizerPolicy>::Tokenizer(std::string streamName, std::istream &istr
 template<class TokenizerPolicy>
 void Tokenizer<TokenizerPolicy>::skipWhiteSpace()
 {
-	check();
-
 	while (!atEnd() && TokenizerPolicy::isWhiteSpaceCharacter(currentCharacter()))
 		advance();
 }
@@ -126,8 +122,6 @@ void Tokenizer<TokenizerPolicy>::skipWhiteSpace()
 template<class TokenizerPolicy>
 void Tokenizer<TokenizerPolicy>::skipBlankSpace()
 {
-	check();
-
 	while (!atEnd() && TokenizerPolicy::isBlankCharacter(currentCharacter()))
 		advance();
 }
@@ -137,9 +131,7 @@ void Tokenizer<TokenizerPolicy>::skipBlankSpace()
 template<class TokenizerPolicy>
 void Tokenizer<TokenizerPolicy>::skipLine()
 {
-	check();
-
-	while (currentCharacter() != '\n')
+	while (!atEnd() && currentCharacter() != '\n')
 		advance();
 
 	advance();
@@ -296,78 +288,51 @@ std::string Tokenizer<TokenizerPolicy>::getLine()
 template<class TokenizerPolicy>
 void Tokenizer<TokenizerPolicy>::removeComments(const std::string &startSequence, const std::string &endSequence, bool removeEnd)
 {
-	const auto inPosition = m_stream.tellg();
-	const auto outPosition = m_stream.tellp();
-
-	m_stream.seekg(0);
+	// TODO: move to appropriate place
+	for (auto &character : m_stream)
+		character = TokenizerPolicy::transformCharacter(character);
 
 	const auto removeRange =
 		[&](const auto &start, const auto &end)
 		{
-			assert(start != -1);
+			const auto previousPosition = m_position;
 
-			m_stream.clear();
-			m_stream.seekp(start);
-			m_stream.seekg(start);
+			assert(start < m_stream.size());
 
-			auto position = start;
+			m_position = start;
 
-			while (end == -1 || position < end)
+			while (m_position < end)
 			{
-				m_stream.ignore(1);
-
 				if (atEnd())
 					return;
 
-				m_stream.put(' ');
-				position += static_cast<std::streamoff>(1);
+				m_stream[m_position] = ' ';
+				m_position++;
 			}
+
+			m_position = previousPosition;
 		};
+
+	m_position = 0;
 
 	while (!atEnd())
 	{
-		Position startPosition = m_stream.tellg();
-
-		while (!atEnd())
-		{
-			startPosition = m_stream.tellg();
-
-			if (testAndSkip(startSequence))
-				break;
-
+		while (!atEnd() && !testAndSkip(startSequence))
 			advance();
-		}
 
-		Position endPosition = m_stream.tellg();
+		auto startPosition = m_position - startSequence.size();
 
-		while (!atEnd())
-		{
-			endPosition = m_stream.tellg();
-
-			if (testAndSkip(endSequence))
-				break;
-
+		while (!atEnd() && !testAndSkip(endSequence))
 			advance();
-		}
 
-		if (removeEnd)
-			endPosition = m_stream.tellg();
+		auto endPosition = (removeEnd) ? m_position : m_position - endSequence.size();
 
 		removeRange(startPosition, endPosition);
+
+		m_position = endPosition + 1;
 	}
 
-	m_stream.clear();
-
-	m_stream.seekg(inPosition);
-	m_stream.seekp(outPosition);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<class TokenizerPolicy>
-char Tokenizer<TokenizerPolicy>::currentCharacter() const
-{
-	return TokenizerPolicy::transformCharacter(Stream::currentCharacter());
+	m_position = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -506,20 +471,20 @@ bool Tokenizer<TokenizerPolicy>::testImpl(const std::string &expectedValue)
 	if (!TokenizerPolicy::isWhiteSpaceCharacter(expectedValue.front()))
 		skipWhiteSpace();
 
-	const auto match = std::find_if(expectedValue.cbegin(), expectedValue.cend(),
-		[&](const auto &expectedCharacter)
-		{
-			const auto character = static_cast<char>(this->currentCharacter());
-
-			if (character != expectedCharacter)
-				return true;
-
-			this->advance();
-
+	for (size_t i = 0; i < expectedValue.size(); i++)
+	{
+		if (atEnd())
 			return false;
-		});
 
-	return (match == expectedValue.cend());
+		const auto character = currentCharacter();
+
+		if (character != expectedValue[i])
+			return false;
+
+		advance();
+	}
+
+	return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

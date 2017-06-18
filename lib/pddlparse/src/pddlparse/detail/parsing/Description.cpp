@@ -19,8 +19,8 @@ namespace detail
 
 DescriptionParser::DescriptionParser(Context &context)
 :	m_context{context},
-	m_domainPosition{-1},
-	m_problemPosition{-1}
+	m_domainPosition{tokenize::Stream::InvalidPosition},
+	m_problemPosition{tokenize::Stream::InvalidPosition}
 {
 }
 
@@ -33,7 +33,7 @@ ast::Description DescriptionParser::parse()
 
 	findSections();
 
-	if (m_domainPosition == -1)
+	if (m_domainPosition == tokenize::Stream::InvalidPosition)
 		throw ParserException("no PDDL domain specified");
 
 	tokenizer.seek(m_domainPosition);
@@ -41,7 +41,7 @@ ast::Description DescriptionParser::parse()
 	auto domain = DomainParser(m_context).parse();
 
 	// If no problem is given, return just the domain
-	if (m_problemPosition == -1)
+	if (m_problemPosition == tokenize::Stream::InvalidPosition)
 		return {std::move(domain), std::experimental::nullopt};
 
 	tokenizer.seek(m_problemPosition);
@@ -86,7 +86,7 @@ void DescriptionParser::findSections()
 
 		if (tokenizer.testAndSkip<std::string>("domain"))
 		{
-			if (m_domainPosition != -1)
+			if (m_domainPosition != tokenize::Stream::InvalidPosition)
 				throw ParserException(tokenizer.location(), "PDDL description may not contain two domains");
 
 			m_domainPosition = position;
@@ -95,7 +95,7 @@ void DescriptionParser::findSections()
 		}
 		else if (m_context.tokenizer.testAndSkip<std::string>("problem"))
 		{
-			if (m_problemPosition != -1)
+			if (m_problemPosition != tokenize::Stream::InvalidPosition)
 				throw ParserException("PDDL description may not contain two problems currently");
 
 			m_problemPosition = position;

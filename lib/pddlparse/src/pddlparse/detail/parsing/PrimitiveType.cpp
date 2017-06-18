@@ -19,8 +19,6 @@ ast::PrimitiveTypePointer parsePrimitiveType(Context &context, ast::Domain &doma
 	auto &tokenizer = context.tokenizer;
 	auto &types = domain.types;
 
-	tokenizer.skipWhiteSpace();
-
 	auto typeName = tokenizer.getIdentifier();
 
 	if (typeName.empty())

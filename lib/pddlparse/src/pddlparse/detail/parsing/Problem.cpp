@@ -22,11 +22,11 @@ namespace detail
 ProblemParser::ProblemParser(Context &context, ast::Domain &domain)
 :	m_context{context},
 	m_domain{domain},
-	m_domainPosition{-1},
-	m_requirementsPosition{-1},
-	m_objectsPosition{-1},
-	m_initialStatePosition{-1},
-	m_goalPosition{-1}
+	m_domainPosition{tokenize::Stream::InvalidPosition},
+	m_requirementsPosition{tokenize::Stream::InvalidPosition},
+	m_objectsPosition{tokenize::Stream::InvalidPosition},
+	m_initialStatePosition{tokenize::Stream::InvalidPosition},
+	m_goalPosition{tokenize::Stream::InvalidPosition}
 {
 }
 
@@ -40,31 +40,31 @@ ast::ProblemPointer ProblemParser::parse()
 
 	auto &tokenizer = m_context.tokenizer;
 
-	if (m_domainPosition == -1)
+	if (m_domainPosition == tokenize::Stream::InvalidPosition)
 		throw ParserException(tokenizer.location(), "problem description does not specify a corresponding domain");
 
 	tokenizer.seek(m_domainPosition);
 	parseDomainSection(*problem);
 
-	if (m_requirementsPosition != -1)
+	if (m_requirementsPosition != tokenize::Stream::InvalidPosition)
 	{
 		tokenizer.seek(m_requirementsPosition);
 		parseRequirementSection(*problem);
 	}
 
-	if (m_objectsPosition != -1)
+	if (m_objectsPosition != tokenize::Stream::InvalidPosition)
 	{
 		tokenizer.seek(m_objectsPosition);
 		parseObjectSection(*problem);
 	}
 
-	if (m_initialStatePosition == -1)
+	if (m_initialStatePosition == tokenize::Stream::InvalidPosition)
 		throw ParserException(tokenizer.location(), "problem description does not specify an initial state");
 
 	tokenizer.seek(m_initialStatePosition);
 	parseInitialStateSection(*problem);
 
-	if (m_goalPosition == -1)
+	if (m_goalPosition == tokenize::Stream::InvalidPosition)
 		throw ParserException(tokenizer.location(), "problem description does not specify a goal");
 
 	tokenizer.seek(m_goalPosition);
@@ -91,7 +91,7 @@ void ProblemParser::findSections(ast::Problem &problem)
 	const auto setSectionPosition =
 		[&](const std::string &sectionName, auto &sectionPosition, const auto value, bool unique = false)
 		{
-			if (unique && sectionPosition != -1)
+			if (unique && sectionPosition != tokenize::Stream::InvalidPosition)
 			{
 				tokenizer.seek(value);
 				throw ParserException(tokenizer.location(), "only one “:" + sectionName + "” section allowed");

@@ -22,10 +22,10 @@ namespace detail
 
 DomainParser::DomainParser(Context &context)
 :	m_context{context},
-	m_requirementsPosition{-1},
-	m_typesPosition{-1},
-	m_constantsPosition{-1},
-	m_predicatesPosition{-1}
+	m_requirementsPosition{tokenize::Stream::InvalidPosition},
+	m_typesPosition{tokenize::Stream::InvalidPosition},
+	m_constantsPosition{tokenize::Stream::InvalidPosition},
+	m_predicatesPosition{tokenize::Stream::InvalidPosition}
 {
 }
 
@@ -39,32 +39,32 @@ ast::DomainPointer DomainParser::parse()
 
 	auto &tokenizer = m_context.tokenizer;
 
-	if (m_requirementsPosition != -1)
+	if (m_requirementsPosition != tokenize::Stream::InvalidPosition)
 	{
 		tokenizer.seek(m_requirementsPosition);
 		parseRequirementSection(*domain);
 	}
 
-	if (m_typesPosition != -1)
+	if (m_typesPosition != tokenize::Stream::InvalidPosition)
 	{
 		tokenizer.seek(m_typesPosition);
 		parseTypeSection(*domain);
 	}
 
-	if (m_constantsPosition != -1)
+	if (m_constantsPosition != tokenize::Stream::InvalidPosition)
 	{
 		tokenizer.seek(m_constantsPosition);
 		parseConstantSection(*domain);
 	}
 
-	if (m_predicatesPosition != -1)
+	if (m_predicatesPosition != tokenize::Stream::InvalidPosition)
 	{
 		tokenizer.seek(m_predicatesPosition);
 		parsePredicateSection(*domain);
 	}
 
 	for (size_t i = 0; i < m_actionPositions.size(); i++)
-		if (m_actionPositions[i] != -1)
+		if (m_actionPositions[i] != tokenize::Stream::InvalidPosition)
 		{
 			tokenizer.seek(m_actionPositions[i]);
 			parseActionSection(*domain);
@@ -93,7 +93,7 @@ void DomainParser::findSections(ast::Domain &domain)
 	const auto setSectionPosition =
 		[&](const std::string &sectionName, auto &sectionPosition, const auto value, bool unique = false)
 		{
-			if (unique && sectionPosition != -1)
+			if (unique && sectionPosition != tokenize::Stream::InvalidPosition)
 			{
 				tokenizer.seek(value);
 				throw ParserException(tokenizer.location(), "only one “:" + sectionName + "” section allowed");
@@ -125,7 +125,7 @@ void DomainParser::findSections(ast::Domain &domain)
 			setSectionPosition("predicates", m_predicatesPosition, position, true);
 		else if (tokenizer.testIdentifierAndSkip("action"))
 		{
-			m_actionPositions.emplace_back(-1);
+			m_actionPositions.emplace_back(tokenize::Stream::InvalidPosition);
 			setSectionPosition("action", m_actionPositions.back(), position);
 		}
 		else if (tokenizer.testIdentifierAndSkip("functions")

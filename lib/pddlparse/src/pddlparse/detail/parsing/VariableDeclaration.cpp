@@ -19,9 +19,9 @@ namespace detail
 void parseAndAddUntypedVariableDeclaration(Context &context, ast::VariableDeclarations &variableDeclarations)
 {
 	auto &tokenizer = context.tokenizer;
+
 	tokenizer.expect<std::string>("?");
 	auto variableName = tokenizer.getIdentifier();
-
 	assert(variableName != "-");
 
 	variableDeclarations.emplace_back(std::make_unique<ast::VariableDeclaration>(std::move(variableName)));

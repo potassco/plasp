@@ -19,8 +19,8 @@ namespace detail
 void parseAndAddUntypedConstantDeclaration(Context &context, ast::ConstantDeclarations &constantDeclarations)
 {
 	auto &tokenizer = context.tokenizer;
-	auto constantName = tokenizer.getIdentifier();
 
+	auto constantName = tokenizer.getIdentifier();
 	assert(constantName != "-");
 
 	constantDeclarations.emplace_back(std::make_unique<ast::ConstantDeclaration>(std::move(constantName)));

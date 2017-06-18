@@ -1,6 +1,7 @@
 #ifndef __TOKENIZE__STREAM_H
 #define __TOKENIZE__STREAM_H
 
+#include <cassert>
 #include <experimental/filesystem>
 #include <iostream>
 #include <iterator>
@@ -8,6 +9,7 @@
 #include <vector>
 
 #include <tokenize/Location.h>
+#include <tokenize/TokenizerException.h>
 
 namespace tokenize
 {
@@ -21,7 +23,8 @@ namespace tokenize
 class Stream
 {
 	public:
-		using Position = std::stringstream::pos_type;
+		using Position = size_t;
+		static const Position InvalidPosition;
 
 		struct Delimiter
 		{
@@ -47,14 +50,34 @@ class Stream
 		Position position() const;
 		Location location() const;
 
-		char currentCharacter() const;
-		void advance();
-		bool atEnd() const;
+		char currentCharacter() const
+		{
+			assert(m_position < m_stream.size());
 
-		void check() const;
+			// TODO: check if this should be secured by check()
+			return m_stream[m_position];
+		}
+
+		void advance()
+		{
+			check();
+			m_position++;
+		}
+
+		bool atEnd() const
+		{
+			return m_position >= m_stream.size();
+		}
+
+		void check() const
+		{
+			if (atEnd())
+				throw TokenizerException(location(), "reading past end of file");
+		}
 
 	protected:
-		mutable std::stringstream m_stream;
+		std::string m_stream;
+		mutable Position m_position;
 
 		std::vector<Delimiter> m_delimiters;
 };
