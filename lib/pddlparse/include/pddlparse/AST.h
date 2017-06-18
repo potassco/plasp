@@ -55,6 +55,7 @@ struct ConstantDeclaration
 	ConstantDeclaration &operator=(ConstantDeclaration &&other) = delete;
 
 	std::string name;
+	// TODO: check whether “either” types should actually be allowed at all
 	std::experimental::optional<Type> type;
 };
 
