@@ -279,7 +279,7 @@ TEST_CASE("[PDDL parser] The official PDDL instances are parsed correctly", "[PD
 		REQUIRE(types[9]->parentTypes.empty());
 	}
 
-	SECTION("typed objects in mystery domain")
+	SECTION("typing in mystery domain")
 	{
 		context.mode = pddl::Mode::Compatibility;
 
@@ -288,6 +288,22 @@ TEST_CASE("[PDDL parser] The official PDDL instances are parsed correctly", "[PD
 		context.tokenizer.read(domainFile);
 		context.tokenizer.read(instanceFile);
 		auto description = pddl::parseDescription(context);
+
+		const auto &actions = description.domain->actions;
+
+		REQUIRE(actions.size() == 3);
+		// TODO: adjust if there are changes to handling :vars section
+		REQUIRE(actions[0]->parameters.size() == 5);
+		CHECK(actions[0]->parameters[0]->name == "c");
+		CHECK(actions[0]->parameters[0]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "pain");
+		CHECK(actions[0]->parameters[1]->name == "v");
+		CHECK(actions[0]->parameters[1]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "pleasure");
+		CHECK(actions[0]->parameters[2]->name == "n");
+		CHECK(actions[0]->parameters[2]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "food");
+		CHECK(actions[0]->parameters[3]->name == "s1");
+		CHECK(actions[0]->parameters[3]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "planet");
+		CHECK(actions[0]->parameters[4]->name == "s2");
+		CHECK(actions[0]->parameters[4]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "planet");
 
 		REQUIRE(description.problem);
 

@@ -45,6 +45,7 @@ void parseAndAddPrimitiveTypeDeclarations(Context &context, ast::Domain &domain)
 	tokenizer.skipWhiteSpace();
 
 	const auto position = tokenizer.position();
+	const auto typeStartIndex = domain.types.size();
 
 	// First pass: collect all primitive types
 	while (tokenizer.currentCharacter() != ')')
@@ -64,8 +65,9 @@ void parseAndAddPrimitiveTypeDeclarations(Context &context, ast::Domain &domain)
 
 	// Second pass: link parent types correctly
 	// Index on the first element of the current inheritance list
-	size_t inheritanceIndex = 0;
-	size_t i = 0;
+	// TODO: test correct implementation of offset if this function is called multiple times
+	size_t inheritanceIndex = typeStartIndex;
+	size_t i = typeStartIndex;
 
 	while (tokenizer.currentCharacter() != ')')
 	{

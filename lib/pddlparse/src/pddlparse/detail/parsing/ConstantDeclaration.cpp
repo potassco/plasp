@@ -34,7 +34,7 @@ void parseAndAddConstantDeclarations(Context &context, ast::Domain &domain, ast:
 	tokenizer.skipWhiteSpace();
 
 	// Index on the first element of the current inheritance list
-	size_t inheritanceIndex = 0;
+	size_t inheritanceIndex = constantDeclarations.size();
 
 	while (tokenizer.currentCharacter() != ')')
 	{

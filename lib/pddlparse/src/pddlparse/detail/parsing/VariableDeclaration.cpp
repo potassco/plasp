@@ -35,7 +35,7 @@ void parseAndAddVariableDeclarations(Context &context, ast::Domain &domain, ast:
 	tokenizer.skipWhiteSpace();
 
 	// Index on the first element of the current inheritance list
-	size_t inheritanceIndex = 0;
+	size_t inheritanceIndex = variableDeclarations.size();
 
 	while (tokenizer.currentCharacter() != ')')
 	{
