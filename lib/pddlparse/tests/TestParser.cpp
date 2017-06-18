@@ -8,6 +8,7 @@
 namespace fs = std::experimental::filesystem;
 
 const pddl::Context::WarningCallback ignoreWarnings = [](const auto &, const auto &warning){std::cout << warning << std::endl;};
+const auto pddlInstanceBasePath = fs::path("data") / "pddl-instances";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -51,5 +52,21 @@ TEST_CASE("[PDDL parser] Check past issues", "[PDDL parser]")
 		const auto domainFile = fs::path("data") / "test-cases" / "white-space.pddl";
 		context.tokenizer.read(domainFile);
 		CHECK_NOTHROW(pddl::parseDescription(context));
+	}
+
+	SECTION("missing domains are detected")
+	{
+		const auto instanceFile = fs::path("data") / "pddl-instances" / "ipc-2000" / "domains" / "blocks-strips-typed" / "instances" / "instance-1.pddl";
+		context.tokenizer.read(instanceFile);
+		CHECK_THROWS(pddl::parseDescription(context));
+	}
+
+	SECTION("mismatched domains are detected")
+	{
+		const auto domainFile = fs::path("data") / "pddl-instances" / "ipc-2000" / "domains" / "blocks-strips-typed" / "domain.pddl";
+		const auto instanceFile = fs::path("data") / "pddl-instances" / "ipc-2000" / "domains" / "freecell-strips-typed" / "instances" / "instance-1.pddl";
+		context.tokenizer.read(domainFile);
+		context.tokenizer.read(instanceFile);
+		CHECK_THROWS(pddl::parseDescription(context));
 	}
 }
