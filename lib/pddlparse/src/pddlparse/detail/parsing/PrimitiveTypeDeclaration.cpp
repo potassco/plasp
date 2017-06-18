@@ -59,6 +59,7 @@ void parseAndAddPrimitiveTypeDeclarations(Context &context, ast::Domain &domain)
 
 		// Skip parent type information for now
 		tokenizer.getIdentifier();
+		tokenizer.skipWhiteSpace();
 	}
 
 	tokenizer.seek(position);
@@ -83,6 +84,7 @@ void parseAndAddPrimitiveTypeDeclarations(Context &context, ast::Domain &domain)
 
 		// If existing, parse and store parent type
 		auto parentType = parsePrimitiveType(context, domain);
+		tokenizer.skipWhiteSpace();
 
 		auto &types = domain.types;
 
@@ -91,9 +93,6 @@ void parseAndAddPrimitiveTypeDeclarations(Context &context, ast::Domain &domain)
 
 		// All types up to now are labeled with their parent types
 		inheritanceIndex = i + 1;
-
-		tokenizer.skipWhiteSpace();
-
 		i++;
 	}
 }

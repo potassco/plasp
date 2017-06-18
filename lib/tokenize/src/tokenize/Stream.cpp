@@ -128,6 +128,7 @@ Location Stream::location() const
 
 char Stream::currentCharacter() const
 {
+	// TODO: check if this should be secured by check()
 	return m_stream.peek();
 }
 

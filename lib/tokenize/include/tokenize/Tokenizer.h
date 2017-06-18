@@ -214,7 +214,12 @@ std::string Tokenizer<TokenizerPolicy>::getIdentifier()
 		const auto character = currentCharacter();
 
 		if (!TokenizerPolicy::isIdentifierCharacter(character))
+		{
+			if (value.empty())
+				throw TokenizerException(location(), "could not parse identifier");
+
 			return value;
+		}
 
 		value.push_back(character);
 		advance();
