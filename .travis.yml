@@ -13,16 +13,6 @@ addons:
       - libboost-filesystem1.55-dev
 matrix:
   include:
-    - env: COMPILER_NAME=g++ _CXX=g++-5
-      os: linux
-      language: cpp
-      addons:
-        apt:
-          sources:
-            - *default_sources
-          packages:
-            - *default_packages
-            - g++-5
     - env: COMPILER_NAME=g++ _CXX=g++-6
       os: linux
       language: cpp
