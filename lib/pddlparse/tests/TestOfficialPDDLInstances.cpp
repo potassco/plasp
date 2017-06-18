@@ -278,4 +278,46 @@ TEST_CASE("[PDDL parser] The official PDDL instances are parsed correctly", "[PD
 		CHECK(types[9]->name == "object");
 		REQUIRE(types[9]->parentTypes.empty());
 	}
+
+	SECTION("typed objects in mystery domain")
+	{
+		context.mode = pddl::Mode::Compatibility;
+
+		const auto domainFile = pddlInstanceBasePath / "ipc-1998" / "domains" / "mystery-round-1-adl" / "domain.pddl";
+		const auto instanceFile = pddlInstanceBasePath / "ipc-1998" / "domains" / "mystery-round-1-adl" / "instances" / "instance-1.pddl";
+		context.tokenizer.read(domainFile);
+		context.tokenizer.read(instanceFile);
+		auto description = pddl::parseDescription(context);
+
+		REQUIRE(description.problem);
+
+		const auto &problem = description.problem.value();
+		const auto &objects = problem->objects;
+
+		REQUIRE(objects.size() == 21);
+		CHECK(objects[0]->name == "rice");
+		CHECK(objects[0]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "food");
+		CHECK(objects[1]->name == "pear");
+		CHECK(objects[1]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "food");
+		CHECK(objects[2]->name == "flounder");
+		CHECK(objects[2]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "food");
+		CHECK(objects[5]->name == "lamb");
+		CHECK(objects[5]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "food");
+		CHECK(objects[6]->name == "rest");
+		CHECK(objects[6]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "pleasure");
+		CHECK(objects[7]->name == "hangover");
+		CHECK(objects[7]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "pain");
+		CHECK(objects[8]->name == "depression");
+		CHECK(objects[8]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "pain");
+		CHECK(objects[9]->name == "abrasion");
+		CHECK(objects[9]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "pain");
+		CHECK(objects[10]->name == "kentucky");
+		CHECK(objects[10]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "province");
+		CHECK(objects[16]->name == "guanabara");
+		CHECK(objects[16]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "province");
+		CHECK(objects[17]->name == "mars");
+		CHECK(objects[17]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "planet");
+		CHECK(objects[20]->name == "venus");
+		CHECK(objects[20]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "planet");
+	}
 }
