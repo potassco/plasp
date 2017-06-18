@@ -7,7 +7,7 @@
 
 namespace fs = std::experimental::filesystem;
 
-const pddl::Context::WarningCallback ignoreWarnings = [](const auto &, const auto &warning){std::cout << warning << std::endl;};
+const pddl::Context::WarningCallback ignoreWarnings = [](const auto &, const auto &){};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
