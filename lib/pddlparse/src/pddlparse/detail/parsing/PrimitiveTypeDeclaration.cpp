@@ -15,11 +15,8 @@ namespace detail
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ast::PrimitiveTypeDeclarationPointer &parseAndAddUntypedPrimitiveTypeDeclaration(Context &context, ast::Domain &domain)
+std::experimental::optional<ast::PrimitiveTypeDeclarationPointer *> findPrimitiveTypeDeclaration(ast::Domain &domain, const std::string &typeName)
 {
-	auto &tokenizer = context.tokenizer;
-	auto typeName = tokenizer.getIdentifier();
-
 	auto &types = domain.types;
 
 	const auto matchingPrimitiveType = std::find_if(types.begin(), types.end(),
@@ -28,11 +25,28 @@ ast::PrimitiveTypeDeclarationPointer &parseAndAddUntypedPrimitiveTypeDeclaration
 			return primitiveType->name == typeName;
 		});
 
-	// Return existing primitive type
-	if (matchingPrimitiveType != types.cend())
-		return *matchingPrimitiveType;
+	if (matchingPrimitiveType != types.end())
+		return &*matchingPrimitiveType;
+
+	return std::experimental::nullopt;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ast::PrimitiveTypeDeclarationPointer &parseAndAddUntypedPrimitiveTypeDeclaration(Context &context, ast::Domain &domain, std::vector<bool> &flaggedTypes)
+{
+	auto &tokenizer = context.tokenizer;
+	auto typeName = tokenizer.getIdentifier();
+
+	auto &types = domain.types;
+
+	auto matchingPrimitiveTypeDeclaration = findPrimitiveTypeDeclaration(domain, typeName);
+
+	if (matchingPrimitiveTypeDeclaration)
+		return *matchingPrimitiveTypeDeclaration.value();
 
 	types.emplace_back(std::make_unique<ast::PrimitiveTypeDeclaration>(std::move(typeName)));
+	flaggedTypes.emplace_back(false);
 
 	return types.back();
 }
@@ -44,13 +58,15 @@ void parseAndAddPrimitiveTypeDeclarations(Context &context, ast::Domain &domain)
 	auto &tokenizer = context.tokenizer;
 	tokenizer.skipWhiteSpace();
 
-	const auto position = tokenizer.position();
-	const auto typeStartIndex = domain.types.size();
+	auto &types = domain.types;
 
-	// First pass: collect all primitive types
+	std::vector<bool> flaggedTypes;
+	flaggedTypes.resize(types.size(), false);
+
 	while (tokenizer.currentCharacter() != ')')
 	{
-		parseAndAddUntypedPrimitiveTypeDeclaration(context, domain);
+		auto &childType = parseAndAddUntypedPrimitiveTypeDeclaration(context, domain, flaggedTypes);
+		flaggedTypes[&childType - &types.front()] = true;
 
 		tokenizer.skipWhiteSpace();
 
@@ -58,42 +74,16 @@ void parseAndAddPrimitiveTypeDeclarations(Context &context, ast::Domain &domain)
 			continue;
 
 		// Skip parent type information for now
-		tokenizer.getIdentifier();
+		auto &parentType = parseAndAddUntypedPrimitiveTypeDeclaration(context, domain, flaggedTypes);
+
+		for (size_t i = 0; i < flaggedTypes.size(); i++)
+			if (flaggedTypes[i])
+			{
+				flaggedTypes[i] = false;
+				types[i]->parentTypes.emplace_back(std::make_unique<ast::PrimitiveType>(parentType.get()));
+			}
+
 		tokenizer.skipWhiteSpace();
-	}
-
-	tokenizer.seek(position);
-
-	// Second pass: link parent types correctly
-	// Index on the first element of the current inheritance list
-	// TODO: test correct implementation of offset if this function is called multiple times
-	size_t inheritanceIndex = typeStartIndex;
-	size_t i = typeStartIndex;
-
-	while (tokenizer.currentCharacter() != ')')
-	{
-		// Skip type declaration
-		tokenizer.getIdentifier();
-		tokenizer.skipWhiteSpace();
-
-		if (!tokenizer.testAndSkip<char>('-'))
-		{
-			i++;
-			continue;
-		}
-
-		// If existing, parse and store parent type
-		auto parentType = parsePrimitiveType(context, domain);
-		tokenizer.skipWhiteSpace();
-
-		auto &types = domain.types;
-
-		for (size_t j = inheritanceIndex; j <= i; j++)
-			types[j]->parentTypes.emplace_back(ast::deepCopy(parentType));
-
-		// All types up to now are labeled with their parent types
-		inheritanceIndex = i + 1;
-		i++;
 	}
 }
 
