@@ -44,4 +44,12 @@ TEST_CASE("[PDDL parser] Check past issues", "[PDDL parser]")
 		CHECK(types[4]->parentTypes[1]->declaration == types[2].get());
 		CHECK(types[4]->parentTypes[2]->declaration == types[3].get());
 	}
+
+	// Check that whitespace is handled appropriately
+	SECTION("“either” in typing section")
+	{
+		const auto domainFile = fs::path("data") / "test-cases" / "white-space.pddl";
+		context.tokenizer.read(domainFile);
+		CHECK_NOTHROW(pddl::parseDescription(context));
+	}
 }

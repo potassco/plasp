@@ -357,7 +357,7 @@ TEST_CASE("[PDDL parser] White spaces are ignored", "[PDDL parser]")
 	plasp::output::Logger logger;
 	Context context(Tokenizer(), logger);
 
-	CHECK_NOTHROW(Description::fromFile("data/white-space-test.pddl", context));
+	CHECK_NOTHROW(Description::fromFile("data/test-cases/white-space.pddl", context));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
