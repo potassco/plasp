@@ -11,7 +11,7 @@ const pddl::Context::WarningCallback ignoreWarnings = [](const auto &, const aut
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST_CASE("[PDDL signature matching] The official PDDL instances are parsed correctly", "[PDDL signature matching]")
+TEST_CASE("[PDDL signature matching] Predicate signatures are matched correctly", "[PDDL signature matching]")
 {
 	std::stringstream input;
 	pddl::Tokenizer tokenizer;
