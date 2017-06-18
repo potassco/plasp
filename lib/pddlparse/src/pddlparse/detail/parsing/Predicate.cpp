@@ -1,6 +1,8 @@
 #include <pddlparse/detail/parsing/Predicate.h>
 
 #include <pddlparse/AST.h>
+#include <pddlparse/Exception.h>
+#include <pddlparse/detail/SignatureMatching.h>
 #include <pddlparse/detail/parsing/Constant.h>
 #include <pddlparse/detail/parsing/Variable.h>
 #include <pddlparse/detail/parsing/VariableDeclaration.h>
@@ -19,6 +21,7 @@ namespace detail
 std::experimental::optional<ast::PredicatePointer> parsePredicate(Context &context, ASTContext &astContext, VariableStack &variableStack)
 {
 	auto &tokenizer = context.tokenizer;
+	tokenizer.skipWhiteSpace();
 
 	const auto previousPosition = tokenizer.position();
 
@@ -28,25 +31,8 @@ std::experimental::optional<ast::PredicatePointer> parsePredicate(Context &conte
 		return std::experimental::nullopt;
 	}
 
-	const auto predicateName = tokenizer.getIdentifier();
-
+	const auto name = tokenizer.getIdentifier();
 	ast::Predicate::Arguments arguments;
-
-	/*const auto matchingPredicate = std::find_if(predicates.cbegin(), predicates.cend(),
-		[&](const auto &predicate)
-		{
-			return predicate->name() == predicateName;
-		});
-
-	if (matchingPredicate == predicates.cend())
-	{
-		tokenizer.seek(position);
-		return std::experimental::nullopt;
-	}
-
-	auto predicate = PredicatePointer(new Predicate);
-
-	predicate->m_name = predicateName;*/
 
 	tokenizer.skipWhiteSpace();
 
@@ -80,14 +66,26 @@ std::experimental::optional<ast::PredicatePointer> parsePredicate(Context &conte
 		return std::experimental::nullopt;
 	}
 
-	//const auto &predicates = astContext.domain->predicates;
+	const auto &predicates = astContext.domain->predicates;
 
-	// TODO: check that signature matches one of the declared ones
+	const auto matchingPredicateDeclaration = std::find_if(predicates.cbegin(), predicates.cend(),
+		[&](const auto &predicateDeclaration)
+		{
+			return matches(name, arguments, *predicateDeclaration);
+		});
+
+	if (matchingPredicateDeclaration == predicates.cend())
+	{
+		// TODO: enumerate candidates and why they are incompatible
+		tokenizer.seek(previousPosition);
+		throw ParserException(tokenizer.location(), "no matching declaration found for predicate “" + name + "”");
+	}
+
+	auto *declaration = matchingPredicateDeclaration->get();
 
 	tokenizer.expect<std::string>(")");
 
-	// TODO: add matching predicate declaration
-	return std::make_unique<ast::Predicate>(std::move(arguments), nullptr);
+	return std::make_unique<ast::Predicate>(std::move(arguments), declaration);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
