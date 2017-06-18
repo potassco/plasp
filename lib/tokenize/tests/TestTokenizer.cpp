@@ -72,7 +72,7 @@ TEST_CASE("[tokenizer] While tokenizing, the cursor position is as expected", "[
 	std::stringstream s("  identifier  5   \n-51\t 0 1");
 	tokenize::Tokenizer<> p("input", s);
 
-	tokenize::Tokenizer<>::Position pos;
+	tokenize::StreamPosition pos;
 
 	pos = p.position();
 	REQUIRE(p.testAndReturn<std::string>("error") == false);
@@ -181,86 +181,108 @@ TEST_CASE("[tokenizer] While tokenizing, the cursor location is as expcected", "
 
 	const auto startPosition = p.position();
 
-	tokenize::Location l;
-
-	l = p.location();
-	REQUIRE(l.rowStart == 1u);
-	REQUIRE(l.columnStart == 1u);
-	REQUIRE(p.currentCharacter() == '1');
-
-	REQUIRE_NOTHROW(p.advance());
-
-	l = p.location();
-	REQUIRE(l.rowStart == 1u);
-	REQUIRE(l.columnStart == 2u);
-	REQUIRE(p.currentCharacter() == '2');
+	{
+		auto l = tokenize::Location(p);
+		REQUIRE(l.rowStart() == 1u);
+		REQUIRE(l.columnStart() == 1u);
+		REQUIRE(p.currentCharacter() == '1');
+	}
 
 	REQUIRE_NOTHROW(p.advance());
 
-	l = p.location();
-	REQUIRE(l.rowStart == 1u);
-	REQUIRE(l.columnStart == 3u);
-	REQUIRE(p.currentCharacter() == '3');
+	{
+		auto l = tokenize::Location(p);
+		REQUIRE(l.rowStart() == 1u);
+		REQUIRE(l.columnStart() == 2u);
+		REQUIRE(p.currentCharacter() == '2');
+	}
 
 	REQUIRE_NOTHROW(p.advance());
 
-	l = p.location();
-	REQUIRE(l.rowStart == 1u);
-	REQUIRE(l.columnStart == 4u);
-	REQUIRE(p.currentCharacter() == ' ');
+	{
+		auto l = tokenize::Location(p);
+		REQUIRE(l.rowStart() == 1u);
+		REQUIRE(l.columnStart() == 3u);
+		REQUIRE(p.currentCharacter() == '3');
+	}
 
 	REQUIRE_NOTHROW(p.advance());
 
-	l = p.location();
-	REQUIRE(l.rowStart == 1u);
-	REQUIRE(l.columnStart == 5u);
-	REQUIRE(p.currentCharacter() == '\n');
+	{
+		auto l = tokenize::Location(p);
+		REQUIRE(l.rowStart() == 1u);
+		REQUIRE(l.columnStart() == 4u);
+		REQUIRE(p.currentCharacter() == ' ');
+	}
 
 	REQUIRE_NOTHROW(p.advance());
 
-	l = p.location();
-	REQUIRE(l.rowStart == 2u);
-	REQUIRE(l.columnStart == 1u);
-	REQUIRE(p.currentCharacter() == '4');
+	{
+		auto l = tokenize::Location(p);
+		REQUIRE(l.rowStart() == 1u);
+		REQUIRE(l.columnStart() == 5u);
+		REQUIRE(p.currentCharacter() == '\n');
+	}
+
+	REQUIRE_NOTHROW(p.advance());
+
+	{
+		auto l = tokenize::Location(p);
+		REQUIRE(l.rowStart() == 2u);
+		REQUIRE(l.columnStart() == 1u);
+		REQUIRE(p.currentCharacter() == '4');
+	}
 
 	REQUIRE_NOTHROW(p.advance());
 
 	REQUIRE_NOTHROW(p.expect<std::string>("test1"));
 
-	l = p.location();
-	REQUIRE(l.rowStart == 3u);
-	REQUIRE(l.columnStart == 6u);
+	{
+		auto l = tokenize::Location(p);
+		REQUIRE(l.rowStart() == 3u);
+		REQUIRE(l.columnStart() == 6u);
+	}
 
 	REQUIRE_NOTHROW(p.expect<std::string>("test2"));
 
-	l = p.location();
-	REQUIRE(l.rowStart == 4u);
-	REQUIRE(l.columnStart == 7u);
+	{
+		auto l = tokenize::Location(p);
+		REQUIRE(l.rowStart() == 4u);
+		REQUIRE(l.columnStart() == 7u);
+	}
 
 	REQUIRE_NOTHROW(p.expect<std::string>("test3"));
 
-	l = p.location();
-	REQUIRE(l.rowStart == 5u);
-	REQUIRE(l.columnStart == 6u);
+	{
+		auto l = tokenize::Location(p);
+		REQUIRE(l.rowStart() == 5u);
+		REQUIRE(l.columnStart() == 6u);
+	}
 
 	REQUIRE_NOTHROW(p.skipLine());
 
-	l = p.location();
-	REQUIRE(l.rowStart == 6u);
-	REQUIRE(l.columnStart == 1u);
+	{
+		auto l = tokenize::Location(p);
+		REQUIRE(l.rowStart() == 6u);
+		REQUIRE(l.columnStart() == 1u);
+	}
 
 	REQUIRE_NOTHROW(p.skipLine());
 
-	l = p.location();
-	REQUIRE(l.rowStart == 7u);
-	REQUIRE(l.columnStart == 1u);
+	{
+		auto l = tokenize::Location(p);
+		REQUIRE(l.rowStart() == 7u);
+		REQUIRE(l.columnStart() == 1u);
+	}
 
 	REQUIRE_NOTHROW(p.skipWhiteSpace());
 
-	l = p.location();
-	REQUIRE(l.rowStart == 10u);
-	REQUIRE(l.columnStart == 1u);
-	REQUIRE(p.atEnd());
+	{
+		auto l = tokenize::Location(p);
+		REQUIRE(l.rowStart() == 10u);
+		REQUIRE(l.columnStart() == 1u);
+		REQUIRE(p.atEnd());
+	}
 
 	p.reset();
 	REQUIRE(p.position() == startPosition);
@@ -289,19 +311,21 @@ TEST_CASE("[tokenizer] Comments are correctly removed", "[tokenizer]")
 
 	p1.removeComments(";", "\n", false);
 
-	tokenize::Location l;
-
 	REQUIRE_NOTHROW(p1.expect<std::string>("test1"));
 
-	l = p1.location();
-	REQUIRE(l.rowStart == 2u);
-	REQUIRE(l.columnStart == 6u);
+	{
+		auto l = tokenize::Location(p1);
+		REQUIRE(l.rowStart() == 2u);
+		REQUIRE(l.columnStart() == 6u);
+	}
 
 	REQUIRE_NOTHROW(p1.expect<std::string>("test2"));
 
-	l = p1.location();
-	REQUIRE(l.rowStart == 3u);
-	REQUIRE(l.columnStart == 6u);
+	{
+		auto l = tokenize::Location(p1);
+		REQUIRE(l.rowStart() == 3u);
+		REQUIRE(l.columnStart() == 6u);
+	}
 
 	p1.skipWhiteSpace();
 

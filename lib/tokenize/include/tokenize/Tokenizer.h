@@ -189,7 +189,7 @@ void Tokenizer<TokenizerPolicy>::expect(const Type &expectedValue)
 	std::stringstream message;
 	message << "unexpected value, expected “" << expectedValue << "”";
 
-	throw TokenizerException(location(), message.str());
+	throw TokenizerException(*this, message.str());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -208,7 +208,7 @@ std::string Tokenizer<TokenizerPolicy>::getIdentifier()
 		if (!TokenizerPolicy::isIdentifierCharacter(character))
 		{
 			if (value.empty())
-				throw TokenizerException(location(), "could not parse identifier");
+				throw TokenizerException(*this, "could not parse identifier");
 
 			return value;
 		}
@@ -406,7 +406,7 @@ uint64_t Tokenizer<TokenizerPolicy>::getIntegerBody()
 	check();
 
 	if (!std::isdigit(currentCharacter()))
-		throw TokenizerException(location(), "could not read integer value");
+		throw TokenizerException(*this, "could not read integer value");
 
 	uint64_t value = 0;
 
@@ -448,7 +448,7 @@ uint64_t Tokenizer<TokenizerPolicy>::getImpl(Tag<uint64_t>)
 	skipWhiteSpace();
 
 	if (currentCharacter() == '-')
-		throw TokenizerException(location(), "expected unsigned integer, got signed one");
+		throw TokenizerException(*this, "expected unsigned integer, got signed one");
 
 	return getIntegerBody();
 }
@@ -482,7 +482,7 @@ bool Tokenizer<TokenizerPolicy>::getImpl(Tag<bool>)
 	if (testAndSkip<char>('1'))
 		return true;
 
-	throw TokenizerException(location(), "could not read Boolean value");
+	throw TokenizerException(*this, "could not read Boolean value");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

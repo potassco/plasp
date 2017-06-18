@@ -27,8 +27,8 @@ class DescriptionParser
 		void findSections();
 
 		Context &m_context;
-		tokenize::Stream::Position m_domainPosition;
-		tokenize::Stream::Position m_problemPosition;
+		tokenize::StreamPosition m_domainPosition;
+		tokenize::StreamPosition m_problemPosition;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

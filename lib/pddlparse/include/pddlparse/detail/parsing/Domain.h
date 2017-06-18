@@ -35,11 +35,11 @@ class DomainParser
 
 		Context &m_context;
 
-		tokenize::Stream::Position m_requirementsPosition;
-		tokenize::Stream::Position m_typesPosition;
-		tokenize::Stream::Position m_constantsPosition;
-		tokenize::Stream::Position m_predicatesPosition;
-		std::vector<tokenize::Stream::Position> m_actionPositions;
+		tokenize::StreamPosition m_requirementsPosition;
+		tokenize::StreamPosition m_typesPosition;
+		tokenize::StreamPosition m_constantsPosition;
+		tokenize::StreamPosition m_predicatesPosition;
+		std::vector<tokenize::StreamPosition> m_actionPositions;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

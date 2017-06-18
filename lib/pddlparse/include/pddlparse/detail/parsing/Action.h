@@ -34,12 +34,12 @@ class ActionParser
 		Context &m_context;
 		ast::Domain &m_domain;
 
-		tokenize::Stream::Position m_parametersPosition;
-		tokenize::Stream::Position m_preconditionPosition;
-		tokenize::Stream::Position m_effectPosition;
+		tokenize::StreamPosition m_parametersPosition;
+		tokenize::StreamPosition m_preconditionPosition;
+		tokenize::StreamPosition m_effectPosition;
 
 		// For compatibility with old PDDL versions
-		tokenize::Stream::Position m_varsPosition;
+		tokenize::StreamPosition m_varsPosition;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

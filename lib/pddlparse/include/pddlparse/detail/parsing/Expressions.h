@@ -64,12 +64,12 @@ std::experimental::optional<std::unique_ptr<Derived>> parseBinary(Context &conte
 	auto argumentLeft = parseArgumentLeft(context, astContext, variableStack);
 
 	if (!argumentLeft)
-		throw ParserException(tokenizer.location(), "could not parse argument of “" + std::string(Derived::Identifier) + "” expression");
+		throw ParserException(tokenizer, "could not parse argument of “" + std::string(Derived::Identifier) + "” expression");
 
 	auto argumentRight = parseArgumentRight(context, astContext, variableStack);
 
 	if (!argumentRight)
-		throw ParserException(tokenizer.location(), "could not parse argument of “" + std::string(Derived::Identifier) + "” expression");
+		throw ParserException(tokenizer, "could not parse argument of “" + std::string(Derived::Identifier) + "” expression");
 
 	tokenizer.expect<std::string>(")");
 
@@ -103,7 +103,7 @@ std::experimental::optional<std::unique_ptr<Derived>> parseNAry(Context &context
 		auto argument = parseArgument(context, astContext, variableStack);
 
 		if (!argument)
-			throw ParserException(tokenizer.location(), "could not parse argument of “" + std::string(Derived::Identifier) + "” expression");
+			throw ParserException(tokenizer, "could not parse argument of “" + std::string(Derived::Identifier) + "” expression");
 
 		arguments.emplace_back(std::move(argument.value()));
 
@@ -111,7 +111,7 @@ std::experimental::optional<std::unique_ptr<Derived>> parseNAry(Context &context
 	}
 
 	if (arguments.empty())
-		context.warningCallback(tokenizer.location(), "“" + std::string(Derived::Identifier) + "” expressions should not be empty");
+		context.warningCallback(tokenizer, "“" + std::string(Derived::Identifier) + "” expressions should not be empty");
 
 	tokenizer.expect<std::string>(")");
 
@@ -147,7 +147,7 @@ std::experimental::optional<std::unique_ptr<Derived>> parseQuantified(Context &c
 	auto argument = parseArgument(context, astContext, variableStack);
 
 	if (!argument)
-		throw ParserException(tokenizer.location(), "could not parse argument of “" + std::string(Derived::Identifier) + "” expression");
+		throw ParserException(tokenizer, "could not parse argument of “" + std::string(Derived::Identifier) + "” expression");
 
 	// Clean up variable stack
 	variableStack.pop();
@@ -221,7 +221,7 @@ std::experimental::optional<ast::NotPointer<Argument>> parseNot(Context &context
 	auto argument = parseArgument(context, astContext, variableStack);
 
 	if (!argument)
-		throw ParserException(tokenizer.location(), "could not parse argument of “not” expression");
+		throw ParserException(tokenizer, "could not parse argument of “not” expression");
 
 	tokenizer.expect<std::string>(")");
 

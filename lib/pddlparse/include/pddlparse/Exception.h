@@ -2,9 +2,10 @@
 #define __PDDL_PARSE__EXCEPTION_H
 
 #include <exception>
+#include <experimental/optional>
 #include <string>
 
-#include <tokenize/Stream.h>
+#include <tokenize/Location.h>
 
 namespace pddl
 {
@@ -18,48 +19,45 @@ namespace pddl
 class Exception: public std::exception
 {
 	public:
-		explicit Exception()
+		Exception()
 		:	Exception("unspecified parser error")
 		{
 		}
 
-		explicit Exception(const char *message)
+		Exception(const char *message)
 		:	Exception(static_cast<std::string>(message))
 		{
 		}
 
-		explicit Exception(const std::string &message)
+		Exception(const std::string &message)
 		:	m_message{message}
 		{
 		}
 
-		explicit Exception(const tokenize::Location &location)
-		:	Exception(location, "unspecified parser error")
+		Exception(tokenize::Location &&location)
+		:	Exception(std::forward<tokenize::Location>(location), "unspecified parser error")
 		{
 		}
 
-		explicit Exception(const tokenize::Location &location, const char *message)
-		:	Exception(location, static_cast<std::string>(message))
+		Exception(tokenize::Location &&location, const char *message)
+		:	Exception(std::forward<tokenize::Location>(location), static_cast<std::string>(message))
 		{
 		}
 
-		explicit Exception(const tokenize::Location &location, const std::string &message)
-		:	m_location{location},
-			m_message{message},
-			// TODO: refactor
-			m_plainMessage{std::string(m_location.sectionStart) + ":" + std::to_string(m_location.rowStart)
-				+ ":" + std::to_string(m_location.columnStart) + " " + m_message}
+		Exception(tokenize::Location &&location, const std::string &message)
+		:	m_location{std::move(location)},
+			m_message{message}
 		{
 		}
 
 		~Exception() noexcept = default;
 
-		const char *what() const throw()
+		const char *what() const noexcept
 		{
-			return m_plainMessage.c_str();
+			return m_message.c_str();
 		}
 
-		const tokenize::Location &location() const
+		const std::experimental::optional<tokenize::Location> &location() const
 		{
 			return m_location;
 		}
@@ -70,9 +68,8 @@ class Exception: public std::exception
 		}
 
 	private:
-		tokenize::Location m_location;
+		std::experimental::optional<tokenize::Location> m_location;
 		std::string m_message;
-		std::string m_plainMessage;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

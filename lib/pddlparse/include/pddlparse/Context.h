@@ -23,7 +23,7 @@ struct Context
 	}
 
 	// TODO: replace std::string with char *
-	using WarningCallback = std::function<void (tokenize::Location, const std::string &)>;
+	using WarningCallback = std::function<void (tokenize::Location &&, const std::string &)>;
 
 	Context() = default;
 	~Context() = default;

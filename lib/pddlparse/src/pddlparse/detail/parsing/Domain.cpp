@@ -22,10 +22,10 @@ namespace detail
 
 DomainParser::DomainParser(Context &context)
 :	m_context{context},
-	m_requirementsPosition{tokenize::Stream::InvalidPosition},
-	m_typesPosition{tokenize::Stream::InvalidPosition},
-	m_constantsPosition{tokenize::Stream::InvalidPosition},
-	m_predicatesPosition{tokenize::Stream::InvalidPosition}
+	m_requirementsPosition{tokenize::InvalidStreamPosition},
+	m_typesPosition{tokenize::InvalidStreamPosition},
+	m_constantsPosition{tokenize::InvalidStreamPosition},
+	m_predicatesPosition{tokenize::InvalidStreamPosition}
 {
 }
 
@@ -39,32 +39,32 @@ ast::DomainPointer DomainParser::parse()
 
 	auto &tokenizer = m_context.tokenizer;
 
-	if (m_requirementsPosition != tokenize::Stream::InvalidPosition)
+	if (m_requirementsPosition != tokenize::InvalidStreamPosition)
 	{
 		tokenizer.seek(m_requirementsPosition);
 		parseRequirementSection(*domain);
 	}
 
-	if (m_typesPosition != tokenize::Stream::InvalidPosition)
+	if (m_typesPosition != tokenize::InvalidStreamPosition)
 	{
 		tokenizer.seek(m_typesPosition);
 		parseTypeSection(*domain);
 	}
 
-	if (m_constantsPosition != tokenize::Stream::InvalidPosition)
+	if (m_constantsPosition != tokenize::InvalidStreamPosition)
 	{
 		tokenizer.seek(m_constantsPosition);
 		parseConstantSection(*domain);
 	}
 
-	if (m_predicatesPosition != tokenize::Stream::InvalidPosition)
+	if (m_predicatesPosition != tokenize::InvalidStreamPosition)
 	{
 		tokenizer.seek(m_predicatesPosition);
 		parsePredicateSection(*domain);
 	}
 
 	for (size_t i = 0; i < m_actionPositions.size(); i++)
-		if (m_actionPositions[i] != tokenize::Stream::InvalidPosition)
+		if (m_actionPositions[i] != tokenize::InvalidStreamPosition)
 		{
 			tokenizer.seek(m_actionPositions[i]);
 			parseActionSection(*domain);
@@ -93,10 +93,10 @@ void DomainParser::findSections(ast::Domain &domain)
 	const auto setSectionPosition =
 		[&](const std::string &sectionName, auto &sectionPosition, const auto value, bool unique = false)
 		{
-			if (unique && sectionPosition != tokenize::Stream::InvalidPosition)
+			if (unique && sectionPosition != tokenize::InvalidStreamPosition)
 			{
 				tokenizer.seek(value);
-				throw ParserException(tokenizer.location(), "only one “:" + sectionName + "” section allowed");
+				throw ParserException(tokenizer, "only one “:" + sectionName + "” section allowed");
 			}
 
 			sectionPosition = value;
@@ -125,7 +125,7 @@ void DomainParser::findSections(ast::Domain &domain)
 			setSectionPosition("predicates", m_predicatesPosition, position, true);
 		else if (tokenizer.testIdentifierAndSkip("action"))
 		{
-			m_actionPositions.emplace_back(tokenize::Stream::InvalidPosition);
+			m_actionPositions.emplace_back(tokenize::InvalidStreamPosition);
 			setSectionPosition("action", m_actionPositions.back(), position);
 		}
 		else if (tokenizer.testIdentifierAndSkip("functions")
@@ -137,7 +137,7 @@ void DomainParser::findSections(ast::Domain &domain)
 
 			const auto sectionIdentifier = tokenizer.getIdentifier();
 
-			m_context.warningCallback(tokenizer.location(), "section type “" + sectionIdentifier + "” currently unsupported, ignoring section");
+			m_context.warningCallback(tokenizer, "section type “" + sectionIdentifier + "” currently unsupported, ignoring section");
 
 			tokenizer.seek(sectionIdentifierPosition);
 		}
@@ -146,7 +146,7 @@ void DomainParser::findSections(ast::Domain &domain)
 			const auto sectionIdentifier = tokenizer.getIdentifier();
 
 			tokenizer.seek(position);
-			throw ParserException(tokenizer.location(), "unknown domain section “" + sectionIdentifier + "”");
+			throw ParserException(tokenizer, "unknown domain section “" + sectionIdentifier + "”");
 		}
 
 		// Skip section for now and parse it later
@@ -246,7 +246,7 @@ void DomainParser::parseTypeSection(ast::Domain &domain)
 	while (tokenizer.currentCharacter() != ')')
 	{
 		if (tokenizer.currentCharacter() == '(')
-			throw ParserException(tokenizer.location(), "only primitive types are allowed in type section");
+			throw ParserException(tokenizer, "only primitive types are allowed in type section");
 
 		parseAndAddPrimitiveTypeDeclarations(m_context, domain);
 

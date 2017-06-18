@@ -30,10 +30,7 @@ class TokenizerException: public std::exception
 
 		explicit TokenizerException(const Location &location, const std::string &message)
 		:	m_location{location},
-			m_message{message},
-			// TODO: refactor
-			m_plainMessage{std::string(m_location.sectionStart) + ":" + std::to_string(m_location.rowStart)
-				+ ":" + std::to_string(m_location.columnStart) + " " + m_message}
+			m_message{message}
 		{
 		}
 
@@ -41,7 +38,7 @@ class TokenizerException: public std::exception
 
 		const char *what() const noexcept
 		{
-			return m_plainMessage.c_str();
+			return m_message.c_str();
 		}
 
 		const Location &location() const
@@ -57,7 +54,6 @@ class TokenizerException: public std::exception
 	private:
 		Location m_location;
 		std::string m_message;
-		std::string m_plainMessage;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

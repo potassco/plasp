@@ -23,10 +23,10 @@ namespace detail
 ActionParser::ActionParser(Context &context, ast::Domain &domain)
 :	m_context{context},
 	m_domain{domain},
-	m_parametersPosition{tokenize::Stream::InvalidPosition},
-	m_preconditionPosition{tokenize::Stream::InvalidPosition},
-	m_effectPosition{tokenize::Stream::InvalidPosition},
-	m_varsPosition{tokenize::Stream::InvalidPosition}
+	m_parametersPosition{tokenize::InvalidStreamPosition},
+	m_preconditionPosition{tokenize::InvalidStreamPosition},
+	m_effectPosition{tokenize::InvalidStreamPosition},
+	m_varsPosition{tokenize::InvalidStreamPosition}
 {
 }
 
@@ -40,26 +40,26 @@ ast::ActionPointer ActionParser::parse()
 
 	auto &tokenizer = m_context.tokenizer;
 
-	if (m_parametersPosition != tokenize::Stream::InvalidPosition)
+	if (m_parametersPosition != tokenize::InvalidStreamPosition)
 	{
 		tokenizer.seek(m_parametersPosition);
 		parseParameterSection(*action);
 	}
 
 	// For compatibility with old PDDL versions, vars sections are parsed in addition to parameters
-	if (m_varsPosition != tokenize::Stream::InvalidPosition)
+	if (m_varsPosition != tokenize::InvalidStreamPosition)
 	{
 		tokenizer.seek(m_varsPosition);
 		parseVarsSection(*action);
 	}
 
-	if (m_preconditionPosition != tokenize::Stream::InvalidPosition)
+	if (m_preconditionPosition != tokenize::InvalidStreamPosition)
 	{
 		tokenizer.seek(m_preconditionPosition);
 		parsePreconditionSection(*action);
 	}
 
-	if (m_effectPosition != tokenize::Stream::InvalidPosition)
+	if (m_effectPosition != tokenize::InvalidStreamPosition)
 	{
 		tokenizer.seek(m_effectPosition);
 		parseEffectSection(*action);
@@ -84,10 +84,10 @@ void ActionParser::findSections(ast::Action &action)
 	const auto setSectionPosition =
 		[&](const std::string &sectionName, auto &sectionPosition, const auto value, bool unique = false)
 		{
-			if (unique && sectionPosition != tokenize::Stream::InvalidPosition)
+			if (unique && sectionPosition != tokenize::InvalidStreamPosition)
 			{
 				tokenizer.seek(value);
-				throw ParserException(tokenizer.location(), "only one “:" + sectionName + "” section allowed");
+				throw ParserException(tokenizer, "only one “:" + sectionName + "” section allowed");
 			}
 
 			sectionPosition = value;
@@ -114,7 +114,7 @@ void ActionParser::findSections(ast::Action &action)
 			const auto sectionIdentifier = tokenizer.getIdentifier();
 
 			tokenizer.seek(position);
-			throw ParserException(tokenizer.location(), "unknown action section “" + sectionIdentifier + "”");
+			throw ParserException(tokenizer, "unknown action section “" + sectionIdentifier + "”");
 		}
 
 		tokenizer.expect<std::string>("(");
@@ -181,7 +181,7 @@ void ActionParser::parseVarsSection(ast::Action &action)
 	tokenizer.expect<std::string>(":vars");
 	tokenizer.expect<std::string>("(");
 
-	m_context.warningCallback(tokenizer.location(), "“vars” section is not part of the PDDL 3.1 specification, treating it like additional “parameters” section");
+	m_context.warningCallback(tokenizer, "“vars” section is not part of the PDDL 3.1 specification, treating it like additional “parameters” section");
 
 	parseAndAddVariableDeclarations(m_context, m_domain, action.parameters);
 

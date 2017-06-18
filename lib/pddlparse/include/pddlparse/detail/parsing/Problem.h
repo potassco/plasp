@@ -36,11 +36,11 @@ class ProblemParser
 		Context &m_context;
 		ast::Domain &m_domain;
 
-		tokenize::Stream::Position m_domainPosition;
-		tokenize::Stream::Position m_requirementsPosition;
-		tokenize::Stream::Position m_objectsPosition;
-		tokenize::Stream::Position m_initialStatePosition;
-		tokenize::Stream::Position m_goalPosition;
+		tokenize::StreamPosition m_domainPosition;
+		tokenize::StreamPosition m_requirementsPosition;
+		tokenize::StreamPosition m_objectsPosition;
+		tokenize::StreamPosition m_initialStatePosition;
+		tokenize::StreamPosition m_goalPosition;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

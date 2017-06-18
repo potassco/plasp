@@ -22,11 +22,11 @@ namespace detail
 ProblemParser::ProblemParser(Context &context, ast::Domain &domain)
 :	m_context{context},
 	m_domain{domain},
-	m_domainPosition{tokenize::Stream::InvalidPosition},
-	m_requirementsPosition{tokenize::Stream::InvalidPosition},
-	m_objectsPosition{tokenize::Stream::InvalidPosition},
-	m_initialStatePosition{tokenize::Stream::InvalidPosition},
-	m_goalPosition{tokenize::Stream::InvalidPosition}
+	m_domainPosition{tokenize::InvalidStreamPosition},
+	m_requirementsPosition{tokenize::InvalidStreamPosition},
+	m_objectsPosition{tokenize::InvalidStreamPosition},
+	m_initialStatePosition{tokenize::InvalidStreamPosition},
+	m_goalPosition{tokenize::InvalidStreamPosition}
 {
 }
 
@@ -40,32 +40,32 @@ ast::ProblemPointer ProblemParser::parse()
 
 	auto &tokenizer = m_context.tokenizer;
 
-	if (m_domainPosition == tokenize::Stream::InvalidPosition)
-		throw ParserException(tokenizer.location(), "problem description does not specify a corresponding domain");
+	if (m_domainPosition == tokenize::InvalidStreamPosition)
+		throw ParserException(tokenizer, "problem description does not specify a corresponding domain");
 
 	tokenizer.seek(m_domainPosition);
 	parseDomainSection(*problem);
 
-	if (m_requirementsPosition != tokenize::Stream::InvalidPosition)
+	if (m_requirementsPosition != tokenize::InvalidStreamPosition)
 	{
 		tokenizer.seek(m_requirementsPosition);
 		parseRequirementSection(*problem);
 	}
 
-	if (m_objectsPosition != tokenize::Stream::InvalidPosition)
+	if (m_objectsPosition != tokenize::InvalidStreamPosition)
 	{
 		tokenizer.seek(m_objectsPosition);
 		parseObjectSection(*problem);
 	}
 
-	if (m_initialStatePosition == tokenize::Stream::InvalidPosition)
-		throw ParserException(tokenizer.location(), "problem description does not specify an initial state");
+	if (m_initialStatePosition == tokenize::InvalidStreamPosition)
+		throw ParserException(tokenizer, "problem description does not specify an initial state");
 
 	tokenizer.seek(m_initialStatePosition);
 	parseInitialStateSection(*problem);
 
-	if (m_goalPosition == tokenize::Stream::InvalidPosition)
-		throw ParserException(tokenizer.location(), "problem description does not specify a goal");
+	if (m_goalPosition == tokenize::InvalidStreamPosition)
+		throw ParserException(tokenizer, "problem description does not specify a goal");
 
 	tokenizer.seek(m_goalPosition);
 	parseGoalSection(*problem);
@@ -91,10 +91,10 @@ void ProblemParser::findSections(ast::Problem &problem)
 	const auto setSectionPosition =
 		[&](const std::string &sectionName, auto &sectionPosition, const auto value, bool unique = false)
 		{
-			if (unique && sectionPosition != tokenize::Stream::InvalidPosition)
+			if (unique && sectionPosition != tokenize::InvalidStreamPosition)
 			{
 				tokenizer.seek(value);
-				throw ParserException(tokenizer.location(), "only one “:" + sectionName + "” section allowed");
+				throw ParserException(tokenizer, "only one “:" + sectionName + "” section allowed");
 			}
 
 			sectionPosition = value;
@@ -129,7 +129,7 @@ void ProblemParser::findSections(ast::Problem &problem)
 
 			const auto sectionIdentifier = tokenizer.getIdentifier();
 
-			m_context.warningCallback(tokenizer.location(), "section type “" + sectionIdentifier + "” currently unsupported, ignoring section");
+			m_context.warningCallback(tokenizer, "section type “" + sectionIdentifier + "” currently unsupported, ignoring section");
 
 			tokenizer.seek(sectionIdentifierPosition);
 		}
@@ -138,7 +138,7 @@ void ProblemParser::findSections(ast::Problem &problem)
 			const auto sectionIdentifier = tokenizer.getIdentifier();
 
 			tokenizer.seek(position);
-			throw ParserException(tokenizer.location(), "unknown problem section “" + sectionIdentifier + "”");
+			throw ParserException(tokenizer, "unknown problem section “" + sectionIdentifier + "”");
 		}
 
 		// Skip section for now and parse it later
@@ -165,7 +165,7 @@ void ProblemParser::parseDomainSection(ast::Problem &problem)
 	const auto domainName = tokenizer.getIdentifier();
 
 	if (problem.domain->name != domainName)
-		throw ParserException(tokenizer.location(), "domains do not match (“" + problem.domain->name + "” and “" + domainName + "”)");
+		throw ParserException(tokenizer, "domains do not match (“" + problem.domain->name + "” and “" + domainName + "”)");
 
 	tokenizer.expect<std::string>(")");
 }

@@ -1,7 +1,7 @@
 #ifndef __TOKENIZE__LOCATION_H
 #define __TOKENIZE__LOCATION_H
 
-#include <cstdlib>
+#include <tokenize/StreamPosition.h>
 
 namespace tokenize
 {
@@ -12,16 +12,41 @@ namespace tokenize
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct Location
+class Stream;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class Location
 {
-	const char *sectionStart = nullptr;
-	const char *sectionEnd = nullptr;
+	public:
+		Location(Stream &stream);
+		Location(Stream &stream, StreamPosition position);
 
-	std::size_t rowStart = -1;
-	std::size_t rowEnd = -1;
+		const char *sectionStart() const;
+		const char *sectionEnd() const;
 
-	std::size_t columnStart = -1;
-	std::size_t columnEnd = -1;
+		StreamPosition rowStart() const;
+		StreamPosition rowEnd() const;
+
+		StreamPosition columnStart() const;
+		StreamPosition columnEnd() const;
+
+	private:
+		void initializeLazily() const;
+
+		Stream &m_stream;
+		const StreamPosition m_position;
+
+		mutable bool m_isInitialized{false};
+
+		mutable const char *m_sectionStart{nullptr};
+		mutable const char *m_sectionEnd{nullptr};
+
+		mutable StreamPosition m_rowStart{InvalidStreamPosition};
+		mutable StreamPosition m_rowEnd{InvalidStreamPosition};
+
+		mutable StreamPosition m_columnStart{InvalidStreamPosition};
+		mutable StreamPosition m_columnEnd{InvalidStreamPosition};
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
