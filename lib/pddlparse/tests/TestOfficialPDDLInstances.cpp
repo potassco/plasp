@@ -12,7 +12,7 @@ const auto pddlInstanceBasePath = fs::path("data") / "pddl-instances";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST_CASE("[PDDL parser] The official PDDL instances are parsed correctly", "[PDDL parser]")
+TEST_CASE("[PDDL instances] The official PDDL instances are parsed correctly", "[PDDL instances]")
 {
 	pddl::Tokenizer tokenizer;
 	pddl::Context context(std::move(tokenizer), ignoreWarnings);

@@ -12,7 +12,7 @@ const auto pddlInstanceBasePath = fs::path("data") / "pddl-instances";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST_CASE("[PDDL parser acceptance] All official PDDL domains are parsed without errors", "[PDDL parser acceptance]")
+TEST_CASE("[PDDL acceptance] All official PDDL domains are parsed without errors", "[PDDL acceptance]")
 {
 	for (const auto &competitionDirectory : fs::directory_iterator(pddlInstanceBasePath))
 	{
@@ -43,7 +43,7 @@ TEST_CASE("[PDDL parser acceptance] All official PDDL domains are parsed without
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST_CASE("[PDDL parser acceptance] The first instance for all official PDDL domains is parsed without errors", "[PDDL parser acceptance]")
+TEST_CASE("[PDDL acceptance] The first instance for all official PDDL domains is parsed without errors", "[PDDL acceptance]")
 {
 	for (const auto &competitionDirectory : fs::directory_iterator(pddlInstanceBasePath))
 	{
