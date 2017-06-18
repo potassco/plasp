@@ -79,7 +79,7 @@ boost::intrusive_ptr<Derived> NAry<Derived>::parse(Context &context,
 	}
 
 	if (expression->m_arguments.empty())
-		context.logger.log(output::Priority::Warning, tokenizer.location(), "“" + Derived::Identifier + "” expressions should not be empty");
+		context.logger.log(output::Priority::Warning, tokenizer, "“" + Derived::Identifier + "” expressions should not be empty");
 
 	tokenizer.expect<std::string>(")");
 

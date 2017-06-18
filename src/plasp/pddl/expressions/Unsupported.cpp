@@ -25,7 +25,7 @@ UnsupportedPointer Unsupported::parse(Context &context)
 
 	expression->m_type = tokenizer.getIdentifier();
 
-	context.logger.log(output::Priority::Warning, tokenizer.location(), "expression type “" + expression->m_type + "” currently unsupported in this context");
+	context.logger.log(output::Priority::Warning, tokenizer, "expression type “" + expression->m_type + "” currently unsupported in this context");
 
 	skipSection(tokenizer);
 

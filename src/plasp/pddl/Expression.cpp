@@ -182,7 +182,7 @@ ExpressionPointer parseExpression(Context &context, ExpressionContext &expressio
 	const auto expressionIdentifier = tokenizer.getIdentifier();
 
 	tokenizer.seek(position);
-	throw tokenize::TokenizerException(tokenizer.location(), "expression type “" + expressionIdentifier + "” unknown or not allowed in this context");
+	throw tokenize::TokenizerException(tokenizer, "expression type “" + expressionIdentifier + "” unknown or not allowed in this context");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -257,7 +257,7 @@ ExpressionPointer parseEffectBodyExpression(Context &context, ExpressionContext 
 	const auto expressionIdentifier = tokenizer.getIdentifier();
 
 	tokenizer.seek(position);
-	throw tokenize::TokenizerException(tokenizer.location(), "expression type “" + expressionIdentifier + "” unknown or not allowed in this context");
+	throw tokenize::TokenizerException(tokenizer, "expression type “" + expressionIdentifier + "” unknown or not allowed in this context");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -281,7 +281,7 @@ ExpressionPointer parsePredicate(Context &context, ExpressionContext &expression
 	if ((expression = expressions::Predicate::parse(context, expressionContext)))
 		return expression;
 
-	throw tokenize::TokenizerException(context.tokenizer.location(), "expected predicate");
+	throw tokenize::TokenizerException(context.tokenizer, "expected predicate");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

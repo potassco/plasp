@@ -29,7 +29,7 @@ MutexGroup MutexGroup::fromSAS(tokenize::Tokenizer<> &tokenizer, const Variables
 		mutexGroup.m_facts.emplace_back(Fact::fromSAS(tokenizer, variables));
 
 		if (mutexGroup.m_facts[j].value() == Value::None)
-			throw tokenize::TokenizerException(tokenizer.location(), "mutex groups must not contain <none of those> values");
+			throw tokenize::TokenizerException(tokenizer, "mutex groups must not contain <none of those> values");
 	}
 
 	tokenizer.expect<std::string>("end_mutex_group");

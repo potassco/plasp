@@ -126,7 +126,7 @@ PredicatePointer Predicate::parse(Context &context, const Problem &problem)
 	while (tokenizer.currentCharacter() != ')')
 	{
 		if (tokenizer.currentCharacter() == '?')
-			throw tokenize::TokenizerException(tokenizer.location(), "variables not allowed in this context");
+			throw tokenize::TokenizerException(tokenizer, "variables not allowed in this context");
 
 		// Parse objects and constants
 		const auto constant = Constant::parseAndFind(context, problem);

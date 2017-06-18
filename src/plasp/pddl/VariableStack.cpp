@@ -53,7 +53,7 @@ expressions::VariablePointer VariableStack::parseAndFind(plasp::pddl::Context &c
 			return match->get();
 	}
 
-	throw tokenize::TokenizerException(tokenizer.location(), "variable “" + variableName + "” used but never declared");
+	throw tokenize::TokenizerException(tokenizer, "variable “" + variableName + "” used but never declared");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

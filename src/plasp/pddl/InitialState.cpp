@@ -59,7 +59,7 @@ std::unique_ptr<InitialState> InitialState::parseDeclaration(Context &context,
 			const auto expressionIdentifier = tokenizer.getIdentifier();
 
 			tokenizer.seek(position);
-			throw tokenize::TokenizerException(tokenizer.location(), "expression type “" + expressionIdentifier + "” unknown or not allowed in this context");
+			throw tokenize::TokenizerException(tokenizer, "expression type “" + expressionIdentifier + "” unknown or not allowed in this context");
 		};
 
 	tokenizer.skipWhiteSpace();

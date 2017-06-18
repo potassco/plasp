@@ -21,9 +21,9 @@ namespace pddl
 
 Description::Description(Context &context)
 :	m_context(context),
-	m_domainPosition{-1},
+	m_domainPosition{tokenize::InvalidStreamPosition},
 	m_domain{std::make_unique<Domain>(Domain(m_context))},
-	m_problemPosition{-1}
+	m_problemPosition{tokenize::InvalidStreamPosition}
 {
 }
 
@@ -133,13 +133,13 @@ void Description::parse()
 	// First, determine the locations of domain and problem
 	findSections();
 
-	if (m_domainPosition == -1)
+	if (m_domainPosition == tokenize::InvalidStreamPosition)
 		throw ConsistencyException("no PDDL domain specified");
 
 	tokenizer.seek(m_domainPosition);
 	m_domain->parse();
 
-	if (m_problemPosition != -1)
+	if (m_problemPosition != tokenize::InvalidStreamPosition)
 	{
 		tokenizer.seek(m_problemPosition);
 		m_problem->parse();
@@ -166,8 +166,8 @@ void Description::findSections()
 
 		if (tokenizer.testAndSkip<std::string>("domain"))
 		{
-			if (m_domainPosition != -1)
-				throw tokenize::TokenizerException(tokenizer.location(), "PDDL description may not contain two domains");
+			if (m_domainPosition != tokenize::InvalidStreamPosition)
+				throw tokenize::TokenizerException(tokenizer, "PDDL description may not contain two domains");
 
 			m_domainPosition = position;
 
@@ -176,8 +176,8 @@ void Description::findSections()
 		}
 		else if (tokenizer.testAndSkip<std::string>("problem"))
 		{
-			if (m_problemPosition != -1)
-				throw tokenize::TokenizerException(tokenizer.location(), "PDDL description may currently not contain two problems");
+			if (m_problemPosition != tokenize::InvalidStreamPosition)
+				throw tokenize::TokenizerException(tokenizer, "PDDL description may currently not contain two problems");
 
 			m_problem = std::make_unique<Problem>(Problem(m_context, *m_domain));
 
@@ -189,7 +189,7 @@ void Description::findSections()
 		else
 		{
 			const auto sectionIdentifier = tokenizer.get<std::string>();
-			throw tokenize::TokenizerException(tokenizer.location(), "unknown PDDL section “" + sectionIdentifier + "”");
+			throw tokenize::TokenizerException(tokenizer, "unknown PDDL section “" + sectionIdentifier + "”");
 		}
 
 		tokenizer.skipWhiteSpace();

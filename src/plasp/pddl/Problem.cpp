@@ -24,11 +24,11 @@ namespace pddl
 Problem::Problem(Context &context, Domain &domain)
 :	m_context(context),
 	m_domain(domain),
-	m_domainPosition{-1},
-	m_requirementsPosition{-1},
-	m_objectsPosition{-1},
-	m_initialStatePosition{-1},
-	m_goalPosition{-1}
+	m_domainPosition{tokenize::InvalidStreamPosition},
+	m_requirementsPosition{tokenize::InvalidStreamPosition},
+	m_objectsPosition{tokenize::InvalidStreamPosition},
+	m_initialStatePosition{tokenize::InvalidStreamPosition},
+	m_goalPosition{tokenize::InvalidStreamPosition}
 {
 }
 
@@ -50,10 +50,10 @@ void Problem::findSections()
 	const auto setSectionPosition =
 	[&](const std::string &sectionName, auto &sectionPosition, const auto value, bool unique = false)
 	{
-		if (unique && sectionPosition != -1)
+		if (unique && sectionPosition != tokenize::InvalidStreamPosition)
 		{
 			tokenizer.seek(value);
-			throw tokenize::TokenizerException(tokenizer.location(), "only one “:" + sectionName + "” section allowed");
+			throw tokenize::TokenizerException(tokenizer, "only one “:" + sectionName + "” section allowed");
 		}
 
 		sectionPosition = value;
@@ -89,7 +89,7 @@ void Problem::findSections()
 
 			const auto sectionIdentifier = tokenizer.getIdentifier();
 
-			m_context.logger.log(output::Priority::Warning, tokenizer.location(), "section type “" + sectionIdentifier + "” currently unsupported");
+			m_context.logger.log(output::Priority::Warning, tokenizer, "section type “" + sectionIdentifier + "” currently unsupported");
 
 			tokenizer.seek(sectionIdentifierPosition);
 		}
@@ -98,7 +98,7 @@ void Problem::findSections()
 			const auto sectionIdentifier = tokenizer.getIdentifier();
 
 			tokenizer.seek(position);
-			throw tokenize::TokenizerException(tokenizer.location(), "unknown problem section “" + sectionIdentifier + "”");
+			throw tokenize::TokenizerException(tokenizer, "unknown problem section “" + sectionIdentifier + "”");
 		}
 
 		// Skip section for now and parse it later
@@ -116,31 +116,31 @@ void Problem::parse()
 {
 	auto &tokenizer = m_context.tokenizer;
 
-	if (m_domainPosition == -1)
+	if (m_domainPosition == tokenize::InvalidStreamPosition)
 		throw ConsistencyException("problem description does not specify the corresponding domain");
 
 	tokenizer.seek(m_domainPosition);
 	parseDomainSection();
 
-	if (m_requirementsPosition != -1)
+	if (m_requirementsPosition != tokenize::InvalidStreamPosition)
 	{
 		tokenizer.seek(m_requirementsPosition);
 		parseRequirementSection();
 	}
 
-	if (m_objectsPosition != -1)
+	if (m_objectsPosition != tokenize::InvalidStreamPosition)
 	{
 		tokenizer.seek(m_objectsPosition);
 		parseObjectSection();
 	}
 
-	if (m_initialStatePosition == -1)
+	if (m_initialStatePosition == tokenize::InvalidStreamPosition)
 		throw ConsistencyException("problem description does not specify an initial state");
 
 	tokenizer.seek(m_initialStatePosition);
 	parseInitialStateSection();
 
-	if (m_goalPosition == -1)
+	if (m_goalPosition == tokenize::InvalidStreamPosition)
 		throw ConsistencyException("problem description does not specify a goal");
 
 	tokenizer.seek(m_goalPosition);
@@ -204,7 +204,7 @@ void Problem::parseDomainSection()
 	const auto domainName = tokenizer.getIdentifier();
 
 	if (m_domain.name() != domainName)
-		throw tokenize::TokenizerException(tokenizer.location(), "domains do not match (“" + m_domain.name() + "” and “" + domainName + "”)");
+		throw tokenize::TokenizerException(tokenizer, "domains do not match (“" + m_domain.name() + "” and “" + domainName + "”)");
 
 	tokenizer.expect<std::string>(")");
 }
@@ -261,7 +261,7 @@ void Problem::checkRequirement(Requirement::Type requirementType)
 	if (hasRequirement(requirementType))
 		return;
 
-	m_context.logger.log(output::Priority::Warning, m_context.tokenizer.location(), "requirement “" + Requirement(requirementType).toPDDL() + "” used but never declared");
+	m_context.logger.log(output::Priority::Warning, m_context.tokenizer, "requirement “" + Requirement(requirementType).toPDDL() + "” used but never declared");
 
 	m_requirements.push_back(requirementType);
 }

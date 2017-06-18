@@ -44,7 +44,7 @@ Predicate Predicate::fromSAS(tokenize::Tokenizer<> &tokenizer)
 	}
 	catch (const std::exception &e)
 	{
-		throw tokenize::TokenizerException(tokenizer.location(), "could not parse operator predicate");
+		throw tokenize::TokenizerException(tokenizer, "could not parse operator predicate");
 	}
 
 	return predicate;

@@ -46,9 +46,9 @@ class Description
 
 		Context &m_context;
 
-		tokenize::Stream::Position m_domainPosition;
+		tokenize::StreamPosition m_domainPosition;
 		std::unique_ptr<Domain> m_domain;
-		tokenize::Stream::Position m_problemPosition;
+		tokenize::StreamPosition m_problemPosition;
 		std::unique_ptr<Problem> m_problem;
 };
 

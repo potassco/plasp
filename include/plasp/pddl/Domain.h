@@ -75,19 +75,19 @@ class Domain
 
 		std::string m_name;
 
-		tokenize::Stream::Position m_requirementsPosition;
+		tokenize::StreamPosition m_requirementsPosition;
 		Requirements m_requirements;
 
-		tokenize::Stream::Position m_typesPosition;
+		tokenize::StreamPosition m_typesPosition;
 		expressions::PrimitiveTypes m_types;
 
-		tokenize::Stream::Position m_constantsPosition;
+		tokenize::StreamPosition m_constantsPosition;
 		expressions::Constants m_constants;
 
-		tokenize::Stream::Position m_predicatesPosition;
+		tokenize::StreamPosition m_predicatesPosition;
 		expressions::PredicateDeclarations m_predicates;
 
-		std::vector<tokenize::Stream::Position> m_actionPositions;
+		std::vector<tokenize::StreamPosition> m_actionPositions;
 		std::vector<std::unique_ptr<Action>> m_actions;
 
 		expressions::DerivedPredicates m_derivedPredicates;

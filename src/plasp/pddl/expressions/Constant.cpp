@@ -115,7 +115,7 @@ void Constant::parseTypedDeclarations(Context &context, Domain &domain)
 		domain.checkRequirement(Requirement::Type::Typing);
 	// If no types are given, check that typing is not a requirement
 	else if (domain.hasRequirement(Requirement::Type::Typing))
-		throw tokenize::TokenizerException(tokenizer.location(), "constant has undeclared type");
+		throw tokenize::TokenizerException(tokenizer, "constant has undeclared type");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -142,7 +142,7 @@ void Constant::parseTypedDeclarations(Context &context, Problem &problem)
 		problem.checkRequirement(Requirement::Type::Typing);
 	// If no types are given, check that typing is not a requirement
 	else if (problem.hasRequirement(Requirement::Type::Typing))
-		throw tokenize::TokenizerException(tokenizer.location(), "constant has undeclared type");
+		throw tokenize::TokenizerException(tokenizer, "constant has undeclared type");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -160,7 +160,7 @@ ConstantPointer Constant::parseAndFind(Context &context, const Domain &domain)
 	if (constant != nullptr)
 		return constant;
 
-	throw tokenize::TokenizerException(tokenizer.location(), "constant “" + constantName + "” used but never declared");
+	throw tokenize::TokenizerException(tokenizer, "constant “" + constantName + "” used but never declared");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -183,7 +183,7 @@ ConstantPointer Constant::parseAndFind(Context &context, const Problem &problem)
 	if (constant)
 		return constant;
 
-	throw tokenize::TokenizerException(tokenizer.location(), "constant “" + constantName + "” used but never declared");
+	throw tokenize::TokenizerException(tokenizer, "constant “" + constantName + "” used but never declared");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

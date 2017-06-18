@@ -61,7 +61,7 @@ void Variable::parseDeclaration(Context &context, Variables &parameters)
 		});
 
 	if (match != parameters.cend())
-		throw tokenize::TokenizerException(tokenizer.location(), "variable “" + variable->m_name + "” already declared in this scope");
+		throw tokenize::TokenizerException(tokenizer, "variable “" + variable->m_name + "” already declared in this scope");
 
 	// Flag variable for potentially upcoming type declaration
 	variable->setDirty();
@@ -138,7 +138,7 @@ void Variable::parseTypedDeclarations(Context &context, ExpressionContext &expre
 		expressionContext.checkRequirement(Requirement::Type::Typing);
 	// If no types are given, check that typing is not a requirement
 	else if (expressionContext.hasRequirement(Requirement::Type::Typing))
-		throw tokenize::TokenizerException(tokenizer.location(), "variable has undeclared type");
+		throw tokenize::TokenizerException(tokenizer, "variable has undeclared type");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

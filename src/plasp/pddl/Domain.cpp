@@ -24,10 +24,10 @@ namespace pddl
 
 Domain::Domain(Context &context)
 :	m_context(context),
-	m_requirementsPosition{-1},
-	m_typesPosition{-1},
-	m_constantsPosition{-1},
-	m_predicatesPosition{-1}
+	m_requirementsPosition{tokenize::InvalidStreamPosition},
+	m_typesPosition{tokenize::InvalidStreamPosition},
+	m_constantsPosition{tokenize::InvalidStreamPosition},
+	m_predicatesPosition{tokenize::InvalidStreamPosition}
 {
 }
 
@@ -49,10 +49,10 @@ void Domain::findSections()
 	const auto setSectionPosition =
 		[&](const std::string &sectionName, auto &sectionPosition, const auto value, bool unique = false)
 		{
-			if (unique && sectionPosition != -1)
+			if (unique && sectionPosition != tokenize::InvalidStreamPosition)
 			{
 				tokenizer.seek(value);
-				throw tokenize::TokenizerException(tokenizer.location(), "only one “:" + sectionName + "” section allowed");
+				throw tokenize::TokenizerException(tokenizer, "only one “:" + sectionName + "” section allowed");
 			}
 
 			sectionPosition = value;
@@ -93,7 +93,7 @@ void Domain::findSections()
 
 			const auto sectionIdentifier = tokenizer.getIdentifier();
 
-			m_context.logger.log(output::Priority::Warning, tokenizer.location(), "section type “" + sectionIdentifier + "” currently unsupported");
+			m_context.logger.log(output::Priority::Warning, tokenizer, "section type “" + sectionIdentifier + "” currently unsupported");
 
 			tokenizer.seek(sectionIdentifierPosition);
 		}
@@ -102,7 +102,7 @@ void Domain::findSections()
 			const auto sectionIdentifier = tokenizer.getIdentifier();
 
 			tokenizer.seek(position);
-			throw tokenize::TokenizerException(tokenizer.location(), "unknown domain section “" + sectionIdentifier + "”");
+			throw tokenize::TokenizerException(tokenizer, "unknown domain section “" + sectionIdentifier + "”");
 		}
 
 		// Skip section for now and parse it later
@@ -120,32 +120,32 @@ void Domain::parse()
 {
 	auto &tokenizer = m_context.tokenizer;
 
-	if (m_requirementsPosition != -1)
+	if (m_requirementsPosition != tokenize::InvalidStreamPosition)
 	{
 		tokenizer.seek(m_requirementsPosition);
 		parseRequirementSection();
 	}
 
-	if (m_typesPosition != -1)
+	if (m_typesPosition != tokenize::InvalidStreamPosition)
 	{
 		tokenizer.seek(m_typesPosition);
 		parseTypeSection();
 	}
 
-	if (m_constantsPosition != -1)
+	if (m_constantsPosition != tokenize::InvalidStreamPosition)
 	{
 		tokenizer.seek(m_constantsPosition);
 		parseConstantSection();
 	}
 
-	if (m_predicatesPosition != -1)
+	if (m_predicatesPosition != tokenize::InvalidStreamPosition)
 	{
 		tokenizer.seek(m_predicatesPosition);
 		parsePredicateSection();
 	}
 
 	for (size_t i = 0; i < m_actionPositions.size(); i++)
-		if (m_actionPositions[i] != -1)
+		if (m_actionPositions[i] != tokenize::InvalidStreamPosition)
 		{
 			tokenizer.seek(m_actionPositions[i]);
 			parseActionSection();
@@ -292,7 +292,7 @@ void Domain::checkRequirement(Requirement::Type requirementType)
 	if (hasRequirement(requirementType))
 		return;
 
-	m_context.logger.log(output::Priority::Warning, m_context.tokenizer.location(), "requirement “" + Requirement(requirementType).toPDDL() + "” used but never declared");
+	m_context.logger.log(output::Priority::Warning, m_context.tokenizer, "requirement “" + Requirement(requirementType).toPDDL() + "” used but never declared");
 
 	m_requirements.push_back(requirementType);
 }
@@ -355,7 +355,7 @@ void Domain::parseTypeSection()
 	while (tokenizer.currentCharacter() != ')')
 	{
 		if (tokenizer.currentCharacter() == '(')
-			throw tokenize::TokenizerException(tokenizer.location(), "only primitive types are allowed in type section");
+			throw tokenize::TokenizerException(tokenizer, "only primitive types are allowed in type section");
 
 		expressions::PrimitiveType::parseTypedDeclaration(m_context, *this);
 

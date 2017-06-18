@@ -64,18 +64,18 @@ class Problem
 
 		std::string m_name;
 
-		tokenize::Stream::Position m_domainPosition;
+		tokenize::StreamPosition m_domainPosition;
 
-		tokenize::Stream::Position m_requirementsPosition;
+		tokenize::StreamPosition m_requirementsPosition;
 		Requirements m_requirements;
 
-		tokenize::Stream::Position m_objectsPosition;
+		tokenize::StreamPosition m_objectsPosition;
 		expressions::Constants m_objects;
 
-		tokenize::Stream::Position m_initialStatePosition;
+		tokenize::StreamPosition m_initialStatePosition;
 		std::unique_ptr<InitialState> m_initialState;
 
-		tokenize::Stream::Position m_goalPosition;
+		tokenize::StreamPosition m_goalPosition;
 		ExpressionPointer m_goal;
 };
 

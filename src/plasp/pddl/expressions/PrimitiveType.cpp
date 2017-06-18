@@ -113,7 +113,7 @@ PrimitiveTypePointer PrimitiveType::parseAndFind(Context &context, Domain &domai
 	const auto typeName = tokenizer.getIdentifier();
 
 	if (typeName.empty())
-		throw tokenize::TokenizerException(tokenizer.location(), "no type supplied");
+		throw tokenize::TokenizerException(tokenizer, "no type supplied");
 
 	const auto match = std::find_if(types.cbegin(), types.cend(),
 		[&](const auto &primitiveType)
@@ -126,11 +126,11 @@ PrimitiveTypePointer PrimitiveType::parseAndFind(Context &context, Domain &domai
 		// Only "object" is allowed as an implicit type
 		if (typeName == "object" || typeName == "objects")
 		{
-			context.logger.log(output::Priority::Warning, tokenizer.location(), "primitive type “" + typeName + "” should be declared");
+			context.logger.log(output::Priority::Warning, tokenizer, "primitive type “" + typeName + "” should be declared");
 			types.emplace_back(PrimitiveTypePointer(new PrimitiveType(typeName)));
 		}
 		else
-			throw tokenize::TokenizerException(tokenizer.location(), "type “" + typeName + "” used but never declared");
+			throw tokenize::TokenizerException(tokenizer, "type “" + typeName + "” used but never declared");
 
 		return types.back().get();
 	}
