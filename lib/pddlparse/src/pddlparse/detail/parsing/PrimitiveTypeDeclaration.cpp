@@ -59,9 +59,9 @@ void parseAndAddPrimitiveTypeDeclarations(Context &context, ast::Domain &domain)
 	tokenizer.skipWhiteSpace();
 
 	auto &types = domain.types;
+	assert(types.empty());
 
 	std::vector<bool> flaggedTypes;
-	flaggedTypes.resize(types.size(), false);
 
 	while (tokenizer.currentCharacter() != ')')
 	{
