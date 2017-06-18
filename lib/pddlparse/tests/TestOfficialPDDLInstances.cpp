@@ -320,4 +320,48 @@ TEST_CASE("[PDDL parser] The official PDDL instances are parsed correctly", "[PD
 		CHECK(objects[20]->name == "venus");
 		CHECK(objects[20]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "planet");
 	}
+
+	SECTION("complicated nested effect expressions in schedule domain")
+	{
+		context.mode = pddl::Mode::Compatibility;
+
+		const auto domainFile = pddlInstanceBasePath / "ipc-2000" / "domains" / "schedule-adl-typed" / "domain.pddl";
+		context.tokenizer.read(domainFile);
+		auto description = pddl::parseDescription(context);
+
+		const auto &actions = description.domain->actions;
+
+		REQUIRE(actions.size() == 9);
+		CHECK(actions[1]->name == "do-roll");
+		const auto &effectAnd = actions[1]->effect.value().get<pddl::ast::AndPointer<pddl::ast::Effect>>();
+		REQUIRE(effectAnd->arguments.size() == 10);
+		CHECK(effectAnd->arguments[0].get<pddl::ast::AtomicFormula>().get<pddl::ast::PredicatePointer>()->arguments[0].get<pddl::ast::ConstantPointer>()->declaration->name == "roller");
+		CHECK(effectAnd->arguments[1].get<pddl::ast::AtomicFormula>().is<pddl::ast::PredicatePointer>());
+		CHECK(effectAnd->arguments[2].get<pddl::ast::AtomicFormula>().is<pddl::ast::PredicatePointer>());
+		CHECK(effectAnd->arguments[3].get<pddl::ast::AtomicFormula>().is<pddl::ast::PredicatePointer>());
+		const auto &effectWhen4 = effectAnd->arguments[4].get<pddl::ast::WhenPointer<pddl::ast::Precondition, pddl::ast::ConditionalEffect>>();
+		// TODO: check name of declaration
+		CHECK(effectWhen4->argumentLeft.get<pddl::ast::NotPointer<pddl::ast::Precondition>>()->argument.get<pddl::ast::AtomicFormula>().is<pddl::ast::PredicatePointer>());
+		CHECK(effectWhen4->argumentRight.get<pddl::ast::AtomicFormula>().is<pddl::ast::PredicatePointer>());
+		const auto &effectForAll5 = effectAnd->arguments[5].get<pddl::ast::ForAllPointer<pddl::ast::Effect>>();
+		REQUIRE(effectForAll5->parameters.size() == 1);
+		CHECK(effectForAll5->parameters[0]->name == "oldsurface");
+		CHECK(effectForAll5->parameters[0]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "surface");
+		const auto &effectForAll5When = effectForAll5->argument.get<pddl::ast::WhenPointer<pddl::ast::Precondition, pddl::ast::ConditionalEffect>>();
+		// TODO: check name of declaration
+		CHECK(effectForAll5When->argumentLeft.get<pddl::ast::AtomicFormula>().is<pddl::ast::PredicatePointer>());
+		CHECK(effectForAll5When->argumentRight.get<pddl::ast::NotPointer<pddl::ast::ConditionalEffect>>()->argument.get<pddl::ast::AtomicFormula>().is<pddl::ast::PredicatePointer>());
+		const auto &effectForAll6 = effectAnd->arguments[6].get<pddl::ast::ForAllPointer<pddl::ast::Effect>>();
+		REQUIRE(effectForAll6->parameters.size() == 1);
+		CHECK(effectForAll6->parameters[0]->name == "oldpaint");
+		CHECK(effectForAll6->parameters[0]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "colour");
+		const auto &effectForAll9 = effectAnd->arguments[9].get<pddl::ast::ForAllPointer<pddl::ast::Effect>>();
+		REQUIRE(effectForAll9->parameters.size() == 1);
+		CHECK(effectForAll9->parameters[0]->name == "oldtemp");
+		CHECK(effectForAll9->parameters[0]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "temperature");
+		const auto &effectForAll9When = effectForAll9->argument.get<pddl::ast::WhenPointer<pddl::ast::Precondition, pddl::ast::ConditionalEffect>>();
+		// TODO: check name of declaration
+		CHECK(effectForAll9When->argumentLeft.get<pddl::ast::AtomicFormula>().is<pddl::ast::PredicatePointer>());
+		CHECK(effectForAll9When->argumentRight.get<pddl::ast::NotPointer<pddl::ast::ConditionalEffect>>()->argument.get<pddl::ast::AtomicFormula>().is<pddl::ast::PredicatePointer>());
+	}
 }
