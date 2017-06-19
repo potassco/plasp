@@ -7,6 +7,8 @@ set(includes
 	${Boost_INCLUDE_DIRS}
 	${PROJECT_SOURCE_DIR}/include
 	${PROJECT_SOURCE_DIR}/lib/tokenize/include
+	${PROJECT_SOURCE_DIR}/lib/variant/include
+	${PROJECT_SOURCE_DIR}/lib/pddlparse/include
 )
 
 set(sources

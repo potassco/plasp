@@ -1,18 +1,14 @@
 #ifndef __PLASP__PDDL__TRANSLATION__PRIMITIVES_H
 #define __PLASP__PDDL__TRANSLATION__PRIMITIVES_H
 
+#include <pddlparse/AST.h>
+
 #include <plasp/output/Formatting.h>
 #include <plasp/output/TranslatorException.h>
-#include <plasp/pddl/Description.h>
-#include <plasp/pddl/expressions/Not.h>
-#include <plasp/pddl/expressions/Predicate.h>
-#include <plasp/pddl/translation/Predicate.h>
 
 namespace plasp
 {
 namespace pddl
-{
-namespace translation
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -21,56 +17,91 @@ namespace translation
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void translateLiteral(output::ColorStream &outputStream, const Expression &literal);
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-inline void translateLiteral(output::ColorStream &outputStream, const Expression &literal)
+inline output::ColorStream &operator<<(output::ColorStream &stream, const ::pddl::ast::ConstantDeclaration &constantDeclaration)
 {
-	// Translate single predicate
-	if (literal.is<expressions::Predicate>())
-	{
-		const auto &predicate = literal.as<expressions::Predicate>();
+	assert(!constantDeclaration.name.empty());
 
-		outputStream << output::Keyword("variable") << "(";
-		translation::translatePredicate(outputStream, predicate);
-		outputStream << "), " << output::Keyword("value") << "(";
-		translation::translatePredicate(outputStream, predicate);
-		outputStream << ", " << output::Boolean("true") << ")";
-	}
-	// Assuming that "not" expression may only contain a predicate
-	else if (literal.is<expressions::Not>())
-	{
-		const auto &notExpression = literal.as<expressions::Not>();
-
-		if (notExpression.argument()->expressionType() != Expression::Type::Predicate)
-			throw output::TranslatorException("only negations of primitive predicates supported as literals currently");
-
-		const auto &predicate = notExpression.argument()->as<expressions::Predicate>();
-
-		outputStream << output::Keyword("variable") << "(";
-		translation::translatePredicate(outputStream, predicate);
-		outputStream << "), " << output::Keyword("value") << "(";
-		translation::translatePredicate(outputStream, predicate);
-		outputStream << ", " << output::Boolean("false") << ")";
-	}
-	else if (literal.is<expressions::DerivedPredicate>())
-	{
-		const auto &derivedPredicate = literal.as<expressions::DerivedPredicate>();
-
-		outputStream << output::Keyword("derivedVariable") << "(";
-		translation::translateDerivedPredicate(outputStream, derivedPredicate);
-		outputStream << "), " << output::Keyword("value") << "(";
-		translation::translateDerivedPredicate(outputStream, derivedPredicate);
-		outputStream << ", " << output::Boolean("true") << ")";
-	}
-	else
-		throw output::TranslatorException("only primitive predicates and their negations supported as literals currently");
+	return (stream << output::String(constantDeclaration.name.c_str()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+inline output::ColorStream &operator<<(output::ColorStream &stream, const ::pddl::ast::Constant &constant)
+{
+	assert(constant.declaration != nullptr);
+
+	return (stream << *constant.declaration);
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline output::ColorStream &operator<<(output::ColorStream &stream, const ::pddl::ast::PrimitiveTypeDeclaration &primitiveTypeDeclaration)
+{
+	assert(!primitiveTypeDeclaration.name.empty());
+
+	return (stream << output::String(primitiveTypeDeclaration.name.c_str()));
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline output::ColorStream &operator<<(output::ColorStream &stream, const ::pddl::ast::PrimitiveType &primitiveType)
+{
+	assert(primitiveType.declaration != nullptr);
+
+	return (stream << *primitiveType.declaration);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline output::ColorStream &operator<<(output::ColorStream &stream, ::pddl::ast::VariableDeclaration &variableDeclaration)
+{
+	assert(!variableDeclaration.name.empty());
+	assert(std::isalpha(variableDeclaration.name[0]));
+
+	if (!std::isupper(variableDeclaration.name[0]))
+		variableDeclaration.name[0] = std::toupper(variableDeclaration.name[0]);
+
+	return (stream
+		<< output::Format({output::Color::Green, output::FontWeight::Bold})
+		<< variableDeclaration.name
+		<< output::ResetFormat());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline output::ColorStream &operator<<(output::ColorStream &stream, ::pddl::ast::Variable &variable)
+{
+	assert(variable.declaration != nullptr);
+
+	return (stream << *variable.declaration);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// TODO: move to appropriate header
+inline output::ColorStream &operator<<(output::ColorStream &stream, const ::pddl::ast::Action &action)
+{
+	return (stream << output::String(action.name.c_str()));
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// TODO: move to appropriate header
+inline output::ColorStream &operator<<(output::ColorStream &stream, const ::pddl::ast::PredicateDeclaration &predicateDeclaration)
+{
+	return (stream << output::String(predicateDeclaration.name.c_str()));
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// TODO: move to appropriate header
+inline output::ColorStream &operator<<(output::ColorStream &stream, const ::pddl::ast::Predicate &predicate)
+{
+	return (stream << *predicate.declaration);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 }
 }
 

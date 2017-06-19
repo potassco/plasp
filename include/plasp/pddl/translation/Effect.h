@@ -1,5 +1,5 @@
-#ifndef __PLASP__PDDL__TRANSLATION__PRECONDITION_H
-#define __PLASP__PDDL__TRANSLATION__PRECONDITION_H
+#ifndef __PLASP__PDDL__TRANSLATION__EFFECT_H
+#define __PLASP__PDDL__TRANSLATION__EFFECT_H
 
 #include <pddlparse/AST.h>
 
@@ -16,25 +16,28 @@ namespace pddl
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// Precondition
+// Effect
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename PrintObjectName>
-inline void translatePrecondition(output::ColorStream &outputStream, const ::pddl::ast::Precondition &precondition, const std::string &objectType, PrintObjectName printObjectName)
+inline void translateEffect(output::ColorStream &outputStream, const ::pddl::ast::Effect &effect, const std::string &objectType, PrintObjectName printObjectName)
 {
 	const auto handleUnsupported =
 		[](const auto &)
 		{
-			throw output::TranslatorException("only “and” expressions and (negated) predicates supported as action preconditions currently");
+			throw output::TranslatorException("only “and” expressions and (negated) predicates supported as action effects currently");
 		};
 
 	const auto handlePredicate =
 		[&](const ::pddl::ast::PredicatePointer &predicate, bool isPositive = true)
 		{
-			outputStream << std::endl << output::Function("precondition") << "(";
+			outputStream << std::endl << output::Function("postcondition") << "(";
 			printObjectName();
-			outputStream << ", ";
+			outputStream
+				<< ", " << output::Keyword("effect") << "("
+				<< output::Reserved("unconditional") << ")"
+				<< ", ";
 			translatePredicateToVariable(outputStream, *predicate, isPositive);
 			outputStream << ") :- " << output::Function(objectType.c_str()) << "(";
 			printObjectName();
@@ -48,7 +51,7 @@ inline void translatePrecondition(output::ColorStream &outputStream, const ::pdd
 		};
 
 	const auto handleNot =
-		[&](const ::pddl::ast::NotPointer<::pddl::ast::Precondition> &not_)
+		[&](const ::pddl::ast::NotPointer<::pddl::ast::Effect> &not_)
 		{
 			if (!not_->argument.is<::pddl::ast::AtomicFormula>() || !not_->argument.get<::pddl::ast::AtomicFormula>().is<::pddl::ast::PredicatePointer>())
 				handleUnsupported(not_);
@@ -59,13 +62,13 @@ inline void translatePrecondition(output::ColorStream &outputStream, const ::pdd
 		};
 
 	const auto handleAnd =
-		[&](const ::pddl::ast::AndPointer<::pddl::ast::Precondition> &and_)
+		[&](const ::pddl::ast::AndPointer<::pddl::ast::Effect> &and_)
 		{
 			for (const auto &argument : and_->arguments)
-				translatePrecondition(outputStream, argument, objectType, printObjectName);
+				translateEffect(outputStream, argument, objectType, printObjectName);
 		};
 
-	precondition.match(handleAtomicFormula, handleNot, handleAnd, handleUnsupported);
+	effect.match(handleAtomicFormula, handleNot, handleAnd, handleUnsupported);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

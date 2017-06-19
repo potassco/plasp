@@ -3,31 +3,37 @@
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/device/null.hpp>
 
-#include <plasp/pddl/Description.h>
+#include <pddlparse/AST.h>
+#include <pddlparse/Parse.h>
+
+#include <plasp/output/Logger.h>
 #include <plasp/pddl/TranslatorASP.h>
 
-using namespace plasp::pddl;
-
 boost::iostreams::stream<boost::iostreams::null_sink> nullStream((boost::iostreams::null_sink()));
+const pddl::Context::WarningCallback ignoreWarnings = [](const auto &, const auto &){};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 TEST_CASE("[PDDL translation] Former issues are fixed", "[PDDL translation]")
 {
-	plasp::output::Logger logger;
-	Context context(Tokenizer(), logger);
+	// TODO: refactor
+	plasp::output::Logger logger(nullStream, nullStream);
+	pddl::Tokenizer tokenizer;
+	pddl::Context context(std::move(tokenizer), ignoreWarnings);
 
 	SECTION("translating domains without typing information works")
 	{
-		auto description = Description::fromFile("data/issues/issue-4.pddl", context);
-		const auto translator = TranslatorASP(description, description.context().logger.outputStream());
+		context.tokenizer.read("data/issues/issue-4.pddl");
+		auto description = pddl::parseDescription(context);
+		const auto translator = plasp::pddl::TranslatorASP(std::move(description), logger.outputStream());
 		CHECK_NOTHROW(translator.translate());
 	}
 
 	SECTION("translating the simple blocks world domain works")
 	{
-		auto description = Description::fromFile("data/issues/issue-5.pddl", context);
-		const auto translator = TranslatorASP(description, description.context().logger.outputStream());
+		context.tokenizer.read("data/issues/issue-5.pddl");
+		auto description = pddl::parseDescription(context);
+		const auto translator = plasp::pddl::TranslatorASP(std::move(description), logger.outputStream());
 		CHECK_NOTHROW(translator.translate());
 	}
 }

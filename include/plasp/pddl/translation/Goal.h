@@ -1,5 +1,5 @@
-#ifndef __PLASP__PDDL__TRANSLATION__PRECONDITION_H
-#define __PLASP__PDDL__TRANSLATION__PRECONDITION_H
+#ifndef __PLASP__PDDL__TRANSLATION__GOAL_H
+#define __PLASP__PDDL__TRANSLATION__GOAL_H
 
 #include <pddlparse/AST.h>
 
@@ -16,28 +16,24 @@ namespace pddl
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// Precondition
+// Goal
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<typename PrintObjectName>
-inline void translatePrecondition(output::ColorStream &outputStream, const ::pddl::ast::Precondition &precondition, const std::string &objectType, PrintObjectName printObjectName)
+inline void translateGoal(output::ColorStream &outputStream, const ::pddl::ast::Goal &goal)
 {
 	const auto handleUnsupported =
 		[](const auto &)
 		{
-			throw output::TranslatorException("only “and” expressions and (negated) predicates supported as action preconditions currently");
+			throw output::TranslatorException("only “and” expressions and (negated) predicates supported as goals currently");
 		};
 
 	const auto handlePredicate =
 		[&](const ::pddl::ast::PredicatePointer &predicate, bool isPositive = true)
 		{
-			outputStream << std::endl << output::Function("precondition") << "(";
-			printObjectName();
-			outputStream << ", ";
+			outputStream << std::endl << output::Function("goal") << "(";
+			// TODO: assert that goal is variable-free
 			translatePredicateToVariable(outputStream, *predicate, isPositive);
-			outputStream << ") :- " << output::Function(objectType.c_str()) << "(";
-			printObjectName();
 			outputStream << ").";
 		};
 
@@ -48,7 +44,7 @@ inline void translatePrecondition(output::ColorStream &outputStream, const ::pdd
 		};
 
 	const auto handleNot =
-		[&](const ::pddl::ast::NotPointer<::pddl::ast::Precondition> &not_)
+		[&](const ::pddl::ast::NotPointer<::pddl::ast::Goal> &not_)
 		{
 			if (!not_->argument.is<::pddl::ast::AtomicFormula>() || !not_->argument.get<::pddl::ast::AtomicFormula>().is<::pddl::ast::PredicatePointer>())
 				handleUnsupported(not_);
@@ -59,13 +55,13 @@ inline void translatePrecondition(output::ColorStream &outputStream, const ::pdd
 		};
 
 	const auto handleAnd =
-		[&](const ::pddl::ast::AndPointer<::pddl::ast::Precondition> &and_)
+		[&](const ::pddl::ast::AndPointer<::pddl::ast::Goal> &and_)
 		{
 			for (const auto &argument : and_->arguments)
-				translatePrecondition(outputStream, argument, objectType, printObjectName);
+				translateGoal(outputStream, argument);
 		};
 
-	precondition.match(handleAtomicFormula, handleNot, handleAnd, handleUnsupported);
+	goal.match(handleAtomicFormula, handleNot, handleAnd, handleUnsupported);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

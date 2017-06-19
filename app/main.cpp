@@ -4,10 +4,14 @@
 
 #include <boost/program_options.hpp>
 
+#include <pddlparse/AST.h>
+#include <pddlparse/Parse.h>
+
 #include <plasp/LanguageDetection.h>
 #include <plasp/output/ColorStream.h>
+#include <plasp/output/Logger.h>
+#include <plasp/output/Priority.h>
 #include <plasp/output/TranslatorException.h>
-#include <plasp/pddl/Description.h>
 #include <plasp/pddl/TranslatorASP.h>
 #include <plasp/sas/Description.h>
 #include <plasp/sas/TranslatorASP.h>
@@ -148,9 +152,15 @@ int main(int argc, char **argv)
 
 		if (language == plasp::Language::Type::PDDL)
 		{
-			auto context = plasp::pddl::Context(std::move(tokenizer), logger);
-			auto description = plasp::pddl::Description::fromContext(context);
-			const auto translator = plasp::pddl::TranslatorASP(description, logger.outputStream());
+			const auto logWarning =
+				[&](const auto &location, const auto &warning)
+				{
+					logger.log(plasp::output::Priority::Warning, location, warning);
+				};
+
+			auto context = pddl::Context(std::move(tokenizer), logWarning);
+			auto description = pddl::parseDescription(context);
+			const auto translator = plasp::pddl::TranslatorASP(std::move(description), logger.outputStream());
 			translator.translate();
 		}
 		else if (language == plasp::Language::Type::SAS)

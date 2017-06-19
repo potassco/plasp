@@ -1,14 +1,15 @@
 #ifndef __PLASP__PDDL__TRANSLATION__VARIABLES_H
 #define __PLASP__PDDL__TRANSLATION__VARIABLES_H
 
+#include <pddlparse/AST.h>
+#include <pddlparse/Parse.h>
+
 #include <plasp/output/Formatting.h>
 #include <plasp/output/TranslatorException.h>
 
 namespace plasp
 {
 namespace pddl
-{
-namespace translation
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -30,12 +31,8 @@ inline void translateVariablesForRuleHead(output::ColorStream &outputStream, con
 	if (variables.empty())
 		return;
 
-	for (auto i = variables.cbegin(); i != variables.cend(); i++)
-	{
-		const auto &variable = **i;
-
-		outputStream << ", " << output::Variable(variable.name().c_str());
-	}
+	for (const auto &variable : variables)
+		outputStream << ", " << *variable;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -48,28 +45,25 @@ inline void translateVariablesForRuleBody(output::ColorStream &outputStream, con
 
 	outputStream << " :- ";
 
-	for (auto i = variables.cbegin(); i != variables.cend(); i++)
+	for (const auto &variable : variables)
 	{
-		const auto &variable = **i;
-
-		if (i != variables.cbegin())
+		if (variable.get() != variables.begin()->get())
 			outputStream << ", ";
 
-		if (variable.type() != nullptr)
+		if (variable->type)
 		{
-			if (variable.type()->expressionType() != Expression::Type::PrimitiveType)
+			if (!variable->type.value().template is<::pddl::ast::PrimitiveTypePointer>())
 				throw output::TranslatorException("only primitive types supported currently");
 
-			const auto &type = variable.type()->template as<expressions::PrimitiveType>();
+			const auto &type = variable->type.value().template get<::pddl::ast::PrimitiveTypePointer>();
 
 			outputStream << output::Function("has") << "("
-				<< output::Variable(variable.name().c_str()) << ", "
-				<< output::Keyword("type") << "(" << output::String(type.name().c_str()) << "))";
+				<< *variable << ", " << output::Keyword("type") << "(" << *type << "))";
 		}
 		else
 		{
 			outputStream << output::Function("has") << "("
-				<< output::Variable(variable.name().c_str()) << ", "
+				<< *variable << ", "
 				<< output::Keyword("type") << "(" << output::String("object") << "))";
 		}
 	}
@@ -77,7 +71,6 @@ inline void translateVariablesForRuleBody(output::ColorStream &outputStream, con
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-}
 }
 }
 

@@ -2,11 +2,13 @@
 
 #include <boost/assert.hpp>
 
+#include <pddlparse/AST.h>
+
 #include <plasp/output/Formatting.h>
 #include <plasp/output/TranslatorException.h>
-#include <plasp/pddl/expressions/And.h>
-#include <plasp/pddl/expressions/Not.h>
-#include <plasp/pddl/expressions/Predicate.h>
+
+#include <plasp/pddl/translation/Effect.h>
+#include <plasp/pddl/translation/Goal.h>
 #include <plasp/pddl/translation/Precondition.h>
 #include <plasp/pddl/translation/Predicate.h>
 #include <plasp/pddl/translation/Primitives.h>
@@ -23,11 +25,10 @@ namespace pddl
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TranslatorASP::TranslatorASP(Description &description, output::ColorStream &outputStream)
-:	m_description(description),
+TranslatorASP::TranslatorASP(const ::pddl::ast::Description &description, output::ColorStream &outputStream)
+:	m_description{description},
 	m_outputStream(outputStream)
 {
-	m_description.normalize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -36,7 +37,7 @@ void TranslatorASP::translate() const
 {
 	translateDomain();
 
-	if (m_description.containsProblem())
+	if (m_description.problem)
 	{
 		m_outputStream << std::endl;
 		translateProblem();
@@ -49,35 +50,28 @@ void TranslatorASP::translateDomain() const
 {
 	m_outputStream << output::Heading1("domain");
 
-	const auto &domain = m_description.domain();
+	const auto &domain = m_description.domain;
 
 	// Types
 	m_outputStream << std::endl;
 	translateTypes();
 
 	// Constants
-	if (!domain.constants().empty())
+	if (!domain->constants.empty())
 	{
 		m_outputStream << std::endl;
-		translateConstants("constants", domain.constants());
+		translateConstants("constants", domain->constants);
 	}
 
 	// Predicates
-	if (!domain.predicates().empty())
+	if (!domain->predicates.empty())
 	{
 		m_outputStream << std::endl;
 		translatePredicates();
 	}
 
-	// Derived predicates
-	if (!domain.derivedPredicates().empty())
-	{
-		m_outputStream << std::endl;
-		translateDerivedPredicates();
-	}
-
 	// Actions
-	if (!domain.actions().empty())
+	if (!domain->actions.empty())
 	{
 		m_outputStream << std::endl;
 		translateActions();
@@ -92,7 +86,7 @@ void TranslatorASP::translateTypes() const
 
 	m_outputStream << std::endl;
 
-	const auto &types = m_description.domain().types();
+	const auto &types = m_description.domain->types;
 
 	if (types.empty())
 	{
@@ -108,18 +102,18 @@ void TranslatorASP::translateTypes() const
 		m_outputStream
 			<< output::Function("type") << "("
 			<< output::Keyword("type") << "("
-			<< output::String(type->name().c_str())
+			<< *type
 			<< "))." << std::endl;
 
-		const auto &parentTypes = type->parentTypes();
+		const auto &parentTypes = type->parentTypes;
 
 		std::for_each(parentTypes.cbegin(), parentTypes.cend(),
 			[&](const auto &parentType)
 			{
 				m_outputStream
 					<< output::Function("inherits") << "(" << output::Keyword("type")
-					<< "(" << output::String(type->name().c_str()) << "), " << output::Keyword("type")
-					<< "(" << output::String(parentType->name().c_str()) << "))." << std::endl;
+					<< "(" << *type << "), " << output::Keyword("type")
+					<< "(" << *parentType << "))." << std::endl;
 			});
 	}
 
@@ -143,17 +137,17 @@ void TranslatorASP::translatePredicates() const
 {
 	m_outputStream << output::Heading2("variables");
 
-	const auto &predicates = m_description.domain().predicates();
+	const auto &predicates = m_description.domain->predicates;
 
 	for (const auto &predicate : predicates)
 	{
 		m_outputStream << std::endl << output::Function("variable") << "(";
 
-		translation::printPredicateName(m_outputStream, *predicate);
+		translatePredicateDeclaration(m_outputStream, *predicate);
 
 		m_outputStream << ")";
 
-		translation::translateVariablesForRuleBody(m_outputStream, predicate->parameters());
+		translateVariablesForRuleBody(m_outputStream, predicate->parameters);
 
 		m_outputStream << ".";
 	}
@@ -173,160 +167,47 @@ void TranslatorASP::translatePredicates() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void TranslatorASP::translateDerivedPredicates() const
-{
-	m_outputStream << output::Heading2("derived predicates");
-
-	const auto &derivedPredicates = m_description.domain().derivedPredicates();
-
-	for (const auto &derivedPredicate : derivedPredicates)
-	{
-		const auto printObjectName =
-			[&](auto &outputStream)
-			{
-				translation::printDerivedPredicateName(outputStream, *derivedPredicate);
-			};
-
-		m_outputStream << std::endl << output::Function("derivedVariable") << "(";
-
-		printObjectName(m_outputStream);
-
-		m_outputStream << ")";
-
-		translation::translateVariablesForRuleBody(m_outputStream, derivedPredicate->parameters());
-
-		m_outputStream << ".";
-
-		translation::translatePreconditionDisjunction(m_outputStream, "derivedVariable", printObjectName, derivedPredicate->preconditions());
-
-		m_outputStream << std::endl;
-	}
-
-	m_outputStream
-		<< std::endl
-		<< output::Function("contains") << "("
-		<< output::Keyword("derivedVariable") << "(" << output::Variable("X") << "), "
-		<< output::Keyword("value") << "(" << output::Variable("X") << ", " << output::Variable("B") << ")) :- "
-		<< output::Function("derivedVariable") << "(" << output::Keyword("derivedVariable") << "(" << output::Variable("X") << ")), "
-		<< output::Function("boolean") << "(" << output::Variable("B") << ")."
-		<< std::endl;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 void TranslatorASP::translateActions() const
 {
 	m_outputStream << output::Heading2("actions");
 
-	const auto &actions = m_description.domain().actions();
-
-	const auto printActionName =
-		[&](const auto &action)
-		{
-			m_outputStream << output::Keyword("action") << "(";
-
-			if (action.parameters().empty())
-			{
-				m_outputStream << output::String(action.name().c_str()) << ")";
-
-				return;
-			}
-
-			m_outputStream << "(" << output::String(action.name().c_str());
-			translation::translateVariablesForRuleHead(m_outputStream, action.parameters());
-			m_outputStream << "))";
-		};
+	const auto &actions = m_description.domain->actions;
 
 	for (const auto &action : actions)
 	{
-		const auto translateExpression =
-			[&](const auto &ruleHead, const auto &literal, bool enumerateEffects = false)
+		const auto printActionName =
+			[&]()
 			{
-				m_outputStream << std::endl << output::Function(ruleHead) << "(";
+				m_outputStream << output::Keyword("action") << "(";
 
-				printActionName(*action);
+				if (action->parameters.empty())
+				{
+					m_outputStream << *action << ")";
+					return;
+				}
 
-				// TODO: implement conditional effects
-				if (enumerateEffects)
-					m_outputStream << ", " << output::Keyword("effect") << "(" << output::Reserved("unconditional") << ")";
-
-				m_outputStream << ", ";
-
-				translation::translateLiteral(m_outputStream, literal);
-
-				m_outputStream << ") :- " << output::Function("action") << "(";
-
-				printActionName(*action);
-
-				m_outputStream << ").";
+				m_outputStream << "(" << *action;
+				translateVariablesForRuleHead(m_outputStream, action->parameters);
+				m_outputStream << "))";
 			};
 
 		m_outputStream << std::endl;
 
 		// Name
 		m_outputStream << output::Function("action") << "(";
-		printActionName(*action);
+		printActionName();
 		m_outputStream << ")";
 
-		translation::translateVariablesForRuleBody(m_outputStream, action->parameters());
+		translateVariablesForRuleBody(m_outputStream, action->parameters);
 
 		m_outputStream << ".";
 
 		// Precondition
-		if (action->precondition())
-		{
-			const auto &precondition = *action->precondition();
+		if (action->precondition)
+			translatePrecondition(m_outputStream, action->precondition.value(), "action", printActionName);
 
-			switch (precondition.expressionType())
-			{
-				case Expression::Type::And:
-				{
-					const auto &andExpression = precondition.as<expressions::And>();
-
-					std::for_each(andExpression.arguments().cbegin(), andExpression.arguments().cend(),
-						[&](const auto argument)
-						{
-							translateExpression("precondition", *argument);
-						});
-
-					break;
-				}
-				case Expression::Type::Predicate:
-				case Expression::Type::Not:
-				case Expression::Type::DerivedPredicate:
-				{
-					translateExpression("precondition", precondition);
-					break;
-				}
-				default:
-					throw output::TranslatorException("only “and” expressions and (negated) predicates supported as action preconditions currently (" + std::to_string((int)precondition.expressionType()) + ")");
-			}
-		}
-
-		// Effect
-		if (action->effect())
-		{
-			const auto &effect = *action->effect();
-
-			if (effect.is<expressions::Predicate>() || effect.is<expressions::Not>())
-			{
-				translateExpression("postcondition", effect, true);
-			}
-			// Assuming a conjunction
-			else
-			{
-				if (effect.expressionType() != Expression::Type::And)
-					throw output::TranslatorException("only “and” expressions and (negated) predicates supported as action effects currently");
-
-				const auto &andExpression = effect.as<expressions::And>();
-
-				std::for_each(andExpression.arguments().cbegin(), andExpression.arguments().cend(),
-					[&](const auto argument)
-					{
-						translateExpression("postcondition", *argument, true);
-					});
-			}
-		}
+		if (action->effect)
+			translateEffect(m_outputStream, action->effect.value(), "action", printActionName);
 
 		m_outputStream << std::endl;
 	}
@@ -334,7 +215,7 @@ void TranslatorASP::translateActions() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void TranslatorASP::translateConstants(const std::string &heading, const expressions::Constants &constants) const
+void TranslatorASP::translateConstants(const std::string &heading, const ::pddl::ast::ConstantDeclarations &constants) const
 {
 	m_outputStream << output::Heading2(heading.c_str());
 
@@ -343,21 +224,26 @@ void TranslatorASP::translateConstants(const std::string &heading, const express
 		m_outputStream << std::endl
 			<< output::Function("constant") << "("
 			<< output::Keyword("constant") << "("
-			<< output::String(constant->name().c_str())
+			<< *constant
 			<< "))." << std::endl;
 
-		const auto type = constant->type();
+		const auto &type = constant->type;
 
-		if (type != nullptr)
+		if (type)
 		{
+			if (!type.value().is<::pddl::ast::PrimitiveTypePointer>())
+				throw output::TranslatorException("only primitive types supported currently");
+
+			const auto &primitveType = type.value().get<::pddl::ast::PrimitiveTypePointer>();
+
 			m_outputStream << output::Function("has") << "("
-				<< output::Keyword("constant") << "(" << output::String(constant->name().c_str()) << "), "
-				<< output::Keyword("type") << "(" << output::String(type->name().c_str()) << "))." << std::endl;
+				<< output::Keyword("constant") << "(" << *constant << "), "
+				<< output::Keyword("type") << "(" << *primitveType << "))." << std::endl;
 		}
 		else
 		{
 			m_outputStream << output::Function("has") << "("
-				<< output::Keyword("constant") << "(" << output::String(constant->name().c_str()) << "), "
+				<< output::Keyword("constant") << "(" << *constant << "), "
 				<< output::Keyword("type") << "(" << output::String("object") << "))." << std::endl;
 		}
 	}
@@ -367,17 +253,17 @@ void TranslatorASP::translateConstants(const std::string &heading, const express
 
 void TranslatorASP::translateProblem() const
 {
-	BOOST_ASSERT(m_description.containsProblem());
+	assert(m_description.problem);
 
 	m_outputStream << output::Heading1("problem");
 
-	const auto &problem = m_description.problem();
+	const auto &problem = m_description.problem.value();
 
 	// Objects
-	if (!problem.objects().empty())
+	if (!problem->objects.empty())
 	{
 		m_outputStream << std::endl;
-		translateConstants("objects", problem.objects());
+		translateConstants("objects", problem->objects);
 	}
 
 	// Initial State
@@ -385,42 +271,45 @@ void TranslatorASP::translateProblem() const
 	translateInitialState();
 
 	// Goal
-	m_outputStream << std::endl;
-	translateGoal();
+	if (problem->goal)
+	{
+		m_outputStream << std::endl;
+		translateGoal();
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void TranslatorASP::translateInitialState() const
 {
-	BOOST_ASSERT(m_description.containsProblem());
+	assert(m_description.problem);
 
 	m_outputStream << output::Heading2("initial state");
 
-	const auto &initialStateFacts = m_description.problem().initialState().facts();
+	const auto &facts = m_description.problem.value()->initialState.facts;
 
-	for (const auto &fact : initialStateFacts)
+	for (const auto &fact : facts)
 	{
 		m_outputStream << std::endl << output::Function("initialState") << "(";
 
 		// Translate single predicate
-		if (fact->is<expressions::Predicate>())
+		if (fact.is<::pddl::ast::AtomicFormula>() && fact.get<::pddl::ast::AtomicFormula>().is<::pddl::ast::PredicatePointer>())
 		{
-			const auto &predicate = fact->as<expressions::Predicate>();
+			const auto &predicate = fact.get<::pddl::ast::AtomicFormula>().get<::pddl::ast::PredicatePointer>();
 
-			m_outputStream << output::Keyword("variable") << "(";
-			translation::translatePredicate(m_outputStream, predicate);
-			m_outputStream << "), " << output::Keyword("value") << "(";
-			translation::translatePredicate(m_outputStream, predicate);
-			m_outputStream << ", " << output::Boolean("true") << ")";
+			translatePredicateToVariable(m_outputStream, *predicate, true);
 		}
 		// Assuming that "not" expression may only contain a predicate
-		else if (fact->is<expressions::Not>())
+		else if (fact.is<::pddl::ast::NotPointer<::pddl::ast::Fact>>())
 		{
-			const auto &notExpression = fact->as<expressions::Not>();
+			const auto &notExpression = fact.get<::pddl::ast::NotPointer<::pddl::ast::Fact>>();
 
-			if (notExpression.argument()->expressionType() != Expression::Type::Predicate)
+			if (!notExpression->argument.is<::pddl::ast::AtomicFormula>() || !notExpression->argument.get<::pddl::ast::AtomicFormula>().is<::pddl::ast::PredicatePointer>())
 				throw output::TranslatorException("only negations of simple predicates supported in initial state currently");
+
+			const auto &predicate = notExpression->argument.get<::pddl::ast::AtomicFormula>().get<::pddl::ast::PredicatePointer>();
+
+			translatePredicateToVariable(m_outputStream, *predicate, false);
 		}
 		else
 			throw output::TranslatorException("only predicates and their negations supported in initial state currently");
@@ -445,36 +334,14 @@ void TranslatorASP::translateInitialState() const
 
 void TranslatorASP::translateGoal() const
 {
-	BOOST_ASSERT(m_description.containsProblem());
+	assert(m_description.problem);
+	assert(m_description.problem.value()->goal);
 
 	m_outputStream << output::Heading2("goal");
 
-	const auto &goal = m_description.problem().goal();
-
-	if (goal.is<expressions::Predicate>() || goal.is<expressions::Not>())
-	{
-		m_outputStream << std::endl << output::Function("goal") << "(";
-
-		translation::translateLiteral(m_outputStream, goal);
-
-		m_outputStream << ").";
-	}
-	else if (goal.is<expressions::And>())
-	{
-		const auto &andExpression = goal.as<expressions::And>();
-
-		std::for_each(andExpression.arguments().cbegin(), andExpression.arguments().cend(),
-			[&](const auto argument)
-			{
-				m_outputStream << std::endl << output::Function("goal") << "(";
-
-				translation::translateLiteral(m_outputStream, *argument);
-
-				m_outputStream << ").";
-			});
-	}
-	else
-		throw output::TranslatorException("only single predicates, their negations, and conjunctions are currently supported in the goal");
+	const auto &goal = m_description.problem.value()->goal.value();
+	// TODO: refactor
+	::plasp::pddl::translateGoal(m_outputStream, goal);
 
 	m_outputStream << std::endl;
 }
