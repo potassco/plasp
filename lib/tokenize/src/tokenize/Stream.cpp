@@ -30,14 +30,22 @@ void Stream::read(std::string streamName, std::istream &istream)
 	// Store position of new section
 	m_delimiters.push_back({m_stream.size(), streamName});
 
-	/*istream.seekg(0, std::ios::end);
-	const auto streamSize = istream.tellg();
-	istream.seekg(0, std::ios::beg);
+	try
+	{
+		istream.seekg(0, std::ios::end);
+		const auto streamSize = istream.tellg();
+		istream.seekg(0, std::ios::beg);
 
-	const auto startPosition = m_stream.size();
+		const auto startPosition = m_stream.size();
 
-	m_stream.resize(m_stream.size() + streamSize);*/
-	std::copy(std::istreambuf_iterator<char>(istream), std::istreambuf_iterator<char>(), std::back_inserter(m_stream));
+		m_stream.resize(m_stream.size() + streamSize);
+		std::copy(std::istreambuf_iterator<char>(istream), std::istreambuf_iterator<char>(), m_stream.begin() + startPosition);
+	}
+	catch (const std::exception &exception)
+	{
+		istream.clear();
+		std::copy(std::istreambuf_iterator<char>(istream), std::istreambuf_iterator<char>(), std::back_inserter(m_stream));
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
