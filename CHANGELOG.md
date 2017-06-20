@@ -8,6 +8,8 @@ Features:
 * improved command-line interface
 * new command-line option `--log-level` to control which status messages should be shown
 * new command-line option `--warnings-as-errors` to abort program execution upon warnings (replaces `--warning-level`)
+* compatibility mode for parser, which supports more legacy domains
+* new command-line option `--parsing-mode` to specify whether to apply strict or compatibility parsing rules
 
 Internal:
 
