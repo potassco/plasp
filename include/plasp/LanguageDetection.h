@@ -32,8 +32,10 @@ Language::Type detectLanguage(tokenize::Tokenizer<tokenize::CaseInsensitiveToken
 		tokenizer.skipWhiteSpace();
 	}
 
-	// PDDL contains sections starting with "(define"
-	if (tokenizer.testAndSkip<std::string>("(") && tokenizer.testAndSkip<std::string>("define"))
+	// PDDL contains sections starting with “(define”
+	// Some legacy domains contain “in-package” sections, however
+	if (tokenizer.testAndSkip<std::string>("(")
+		&& (tokenizer.testAndSkip<std::string>("define") || tokenizer.testAndSkip<std::string>("in-package")))
 	{
 		tokenizer.seek(std::ios::beg);
 		return Language::Type::PDDL;
