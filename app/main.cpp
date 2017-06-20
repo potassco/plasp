@@ -5,6 +5,7 @@
 #include <boost/program_options.hpp>
 
 #include <pddlparse/AST.h>
+#include <pddlparse/Mode.h>
 #include <pddlparse/Parse.h>
 
 #include <plasp/LanguageDetection.h>
@@ -27,6 +28,7 @@ int main(int argc, char **argv)
 		("help,h", "Display this help message")
 		("version,v", "Display version information")
 		("input,i", po::value<std::vector<std::string>>(), "Input files (in PDDL or SAS format)")
+		("parsing-mode", po::value<std::string>()->default_value("strict"), "Parsing mode (strict, compatibility)")
 		("language,l", po::value<std::string>()->default_value("auto"), "Input language (pddl, sas, auto)")
 		("color", po::value<std::string>()->default_value("auto"), "Colorize output (always, never, auto)")
 		("log-priority,p", po::value<std::string>()->default_value("warning"), "Log messages starting from this priority (debug, info, warning, error)")
@@ -79,6 +81,20 @@ int main(int argc, char **argv)
 
 	if (warningsAsErrors)
 		logger.setAbortPriority(plasp::output::Priority::Warning);
+
+	auto parsingMode = pddl::Mode::Strict;
+
+	const auto parsingModeString = variablesMap["parsing-mode"].as<std::string>();
+
+	if (parsingModeString == "compatibility")
+		parsingMode = pddl::Mode::Compatibility;
+	else if (parsingModeString != "strict")
+	{
+		logger.log(plasp::output::Priority::Error, "unknown parsing mode “" + parsingModeString + "”");
+		std::cout << std::endl;
+		printHelp();
+		return EXIT_FAILURE;
+	}
 
 	const auto colorPolicy = variablesMap["color"].as<std::string>();
 
@@ -159,6 +175,7 @@ int main(int argc, char **argv)
 				};
 
 			auto context = pddl::Context(std::move(tokenizer), logWarning);
+			context.mode = parsingMode;
 			auto description = pddl::parseDescription(context);
 			const auto translator = plasp::pddl::TranslatorASP(std::move(description), logger.outputStream());
 			translator.translate();
