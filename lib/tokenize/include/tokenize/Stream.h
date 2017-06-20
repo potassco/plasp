@@ -37,8 +37,8 @@ class Stream
 
 		Stream(const Stream &other) = delete;
 		Stream &operator=(const Stream &other) = delete;
-		Stream(Stream &&other) = default;
-		Stream &operator=(Stream &&other) = default;
+		Stream(Stream &&other) = delete;
+		Stream &operator=(Stream &&other) = delete;
 
 		void read(std::string streamName, std::istream &istream);
 		void read(const std::experimental::filesystem::path &path);

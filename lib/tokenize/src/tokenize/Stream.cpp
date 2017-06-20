@@ -36,16 +36,14 @@ void Stream::read(std::string streamName, std::istream &istream)
 		const auto streamSize = istream.tellg();
 		istream.seekg(0, std::ios::beg);
 
-		const auto startPosition = m_stream.size();
-
-		m_stream.resize(m_stream.size() + streamSize);
-		std::copy(std::istreambuf_iterator<char>(istream), std::istreambuf_iterator<char>(), m_stream.begin() + startPosition);
+		m_stream.reserve(m_stream.size() + streamSize);
 	}
 	catch (const std::exception &exception)
 	{
 		istream.clear();
-		std::copy(std::istreambuf_iterator<char>(istream), std::istreambuf_iterator<char>(), std::back_inserter(m_stream));
 	}
+
+	std::copy(std::istreambuf_iterator<char>(istream), std::istreambuf_iterator<char>(), std::back_inserter(m_stream));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
