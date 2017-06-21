@@ -30,8 +30,6 @@ using ConstantPointer = std::unique_ptr<Constant>;
 struct ConstantDeclaration;
 using ConstantDeclarationPointer = std::unique_ptr<ConstantDeclaration>;
 using ConstantDeclarations = std::vector<ConstantDeclarationPointer>;
-struct Dummy;
-using DummyPointer = std::unique_ptr<Dummy>;
 struct PrimitiveType;
 using PrimitiveTypePointer = std::unique_ptr<PrimitiveType>;
 using PrimitiveTypes = std::vector<PrimitiveTypePointer>;
