@@ -57,7 +57,7 @@ Logger::Logger(ColorStream &&outputStream)
 Logger::Logger(ColorStream &&outputStream, ColorStream &&errorStream)
 :	m_outputStream{outputStream},
 	m_errorStream{errorStream},
-	m_logPriority{Priority::Warning},
+	m_logPriority{Priority::Info},
 	m_abortPriority{Priority::Error}
 {
 }
@@ -104,14 +104,20 @@ void Logger::log(Priority priority, const char *message)
 {
 	const auto priorityID = static_cast<int>(priority);
 
-	if (priorityID < static_cast<int>(m_logPriority))
+	if (priorityID < static_cast<int>(m_logPriority) &&
+		priorityID < static_cast<int>(m_abortPriority))
+	{
 		return;
+	}
 
 	m_errorStream
 		<< priorityFormat(priority) << priorityName(priority) << ":"
 		<< ResetFormat() << " "
 		<< MessageBodyFormat << message
 		<< ResetFormat() << std::endl;
+
+	if (priority != Priority::Error && priorityID >= static_cast<int>(m_abortPriority))
+		throw std::runtime_error("received warning (treated as error by configuration)");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -144,7 +150,8 @@ void Logger::log(Priority priority, const tokenize::Location &location, const ch
 		<< ResetFormat() << std::endl;
 
 	// TODO: print original warning message
-	if (priorityID >= static_cast<int>(m_abortPriority))
+	// TODO: refactor
+	if (priority != Priority::Error && priorityID >= static_cast<int>(m_abortPriority))
 		throw std::runtime_error("received warning (treated as error by configuration)");
 }
 

@@ -31,7 +31,7 @@ int main(int argc, char **argv)
 		("parsing-mode", po::value<std::string>()->default_value("strict"), "Parsing mode (strict, compatibility)")
 		("language,l", po::value<std::string>()->default_value("auto"), "Input language (pddl, sas, auto)")
 		("color", po::value<std::string>()->default_value("auto"), "Colorize output (always, never, auto)")
-		("log-priority,p", po::value<std::string>()->default_value("warning"), "Log messages starting from this priority (debug, info, warning, error)")
+		("log-priority,p", po::value<std::string>()->default_value("info"), "Log messages starting from this priority (debug, info, warning, error)")
 		("warnings-as-errors", po::bool_switch(&warningsAsErrors), "Treat warnings as errors");
 
 	po::positional_options_description positionalOptionsDescription;
