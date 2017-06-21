@@ -5,6 +5,7 @@
 #include <boost/program_options.hpp>
 
 #include <pddlparse/AST.h>
+#include <pddlparse/Exception.h>
 #include <pddlparse/Mode.h>
 #include <pddlparse/Parse.h>
 
@@ -95,6 +96,13 @@ int main(int argc, char **argv)
 		printHelp();
 		return EXIT_FAILURE;
 	}
+
+	const auto printCompatibilityInfo =
+		[&]()
+		{
+			if (parsingMode != pddl::Mode::Compatibility)
+				logger.log(plasp::output::Priority::Info, "try using --parsing-mode=compatibility for extended legacy feature support");
+		};
 
 	const auto colorPolicy = variablesMap["color"].as<std::string>();
 
@@ -190,6 +198,20 @@ int main(int argc, char **argv)
 	catch (const tokenize::TokenizerException &e)
 	{
 		logger.log(plasp::output::Priority::Error, e.location(), e.message().c_str());
+
+		printCompatibilityInfo();
+
+		return EXIT_FAILURE;
+	}
+	catch (const pddl::ParserException &e)
+	{
+		if (e.location())
+			logger.log(plasp::output::Priority::Error, e.location().value(), e.message().c_str());
+		else
+			logger.log(plasp::output::Priority::Error, e.message().c_str());
+
+		printCompatibilityInfo();
+
 		return EXIT_FAILURE;
 	}
 	catch (const plasp::output::TranslatorException &e)
