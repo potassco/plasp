@@ -26,8 +26,7 @@ std::experimental::optional<ast::Fact> parseFact(Context &context, ASTContext &a
 	tokenizer.expect<std::string>("(");
 	tokenizer.skipWhiteSpace();
 
-	if (tokenizer.testIdentifierAndReturn("=")
-		|| tokenizer.testIdentifierAndReturn("at"))
+	if (tokenizer.testIdentifierAndReturn("="))
 	{
 		tokenizer.seek(position);
 		return parseUnsupported(context);
@@ -39,12 +38,20 @@ std::experimental::optional<ast::Fact> parseFact(Context &context, ASTContext &a
 	std::experimental::optional<ast::Fact> fact;
 
 	if ((fact = parseNot<ast::Fact>(context, astContext, variableStack, parseAtomicFormula))
-	    || (fact = parseAtomicFormula(context, astContext, variableStack)))
+		|| (fact = parseAtomicFormula(context, astContext, variableStack)))
 	{
 		return std::move(fact.value());
 	}
 
-	return parseAtomicFormula(context, astContext, variableStack);
+	// Test for “at” expressions only now to allow “at” as a predicate name
+	// TODO: allow this in compatibility mode only?
+	if (tokenizer.testIdentifierAndReturn("at"))
+	{
+		tokenizer.seek(position);
+		return parseUnsupported(context);
+	}
+
+	return std::experimental::nullopt;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

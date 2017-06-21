@@ -60,4 +60,30 @@ TEST_CASE("[PDDL parser issues] Check past issues", "[PDDL parser issues]")
 		context.tokenizer.read(domainFile);
 		CHECK_THROWS(pddl::parseDescription(context));
 	}
+
+	// Check that “at” is allowed as a predicate name and not exclusively for “at” expressions
+	SECTION("“at” as predicate name")
+	{
+		const auto domainFile = fs::path("data") / "issues" / "issue-10.pddl";
+		context.tokenizer.read(domainFile);
+
+		const auto description = pddl::parseDescription(context);
+
+		REQUIRE(description.problem);
+
+		const auto &problem = description.problem.value();
+		const auto &facts = problem->initialState.facts;
+
+		const auto invalidFact = std::find_if(facts.cbegin(), facts.cend(),
+			[](const auto &fact)
+			{
+				return
+					fact.template is<pddl::ast::AtPointer<pddl::ast::Literal>>()
+					|| (fact.template is<pddl::ast::AtomicFormula>() && fact.template get<pddl::ast::AtomicFormula>().template is<pddl::ast::UnsupportedPointer>());
+			});
+
+		const auto containsInvalidFact = (invalidFact != facts.cend());
+
+		CHECK(!containsInvalidFact);
+	}
 }
