@@ -52,4 +52,12 @@ TEST_CASE("[PDDL parser issues] Check past issues", "[PDDL parser issues]")
 		context.tokenizer.read(domainFile);
 		CHECK_NOTHROW(pddl::parseDescription(context));
 	}
+
+	// Check that accidentally unnamed variables lead to an exception and not a segfault
+	SECTION("whitespace in typing section")
+	{
+		const auto domainFile = fs::path("data") / "issues" / "issue-9.pddl";
+		context.tokenizer.read(domainFile);
+		CHECK_THROWS(pddl::parseDescription(context));
+	}
 }
