@@ -21,8 +21,15 @@ void parseAndAddUntypedVariableDeclaration(Context &context, ast::VariableDeclar
 	auto &tokenizer = context.tokenizer;
 
 	tokenizer.expect<std::string>("?");
+	const auto position = tokenizer.position();
+
 	auto variableName = tokenizer.getIdentifier();
-	assert(variableName != "-");
+
+	if (variableName == "" || variableName == "-")
+	{
+		tokenizer.seek(position);
+		throw ParserException(tokenizer.location(), "could not parse variable name");
+	}
 
 	variableDeclarations.emplace_back(std::make_unique<ast::VariableDeclaration>(std::move(variableName)));
 }
