@@ -75,7 +75,7 @@ Value Value::fromSAS(tokenize::Tokenizer<> &tokenizer)
 	else if (sasSign == "NegatedAtom")
 		value.m_sign = Value::Sign::Negative;
 	else
-		throw tokenize::TokenizerException(tokenizer, "invalid value sign “" + sasSign + "”");
+		throw tokenize::TokenizerException(tokenizer.location(), "invalid value sign “" + sasSign + "”");
 
 	try
 	{
@@ -91,7 +91,7 @@ Value Value::fromSAS(tokenize::Tokenizer<> &tokenizer)
 	}
 	catch (const std::exception &e)
 	{
-		throw tokenize::TokenizerException(tokenizer, std::string("could not parse variable value (") + e.what() + ")");
+		throw tokenize::TokenizerException(tokenizer.location(), std::string("could not parse variable value (") + e.what() + ")");
 	}
 
 	return value;
@@ -107,7 +107,7 @@ const Value &Value::referenceFromSAS(tokenize::Tokenizer<> &tokenizer, const Var
 		return Value::Any;
 
 	if (valueID < 0 || static_cast<size_t>(valueID) >= variable.values().size())
-		throw tokenize::TokenizerException(tokenizer, "value index out of range (variable " + variable.name() + ", index " + std::to_string(valueID) + ")");
+		throw tokenize::TokenizerException(tokenizer.location(), "value index out of range (variable " + variable.name() + ", index " + std::to_string(valueID) + ")");
 
 	return variable.values()[valueID];
 }

@@ -37,7 +37,7 @@ ast::Type parseType(Context &context, ast::Domain &domain)
 		auto eitherType = parseEither<ast::PrimitiveTypePointer>(context, astContext, variableStack, parsePrimitiveTypeWrapper);
 
 		if (!eitherType)
-			throw ParserException(tokenizer, "expected primitive type or “either” expression");
+			throw ParserException(tokenizer.location(), "expected primitive type or “either” expression");
 
 		return std::move(eitherType.value());
 	}

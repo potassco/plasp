@@ -73,7 +73,7 @@ void DescriptionParser::findSections()
 
 		if (m_context.mode == Mode::Compatibility && tokenizer.testAndReturn<std::string>("in-package"))
 		{
-			m_context.warningCallback(tokenizer, "“in-package” section is not part of the PDDL 3.1 specification, ignoring section");
+			m_context.warningCallback(tokenizer.location(), "“in-package” section is not part of the PDDL 3.1 specification, ignoring section");
 
 			skipSection(tokenizer);
 			tokenizer.skipWhiteSpace();
@@ -87,7 +87,7 @@ void DescriptionParser::findSections()
 		if (tokenizer.testAndSkip<std::string>("domain"))
 		{
 			if (m_domainPosition != tokenize::InvalidStreamPosition)
-				throw ParserException(tokenizer, "PDDL description may not contain two domains");
+				throw ParserException(tokenizer.location(), "PDDL description may not contain two domains");
 
 			m_domainPosition = position;
 			skipSection(tokenizer);
@@ -105,7 +105,7 @@ void DescriptionParser::findSections()
 		else
 		{
 			const auto sectionIdentifier = tokenizer.get<std::string>();
-			throw ParserException(tokenizer, "unknown PDDL section “" + sectionIdentifier + "”");
+			throw ParserException(tokenizer.location(), "unknown PDDL section “" + sectionIdentifier + "”");
 		}
 
 		tokenizer.skipWhiteSpace();

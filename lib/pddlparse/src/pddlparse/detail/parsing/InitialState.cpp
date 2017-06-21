@@ -28,7 +28,7 @@ ast::InitialState parseInitialState(Context &context, ASTContext &astContext, Va
 		auto fact = parseFact(context, astContext, variableStack);
 
 		if (!fact)
-			throw ParserException(tokenizer, "invalid initial state fact");
+			throw ParserException(tokenizer.location(), "invalid initial state fact");
 
 		initialState.facts.emplace_back(std::move(fact.value()));
 

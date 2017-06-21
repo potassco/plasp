@@ -17,6 +17,7 @@ set(sources
 )
 
 set(libraries
+	stdc++fs
 	${Boost_LIBRARIES}
 	plasp
 )

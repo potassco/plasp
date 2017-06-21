@@ -60,7 +60,7 @@ void parseAndAddVariableDeclarations(Context &context, ast::Domain &domain, ast:
 	const bool isTypingUsed = !domain.types.empty();
 
 	if (isTypingUsed && !variableDeclarations.empty() && !variableDeclarations.back()->type)
-		throw ParserException(tokenizer, "missing type declaration for variable “?" + variableDeclarations.back()->name + "”");
+		throw ParserException(tokenizer.location(), "missing type declaration for variable “?" + variableDeclarations.back()->name + "”");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -60,7 +60,6 @@ set(sources
 
 set(libraries
 	${Boost_LIBRARIES}
-	tokenize
 	pddlparse
 	pthread
 )

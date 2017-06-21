@@ -83,7 +83,7 @@ std::experimental::optional<ast::Effect> parseEffectBody(Context &context, ASTCo
 	const auto expressionIdentifier = tokenizer.getIdentifier();
 
 	tokenizer.seek(position);
-	throw ParserException(tokenizer, "expression type “" + expressionIdentifier + "” unknown or not allowed in effect body");
+	throw ParserException(tokenizer.location(), "expression type “" + expressionIdentifier + "” unknown or not allowed in effect body");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -144,7 +144,7 @@ std::experimental::optional<ast::ConditionalEffect> parseConditionalEffectBody(C
 	const auto expressionIdentifier = tokenizer.getIdentifier();
 
 	tokenizer.seek(position);
-	throw ParserException(tokenizer, "expression type “" + expressionIdentifier + "” unknown or not allowed in conditional effect body");
+	throw ParserException(tokenizer.location(), "expression type “" + expressionIdentifier + "” unknown or not allowed in conditional effect body");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

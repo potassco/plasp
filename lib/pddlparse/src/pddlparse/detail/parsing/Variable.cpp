@@ -64,7 +64,7 @@ ast::VariablePointer parseVariable(Context &context, VariableStack &variableStac
 	auto variableDeclaration = variableStack.findVariableDeclaration(variableName);
 
 	if (!variableDeclaration)
-		throw ParserException(tokenizer, "undeclared variable “" + variableName + "”");
+		throw ParserException(tokenizer.location(), "undeclared variable “" + variableName + "”");
 
 	return std::make_unique<ast::Variable>(variableDeclaration.value());
 }

@@ -43,7 +43,7 @@ Variable Variable::fromSAS(tokenize::Tokenizer<> &tokenizer)
 
 		// <none of those> values are only allowed at the end
 		if (j < numberOfValues - 1 && variable.m_values[j] == Value::None)
-			throw tokenize::TokenizerException(tokenizer, "<none of those> value must be the last value of a variable");
+			throw tokenize::TokenizerException(tokenizer.location(), "<none of those> value must be the last value of a variable");
 	}
 
 	tokenizer.expect<std::string>("end_variable");
@@ -66,7 +66,7 @@ const Variable &Variable::referenceFromSAS(tokenize::Tokenizer<> &tokenizer, con
 	const auto variableID = tokenizer.get<size_t>();
 
 	if (variableID >= variables.size())
-		throw tokenize::TokenizerException(tokenizer, "variable index out of range (index " + std::to_string(variableID) + ")");
+		throw tokenize::TokenizerException(tokenizer.location(), "variable index out of range (index " + std::to_string(variableID) + ")");
 
 	return variables[variableID];
 }

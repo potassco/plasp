@@ -27,7 +27,6 @@ set(sources
 )
 
 set(libraries
-	tokenize
 )
 
 add_library(${target} ${sources})

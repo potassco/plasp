@@ -173,7 +173,7 @@ void Description::parseContent(tokenize::Tokenizer<> &tokenizer)
 	tokenizer.skipWhiteSpace();
 
 	if (!tokenizer.atEnd())
-		throw tokenize::TokenizerException(tokenizer, "expected end of SAS description (perhaps, input contains two SAS descriptions?)");
+		throw tokenize::TokenizerException(tokenizer.location(), "expected end of SAS description (perhaps, input contains two SAS descriptions?)");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -185,7 +185,7 @@ void Description::parseVersionSection(tokenize::Tokenizer<> &tokenizer) const
 	const auto formatVersion = tokenizer.get<size_t>();
 
 	if (formatVersion != 3)
-		throw tokenize::TokenizerException(tokenizer, "unsupported SAS format version (" + std::to_string(formatVersion) + ")");
+		throw tokenize::TokenizerException(tokenizer.location(), "unsupported SAS format version (" + std::to_string(formatVersion) + ")");
 
 	tokenizer.expect<std::string>("end_version");
 }

@@ -60,7 +60,7 @@ void parseAndAddConstantDeclarations(Context &context, ast::Domain &domain, ast:
 	const bool isTypingUsed = !domain.types.empty();
 
 	if (isTypingUsed && !constantDeclarations.empty() && !constantDeclarations.back()->type)
-		throw ParserException(tokenizer, "missing type declaration for constant “" + constantDeclarations.back()->name + "”");
+		throw ParserException(tokenizer.location(), "missing type declaration for constant “" + constantDeclarations.back()->name + "”");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

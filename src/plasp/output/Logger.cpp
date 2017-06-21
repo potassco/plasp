@@ -136,7 +136,7 @@ void Logger::log(Priority priority, const tokenize::Location &location, const ch
 
 	m_errorStream
 		<< LocationFormat
-		<< location.sectionStart() << ":" << location.rowStart() << ":" << location.columnStart() << ":"
+		<< location.sectionStart << ":" << location.rowStart << ":" << location.columnStart << ":"
 		<< ResetFormat() << " "
 		<< priorityFormat(priority) << priorityName(priority) << ":"
 		<< ResetFormat() << " "

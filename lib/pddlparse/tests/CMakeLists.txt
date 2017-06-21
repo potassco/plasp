@@ -10,6 +10,7 @@ set(includes
 )
 
 set(libraries
+	stdc++fs
 	pddlparse
 )
 

@@ -22,7 +22,7 @@ ast::UnsupportedPointer parseUnsupported(Context &context)
 
 	auto expressionType = tokenizer.getIdentifier();
 
-	context.warningCallback(tokenizer, "expression type “" + expressionType + "” currently unsupported in this context, substituting it with placeholder");
+	context.warningCallback(tokenizer.location(), "expression type “" + expressionType + "” currently unsupported in this context, substituting it with placeholder");
 
 	skipSection(tokenizer);
 

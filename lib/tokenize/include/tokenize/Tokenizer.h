@@ -27,20 +27,19 @@ struct Tag
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class TokenizerPolicy = CaseSensitiveTokenizerPolicy>
-class Tokenizer: public Stream, public TokenizerPolicy
+class Tokenizer : public Stream, public TokenizerPolicy
 {
 	template<class OtherTokenizerPolicy>
 	friend class Tokenizer;
 
 	public:
-		explicit Tokenizer();
+		explicit Tokenizer() noexcept;
 		explicit Tokenizer(std::string streamName, std::istream &istream);
 
 		template<class OtherTokenizer>
-		Tokenizer(OtherTokenizer &&otherTokenizer)
+		Tokenizer(OtherTokenizer &&other) noexcept
+		:	Stream(std::forward<OtherTokenizer>(other))
 		{
-			m_stream = std::move(otherTokenizer.m_stream);
-			m_delimiters = std::move(otherTokenizer.m_delimiters);
 		}
 
 		void removeComments(const std::string &startSequence, const std::string &endSequence, bool removeEnd);
@@ -94,8 +93,7 @@ class Tokenizer: public Stream, public TokenizerPolicy
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class TokenizerPolicy>
-Tokenizer<TokenizerPolicy>::Tokenizer()
-:	Stream()
+Tokenizer<TokenizerPolicy>::Tokenizer() noexcept
 {
 }
 
@@ -189,7 +187,7 @@ void Tokenizer<TokenizerPolicy>::expect(const Type &expectedValue)
 	std::stringstream message;
 	message << "unexpected value, expected “" << expectedValue << "”";
 
-	throw TokenizerException(*this, message.str());
+	throw TokenizerException(location(), message.str());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -208,7 +206,7 @@ std::string Tokenizer<TokenizerPolicy>::getIdentifier()
 		if (!TokenizerPolicy::isIdentifierCharacter(character))
 		{
 			if (value.empty())
-				throw TokenizerException(*this, "could not parse identifier");
+				throw TokenizerException(location(), "could not parse identifier");
 
 			return value;
 		}
@@ -289,31 +287,31 @@ template<class TokenizerPolicy>
 void Tokenizer<TokenizerPolicy>::removeComments(const std::string &startSequence, const std::string &endSequence, bool removeEnd)
 {
 	// TODO: move to appropriate place
-	for (auto &character : m_stream)
+	for (auto &character : m_content)
 		character = TokenizerPolicy::transformCharacter(character);
 
 	const auto removeRange =
 		[&](const auto &start, const auto &end)
 		{
-			const auto previousPosition = m_position;
+			const auto previousPosition = position();
 
-			assert(start < m_stream.size());
+			assert(start < m_content.size());
 
-			m_position = start;
+			seek(start);
 
-			while (m_position < end)
+			while (position() < end)
 			{
 				if (atEnd())
 					return;
 
-				m_stream[m_position] = ' ';
-				m_position++;
+				m_content[position()] = ' ';
+				advanceUnchecked();
 			}
 
-			m_position = previousPosition;
+			seek(previousPosition);
 		};
 
-	m_position = 0;
+	seek(0);
 
 	// TODO: refactor
 	while (!atEnd())
@@ -325,13 +323,13 @@ void Tokenizer<TokenizerPolicy>::removeComments(const std::string &startSequence
 			if ((startSequenceFound = testAndSkip(startSequence)))
 				break;
 
-			advance();
+			advanceUnchecked();
 		}
 
 		if (!startSequenceFound && atEnd())
 			break;
 
-		const auto startPosition = m_position - startSequence.size();
+		const auto startPosition = position() - startSequence.size();
 
 		bool endSequenceFound = false;
 
@@ -340,21 +338,21 @@ void Tokenizer<TokenizerPolicy>::removeComments(const std::string &startSequence
 			if ((endSequenceFound = testAndSkip(endSequence)))
 				break;
 
-			advance();
+			advanceUnchecked();
 		}
 
 		// If the end sequence is to be removed or could not be found, remove entire range
 		const auto endPosition =
 			(removeEnd || !endSequenceFound)
-			? m_position
-			: m_position - endSequence.size();
+			? position()
+			: position() - endSequence.size();
 
 		removeRange(startPosition, endPosition);
 
-		m_position = endPosition + 1;
+		seek(endPosition + 1);
 	}
 
-	m_position = 0;
+	seek(0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -406,7 +404,7 @@ uint64_t Tokenizer<TokenizerPolicy>::getIntegerBody()
 	check();
 
 	if (!std::isdigit(currentCharacter()))
-		throw TokenizerException(*this, "could not read integer value");
+		throw TokenizerException(location(), "could not read integer value");
 
 	uint64_t value = 0;
 
@@ -420,7 +418,7 @@ uint64_t Tokenizer<TokenizerPolicy>::getIntegerBody()
 		value *= 10;
 		value += character - '0';
 
-		advance();
+		advanceUnchecked();
 	}
 
 	return value;
@@ -448,7 +446,7 @@ uint64_t Tokenizer<TokenizerPolicy>::getImpl(Tag<uint64_t>)
 	skipWhiteSpace();
 
 	if (currentCharacter() == '-')
-		throw TokenizerException(*this, "expected unsigned integer, got signed one");
+		throw TokenizerException(location(), "expected unsigned integer, got signed one");
 
 	return getIntegerBody();
 }
@@ -482,7 +480,7 @@ bool Tokenizer<TokenizerPolicy>::getImpl(Tag<bool>)
 	if (testAndSkip<char>('1'))
 		return true;
 
-	throw TokenizerException(*this, "could not read Boolean value");
+	throw TokenizerException(location(), "could not read Boolean value");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -73,7 +73,7 @@ ast::ConstantPointer parseConstant(Context &context, ASTContext &astContext)
 	auto constant = findConstant(constantName, astContext);
 
 	if (!constant)
-		throw ParserException(tokenizer, "undeclared constant “" + constantName + "”");
+		throw ParserException(tokenizer.location(), "undeclared constant “" + constantName + "”");
 
 	return std::move(constant.value());
 }

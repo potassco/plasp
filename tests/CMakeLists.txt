@@ -12,6 +12,7 @@ set(includes
 )
 
 set(libraries
+	stdc++fs
 	${Boost_LIBRARIES}
 	plasp
 )

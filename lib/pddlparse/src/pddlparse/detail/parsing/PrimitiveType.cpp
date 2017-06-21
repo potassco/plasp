@@ -22,7 +22,7 @@ ast::PrimitiveTypePointer parsePrimitiveType(Context &context, ast::Domain &doma
 	auto typeName = tokenizer.getIdentifier();
 
 	if (typeName.empty())
-		throw ParserException(tokenizer, "could not parse primitive type, expected identifier");
+		throw ParserException(tokenizer.location(), "could not parse primitive type, expected identifier");
 
 	auto matchingType = std::find_if(types.begin(), types.end(),
 		[&](auto &primitiveTypeDeclaration)
@@ -37,9 +37,9 @@ ast::PrimitiveTypePointer parsePrimitiveType(Context &context, ast::Domain &doma
 		if (typeName != "object")
 		{
 			if (context.mode != Mode::Compatibility)
-				throw ParserException(tokenizer, "primitive type “" + typeName + "” used without or before declaration");
+				throw ParserException(tokenizer.location(), "primitive type “" + typeName + "” used without or before declaration");
 
-			context.warningCallback(tokenizer, "primitive type “" + typeName + "” used without or before declaration, silently adding declaration");
+			context.warningCallback(tokenizer.location(), "primitive type “" + typeName + "” used without or before declaration, silently adding declaration");
 		}
 
 		types.emplace_back(std::make_unique<ast::PrimitiveTypeDeclaration>(std::move(typeName)));

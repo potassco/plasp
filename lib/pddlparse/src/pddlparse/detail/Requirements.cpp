@@ -61,9 +61,9 @@ void checkRequirement(ast::Domain &domain, ast::Requirement requirement, Context
 		return;
 
 	if (context.mode == Mode::Compatibility)
-		context.warningCallback(context.tokenizer, "requirement “" + std::string(toString(requirement)) + "” used but never declared, silently adding requirement");
+		context.warningCallback(context.tokenizer.location(), "requirement “" + std::string(toString(requirement)) + "” used but never declared, silently adding requirement");
 	else
-		throw ParserException(context.tokenizer, "requirement “" + std::string(toString(requirement)) + "” used but never declared");
+		throw ParserException(context.tokenizer.location(), "requirement “" + std::string(toString(requirement)) + "” used but never declared");
 
 	domain.requirements.push_back(requirement);
 }
@@ -76,9 +76,9 @@ void checkRequirement(ast::Problem &problem, ast::Requirement requirement, Conte
 		return;
 
 	if (context.mode == Mode::Compatibility)
-		context.warningCallback(context.tokenizer, "requirement “" + std::string(toString(requirement)) + "” used but never declared, silently adding requirement");
+		context.warningCallback(context.tokenizer.location(), "requirement “" + std::string(toString(requirement)) + "” used but never declared, silently adding requirement");
 	else
-		throw ParserException(context.tokenizer, "requirement “" + std::string(toString(requirement)) + "” used but never declared");
+		throw ParserException(context.tokenizer.location(), "requirement “" + std::string(toString(requirement)) + "” used but never declared");
 
 	problem.requirements.push_back(requirement);
 }

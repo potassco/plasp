@@ -78,7 +78,7 @@ std::experimental::optional<ast::PredicatePointer> parsePredicate(Context &conte
 	{
 		// TODO: enumerate candidates and why they are incompatible
 		tokenizer.seek(previousPosition);
-		throw ParserException(tokenizer, "no matching declaration found for predicate “" + name + "”");
+		throw ParserException(tokenizer.location(), "no matching declaration found for predicate “" + name + "”");
 	}
 
 	auto *declaration = matchingPredicateDeclaration->get();

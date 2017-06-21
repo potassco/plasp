@@ -22,7 +22,6 @@ if (CMAKE_GENERATOR STREQUAL "Ninja" AND
 	set(CMAKE_CXX_FLAGS "-fdiagnostics-color=always ${CMAKE_CXX_FLAGS}")
 endif()
 
-add_subdirectory(src)
 if(TOKENIZE_BUILD_TESTS)
 	add_subdirectory(tests)
 endif(TOKENIZE_BUILD_TESTS)

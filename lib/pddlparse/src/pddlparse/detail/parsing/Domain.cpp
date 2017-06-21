@@ -96,7 +96,7 @@ void DomainParser::findSections(ast::Domain &domain)
 			if (unique && sectionPosition != tokenize::InvalidStreamPosition)
 			{
 				tokenizer.seek(value);
-				throw ParserException(tokenizer, "only one “:" + sectionName + "” section allowed");
+				throw ParserException(tokenizer.location(), "only one “:" + sectionName + "” section allowed");
 			}
 
 			sectionPosition = value;
@@ -137,7 +137,7 @@ void DomainParser::findSections(ast::Domain &domain)
 
 			const auto sectionIdentifier = tokenizer.getIdentifier();
 
-			m_context.warningCallback(tokenizer, "section type “" + sectionIdentifier + "” currently unsupported, ignoring section");
+			m_context.warningCallback(tokenizer.location(), "section type “" + sectionIdentifier + "” currently unsupported, ignoring section");
 
 			tokenizer.seek(sectionIdentifierPosition);
 		}
@@ -146,7 +146,7 @@ void DomainParser::findSections(ast::Domain &domain)
 			const auto sectionIdentifier = tokenizer.getIdentifier();
 
 			tokenizer.seek(position);
-			throw ParserException(tokenizer, "unknown domain section “" + sectionIdentifier + "”");
+			throw ParserException(tokenizer.location(), "unknown domain section “" + sectionIdentifier + "”");
 		}
 
 		// Skip section for now and parse it later
@@ -246,7 +246,7 @@ void DomainParser::parseTypeSection(ast::Domain &domain)
 	while (tokenizer.currentCharacter() != ')')
 	{
 		if (tokenizer.currentCharacter() == '(')
-			throw ParserException(tokenizer, "only primitive types are allowed in type section");
+			throw ParserException(tokenizer.location(), "only primitive types are allowed in type section");
 
 		parseAndAddPrimitiveTypeDeclarations(m_context, domain);
 
