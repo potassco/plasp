@@ -61,23 +61,6 @@ struct ConstantDeclaration
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct Dummy
-{
-	explicit Dummy(std::string name)
-	:	name{name}
-	{
-	}
-
-	Dummy(const Dummy &other) = delete;
-	Dummy &operator=(const Dummy &&other) = delete;
-	Dummy(Dummy &&other) = default;
-	Dummy &operator=(Dummy &&other) = default;
-
-	std::string name;
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 struct PrimitiveType
 {
 	explicit PrimitiveType(PrimitiveTypeDeclaration *declaration)
