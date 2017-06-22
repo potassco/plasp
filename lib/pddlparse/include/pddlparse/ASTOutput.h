@@ -5,6 +5,7 @@
 #include <colorlog/Formatting.h>
 
 #include <pddlparse/AST.h>
+#include <pddlparse/detail/OutputUtils.h>
 #include <pddlparse/detail/parsing/Requirement.h>
 
 namespace pddl
@@ -18,163 +19,59 @@ namespace ast
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace detail
-{
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-struct PrintContext
-{
-	size_t indentationLevel{0};
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-struct Identifier
-{
-	Identifier(const char *content)
-	:	content{content}
-	{
-	}
-
-	Identifier(const std::string &content)
-	:	content{content.c_str()}
-	{
-	}
-
-	const char *content;
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-inline colorlog::ColorStream &operator<<(colorlog::ColorStream &stream, const Identifier &identifier)
-{
-	return (stream
-		<< colorlog::Format({colorlog::Color::Green, colorlog::FontWeight::Normal})
-		<< identifier.content << colorlog::ResetFormat());
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-struct Type
-{
-	Type(const char *name)
-	:	name{name}
-	{
-	}
-
-	Type(const std::string &name)
-	:	name{name.c_str()}
-	{
-	}
-
-	const char *name;
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-inline colorlog::ColorStream &operator<<(colorlog::ColorStream &stream, const Type &type)
-{
-	return (stream
-		<< colorlog::Format({colorlog::Color::Red, colorlog::FontWeight::Normal})
-		<< type.name << colorlog::ResetFormat());
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-struct Constant
-{
-	Constant(const char *name)
-	:	name{name}
-	{
-	}
-
-	Constant(const std::string &name)
-	:	name{name.c_str()}
-	{
-	}
-
-	const char *name;
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-inline colorlog::ColorStream &operator<<(colorlog::ColorStream &stream, const Constant &constant)
-{
-	return (stream
-		<< colorlog::Format({colorlog::Color::Yellow, colorlog::FontWeight::Normal})
-		<< constant.name << colorlog::ResetFormat());
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-colorlog::ColorStream &printIndentedNewline(colorlog::ColorStream &stream, detail::PrintContext &printContext)
-{
-	stream << std::endl;
-
-	for (size_t i = 0; i < printContext.indentationLevel; i++)
-		stream << "\t";
-
-	return stream;
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Forward declarations
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Constant &constant, detail::PrintContext &printContext);
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const ConstantDeclaration &constantDeclaration, detail::PrintContext &printContext);
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const PrimitiveType &primitiveType, detail::PrintContext &printContext);
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const PrimitiveTypeDeclaration &primitiveTypeDeclaration, detail::PrintContext &printContext);
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Variable &variable, detail::PrintContext &printContext);
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const VariableDeclaration &variableDeclaration, detail::PrintContext &printContext);
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Predicate &predicate, detail::PrintContext &printContext);
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const PredicateDeclaration &predicateDeclaration, detail::PrintContext &printContext);
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Constant &constant, pddl::detail::PrintContext &printContext);
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const ConstantDeclaration &constantDeclaration, pddl::detail::PrintContext &printContext);
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const PrimitiveType &primitiveType, pddl::detail::PrintContext &printContext);
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const PrimitiveTypeDeclaration &primitiveTypeDeclaration, pddl::detail::PrintContext &printContext);
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Variable &variable, pddl::detail::PrintContext &printContext);
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const VariableDeclaration &variableDeclaration, pddl::detail::PrintContext &printContext);
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Predicate &predicate, pddl::detail::PrintContext &printContext);
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const PredicateDeclaration &predicateDeclaration, pddl::detail::PrintContext &printContext);
 
 template<class Derived, class ArgumentLeft, class ArgumentRight = ArgumentLeft>
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Binary<Derived, ArgumentLeft, ArgumentRight> &binary, detail::PrintContext &printContext);
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Binary<Derived, ArgumentLeft, ArgumentRight> &binary, pddl::detail::PrintContext &printContext);
 template<class Derived, class Argument>
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const NAry<Derived, Argument> &nAry, detail::PrintContext &printContext);
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const NAry<Derived, Argument> &nAry, pddl::detail::PrintContext &printContext);
 template<class Derived, class Argument>
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Quantified<Derived, Argument> &quantified, detail::PrintContext &printContext);
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Quantified<Derived, Argument> &quantified, pddl::detail::PrintContext &printContext);
 
 template<class Argument>
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const At<Argument> &at, detail::PrintContext &printContext);
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const At<Argument> &at, pddl::detail::PrintContext &printContext);
 template<class Argument>
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Not<Argument> &not_, detail::PrintContext &printContext);
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Not<Argument> &not_, pddl::detail::PrintContext &printContext);
 
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Action &action, detail::PrintContext &printContext);
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Domain &domain, detail::PrintContext &printContext);
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const InitialState &initialState, detail::PrintContext &printContext);
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Problem &problem, detail::PrintContext &printContext);
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Requirement &requirement, detail::PrintContext &printContext);
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Description &description, detail::PrintContext &printContext);
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Action &action, pddl::detail::PrintContext &printContext);
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Domain &domain, pddl::detail::PrintContext &printContext);
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const InitialState &initialState, pddl::detail::PrintContext &printContext);
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Problem &problem, pddl::detail::PrintContext &printContext);
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Requirement &requirement, pddl::detail::PrintContext &printContext);
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Description &description, pddl::detail::PrintContext &printContext);
 
 template<class ValueType>
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const std::unique_ptr<ValueType> &variant, detail::PrintContext &printContext);
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const std::unique_ptr<ValueType> &variant, pddl::detail::PrintContext &printContext);
 template<class ValueType>
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const std::vector<ValueType> &variant, detail::PrintContext &printContext);
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const std::vector<ValueType> &variant, pddl::detail::PrintContext &printContext);
 template<class Variant>
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Variant &variant, detail::PrintContext &printContext);
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Variant &variant, pddl::detail::PrintContext &printContext);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Primitives
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Constant &constant, detail::PrintContext &)
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Constant &constant, pddl::detail::PrintContext &)
 {
-	return stream << detail::Constant(constant.declaration->name);
+	return stream << pddl::detail::Constant(constant.declaration->name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const ConstantDeclaration &constantDeclaration, detail::PrintContext &printContext)
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const ConstantDeclaration &constantDeclaration, pddl::detail::PrintContext &printContext)
 {
-	stream << detail::Constant(constantDeclaration.name);
+	stream << pddl::detail::Constant(constantDeclaration.name);
 
 	if (constantDeclaration.type)
 	{
@@ -187,25 +84,25 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Constan
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const PrimitiveType &primitiveType, detail::PrintContext &)
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const PrimitiveType &primitiveType, pddl::detail::PrintContext &)
 {
-	return stream << detail::Type(primitiveType.declaration->name);
+	return stream << pddl::detail::Type(primitiveType.declaration->name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const PrimitiveTypeDeclaration &primitiveTypeDeclaration, detail::PrintContext &printContext)
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const PrimitiveTypeDeclaration &primitiveTypeDeclaration, pddl::detail::PrintContext &printContext)
 {
 	if (primitiveTypeDeclaration.parentTypes.empty())
-		return (stream << detail::Type(primitiveTypeDeclaration.name));
+		return (stream << pddl::detail::Type(primitiveTypeDeclaration.name));
 
 	if (!primitiveTypeDeclaration.parentTypes.empty())
 		for (const auto &parentType : primitiveTypeDeclaration.parentTypes)
 		{
 			if (&parentType != &primitiveTypeDeclaration.parentTypes.front())
-				printIndentedNewline(stream, printContext);
+				pddl::detail::printIndentedNewline(stream, printContext);
 
-			stream << detail::Type(primitiveTypeDeclaration.name) << " - " << detail::Type(parentType->declaration->name);
+			stream << pddl::detail::Type(primitiveTypeDeclaration.name) << " - " << pddl::detail::Type(parentType->declaration->name);
 		}
 
 	return stream;
@@ -213,7 +110,7 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Primiti
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Unsupported &unsupported, detail::PrintContext &)
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Unsupported &unsupported, pddl::detail::PrintContext &)
 {
 	const auto unsupportedName = "<unsupported " + unsupported.type + ">";
 
@@ -222,7 +119,7 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Unsuppo
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Variable &variable, detail::PrintContext &)
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Variable &variable, pddl::detail::PrintContext &)
 {
 	const auto variableName = "?" + variable.declaration->name;
 
@@ -231,7 +128,7 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Variabl
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const VariableDeclaration &variableDeclaration, detail::PrintContext &printContext)
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const VariableDeclaration &variableDeclaration, pddl::detail::PrintContext &printContext)
 {
 	const auto variableName = "?" + variableDeclaration.name;
 
@@ -250,9 +147,9 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Variabl
 // Compounds
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Predicate &predicate, detail::PrintContext &printContext)
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Predicate &predicate, pddl::detail::PrintContext &printContext)
 {
-	stream << "(" << detail::Identifier(predicate.declaration->name) << " ";
+	stream << "(" << pddl::detail::Identifier(predicate.declaration->name) << " ";
 
 	for (const auto &argument : predicate.arguments)
 	{
@@ -267,9 +164,9 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Predica
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const PredicateDeclaration &predicateDeclaration, detail::PrintContext &printContext)
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const PredicateDeclaration &predicateDeclaration, pddl::detail::PrintContext &printContext)
 {
-	stream << "(" << detail::Identifier(predicateDeclaration.name);
+	stream << "(" << pddl::detail::Identifier(predicateDeclaration.name);
 
 	for (const auto &parameter : predicateDeclaration.parameters)
 	{
@@ -285,15 +182,15 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Predica
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived, class ArgumentLeft, class ArgumentRight>
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Binary<Derived, ArgumentLeft, ArgumentRight> &binary, detail::PrintContext &printContext)
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Binary<Derived, ArgumentLeft, ArgumentRight> &binary, pddl::detail::PrintContext &printContext)
 {
 	stream << "(" << colorlog::Keyword(Derived::Identifier);
 
 	printContext.indentationLevel++;
 
-	printIndentedNewline(stream, printContext);
+	pddl::detail::printIndentedNewline(stream, printContext);
 	print(stream, binary.argumentLeft, printContext);
-	printIndentedNewline(stream, printContext);
+	pddl::detail::printIndentedNewline(stream, printContext);
 	print(stream, binary.argumentRight, printContext);
 
 	printContext.indentationLevel--;
@@ -304,7 +201,7 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Binary<
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived, class Argument>
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const NAry<Derived, Argument> &nAry, detail::PrintContext &printContext)
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const NAry<Derived, Argument> &nAry, pddl::detail::PrintContext &printContext)
 {
 	stream << "(" << colorlog::Keyword(Derived::Identifier);
 
@@ -312,7 +209,7 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const NAry<De
 
 	for (const auto &argument : nAry.arguments)
 	{
-		printIndentedNewline(stream, printContext);
+		pddl::detail::printIndentedNewline(stream, printContext);
 		print(stream, argument, printContext);
 	}
 
@@ -324,15 +221,15 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const NAry<De
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived, class Argument>
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Quantified<Derived, Argument> &quantified, detail::PrintContext &printContext)
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Quantified<Derived, Argument> &quantified, pddl::detail::PrintContext &printContext)
 {
 	stream << "(" << colorlog::Keyword(Derived::Identifier);
 
 	printContext.indentationLevel++;
 
-	printIndentedNewline(stream, printContext);
+	pddl::detail::printIndentedNewline(stream, printContext);
 	print(stream, quantified.parameters, printContext);
-	printIndentedNewline(stream, printContext);
+	pddl::detail::printIndentedNewline(stream, printContext);
 	print(stream, quantified.argument, printContext);
 
 	printContext.indentationLevel--;
@@ -345,7 +242,7 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Quantif
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Argument>
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const And<Argument> &and_, detail::PrintContext &printContext)
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const And<Argument> &and_, pddl::detail::PrintContext &printContext)
 {
 	return print(stream, static_cast<const NAry<And<Argument>, Argument> &>(and_), printContext);
 }
@@ -353,15 +250,15 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const And<Arg
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Argument>
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const At<Argument> &at, detail::PrintContext &printContext)
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const At<Argument> &at, pddl::detail::PrintContext &printContext)
 {
 	stream << "(" << colorlog::Keyword("at");
 
 	printContext.indentationLevel++;
 
-	printIndentedNewline(stream, printContext);
+	pddl::detail::printIndentedNewline(stream, printContext);
 	stream << colorlog::Number<decltype(at.timePoint)>(at.timePoint);
-	printIndentedNewline(stream, printContext);
+	pddl::detail::printIndentedNewline(stream, printContext);
 	print(stream, at.argument, printContext);
 
 	printContext.indentationLevel--;
@@ -372,7 +269,7 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const At<Argu
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Argument>
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Either<Argument> &either, detail::PrintContext &printContext)
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Either<Argument> &either, pddl::detail::PrintContext &printContext)
 {
 	return print(stream, static_cast<const NAry<Either<Argument>, Argument> &>(either), printContext);
 }
@@ -380,7 +277,7 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Either<
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Argument>
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Exists<Argument> &exists, detail::PrintContext &printContext)
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Exists<Argument> &exists, pddl::detail::PrintContext &printContext)
 {
 	return print(stream, static_cast<const Quantified<Exists<Argument>, Argument> &>(exists), printContext);
 }
@@ -388,7 +285,7 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Exists<
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Argument>
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const ForAll<Argument> &forAll, detail::PrintContext &printContext)
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const ForAll<Argument> &forAll, pddl::detail::PrintContext &printContext)
 {
 	return print(stream, static_cast<const Quantified<ForAll<Argument>, Argument> &>(forAll), printContext);
 }
@@ -396,7 +293,7 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const ForAll<
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Argument>
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Imply<Argument> &imply, detail::PrintContext &printContext)
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Imply<Argument> &imply, pddl::detail::PrintContext &printContext)
 {
 	return print(stream, static_cast<const Binary<Imply<Argument>, Argument> &>(imply), printContext);
 }
@@ -404,13 +301,13 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Imply<A
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Argument>
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Not<Argument> &not_, detail::PrintContext &printContext)
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Not<Argument> &not_, pddl::detail::PrintContext &printContext)
 {
 	stream << "(" << colorlog::Keyword("not");
 
 	printContext.indentationLevel++;
 
-	printIndentedNewline(stream, printContext);
+	pddl::detail::printIndentedNewline(stream, printContext);
 	print(stream, not_.argument, printContext);
 
 	printContext.indentationLevel--;
@@ -421,7 +318,7 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Not<Arg
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Argument>
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Or<Argument> &or_, detail::PrintContext &printContext)
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Or<Argument> &or_, pddl::detail::PrintContext &printContext)
 {
 	return print(stream, static_cast<const NAry<Or<Argument>, Argument> &>(or_), printContext);
 }
@@ -429,7 +326,7 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Or<Argu
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class ArgumentLeft, class ArgumentRight>
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const When<ArgumentLeft, ArgumentRight> &when, detail::PrintContext &printContext)
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const When<ArgumentLeft, ArgumentRight> &when, pddl::detail::PrintContext &printContext)
 {
 	return print(stream, static_cast<const Binary<When<ArgumentLeft, ArgumentRight>, ArgumentLeft, ArgumentRight> &>(when), printContext);
 }
@@ -438,20 +335,20 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const When<Ar
 // PDDL Structure
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Action &action, detail::PrintContext &printContext)
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Action &action, pddl::detail::PrintContext &printContext)
 {
-	stream << "(" << colorlog::Keyword(":action") << " " << detail::Identifier(action.name);
+	stream << "(" << colorlog::Keyword(":action") << " " << pddl::detail::Identifier(action.name);
 
 	printContext.indentationLevel++;
 
 	if (!action.parameters.empty())
 	{
-		printIndentedNewline(stream, printContext);
+		pddl::detail::printIndentedNewline(stream, printContext);
 		stream << "(" << colorlog::Keyword(":parameters");
 
 		printContext.indentationLevel++;
 
-		printIndentedNewline(stream, printContext);
+		pddl::detail::printIndentedNewline(stream, printContext);
 		print(stream, action.parameters, printContext);
 		stream << ")";
 
@@ -460,12 +357,12 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Action 
 
 	if (action.precondition)
 	{
-		printIndentedNewline(stream, printContext);
+		pddl::detail::printIndentedNewline(stream, printContext);
 		stream << "(" << colorlog::Keyword(":precondition");
 
 		printContext.indentationLevel++;
 
-		printIndentedNewline(stream, printContext);
+		pddl::detail::printIndentedNewline(stream, printContext);
 		print(stream, action.precondition.value(), printContext);
 		stream << ")";
 
@@ -474,12 +371,12 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Action 
 
 	if (action.effect)
 	{
-		printIndentedNewline(stream, printContext);
+		pddl::detail::printIndentedNewline(stream, printContext);
 		stream << "(" << colorlog::Keyword(":effect");
 
 		printContext.indentationLevel++;
 
-		printIndentedNewline(stream, printContext);
+		pddl::detail::printIndentedNewline(stream, printContext);
 		print(stream, action.effect.value(), printContext);
 		stream << ")";
 
@@ -493,20 +390,20 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Action 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Domain &domain, detail::PrintContext &printContext)
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Domain &domain, pddl::detail::PrintContext &printContext)
 {
-	stream << "(" << colorlog::Keyword("define") << " (" << colorlog::Keyword("domain") << " " << detail::Identifier(domain.name) << ")";
+	stream << "(" << colorlog::Keyword("define") << " (" << colorlog::Keyword("domain") << " " << pddl::detail::Identifier(domain.name) << ")";
 
 	printContext.indentationLevel++;
 
 	if (!domain.requirements.empty())
 	{
-		printIndentedNewline(stream, printContext);
+		pddl::detail::printIndentedNewline(stream, printContext);
 		stream << "(" << colorlog::Keyword(":requirements");
 
 		printContext.indentationLevel++;
 
-		printIndentedNewline(stream, printContext);
+		pddl::detail::printIndentedNewline(stream, printContext);
 		print(stream, domain.requirements, printContext);
 		stream << ")";
 
@@ -515,12 +412,12 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Domain 
 
 	if (!domain.types.empty())
 	{
-		printIndentedNewline(stream, printContext);
+		pddl::detail::printIndentedNewline(stream, printContext);
 		stream << "(" << colorlog::Keyword(":types");
 
 		printContext.indentationLevel++;
 
-		printIndentedNewline(stream, printContext);
+		pddl::detail::printIndentedNewline(stream, printContext);
 		print(stream, domain.types, printContext);
 		stream << ")";
 
@@ -529,12 +426,12 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Domain 
 
 	if (!domain.constants.empty())
 	{
-		printIndentedNewline(stream, printContext);
+		pddl::detail::printIndentedNewline(stream, printContext);
 		stream << "(" << colorlog::Keyword(":constants");
 
 		printContext.indentationLevel++;
 
-		printIndentedNewline(stream, printContext);
+		pddl::detail::printIndentedNewline(stream, printContext);
 		print(stream, domain.constants, printContext);
 		stream << ")";
 
@@ -543,12 +440,12 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Domain 
 
 	if (!domain.predicates.empty())
 	{
-		printIndentedNewline(stream, printContext);
+		pddl::detail::printIndentedNewline(stream, printContext);
 		stream << "(" << colorlog::Keyword(":predicates");
 
 		printContext.indentationLevel++;
 
-		printIndentedNewline(stream, printContext);
+		pddl::detail::printIndentedNewline(stream, printContext);
 		print(stream, domain.predicates, printContext);
 		stream << ")";
 
@@ -557,7 +454,7 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Domain 
 
 	if (!domain.actions.empty())
 	{
-		printIndentedNewline(stream, printContext);
+		pddl::detail::printIndentedNewline(stream, printContext);
 		print(stream, domain.actions, printContext);
 	}
 
@@ -568,7 +465,7 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Domain 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const InitialState &initialState, detail::PrintContext &printContext)
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const InitialState &initialState, pddl::detail::PrintContext &printContext)
 {
 	assert(!initialState.facts.empty());
 
@@ -576,7 +473,7 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Initial
 
 	printContext.indentationLevel++;
 
-	printIndentedNewline(stream, printContext);
+	pddl::detail::printIndentedNewline(stream, printContext);
 	print(stream, initialState.facts, printContext);
 
 	printContext.indentationLevel--;
@@ -586,23 +483,23 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Initial
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Problem &problem, detail::PrintContext &printContext)
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Problem &problem, pddl::detail::PrintContext &printContext)
 {
-	stream << "(" << colorlog::Keyword("define") << " (" << colorlog::Keyword("problem") << " " << detail::Identifier(problem.name) << ")";
+	stream << "(" << colorlog::Keyword("define") << " (" << colorlog::Keyword("problem") << " " << pddl::detail::Identifier(problem.name) << ")";
 
 	printContext.indentationLevel++;
 
-	printIndentedNewline(stream, printContext);
-	stream << "(" << colorlog::Keyword(":domain") << " " << detail::Identifier(problem.domain->name) << ")";
+	pddl::detail::printIndentedNewline(stream, printContext);
+	stream << "(" << colorlog::Keyword(":domain") << " " << pddl::detail::Identifier(problem.domain->name) << ")";
 
 	if (!problem.requirements.empty())
 	{
-		printIndentedNewline(stream, printContext);
+		pddl::detail::printIndentedNewline(stream, printContext);
 		stream << "(" << colorlog::Keyword(":requirements");
 
 		printContext.indentationLevel++;
 
-		printIndentedNewline(stream, printContext);
+		pddl::detail::printIndentedNewline(stream, printContext);
 		print(stream, problem.requirements, printContext);
 		stream << ")";
 
@@ -611,12 +508,12 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Problem
 
 	if (!problem.objects.empty())
 	{
-		printIndentedNewline(stream, printContext);
+		pddl::detail::printIndentedNewline(stream, printContext);
 		stream << "(" << colorlog::Keyword(":objects");
 
 		printContext.indentationLevel++;
 
-		printIndentedNewline(stream, printContext);
+		pddl::detail::printIndentedNewline(stream, printContext);
 		print(stream, problem.objects, printContext);
 		stream << ")";
 
@@ -625,18 +522,18 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Problem
 
 	if (!problem.initialState.facts.empty())
 	{
-		printIndentedNewline(stream, printContext);
+		pddl::detail::printIndentedNewline(stream, printContext);
 		print(stream, problem.initialState, printContext);
 	}
 
 	if (problem.goal)
 	{
-		printIndentedNewline(stream, printContext);
+		pddl::detail::printIndentedNewline(stream, printContext);
 		stream << "(" << colorlog::Keyword(":goal");
 
 		printContext.indentationLevel++;
 
-		printIndentedNewline(stream, printContext);
+		pddl::detail::printIndentedNewline(stream, printContext);
 		print(stream, problem.goal.value(), printContext);
 		stream << ")";
 
@@ -650,16 +547,16 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Problem
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Requirement &requirement, detail::PrintContext &)
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Requirement &requirement, pddl::detail::PrintContext &)
 {
 	auto requirementName = std::string(":") + pddl::detail::toString(requirement);
 
-	return (stream << detail::Identifier(requirementName.c_str()));
+	return (stream << pddl::detail::Identifier(requirementName.c_str()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Description &description, detail::PrintContext &printContext)
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Description &description, pddl::detail::PrintContext &printContext)
 {
 	print(stream, *description.domain, printContext);
 	stream << std::endl;
@@ -678,7 +575,7 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Descrip
 
 inline colorlog::ColorStream &operator<<(colorlog::ColorStream &stream, const Description &description)
 {
-	detail::PrintContext printContext;
+	pddl::detail::PrintContext printContext;
 
 	return print(stream, description, printContext);
 }
@@ -688,7 +585,7 @@ inline colorlog::ColorStream &operator<<(colorlog::ColorStream &stream, const De
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class ValueType>
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const std::unique_ptr<ValueType> &uniquePointer, detail::PrintContext &printContext)
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const std::unique_ptr<ValueType> &uniquePointer, pddl::detail::PrintContext &printContext)
 {
 	assert(uniquePointer);
 	return print(stream, *uniquePointer, printContext);
@@ -697,12 +594,12 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const std::un
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class ValueType>
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const std::vector<ValueType> &vector, detail::PrintContext &printContext)
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const std::vector<ValueType> &vector, pddl::detail::PrintContext &printContext)
 {
 	for (const auto &element : vector)
 	{
 		if (&element != &vector.front())
-			printIndentedNewline(stream, printContext);
+			pddl::detail::printIndentedNewline(stream, printContext);
 
 		print(stream, element, printContext);
 	}
@@ -713,7 +610,7 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const std::ve
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Variant>
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Variant &variant, detail::PrintContext &printContext)
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Variant &variant, pddl::detail::PrintContext &printContext)
 {
 	variant.match([&](const auto &x){return print(stream, x, printContext);});
 
