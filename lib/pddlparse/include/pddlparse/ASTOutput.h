@@ -149,13 +149,11 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Variabl
 
 inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Predicate &predicate, pddl::detail::PrintContext &printContext)
 {
-	stream << "(" << pddl::detail::Identifier(predicate.declaration->name) << " ";
+	stream << "(" << pddl::detail::Identifier(predicate.declaration->name);
 
 	for (const auto &argument : predicate.arguments)
 	{
-		if (&argument != &predicate.arguments.front())
-			stream << " ";
-
+		stream << " ";
 		print(stream, argument, printContext);
 	}
 
