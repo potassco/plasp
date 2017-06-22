@@ -344,11 +344,12 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Action 
 	if (!action.parameters.empty())
 	{
 		pddl::detail::printIndentedNewline(stream, printContext);
-		stream << "(" << colorlog::Keyword(":parameters");
+		stream << colorlog::Keyword(":parameters");
 
 		printContext.indentationLevel++;
 
 		pddl::detail::printIndentedNewline(stream, printContext);
+		stream << "(";
 		print(stream, action.parameters, printContext);
 		stream << ")";
 
@@ -358,13 +359,12 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Action 
 	if (action.precondition)
 	{
 		pddl::detail::printIndentedNewline(stream, printContext);
-		stream << "(" << colorlog::Keyword(":precondition");
+		stream << colorlog::Keyword(":precondition");
 
 		printContext.indentationLevel++;
 
 		pddl::detail::printIndentedNewline(stream, printContext);
 		print(stream, action.precondition.value(), printContext);
-		stream << ")";
 
 		printContext.indentationLevel--;
 	}
@@ -372,13 +372,12 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Action 
 	if (action.effect)
 	{
 		pddl::detail::printIndentedNewline(stream, printContext);
-		stream << "(" << colorlog::Keyword(":effect");
+		stream << colorlog::Keyword(":effect");
 
 		printContext.indentationLevel++;
 
 		pddl::detail::printIndentedNewline(stream, printContext);
 		print(stream, action.effect.value(), printContext);
-		stream << ")";
 
 		printContext.indentationLevel--;
 	}
