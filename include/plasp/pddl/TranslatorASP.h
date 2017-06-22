@@ -1,7 +1,7 @@
 #ifndef __PLASP__PDDL__TRANSLATOR_ASP_H
 #define __PLASP__PDDL__TRANSLATOR_ASP_H
 
-#include <plasp/output/ColorStream.h>
+#include <colorlog/ColorStream.h>
 
 #include <pddlparse/ASTForward.h>
 #include <pddlparse/Parse.h>
@@ -20,7 +20,7 @@ namespace pddl
 class TranslatorASP
 {
 	public:
-		explicit TranslatorASP(const ::pddl::ast::Description &description, output::ColorStream &outputStream);
+		explicit TranslatorASP(const ::pddl::ast::Description &description, colorlog::ColorStream &outputStream);
 
 		void translate() const;
 
@@ -36,7 +36,7 @@ class TranslatorASP
 		void translateConstants(const std::string &heading, const ::pddl::ast::ConstantDeclarations &constants) const;
 
 		const ::pddl::ast::Description &m_description;
-		output::ColorStream &m_outputStream;
+		colorlog::ColorStream &m_outputStream;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

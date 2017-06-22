@@ -1,10 +1,11 @@
 #ifndef __PLASP__PDDL__TRANSLATION__PRECONDITION_H
 #define __PLASP__PDDL__TRANSLATION__PRECONDITION_H
 
+#include <colorlog/Formatting.h>
+
 #include <pddlparse/AST.h>
 
-#include <plasp/output/Formatting.h>
-#include <plasp/output/TranslatorException.h>
+#include <plasp/TranslatorException.h>
 
 #include <plasp/pddl/translation/Predicate.h>
 #include <plasp/pddl/translation/Primitives.h>
@@ -21,22 +22,22 @@ namespace pddl
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename PrintObjectName>
-inline void translatePrecondition(output::ColorStream &outputStream, const ::pddl::ast::Precondition &precondition, const std::string &objectType, PrintObjectName printObjectName)
+inline void translatePrecondition(colorlog::ColorStream &outputStream, const ::pddl::ast::Precondition &precondition, const std::string &objectType, PrintObjectName printObjectName)
 {
 	const auto handleUnsupported =
 		[](const auto &)
 		{
-			throw output::TranslatorException("only “and” expressions and (negated) predicates supported as action preconditions currently");
+			throw TranslatorException("only “and” expressions and (negated) predicates supported as action preconditions currently");
 		};
 
 	const auto handlePredicate =
 		[&](const ::pddl::ast::PredicatePointer &predicate, bool isPositive = true)
 		{
-			outputStream << std::endl << output::Function("precondition") << "(";
+			outputStream << std::endl << colorlog::Function("precondition") << "(";
 			printObjectName();
 			outputStream << ", ";
 			translatePredicateToVariable(outputStream, *predicate, isPositive);
-			outputStream << ") :- " << output::Function(objectType.c_str()) << "(";
+			outputStream << ") :- " << colorlog::Function(objectType.c_str()) << "(";
 			printObjectName();
 			outputStream << ").";
 		};

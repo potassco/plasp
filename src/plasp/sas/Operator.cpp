@@ -3,7 +3,8 @@
 #include <iostream>
 #include <limits>
 
-#include <plasp/output/Formatting.h>
+#include <colorlog/Formatting.h>
+
 #include <plasp/sas/VariableTransition.h>
 
 namespace plasp
@@ -46,9 +47,9 @@ Operator Operator::fromSAS(tokenize::Tokenizer<> &tokenizer, const Variables &va
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Operator::printPredicateAsASP(output::ColorStream &stream) const
+void Operator::printPredicateAsASP(colorlog::ColorStream &stream) const
 {
-	stream << output::Keyword("action") << "(";
+	stream << colorlog::Keyword("action") << "(";
 	m_predicate.printAsASP(stream);
 	stream << ")";
 }

@@ -4,9 +4,9 @@
 #include <limits>
 #include <sstream>
 
-#include <plasp/output/Formatting.h>
-
 #include <tokenize/TokenizerException.h>
+
+#include <colorlog/Formatting.h>
 
 namespace plasp
 {
@@ -66,7 +66,7 @@ const Predicate::Arguments &Predicate::arguments() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Predicate::printAsSAS(output::ColorStream &stream) const
+void Predicate::printAsSAS(colorlog::ColorStream &stream) const
 {
 	if (m_arguments.empty())
 	{
@@ -84,18 +84,18 @@ void Predicate::printAsSAS(output::ColorStream &stream) const
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Predicate::printAsASP(output::ColorStream &stream) const
+void Predicate::printAsASP(colorlog::ColorStream &stream) const
 {
 	if (m_arguments.empty())
 	{
-		stream << output::String(m_name.c_str());
+		stream << colorlog::String(m_name.c_str());
 		return;
 	}
 
-	stream << "(" << output::String(m_name.c_str());
+	stream << "(" << colorlog::String(m_name.c_str());
 
 	for (size_t i = 0; i < m_arguments.size(); i++)
-		stream << ", " << output::String(m_arguments[i].c_str());
+		stream << ", " << colorlog::String(m_arguments[i].c_str());
 
 	stream << ")";
 }

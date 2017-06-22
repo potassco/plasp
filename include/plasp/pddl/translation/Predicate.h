@@ -1,10 +1,10 @@
 #ifndef __PLASP__PDDL__TRANSLATION__PREDICATE_H
 #define __PLASP__PDDL__TRANSLATION__PREDICATE_H
 
+#include <colorlog/Formatting.h>
+
 #include <pddlparse/AST.h>
 #include <pddlparse/Parse.h>
-
-#include <plasp/output/Formatting.h>
 
 #include <plasp/pddl/translation/Primitives.h>
 #include <plasp/pddl/translation/Variables.h>
@@ -20,12 +20,12 @@ namespace pddl
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void translatePredicate(output::ColorStream &outputStream, const ::pddl::ast::Predicate &predicate);
-void translatePredicateDeclaration(output::ColorStream &outputStream, const ::pddl::ast::PredicateDeclaration &predicateDeclaration);
+void translatePredicate(colorlog::ColorStream &outputStream, const ::pddl::ast::Predicate &predicate);
+void translatePredicateDeclaration(colorlog::ColorStream &outputStream, const ::pddl::ast::PredicateDeclaration &predicateDeclaration);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline void translatePredicate(output::ColorStream &outputStream, const ::pddl::ast::Predicate &predicate)
+inline void translatePredicate(colorlog::ColorStream &outputStream, const ::pddl::ast::Predicate &predicate)
 {
 	const auto &arguments = predicate.arguments;
 
@@ -44,7 +44,7 @@ inline void translatePredicate(output::ColorStream &outputStream, const ::pddl::
 		const auto handleConstant =
 			[&](const ::pddl::ast::ConstantPointer &constant)
 			{
-				outputStream << output::Keyword("constant") << "(" << *constant << ")";
+				outputStream << colorlog::Keyword("constant") << "(" << *constant << ")";
 			};
 
 		const auto handleVariable =
@@ -56,7 +56,7 @@ inline void translatePredicate(output::ColorStream &outputStream, const ::pddl::
 		const auto handleUnsupported =
 			[&](const auto &)
 			{
-				throw output::TranslatorException("only variables and constants supported in predicates currently");
+				throw TranslatorException("only variables and constants supported in predicates currently");
 			};
 
 		argument.match(handleConstant, handleVariable, handleUnsupported);
@@ -67,9 +67,9 @@ inline void translatePredicate(output::ColorStream &outputStream, const ::pddl::
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline void translatePredicateDeclaration(output::ColorStream &outputStream, const ::pddl::ast::PredicateDeclaration &predicateDeclaration)
+inline void translatePredicateDeclaration(colorlog::ColorStream &outputStream, const ::pddl::ast::PredicateDeclaration &predicateDeclaration)
 {
-	outputStream << output::Keyword("variable") << "(";
+	outputStream << colorlog::Keyword("variable") << "(";
 
 	if (predicateDeclaration.parameters.empty())
 	{
@@ -84,18 +84,18 @@ inline void translatePredicateDeclaration(output::ColorStream &outputStream, con
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void translatePredicateToVariable(output::ColorStream &outputStream, const ::pddl::ast::Predicate &predicate, bool isPositive = true)
+void translatePredicateToVariable(colorlog::ColorStream &outputStream, const ::pddl::ast::Predicate &predicate, bool isPositive = true)
 {
-	outputStream << output::Keyword("variable") << "(";
+	outputStream << colorlog::Keyword("variable") << "(";
 	translatePredicate(outputStream, predicate);
-	outputStream << "), " << output::Keyword("value") << "(";
+	outputStream << "), " << colorlog::Keyword("value") << "(";
 	translatePredicate(outputStream, predicate);
 	outputStream << ", ";
 
 	if (isPositive)
-		outputStream << output::Boolean("true");
+		outputStream << colorlog::Boolean("true");
 	else
-		outputStream << output::Boolean("false");
+		outputStream << colorlog::Boolean("false");
 
 	outputStream << ")";
 }

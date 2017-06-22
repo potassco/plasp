@@ -1,10 +1,8 @@
-#include <plasp/output/Logger.h>
+#include <colorlog/Logger.h>
 
-#include <plasp/output/Formatting.h>
+#include <colorlog/Formatting.h>
 
-namespace plasp
-{
-namespace output
+namespace colorlog
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -164,5 +162,4 @@ void Logger::log(Priority priority, const tokenize::Location &location, const st
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-}
 }

@@ -1,12 +1,10 @@
-#ifndef __PLASP__OUTPUT__TRANSLATOR_EXCEPTION_H
-#define __PLASP__OUTPUT__TRANSLATOR_EXCEPTION_H
+#ifndef __PLASP__TRANSLATOR_EXCEPTION_H
+#define __PLASP__TRANSLATOR_EXCEPTION_H
 
 #include <exception>
 #include <string>
 
 namespace plasp
-{
-namespace output
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -50,7 +48,6 @@ class TranslatorException: public std::exception
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-}
 }
 
 #endif

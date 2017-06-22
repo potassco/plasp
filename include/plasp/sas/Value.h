@@ -5,9 +5,9 @@
 #include <string>
 #include <vector>
 
-#include <plasp/output/ColorStream.h>
-
 #include <tokenize/Tokenizer.h>
+
+#include <colorlog/ColorStream.h>
 
 namespace plasp
 {
@@ -46,8 +46,8 @@ struct Value
 	public:
 		Value negated() const;
 
-		void printAsSAS(output::ColorStream &stream) const;
-		void printAsASPPredicate(output::ColorStream &stream) const;
+		void printAsSAS(colorlog::ColorStream &stream) const;
+		void printAsASPPredicate(colorlog::ColorStream &stream) const;
 
 		Sign sign() const;
 		const std::string &name() const;

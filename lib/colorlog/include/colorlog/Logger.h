@@ -1,16 +1,14 @@
-#ifndef __PLASP__OUTPUT__LOGGER_H
-#define __PLASP__OUTPUT__LOGGER_H
+#ifndef __COLOR_LOG__LOGGER_H
+#define __COLOR_LOG__LOGGER_H
 
 #include <string>
 
-#include <plasp/output/ColorStream.h>
-#include <plasp/output/Priority.h>
+#include <colorlog/ColorStream.h>
+#include <colorlog/Priority.h>
 
 #include <tokenize/Location.h>
 
-namespace plasp
-{
-namespace output
+namespace colorlog
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -50,7 +48,6 @@ class Logger
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-}
 }
 
 #endif

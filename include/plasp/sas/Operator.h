@@ -4,13 +4,15 @@
 #include <string>
 #include <vector>
 
-#include <plasp/output/ColorStream.h>
+#include <tokenize/Tokenizer.h>
+
+#include <colorlog/ColorStream.h>
+
 #include <plasp/sas/AssignedVariable.h>
 #include <plasp/sas/Effect.h>
 #include <plasp/sas/Predicate.h>
 #include <plasp/sas/Variable.h>
 
-#include <tokenize/Tokenizer.h>
 
 namespace plasp
 {
@@ -37,7 +39,7 @@ class Operator
 		static Operator fromSAS(tokenize::Tokenizer<> &tokenizer, const Variables &variables);
 
 	public:
-		void printPredicateAsASP(output::ColorStream &stream) const;
+		void printPredicateAsASP(colorlog::ColorStream &stream) const;
 
 		const Predicate &predicate() const;
 		const Conditions &preconditions() const;

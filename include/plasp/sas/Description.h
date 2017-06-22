@@ -6,14 +6,14 @@
 #include <memory>
 #include <vector>
 
+#include <tokenize/Tokenizer.h>
+
 #include <plasp/sas/AxiomRule.h>
 #include <plasp/sas/Goal.h>
 #include <plasp/sas/InitialState.h>
 #include <plasp/sas/MutexGroup.h>
 #include <plasp/sas/Operator.h>
 #include <plasp/sas/Variable.h>
-
-#include <tokenize/Tokenizer.h>
 
 namespace plasp
 {

@@ -1,9 +1,5 @@
 cmake_minimum_required(VERSION 2.6)
-project(plasp CXX)
-
-option(PLASP_BUILD_TESTS "Build unit tests" OFF)
-
-find_package(Boost 1.55.0 COMPONENTS program_options iostreams system REQUIRED)
+project(colorlog)
 
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wpedantic -Werror ${CMAKE_CXX_FLAGS}")
 set(CMAKE_CXX_FLAGS_DEBUG "-g ${CMAKE_CXX_FLAGS_DEBUG}")
@@ -24,11 +20,4 @@ if (CMAKE_GENERATOR STREQUAL "Ninja" AND
 	set(CMAKE_CXX_FLAGS "-fdiagnostics-color=always ${CMAKE_CXX_FLAGS}")
 endif()
 
-add_subdirectory(lib/tokenize)
-add_subdirectory(lib/colorlog)
-add_subdirectory(lib/pddlparse)
 add_subdirectory(src)
-add_subdirectory(app)
-if(PLASP_BUILD_TESTS)
-	add_subdirectory(tests)
-endif(PLASP_BUILD_TESTS)

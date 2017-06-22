@@ -1,10 +1,11 @@
 #ifndef __PLASP__PDDL__TRANSLATION__PRIMITIVES_H
 #define __PLASP__PDDL__TRANSLATION__PRIMITIVES_H
 
+#include <colorlog/Formatting.h>
+
 #include <pddlparse/AST.h>
 
-#include <plasp/output/Formatting.h>
-#include <plasp/output/TranslatorException.h>
+#include <plasp/TranslatorException.h>
 
 namespace plasp
 {
@@ -17,16 +18,16 @@ namespace pddl
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline output::ColorStream &operator<<(output::ColorStream &stream, const ::pddl::ast::ConstantDeclaration &constantDeclaration)
+inline colorlog::ColorStream &operator<<(colorlog::ColorStream &stream, const ::pddl::ast::ConstantDeclaration &constantDeclaration)
 {
 	assert(!constantDeclaration.name.empty());
 
-	return (stream << output::String(constantDeclaration.name.c_str()));
+	return (stream << colorlog::String(constantDeclaration.name.c_str()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline output::ColorStream &operator<<(output::ColorStream &stream, const ::pddl::ast::Constant &constant)
+inline colorlog::ColorStream &operator<<(colorlog::ColorStream &stream, const ::pddl::ast::Constant &constant)
 {
 	assert(constant.declaration != nullptr);
 
@@ -35,16 +36,16 @@ inline output::ColorStream &operator<<(output::ColorStream &stream, const ::pddl
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline output::ColorStream &operator<<(output::ColorStream &stream, const ::pddl::ast::PrimitiveTypeDeclaration &primitiveTypeDeclaration)
+inline colorlog::ColorStream &operator<<(colorlog::ColorStream &stream, const ::pddl::ast::PrimitiveTypeDeclaration &primitiveTypeDeclaration)
 {
 	assert(!primitiveTypeDeclaration.name.empty());
 
-	return (stream << output::String(primitiveTypeDeclaration.name.c_str()));
+	return (stream << colorlog::String(primitiveTypeDeclaration.name.c_str()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline output::ColorStream &operator<<(output::ColorStream &stream, const ::pddl::ast::PrimitiveType &primitiveType)
+inline colorlog::ColorStream &operator<<(colorlog::ColorStream &stream, const ::pddl::ast::PrimitiveType &primitiveType)
 {
 	assert(primitiveType.declaration != nullptr);
 
@@ -53,7 +54,7 @@ inline output::ColorStream &operator<<(output::ColorStream &stream, const ::pddl
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline output::ColorStream &operator<<(output::ColorStream &stream, ::pddl::ast::VariableDeclaration &variableDeclaration)
+inline colorlog::ColorStream &operator<<(colorlog::ColorStream &stream, ::pddl::ast::VariableDeclaration &variableDeclaration)
 {
 	assert(!variableDeclaration.name.empty());
 	assert(std::isalpha(variableDeclaration.name[0]));
@@ -62,14 +63,14 @@ inline output::ColorStream &operator<<(output::ColorStream &stream, ::pddl::ast:
 		variableDeclaration.name[0] = std::toupper(variableDeclaration.name[0]);
 
 	return (stream
-		<< output::Format({output::Color::Green, output::FontWeight::Bold})
+		<< colorlog::Format({colorlog::Color::Green, colorlog::FontWeight::Bold})
 		<< variableDeclaration.name
-		<< output::ResetFormat());
+		<< colorlog::ResetFormat());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline output::ColorStream &operator<<(output::ColorStream &stream, ::pddl::ast::Variable &variable)
+inline colorlog::ColorStream &operator<<(colorlog::ColorStream &stream, ::pddl::ast::Variable &variable)
 {
 	assert(variable.declaration != nullptr);
 
@@ -79,23 +80,23 @@ inline output::ColorStream &operator<<(output::ColorStream &stream, ::pddl::ast:
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // TODO: move to appropriate header
-inline output::ColorStream &operator<<(output::ColorStream &stream, const ::pddl::ast::Action &action)
+inline colorlog::ColorStream &operator<<(colorlog::ColorStream &stream, const ::pddl::ast::Action &action)
 {
-	return (stream << output::String(action.name.c_str()));
+	return (stream << colorlog::String(action.name.c_str()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // TODO: move to appropriate header
-inline output::ColorStream &operator<<(output::ColorStream &stream, const ::pddl::ast::PredicateDeclaration &predicateDeclaration)
+inline colorlog::ColorStream &operator<<(colorlog::ColorStream &stream, const ::pddl::ast::PredicateDeclaration &predicateDeclaration)
 {
-	return (stream << output::String(predicateDeclaration.name.c_str()));
+	return (stream << colorlog::String(predicateDeclaration.name.c_str()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // TODO: move to appropriate header
-inline output::ColorStream &operator<<(output::ColorStream &stream, const ::pddl::ast::Predicate &predicate)
+inline colorlog::ColorStream &operator<<(colorlog::ColorStream &stream, const ::pddl::ast::Predicate &predicate)
 {
 	return (stream << *predicate.declaration);
 }

@@ -2,10 +2,11 @@
 
 #include <boost/assert.hpp>
 
+#include <colorlog/Formatting.h>
+
 #include <pddlparse/AST.h>
 
-#include <plasp/output/Formatting.h>
-#include <plasp/output/TranslatorException.h>
+#include <plasp/TranslatorException.h>
 
 #include <plasp/pddl/translation/Effect.h>
 #include <plasp/pddl/translation/Goal.h>
@@ -25,7 +26,7 @@ namespace pddl
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TranslatorASP::TranslatorASP(const ::pddl::ast::Description &description, output::ColorStream &outputStream)
+TranslatorASP::TranslatorASP(const ::pddl::ast::Description &description, colorlog::ColorStream &outputStream)
 :	m_description{description},
 	m_outputStream(outputStream)
 {
@@ -48,7 +49,7 @@ void TranslatorASP::translate() const
 
 void TranslatorASP::translateDomain() const
 {
-	m_outputStream << output::Heading1("domain");
+	m_outputStream << colorlog::Heading1("domain");
 
 	const auto &domain = m_description.domain;
 
@@ -82,7 +83,7 @@ void TranslatorASP::translateDomain() const
 
 void TranslatorASP::translateTypes() const
 {
-	m_outputStream << output::Heading2("types");
+	m_outputStream << colorlog::Heading2("types");
 
 	m_outputStream << std::endl;
 
@@ -91,8 +92,8 @@ void TranslatorASP::translateTypes() const
 	if (types.empty())
 	{
 		m_outputStream
-			<< output::Function("type") << "("
-			<< output::Keyword("type") << "(" << output::String("object") << "))." << std::endl;
+			<< colorlog::Function("type") << "("
+			<< colorlog::Keyword("type") << "(" << colorlog::String("object") << "))." << std::endl;
 
 		return;
 	}
@@ -100,8 +101,8 @@ void TranslatorASP::translateTypes() const
 	for (const auto &type : types)
 	{
 		m_outputStream
-			<< output::Function("type") << "("
-			<< output::Keyword("type") << "("
+			<< colorlog::Function("type") << "("
+			<< colorlog::Keyword("type") << "("
 			<< *type
 			<< "))." << std::endl;
 
@@ -111,23 +112,23 @@ void TranslatorASP::translateTypes() const
 			[&](const auto &parentType)
 			{
 				m_outputStream
-					<< output::Function("inherits") << "(" << output::Keyword("type")
-					<< "(" << *type << "), " << output::Keyword("type")
+					<< colorlog::Function("inherits") << "(" << colorlog::Keyword("type")
+					<< "(" << *type << "), " << colorlog::Keyword("type")
 					<< "(" << *parentType << "))." << std::endl;
 			});
 	}
 
 	m_outputStream
 		<< std::endl
-		<< output::Function("has") << "("
-		<< output::Variable("X") << ", "
-		<< output::Keyword("type") << "(" << output::Variable("T2") << ")) :- "
-		<< output::Function("has") << "("
-		<< output::Variable("X") << ", "
-		<< output::Keyword("type") << "(" << output::Variable("T1") << ")), "
-		<< output::Function("inherits") << "("
-		<< output::Keyword("type") << "(" << output::Variable("T1") << "), "
-		<< output::Keyword("type") << "(" << output::Variable("T2") << "))."
+		<< colorlog::Function("has") << "("
+		<< colorlog::Variable("X") << ", "
+		<< colorlog::Keyword("type") << "(" << colorlog::Variable("T2") << ")) :- "
+		<< colorlog::Function("has") << "("
+		<< colorlog::Variable("X") << ", "
+		<< colorlog::Keyword("type") << "(" << colorlog::Variable("T1") << ")), "
+		<< colorlog::Function("inherits") << "("
+		<< colorlog::Keyword("type") << "(" << colorlog::Variable("T1") << "), "
+		<< colorlog::Keyword("type") << "(" << colorlog::Variable("T2") << "))."
 		<< std::endl;
 }
 
@@ -135,13 +136,13 @@ void TranslatorASP::translateTypes() const
 
 void TranslatorASP::translatePredicates() const
 {
-	m_outputStream << output::Heading2("variables");
+	m_outputStream << colorlog::Heading2("variables");
 
 	const auto &predicates = m_description.domain->predicates;
 
 	for (const auto &predicate : predicates)
 	{
-		m_outputStream << std::endl << output::Function("variable") << "(";
+		m_outputStream << std::endl << colorlog::Function("variable") << "(";
 
 		translatePredicateDeclaration(m_outputStream, *predicate);
 
@@ -154,14 +155,14 @@ void TranslatorASP::translatePredicates() const
 
 	m_outputStream
 		<< std::endl << std::endl
-		<< output::Function("boolean") << "(" << output::Boolean("true") << ")." << std::endl
-		<< output::Function("boolean") << "(" << output::Boolean("false") << ")." << std::endl
+		<< colorlog::Function("boolean") << "(" << colorlog::Boolean("true") << ")." << std::endl
+		<< colorlog::Function("boolean") << "(" << colorlog::Boolean("false") << ")." << std::endl
 		<< std::endl
-		<< output::Function("contains") << "("
-		<< output::Keyword("variable") << "(" << output::Variable("X") << "), "
-		<< output::Keyword("value") << "(" << output::Variable("X") << ", " << output::Variable("B") << ")) :- "
-		<< output::Function("variable") << "(" << output::Keyword("variable") << "(" << output::Variable("X") << ")), "
-		<< output::Function("boolean") << "(" << output::Variable("B") << ")."
+		<< colorlog::Function("contains") << "("
+		<< colorlog::Keyword("variable") << "(" << colorlog::Variable("X") << "), "
+		<< colorlog::Keyword("value") << "(" << colorlog::Variable("X") << ", " << colorlog::Variable("B") << ")) :- "
+		<< colorlog::Function("variable") << "(" << colorlog::Keyword("variable") << "(" << colorlog::Variable("X") << ")), "
+		<< colorlog::Function("boolean") << "(" << colorlog::Variable("B") << ")."
 		<< std::endl;
 }
 
@@ -169,7 +170,7 @@ void TranslatorASP::translatePredicates() const
 
 void TranslatorASP::translateActions() const
 {
-	m_outputStream << output::Heading2("actions");
+	m_outputStream << colorlog::Heading2("actions");
 
 	const auto &actions = m_description.domain->actions;
 
@@ -178,7 +179,7 @@ void TranslatorASP::translateActions() const
 		const auto printActionName =
 			[&]()
 			{
-				m_outputStream << output::Keyword("action") << "(";
+				m_outputStream << colorlog::Keyword("action") << "(";
 
 				if (action->parameters.empty())
 				{
@@ -194,7 +195,7 @@ void TranslatorASP::translateActions() const
 		m_outputStream << std::endl;
 
 		// Name
-		m_outputStream << output::Function("action") << "(";
+		m_outputStream << colorlog::Function("action") << "(";
 		printActionName();
 		m_outputStream << ")";
 
@@ -217,13 +218,13 @@ void TranslatorASP::translateActions() const
 
 void TranslatorASP::translateConstants(const std::string &heading, const ::pddl::ast::ConstantDeclarations &constants) const
 {
-	m_outputStream << output::Heading2(heading.c_str());
+	m_outputStream << colorlog::Heading2(heading.c_str());
 
 	for (const auto &constant : constants)
 	{
 		m_outputStream << std::endl
-			<< output::Function("constant") << "("
-			<< output::Keyword("constant") << "("
+			<< colorlog::Function("constant") << "("
+			<< colorlog::Keyword("constant") << "("
 			<< *constant
 			<< "))." << std::endl;
 
@@ -232,19 +233,19 @@ void TranslatorASP::translateConstants(const std::string &heading, const ::pddl:
 		if (type)
 		{
 			if (!type.value().is<::pddl::ast::PrimitiveTypePointer>())
-				throw output::TranslatorException("only primitive types supported currently");
+				throw TranslatorException("only primitive types supported currently");
 
 			const auto &primitveType = type.value().get<::pddl::ast::PrimitiveTypePointer>();
 
-			m_outputStream << output::Function("has") << "("
-				<< output::Keyword("constant") << "(" << *constant << "), "
-				<< output::Keyword("type") << "(" << *primitveType << "))." << std::endl;
+			m_outputStream << colorlog::Function("has") << "("
+				<< colorlog::Keyword("constant") << "(" << *constant << "), "
+				<< colorlog::Keyword("type") << "(" << *primitveType << "))." << std::endl;
 		}
 		else
 		{
-			m_outputStream << output::Function("has") << "("
-				<< output::Keyword("constant") << "(" << *constant << "), "
-				<< output::Keyword("type") << "(" << output::String("object") << "))." << std::endl;
+			m_outputStream << colorlog::Function("has") << "("
+				<< colorlog::Keyword("constant") << "(" << *constant << "), "
+				<< colorlog::Keyword("type") << "(" << colorlog::String("object") << "))." << std::endl;
 		}
 	}
 }
@@ -255,7 +256,7 @@ void TranslatorASP::translateProblem() const
 {
 	assert(m_description.problem);
 
-	m_outputStream << output::Heading1("problem");
+	m_outputStream << colorlog::Heading1("problem");
 
 	const auto &problem = m_description.problem.value();
 
@@ -284,13 +285,13 @@ void TranslatorASP::translateInitialState() const
 {
 	assert(m_description.problem);
 
-	m_outputStream << output::Heading2("initial state");
+	m_outputStream << colorlog::Heading2("initial state");
 
 	const auto &facts = m_description.problem.value()->initialState.facts;
 
 	for (const auto &fact : facts)
 	{
-		m_outputStream << std::endl << output::Function("initialState") << "(";
+		m_outputStream << std::endl << colorlog::Function("initialState") << "(";
 
 		// Translate single predicate
 		if (fact.is<::pddl::ast::AtomicFormula>() && fact.get<::pddl::ast::AtomicFormula>().is<::pddl::ast::PredicatePointer>())
@@ -305,28 +306,28 @@ void TranslatorASP::translateInitialState() const
 			const auto &notExpression = fact.get<::pddl::ast::NotPointer<::pddl::ast::Fact>>();
 
 			if (!notExpression->argument.is<::pddl::ast::AtomicFormula>() || !notExpression->argument.get<::pddl::ast::AtomicFormula>().is<::pddl::ast::PredicatePointer>())
-				throw output::TranslatorException("only negations of simple predicates supported in initial state currently");
+				throw TranslatorException("only negations of simple predicates supported in initial state currently");
 
 			const auto &predicate = notExpression->argument.get<::pddl::ast::AtomicFormula>().get<::pddl::ast::PredicatePointer>();
 
 			translatePredicateToVariable(m_outputStream, *predicate, false);
 		}
 		else
-			throw output::TranslatorException("only predicates and their negations supported in initial state currently");
+			throw TranslatorException("only predicates and their negations supported in initial state currently");
 
 		m_outputStream << ").";
 	}
 
 	m_outputStream
 		<< std::endl << std::endl
-		<< output::Function("initialState") << "("
-		<< output::Keyword("variable") << "(" << output::Variable("X") << "), "
-		<< output::Keyword("value") << "(" << output::Variable("X") << ", " << output::Boolean("false") << ")) :- "
-		<< output::Function("variable") << "(" << output::Keyword("variable") << "(" << output::Variable("X") << ")), "
-		<< output::Keyword("not") << " "
-		<< output::Function("initialState") << "("
-		<< output::Keyword("variable") << "(" << output::Variable("X") << "), "
-		<< output::Keyword("value") << "(" << output::Variable("X") << ", " << output::Boolean("true") << "))."
+		<< colorlog::Function("initialState") << "("
+		<< colorlog::Keyword("variable") << "(" << colorlog::Variable("X") << "), "
+		<< colorlog::Keyword("value") << "(" << colorlog::Variable("X") << ", " << colorlog::Boolean("false") << ")) :- "
+		<< colorlog::Function("variable") << "(" << colorlog::Keyword("variable") << "(" << colorlog::Variable("X") << ")), "
+		<< colorlog::Keyword("not") << " "
+		<< colorlog::Function("initialState") << "("
+		<< colorlog::Keyword("variable") << "(" << colorlog::Variable("X") << "), "
+		<< colorlog::Keyword("value") << "(" << colorlog::Variable("X") << ", " << colorlog::Boolean("true") << "))."
 		<< std::endl;
 }
 
@@ -337,7 +338,7 @@ void TranslatorASP::translateGoal() const
 	assert(m_description.problem);
 	assert(m_description.problem.value()->goal);
 
-	m_outputStream << output::Heading2("goal");
+	m_outputStream << colorlog::Heading2("goal");
 
 	const auto &goal = m_description.problem.value()->goal.value();
 	// TODO: refactor

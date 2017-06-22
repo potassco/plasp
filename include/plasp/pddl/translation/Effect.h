@@ -1,10 +1,11 @@
 #ifndef __PLASP__PDDL__TRANSLATION__EFFECT_H
 #define __PLASP__PDDL__TRANSLATION__EFFECT_H
 
+#include <colorlog/Formatting.h>
+
 #include <pddlparse/AST.h>
 
-#include <plasp/output/Formatting.h>
-#include <plasp/output/TranslatorException.h>
+#include <plasp/TranslatorException.h>
 
 #include <plasp/pddl/translation/Predicate.h>
 #include <plasp/pddl/translation/Primitives.h>
@@ -21,25 +22,25 @@ namespace pddl
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename PrintObjectName>
-inline void translateEffect(output::ColorStream &outputStream, const ::pddl::ast::Effect &effect, const std::string &objectType, PrintObjectName printObjectName)
+inline void translateEffect(colorlog::ColorStream &outputStream, const ::pddl::ast::Effect &effect, const std::string &objectType, PrintObjectName printObjectName)
 {
 	const auto handleUnsupported =
 		[](const auto &)
 		{
-			throw output::TranslatorException("only “and” expressions and (negated) predicates supported as action effects currently");
+			throw TranslatorException("only “and” expressions and (negated) predicates supported as action effects currently");
 		};
 
 	const auto handlePredicate =
 		[&](const ::pddl::ast::PredicatePointer &predicate, bool isPositive = true)
 		{
-			outputStream << std::endl << output::Function("postcondition") << "(";
+			outputStream << std::endl << colorlog::Function("postcondition") << "(";
 			printObjectName();
 			outputStream
-				<< ", " << output::Keyword("effect") << "("
-				<< output::Reserved("unconditional") << ")"
+				<< ", " << colorlog::Keyword("effect") << "("
+				<< colorlog::Reserved("unconditional") << ")"
 				<< ", ";
 			translatePredicateToVariable(outputStream, *predicate, isPositive);
-			outputStream << ") :- " << output::Function(objectType.c_str()) << "(";
+			outputStream << ") :- " << colorlog::Function(objectType.c_str()) << "(";
 			printObjectName();
 			outputStream << ").";
 		};

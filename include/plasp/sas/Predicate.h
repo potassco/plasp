@@ -5,9 +5,9 @@
 #include <string>
 #include <vector>
 
-#include <plasp/output/ColorStream.h>
-
 #include <tokenize/Tokenizer.h>
+
+#include <colorlog/ColorStream.h>
 
 namespace plasp
 {
@@ -28,8 +28,8 @@ class Predicate
 		using Arguments = std::vector<std::string>;
 
 	public:
-		void printAsSAS(output::ColorStream &stream) const;
-		void printAsASP(output::ColorStream &stream) const;
+		void printAsSAS(colorlog::ColorStream &stream) const;
+		void printAsASP(colorlog::ColorStream &stream) const;
 
 		const std::string &name() const;
 		const Arguments &arguments() const;

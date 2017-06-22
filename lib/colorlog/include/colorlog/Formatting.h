@@ -1,13 +1,11 @@
-#ifndef __PLASP__OUTPUT__FORMATTING_H
-#define __PLASP__OUTPUT__FORMATTING_H
+#ifndef __COLOR_LOG__FORMATTING_H
+#define __COLOR_LOG__FORMATTING_H
 
 #include <iostream>
 
-#include <plasp/output/ColorStream.h>
+#include <colorlog/ColorStream.h>
 
-namespace plasp
-{
-namespace output
+namespace colorlog
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -307,7 +305,6 @@ inline ColorStream &operator<<(ColorStream &stream, const Heading2 &heading2)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-}
 }
 
 #endif

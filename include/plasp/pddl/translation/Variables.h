@@ -1,11 +1,12 @@
 #ifndef __PLASP__PDDL__TRANSLATION__VARIABLES_H
 #define __PLASP__PDDL__TRANSLATION__VARIABLES_H
 
+#include <colorlog/Formatting.h>
+
 #include <pddlparse/AST.h>
 #include <pddlparse/Parse.h>
 
-#include <plasp/output/Formatting.h>
-#include <plasp/output/TranslatorException.h>
+#include <plasp/TranslatorException.h>
 
 namespace plasp
 {
@@ -19,14 +20,14 @@ namespace pddl
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-void translateVariablesForRuleHead(output::ColorStream &outputStream, const T &variables);
+void translateVariablesForRuleHead(colorlog::ColorStream &outputStream, const T &variables);
 template<class T>
-void translateVariablesForRuleBody(output::ColorStream &outputStream, const T &variables);
+void translateVariablesForRuleBody(colorlog::ColorStream &outputStream, const T &variables);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-inline void translateVariablesForRuleHead(output::ColorStream &outputStream, const T &variables)
+inline void translateVariablesForRuleHead(colorlog::ColorStream &outputStream, const T &variables)
 {
 	if (variables.empty())
 		return;
@@ -38,7 +39,7 @@ inline void translateVariablesForRuleHead(output::ColorStream &outputStream, con
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-inline void translateVariablesForRuleBody(output::ColorStream &outputStream, const T &variables)
+inline void translateVariablesForRuleBody(colorlog::ColorStream &outputStream, const T &variables)
 {
 	if (variables.empty())
 		return;
@@ -53,18 +54,18 @@ inline void translateVariablesForRuleBody(output::ColorStream &outputStream, con
 		if (variable->type)
 		{
 			if (!variable->type.value().template is<::pddl::ast::PrimitiveTypePointer>())
-				throw output::TranslatorException("only primitive types supported currently");
+				throw TranslatorException("only primitive types supported currently");
 
 			const auto &type = variable->type.value().template get<::pddl::ast::PrimitiveTypePointer>();
 
-			outputStream << output::Function("has") << "("
-				<< *variable << ", " << output::Keyword("type") << "(" << *type << "))";
+			outputStream << colorlog::Function("has") << "("
+				<< *variable << ", " << colorlog::Keyword("type") << "(" << *type << "))";
 		}
 		else
 		{
-			outputStream << output::Function("has") << "("
+			outputStream << colorlog::Function("has") << "("
 				<< *variable << ", "
-				<< output::Keyword("type") << "(" << output::String("object") << "))";
+				<< colorlog::Keyword("type") << "(" << colorlog::String("object") << "))";
 		}
 	}
 }

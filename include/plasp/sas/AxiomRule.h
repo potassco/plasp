@@ -3,10 +3,10 @@
 
 #include <vector>
 
+#include <tokenize/Tokenizer.h>
+
 #include <plasp/sas/AssignedVariable.h>
 #include <plasp/sas/Variable.h>
-
-#include <tokenize/Tokenizer.h>
 
 namespace plasp
 {

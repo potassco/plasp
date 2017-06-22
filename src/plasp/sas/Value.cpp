@@ -2,10 +2,11 @@
 
 #include <iostream>
 
-#include <plasp/output/Formatting.h>
-#include <plasp/sas/Variable.h>
-
 #include <tokenize/TokenizerException.h>
+
+#include <colorlog/Formatting.h>
+
+#include <plasp/sas/Variable.h>
 
 namespace plasp
 {
@@ -128,22 +129,22 @@ const std::string &Value::name() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Value::printAsASPPredicate(output::ColorStream &stream) const
+void Value::printAsASPPredicate(colorlog::ColorStream &stream) const
 {
 	// TODO: do not compare by value
 	if (*this == Value::None)
 	{
-		stream << output::Keyword("value") << "(" << output::Reserved("none") << ")";
+		stream << colorlog::Keyword("value") << "(" << colorlog::Reserved("none") << ")";
 		return;
 	}
 
-	stream << output::Keyword("value") << "(" << output::String(m_name.c_str()) << ", "
-		<< (m_sign == Sign::Positive ? output::Boolean("true") : output::Boolean("false")) << ")";
+	stream << colorlog::Keyword("value") << "(" << colorlog::String(m_name.c_str()) << ", "
+		<< (m_sign == Sign::Positive ? colorlog::Boolean("true") : colorlog::Boolean("false")) << ")";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Value::printAsSAS(output::ColorStream &stream) const
+void Value::printAsSAS(colorlog::ColorStream &stream) const
 {
 	if (m_sign == Value::Sign::Positive)
 		stream << "Atom ";
