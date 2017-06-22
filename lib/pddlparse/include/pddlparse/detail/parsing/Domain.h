@@ -1,8 +1,6 @@
 #ifndef __PDDL_PARSE__DETAIL__PARSING__DOMAIN_H
 #define __PDDL_PARSE__DETAIL__PARSING__DOMAIN_H
 
-#include <experimental/optional>
-
 #include <pddlparse/AST.h>
 #include <pddlparse/Context.h>
 

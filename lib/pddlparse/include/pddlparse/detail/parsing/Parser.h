@@ -1,8 +1,6 @@
 #ifndef __PDDL_PARSE__DETAIL__PARSER_H
 #define __PDDL_PARSE__DETAIL__PARSER_H
 
-#include <experimental/optional>
-
 #include <pddlparse/ASTForward.h>
 #include <pddlparse/Context.h>
 #include <pddlparse/detail/ASTContext.h>
