@@ -6,7 +6,6 @@
 #include <memory>
 #include <vector>
 
-
 #include <plasp/sas/AxiomRule.h>
 #include <plasp/sas/Goal.h>
 #include <plasp/sas/InitialState.h>
