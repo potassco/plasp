@@ -3,10 +3,10 @@
 
 #include <iosfwd>
 
+#include <tokenize/Tokenizer.h>
+
 #include <plasp/sas/Value.h>
 #include <plasp/sas/Variable.h>
-
-#include <tokenize/Tokenizer.h>
 
 namespace plasp
 {

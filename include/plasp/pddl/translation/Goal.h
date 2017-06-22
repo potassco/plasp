@@ -1,10 +1,11 @@
 #ifndef __PLASP__PDDL__TRANSLATION__GOAL_H
 #define __PLASP__PDDL__TRANSLATION__GOAL_H
 
+#include <colorlog/Formatting.h>
+
 #include <pddlparse/AST.h>
 
-#include <plasp/output/Formatting.h>
-#include <plasp/output/TranslatorException.h>
+#include <plasp/TranslatorException.h>
 
 #include <plasp/pddl/translation/Predicate.h>
 #include <plasp/pddl/translation/Primitives.h>
@@ -20,18 +21,18 @@ namespace pddl
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline void translateGoal(output::ColorStream &outputStream, const ::pddl::ast::Goal &goal)
+inline void translateGoal(colorlog::ColorStream &outputStream, const ::pddl::ast::Goal &goal)
 {
 	const auto handleUnsupported =
 		[](const auto &)
 		{
-			throw output::TranslatorException("only “and” expressions and (negated) predicates supported as goals currently");
+			throw TranslatorException("only “and” expressions and (negated) predicates supported as goals currently");
 		};
 
 	const auto handlePredicate =
 		[&](const ::pddl::ast::PredicatePointer &predicate, bool isPositive = true)
 		{
-			outputStream << std::endl << output::Function("goal") << "(";
+			outputStream << std::endl << colorlog::Function("goal") << "(";
 			// TODO: assert that goal is variable-free
 			translatePredicateToVariable(outputStream, *predicate, isPositive);
 			outputStream << ").";

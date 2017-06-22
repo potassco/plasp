@@ -4,16 +4,18 @@
 
 #include <boost/program_options.hpp>
 
+#include <colorlog/ColorStream.h>
+#include <colorlog/Logger.h>
+#include <colorlog/Priority.h>
+
 #include <pddlparse/AST.h>
 #include <pddlparse/Exception.h>
 #include <pddlparse/Mode.h>
 #include <pddlparse/Parse.h>
 
 #include <plasp/LanguageDetection.h>
-#include <plasp/output/ColorStream.h>
-#include <plasp/output/Logger.h>
-#include <plasp/output/Priority.h>
-#include <plasp/output/TranslatorException.h>
+#include <plasp/TranslatorException.h>
+
 #include <plasp/pddl/TranslatorASP.h>
 #include <plasp/sas/Description.h>
 #include <plasp/sas/TranslatorASP.h>
@@ -49,7 +51,7 @@ int main(int argc, char **argv)
 			std::cout << description;
 		};
 
-	plasp::output::Logger logger;
+	colorlog::Logger logger;
 
 	try
 	{
@@ -62,7 +64,7 @@ int main(int argc, char **argv)
 	}
 	catch (const po::error &e)
 	{
-		logger.log(plasp::output::Priority::Error, e.what());
+		logger.log(colorlog::Priority::Error, e.what());
 		std::cout << std::endl;
 		printHelp();
 		return EXIT_FAILURE;
@@ -81,7 +83,7 @@ int main(int argc, char **argv)
 	}
 
 	if (warningsAsErrors)
-		logger.setAbortPriority(plasp::output::Priority::Warning);
+		logger.setAbortPriority(colorlog::Priority::Warning);
 
 	auto parsingMode = pddl::Mode::Strict;
 
@@ -91,7 +93,7 @@ int main(int argc, char **argv)
 		parsingMode = pddl::Mode::Compatibility;
 	else if (parsingModeString != "strict")
 	{
-		logger.log(plasp::output::Priority::Error, "unknown parsing mode “" + parsingModeString + "”");
+		logger.log(colorlog::Priority::Error, "unknown parsing mode “" + parsingModeString + "”");
 		std::cout << std::endl;
 		printHelp();
 		return EXIT_FAILURE;
@@ -101,20 +103,20 @@ int main(int argc, char **argv)
 		[&]()
 		{
 			if (parsingMode != pddl::Mode::Compatibility)
-				logger.log(plasp::output::Priority::Info, "try using --parsing-mode=compatibility for extended legacy feature support");
+				logger.log(colorlog::Priority::Info, "try using --parsing-mode=compatibility for extended legacy feature support");
 		};
 
 	const auto colorPolicy = variablesMap["color"].as<std::string>();
 
 	if (colorPolicy == "auto")
-		logger.setColorPolicy(plasp::output::ColorStream::ColorPolicy::Auto);
+		logger.setColorPolicy(colorlog::ColorStream::ColorPolicy::Auto);
 	else if (colorPolicy == "never")
-		logger.setColorPolicy(plasp::output::ColorStream::ColorPolicy::Never);
+		logger.setColorPolicy(colorlog::ColorStream::ColorPolicy::Never);
 	else if (colorPolicy == "always")
-		logger.setColorPolicy(plasp::output::ColorStream::ColorPolicy::Always);
+		logger.setColorPolicy(colorlog::ColorStream::ColorPolicy::Always);
 	else
 	{
-		logger.log(plasp::output::Priority::Error, "unknown color policy “" + colorPolicy + "”");
+		logger.log(colorlog::Priority::Error, "unknown color policy “" + colorPolicy + "”");
 		std::cout << std::endl;
 		printHelp();
 		return EXIT_FAILURE;
@@ -124,12 +126,12 @@ int main(int argc, char **argv)
 
 	try
 	{
-		const auto logPriority = plasp::output::priorityFromName(logPriorityString.c_str());
+		const auto logPriority = colorlog::priorityFromName(logPriorityString.c_str());
 		logger.setLogPriority(logPriority);
 	}
 	catch (const std::exception &e)
 	{
-		logger.log(plasp::output::Priority::Error, ("unknown log priorty “" + logPriorityString + "”").c_str());
+		logger.log(colorlog::Priority::Error, ("unknown log priorty “" + logPriorityString + "”").c_str());
 		logger.errorStream() << std::endl;
 		printHelp();
 		return EXIT_FAILURE;
@@ -168,7 +170,7 @@ int main(int argc, char **argv)
 
 		if (language == plasp::Language::Type::Unknown)
 		{
-			logger.log(plasp::output::Priority::Error, "unknown input language");
+			logger.log(colorlog::Priority::Error, "unknown input language");
 			std::cout << std::endl;
 			printHelp();
 			return EXIT_FAILURE;
@@ -179,7 +181,7 @@ int main(int argc, char **argv)
 			const auto logWarning =
 				[&](const auto &location, const auto &warning)
 				{
-					logger.log(plasp::output::Priority::Warning, location, warning);
+					logger.log(colorlog::Priority::Warning, location, warning);
 				};
 
 			auto context = pddl::Context(std::move(tokenizer), logWarning);
@@ -197,7 +199,7 @@ int main(int argc, char **argv)
 	}
 	catch (const tokenize::TokenizerException &e)
 	{
-		logger.log(plasp::output::Priority::Error, e.location(), e.message().c_str());
+		logger.log(colorlog::Priority::Error, e.location(), e.message().c_str());
 
 		printCompatibilityInfo();
 
@@ -206,22 +208,22 @@ int main(int argc, char **argv)
 	catch (const pddl::ParserException &e)
 	{
 		if (e.location())
-			logger.log(plasp::output::Priority::Error, e.location().value(), e.message().c_str());
+			logger.log(colorlog::Priority::Error, e.location().value(), e.message().c_str());
 		else
-			logger.log(plasp::output::Priority::Error, e.message().c_str());
+			logger.log(colorlog::Priority::Error, e.message().c_str());
 
 		printCompatibilityInfo();
 
 		return EXIT_FAILURE;
 	}
-	catch (const plasp::output::TranslatorException &e)
+	catch (const plasp::TranslatorException &e)
 	{
-		logger.log(plasp::output::Priority::Error, e.what());
+		logger.log(colorlog::Priority::Error, e.what());
 		return EXIT_FAILURE;
 	}
 	catch (const std::exception &e)
 	{
-		logger.log(plasp::output::Priority::Error, e.what());
+		logger.log(colorlog::Priority::Error, e.what());
 		return EXIT_FAILURE;
 	}
 

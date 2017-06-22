@@ -1,13 +1,11 @@
-#ifndef __PLASP__OUTPUT__FORMATTING_H
-#define __PLASP__OUTPUT__FORMATTING_H
+#ifndef __COLOR_LOG__FORMATTING_H
+#define __COLOR_LOG__FORMATTING_H
 
 #include <iostream>
 
-#include <plasp/output/ColorStream.h>
+#include <colorlog/ColorStream.h>
 
-namespace plasp
-{
-namespace output
+namespace colorlog
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -89,7 +87,7 @@ struct Function
 	Function(const char *name)
 	:	name{name}
 	{
-	};
+	}
 
 	const char *name;
 };
@@ -111,7 +109,7 @@ struct Keyword
 	Keyword(const char *name)
 	:	name{name}
 	{
-	};
+	}
 
 	const char *name;
 };
@@ -133,7 +131,7 @@ struct Operator
 	Operator(const char *name)
 	:	name{name}
 	{
-	};
+	}
 
 	const char *name;
 };
@@ -153,7 +151,7 @@ struct Number
 	Number(T value)
 	:	value{value}
 	{
-	};
+	}
 
 	T value;
 };
@@ -176,7 +174,7 @@ struct Variable
 	Variable(const char *name)
 	:	name{name}
 	{
-	};
+	}
 
 	const char *name;
 };
@@ -198,7 +196,7 @@ struct String
 	String(const char *content)
 	:	content{content}
 	{
-	};
+	}
 
 	const char *content;
 };
@@ -220,7 +218,7 @@ struct Boolean
 	Boolean(const char *value)
 	:	value{value}
 	{
-	};
+	}
 
 	const char *value;
 };
@@ -242,7 +240,7 @@ struct Reserved
 	Reserved(const char *name)
 	:	name{name}
 	{
-	};
+	}
 
 	const char *name;
 };
@@ -264,7 +262,7 @@ struct Heading1
 	Heading1(const char *content)
 	:	content{content}
 	{
-	};
+	}
 
 	const char *content;
 };
@@ -289,7 +287,7 @@ struct Heading2
 	Heading2(const char *content)
 	:	content{content}
 	{
-	};
+	}
 
 	const char *content;
 };
@@ -307,7 +305,6 @@ inline ColorStream &operator<<(ColorStream &stream, const Heading2 &heading2)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-}
 }
 
 #endif

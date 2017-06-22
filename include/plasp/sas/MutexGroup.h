@@ -3,9 +3,9 @@
 
 #include <vector>
 
-#include <plasp/sas/AssignedVariable.h>
-
 #include <tokenize/Tokenizer.h>
+
+#include <plasp/sas/AssignedVariable.h>
 
 namespace plasp
 {

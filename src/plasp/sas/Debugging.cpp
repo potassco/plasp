@@ -13,7 +13,7 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-output::ColorStream &operator<<(output::ColorStream &stream, const Description &description)
+colorlog::ColorStream &operator<<(colorlog::ColorStream &stream, const Description &description)
 {
 	// Metric section
 	stream << "uses action costs: " << (description.usesActionCosts() ? "yes" : "no") << std::endl;

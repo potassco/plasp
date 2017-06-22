@@ -5,9 +5,9 @@
 #include <fstream>
 #include <sstream>
 
-#include <plasp/sas/VariableTransition.h>
-
 #include <tokenize/TokenizerException.h>
+
+#include <plasp/sas/VariableTransition.h>
 
 namespace plasp
 {

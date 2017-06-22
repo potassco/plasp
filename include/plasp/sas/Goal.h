@@ -1,9 +1,9 @@
 #ifndef __PLASP__SAS__GOAL_H
 #define __PLASP__SAS__GOAL_H
 
-#include <plasp/sas/AssignedVariable.h>
-
 #include <tokenize/Tokenizer.h>
+
+#include <plasp/sas/AssignedVariable.h>
 
 namespace plasp
 {

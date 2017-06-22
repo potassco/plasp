@@ -1,12 +1,10 @@
-#ifndef __PLASP__OUTPUT__PRIORITY_H
-#define __PLASP__OUTPUT__PRIORITY_H
+#ifndef __COLOR_LOG__PRIORITY_H
+#define __COLOR_LOG__PRIORITY_H
 
 #include <cstring>
 #include <exception>
 
-namespace plasp
-{
-namespace output
+namespace colorlog
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -60,7 +58,6 @@ inline Priority priorityFromName(const char *priorityName)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-}
 }
 
 #endif

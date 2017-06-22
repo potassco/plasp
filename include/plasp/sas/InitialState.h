@@ -1,9 +1,9 @@
 #ifndef __PLASP__SAS__INITIAL_STATE_H
 #define __PLASP__SAS__INITIAL_STATE_H
 
-#include <plasp/sas/AssignedVariable.h>
-
 #include <tokenize/Tokenizer.h>
+
+#include <plasp/sas/AssignedVariable.h>
 
 namespace plasp
 {

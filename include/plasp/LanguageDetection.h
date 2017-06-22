@@ -1,9 +1,9 @@
 #ifndef __PLASP__LANGUAGE_DETECTION_H
 #define __PLASP__LANGUAGE_DETECTION_H
 
-#include <plasp/Language.h>
-
 #include <tokenize/Tokenizer.h>
+
+#include <plasp/Language.h>
 
 namespace plasp
 {

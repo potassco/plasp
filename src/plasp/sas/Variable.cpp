@@ -2,9 +2,9 @@
 
 #include <iostream>
 
-#include <plasp/output/Formatting.h>
-
 #include <tokenize/TokenizerException.h>
+
+#include <colorlog/Formatting.h>
 
 namespace plasp
 {
@@ -53,10 +53,10 @@ Variable Variable::fromSAS(tokenize::Tokenizer<> &tokenizer)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Variable::printNameAsASPPredicate(output::ColorStream &stream) const
+void Variable::printNameAsASPPredicate(colorlog::ColorStream &stream) const
 {
 	// TODO: assert that name is a number indeed
-	stream << output::Keyword("variable") << "(" << output::Number<std::string>(m_name) << ")";
+	stream << colorlog::Keyword("variable") << "(" << colorlog::Number<std::string>(m_name) << ")";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

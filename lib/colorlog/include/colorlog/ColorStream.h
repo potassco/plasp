@@ -1,12 +1,10 @@
-#ifndef __PLASP__OUTPUT__COLOR_STREAM_H
-#define __PLASP__OUTPUT__COLOR_STREAM_H
+#ifndef __COLOR_LOG__COLOR_STREAM_H
+#define __COLOR_LOG__COLOR_STREAM_H
 
 #include <iostream>
 #include <unistd.h>
 
-namespace plasp
-{
-namespace output
+namespace colorlog
 {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -288,7 +286,6 @@ ColorStream &ColorStream::operator<<(unsigned char value)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-}
 }
 
 #endif

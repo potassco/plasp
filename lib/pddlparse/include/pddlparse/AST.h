@@ -61,23 +61,6 @@ struct ConstantDeclaration
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct Dummy
-{
-	explicit Dummy(std::string name)
-	:	name{name}
-	{
-	}
-
-	Dummy(const Dummy &other) = delete;
-	Dummy &operator=(const Dummy &&other) = delete;
-	Dummy(Dummy &&other) = default;
-	Dummy &operator=(Dummy &&other) = default;
-
-	std::string name;
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 struct PrimitiveType
 {
 	explicit PrimitiveType(PrimitiveTypeDeclaration *declaration)
@@ -288,6 +271,7 @@ struct And: public NAry<And<Argument>, Argument>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// TODO: make binary expression
 template<class Argument>
 struct At
 {

@@ -5,10 +5,11 @@
 #include <string>
 #include <vector>
 
-#include <plasp/output/ColorStream.h>
-#include <plasp/sas/Value.h>
-
 #include <tokenize/Tokenizer.h>
+
+#include <colorlog/ColorStream.h>
+
+#include <plasp/sas/Value.h>
 
 namespace plasp
 {
@@ -33,7 +34,7 @@ class Variable
 		static const Variable &referenceFromSAS(tokenize::Tokenizer<> &tokenizer, const Variables &variables);
 
 	public:
-		void printNameAsASPPredicate(output::ColorStream &outputStream) const;
+		void printNameAsASPPredicate(colorlog::ColorStream &outputStream) const;
 
 		const std::string &name() const;
 		int axiomLayer() const;
