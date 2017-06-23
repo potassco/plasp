@@ -11,6 +11,8 @@
 #include <pddlparse/AST.h>
 #include <pddlparse/Exception.h>
 #include <pddlparse/Mode.h>
+#include <pddlparse/Normalize.h>
+#include <pddlparse/NormalizedASTOutput.h>
 #include <pddlparse/Parse.h>
 
 #include <plasp/LanguageDetection.h>
@@ -187,7 +189,8 @@ int main(int argc, char **argv)
 			auto context = pddl::Context(std::move(tokenizer), logWarning);
 			context.mode = parsingMode;
 			auto description = pddl::parseDescription(context);
-			const auto translator = plasp::pddl::TranslatorASP(std::move(description), logger.outputStream());
+			auto normalizedDescription = pddl::normalize(std::move(description));
+			const auto translator = plasp::pddl::TranslatorASP(std::move(normalizedDescription), logger.outputStream());
 			translator.translate();
 		}
 		else if (language == plasp::Language::Type::SAS)

@@ -1,0 +1,26 @@
+#ifndef __PDDL_PARSE__DETAIL__NORMALIZATION__ACTION_H
+#define __PDDL_PARSE__DETAIL__NORMALIZATION__ACTION_H
+
+#include <pddlparse/ASTForward.h>
+#include <pddlparse/Context.h>
+#include <pddlparse/NormalizedASTForward.h>
+
+namespace pddl
+{
+namespace detail
+{
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Action
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+normalizedAST::ActionPointer normalize(ast::ActionPointer &&domain, normalizedAST::DerivedPredicateDeclarations &derivedPredicates);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+}
+}
+
+#endif

@@ -133,6 +133,7 @@ struct Problem
 
 	Domain *domain;
 	std::string name;
+	DerivedPredicateDeclarations derivedPredicates;
 	ConstantDeclarations objects;
 	InitialState initialState;
 	std::experimental::optional<Goal> goal;

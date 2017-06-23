@@ -3,7 +3,7 @@
 
 #include <colorlog/Formatting.h>
 
-#include <pddlparse/AST.h>
+#include <pddlparse/NormalizedAST.h>
 
 #include <plasp/TranslatorException.h>
 
@@ -22,7 +22,7 @@ namespace pddl
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename PrintObjectName>
-inline void translateEffect(colorlog::ColorStream &outputStream, const ::pddl::ast::Effect &effect, const std::string &objectType, PrintObjectName printObjectName)
+inline void translateEffect(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::Effect &effect, const std::string &objectType, PrintObjectName printObjectName)
 {
 	const auto handleUnsupported =
 		[](const auto &)
@@ -31,7 +31,7 @@ inline void translateEffect(colorlog::ColorStream &outputStream, const ::pddl::a
 		};
 
 	const auto handlePredicate =
-		[&](const ::pddl::ast::PredicatePointer &predicate, bool isPositive = true)
+		[&](const ::pddl::normalizedAST::PredicatePointer &predicate, bool isPositive = true)
 		{
 			outputStream << std::endl << colorlog::Function("postcondition") << "(";
 			printObjectName();
@@ -46,24 +46,24 @@ inline void translateEffect(colorlog::ColorStream &outputStream, const ::pddl::a
 		};
 
 	const auto handleAtomicFormula =
-		[&](const ::pddl::ast::AtomicFormula &atomicFormula)
+		[&](const ::pddl::normalizedAST::AtomicFormula &atomicFormula)
 		{
 			atomicFormula.match(handlePredicate, handleUnsupported);
 		};
 
 	const auto handleNot =
-		[&](const ::pddl::ast::NotPointer<::pddl::ast::Effect> &not_)
+		[&](const ::pddl::normalizedAST::NotPointer<::pddl::normalizedAST::Effect> &not_)
 		{
-			if (!not_->argument.is<::pddl::ast::AtomicFormula>() || !not_->argument.get<::pddl::ast::AtomicFormula>().is<::pddl::ast::PredicatePointer>())
+			if (!not_->argument.is<::pddl::normalizedAST::AtomicFormula>() || !not_->argument.get<::pddl::normalizedAST::AtomicFormula>().is<::pddl::normalizedAST::PredicatePointer>())
 				handleUnsupported(not_);
 
-			const auto &predicate = not_->argument.get<::pddl::ast::AtomicFormula>().get<::pddl::ast::PredicatePointer>();
+			const auto &predicate = not_->argument.get<::pddl::normalizedAST::AtomicFormula>().get<::pddl::normalizedAST::PredicatePointer>();
 
 			handlePredicate(predicate, false);
 		};
 
 	const auto handleAnd =
-		[&](const ::pddl::ast::AndPointer<::pddl::ast::Effect> &and_)
+		[&](const ::pddl::normalizedAST::AndPointer<::pddl::normalizedAST::Effect> &and_)
 		{
 			for (const auto &argument : and_->arguments)
 				translateEffect(outputStream, argument, objectType, printObjectName);

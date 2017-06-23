@@ -3,7 +3,7 @@
 
 #include <colorlog/Formatting.h>
 
-#include <pddlparse/AST.h>
+#include <pddlparse/NormalizedAST.h>
 
 #include <plasp/TranslatorException.h>
 
@@ -22,16 +22,10 @@ namespace pddl
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename PrintObjectName>
-inline void translatePrecondition(colorlog::ColorStream &outputStream, const ::pddl::ast::Precondition &precondition, const std::string &objectType, PrintObjectName printObjectName)
+inline void translatePrecondition(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::Precondition &precondition, const std::string &objectType, PrintObjectName printObjectName)
 {
-	const auto handleUnsupported =
-		[](const auto &)
-		{
-			throw TranslatorException("only “and” expressions and (negated) predicates supported as action preconditions currently");
-		};
-
 	const auto handlePredicate =
-		[&](const ::pddl::ast::PredicatePointer &predicate, bool isPositive = true)
+		[&](const ::pddl::normalizedAST::PredicatePointer &predicate, bool isPositive = true)
 		{
 			outputStream << std::endl << colorlog::Function("precondition") << "(";
 			printObjectName();
@@ -42,31 +36,57 @@ inline void translatePrecondition(colorlog::ColorStream &outputStream, const ::p
 			outputStream << ").";
 		};
 
-	const auto handleAtomicFormula =
-		[&](const ::pddl::ast::AtomicFormula &atomicFormula)
+	const auto handleNegatedPredicate =
+		[&](const ::pddl::normalizedAST::PredicatePointer &predicate)
 		{
-			atomicFormula.match(handlePredicate, handleUnsupported);
-		};
-
-	const auto handleNot =
-		[&](const ::pddl::ast::NotPointer<::pddl::ast::Precondition> &not_)
-		{
-			if (!not_->argument.is<::pddl::ast::AtomicFormula>() || !not_->argument.get<::pddl::ast::AtomicFormula>().is<::pddl::ast::PredicatePointer>())
-				handleUnsupported(not_);
-
-			const auto &predicate = not_->argument.get<::pddl::ast::AtomicFormula>().get<::pddl::ast::PredicatePointer>();
-
 			handlePredicate(predicate, false);
 		};
 
-	const auto handleAnd =
-		[&](const ::pddl::ast::AndPointer<::pddl::ast::Precondition> &and_)
+	const auto handleDerivedPredicate =
+		[&](const ::pddl::normalizedAST::DerivedPredicatePointer &, bool = true)
 		{
-			for (const auto &argument : and_->arguments)
-				translatePrecondition(outputStream, argument, objectType, printObjectName);
+			outputStream << std::endl << colorlog::Function("precondition") << "(";
+			printObjectName();
+			outputStream << ", ";
+			// TODO: implement
+			/*translatePredicateToVariable(outputStream, *predicate, isPositive);
+			outputStream << ") :- " << output::Function(objectType.c_str()) << "(";
+			printObjectName();
+			outputStream << ").";*/
 		};
 
-	precondition.match(handleAtomicFormula, handleNot, handleAnd, handleUnsupported);
+	const auto handleNegatedDerivedPredicate =
+		[&](const ::pddl::normalizedAST::DerivedPredicatePointer &derivedPredicate)
+		{
+			handleDerivedPredicate(derivedPredicate, false);
+		};
+
+	const auto handleAtomicFormula =
+		[&](const ::pddl::normalizedAST::AtomicFormula &atomicFormula)
+		{
+			atomicFormula.match(handlePredicate, handleDerivedPredicate);
+		};
+
+	const auto handleNot =
+		[&](const ::pddl::normalizedAST::NotPointer<::pddl::normalizedAST::AtomicFormula> &not_)
+		{
+			not_->argument.match(handleNegatedPredicate, handleNegatedDerivedPredicate);
+		};
+
+	const auto handleLiteral =
+		[&](const ::pddl::normalizedAST::Literal &literal)
+		{
+			literal.match(handleAtomicFormula, handleNot);
+		};
+
+	const auto handleAnd =
+		[&](const ::pddl::normalizedAST::AndPointer<::pddl::normalizedAST::Literal> &and_)
+		{
+			for (const auto &argument : and_->arguments)
+				handleLiteral(argument);
+		};
+
+	precondition.match(handleLiteral, handleAnd);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -3,7 +3,7 @@
 
 #include <colorlog/Formatting.h>
 
-#include <pddlparse/AST.h>
+#include <pddlparse/NormalizedAST.h>
 
 #include <plasp/TranslatorException.h>
 
@@ -21,16 +21,10 @@ namespace pddl
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline void translateGoal(colorlog::ColorStream &outputStream, const ::pddl::ast::Goal &goal)
+inline void translateGoal(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::Goal &goal)
 {
-	const auto handleUnsupported =
-		[](const auto &)
-		{
-			throw TranslatorException("only “and” expressions and (negated) predicates supported as goals currently");
-		};
-
 	const auto handlePredicate =
-		[&](const ::pddl::ast::PredicatePointer &predicate, bool isPositive = true)
+		[&](const ::pddl::normalizedAST::PredicatePointer &predicate, bool isPositive = true)
 		{
 			outputStream << std::endl << colorlog::Function("goal") << "(";
 			// TODO: assert that goal is variable-free
@@ -38,31 +32,54 @@ inline void translateGoal(colorlog::ColorStream &outputStream, const ::pddl::ast
 			outputStream << ").";
 		};
 
-	const auto handleAtomicFormula =
-		[&](const ::pddl::ast::AtomicFormula &atomicFormula)
+	const auto handleNegatedPredicate =
+		[&](const ::pddl::normalizedAST::PredicatePointer &predicate)
 		{
-			atomicFormula.match(handlePredicate, handleUnsupported);
-		};
-
-	const auto handleNot =
-		[&](const ::pddl::ast::NotPointer<::pddl::ast::Goal> &not_)
-		{
-			if (!not_->argument.is<::pddl::ast::AtomicFormula>() || !not_->argument.get<::pddl::ast::AtomicFormula>().is<::pddl::ast::PredicatePointer>())
-				handleUnsupported(not_);
-
-			const auto &predicate = not_->argument.get<::pddl::ast::AtomicFormula>().get<::pddl::ast::PredicatePointer>();
-
 			handlePredicate(predicate, false);
 		};
 
-	const auto handleAnd =
-		[&](const ::pddl::ast::AndPointer<::pddl::ast::Goal> &and_)
+	const auto handleDerivedPredicate =
+		[&](const ::pddl::normalizedAST::DerivedPredicatePointer &, bool = true)
 		{
-			for (const auto &argument : and_->arguments)
-				translateGoal(outputStream, argument);
+			outputStream << std::endl << colorlog::Function("goal") << "(";
+			// TODO: assert that goal is variable-free
+			// TODO: implement
+			//translatePredicateToVariable(outputStream, *predicate, isPositive);
+			outputStream << ").";
 		};
 
-	goal.match(handleAtomicFormula, handleNot, handleAnd, handleUnsupported);
+	const auto handleNegatedDerivedPredicate =
+		[&](const ::pddl::normalizedAST::DerivedPredicatePointer &derivedPredicate)
+		{
+			handleDerivedPredicate(derivedPredicate, false);
+		};
+
+	const auto handleAtomicFormula =
+		[&](const ::pddl::normalizedAST::AtomicFormula &atomicFormula)
+		{
+			atomicFormula.match(handlePredicate, handleDerivedPredicate);
+		};
+
+	const auto handleNot =
+		[&](const ::pddl::normalizedAST::NotPointer<::pddl::normalizedAST::AtomicFormula> &not_)
+		{
+			not_->argument.match(handleNegatedPredicate, handleNegatedDerivedPredicate);
+		};
+
+	const auto handleLiteral =
+		[&](const ::pddl::normalizedAST::Literal &literal)
+		{
+			literal.match(handleAtomicFormula, handleNot);
+		};
+
+	const auto handleAnd =
+		[&](const ::pddl::normalizedAST::AndPointer<::pddl::normalizedAST::Literal> &and_)
+		{
+			for (const auto &argument : and_->arguments)
+				handleLiteral(argument);
+		};
+
+	goal.match(handleLiteral, handleAnd);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

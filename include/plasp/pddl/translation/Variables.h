@@ -3,7 +3,7 @@
 
 #include <colorlog/Formatting.h>
 
-#include <pddlparse/AST.h>
+#include <pddlparse/NormalizedAST.h>
 #include <pddlparse/Parse.h>
 
 #include <plasp/TranslatorException.h>
@@ -53,10 +53,10 @@ inline void translateVariablesForRuleBody(colorlog::ColorStream &outputStream, c
 
 		if (variable->type)
 		{
-			if (!variable->type.value().template is<::pddl::ast::PrimitiveTypePointer>())
+			if (!variable->type.value().template is<::pddl::normalizedAST::PrimitiveTypePointer>())
 				throw TranslatorException("only primitive types supported currently");
 
-			const auto &type = variable->type.value().template get<::pddl::ast::PrimitiveTypePointer>();
+			const auto &type = variable->type.value().template get<::pddl::normalizedAST::PrimitiveTypePointer>();
 
 			outputStream << colorlog::Function("has") << "("
 				<< *variable << ", " << colorlog::Keyword("type") << "(" << *type << "))";

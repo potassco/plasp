@@ -3,7 +3,7 @@
 
 #include <colorlog/ColorStream.h>
 
-#include <pddlparse/ASTForward.h>
+#include <pddlparse/NormalizedASTForward.h>
 #include <pddlparse/Parse.h>
 
 namespace plasp
@@ -20,7 +20,7 @@ namespace pddl
 class TranslatorASP
 {
 	public:
-		explicit TranslatorASP(const ::pddl::ast::Description &description, colorlog::ColorStream &outputStream);
+		explicit TranslatorASP(const ::pddl::normalizedAST::Description &description, colorlog::ColorStream &outputStream);
 
 		void translate() const;
 
@@ -35,7 +35,7 @@ class TranslatorASP
 		void translateGoal() const;
 		void translateConstants(const std::string &heading, const ::pddl::ast::ConstantDeclarations &constants) const;
 
-		const ::pddl::ast::Description &m_description;
+		const ::pddl::normalizedAST::Description &m_description;
 		colorlog::ColorStream &m_outputStream;
 };
 

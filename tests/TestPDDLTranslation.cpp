@@ -6,6 +6,7 @@
 #include <colorlog/Logger.h>
 
 #include <pddlparse/AST.h>
+#include <pddlparse/Normalize.h>
 #include <pddlparse/Parse.h>
 
 #include <plasp/pddl/TranslatorASP.h>
@@ -25,7 +26,7 @@ TEST_CASE("[PDDL translation] Former issues are fixed", "[PDDL translation]")
 	SECTION("translating domains without typing information works")
 	{
 		context.tokenizer.read("data/issues/issue-4.pddl");
-		auto description = pddl::parseDescription(context);
+		auto description = pddl::normalize(pddl::parseDescription(context));
 		const auto translator = plasp::pddl::TranslatorASP(std::move(description), logger.outputStream());
 		CHECK_NOTHROW(translator.translate());
 	}
@@ -33,7 +34,7 @@ TEST_CASE("[PDDL translation] Former issues are fixed", "[PDDL translation]")
 	SECTION("translating the simple blocks world domain works")
 	{
 		context.tokenizer.read("data/issues/issue-5.pddl");
-		auto description = pddl::parseDescription(context);
+		auto description = pddl::normalize(pddl::parseDescription(context));
 		const auto translator = plasp::pddl::TranslatorASP(std::move(description), logger.outputStream());
 		CHECK_NOTHROW(translator.translate());
 	}

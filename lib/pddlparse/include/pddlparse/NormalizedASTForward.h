@@ -66,6 +66,9 @@ using ast::AtPointer;
 using ast::Either;
 using ast::EitherPointer;
 using ast::Exists;
+using ast::ExistsPointer;
+using ast::ForAll;
+using ast::ForAllPointer;
 using ast::Not;
 using ast::NotPointer;
 using ast::When;
@@ -170,7 +173,7 @@ namespace detail
 using EffectT = Variant<
 	AtomicFormula,
 	AndPointer<Effect>,
-	ast::ForAllPointer<Effect>,
+	ForAllPointer<Effect>,
 	NotPointer<Effect>,
 	WhenPointer<Precondition, ConditionalEffect>>;
 }

@@ -3,7 +3,7 @@
 
 #include <colorlog/Formatting.h>
 
-#include <pddlparse/AST.h>
+#include <pddlparse/NormalizedAST.h>
 #include <pddlparse/Parse.h>
 
 #include <plasp/pddl/translation/Primitives.h>
@@ -20,12 +20,12 @@ namespace pddl
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void translatePredicate(colorlog::ColorStream &outputStream, const ::pddl::ast::Predicate &predicate);
-void translatePredicateDeclaration(colorlog::ColorStream &outputStream, const ::pddl::ast::PredicateDeclaration &predicateDeclaration);
+void translatePredicate(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::Predicate &predicate);
+void translatePredicateDeclaration(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::PredicateDeclaration &predicateDeclaration);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline void translatePredicate(colorlog::ColorStream &outputStream, const ::pddl::ast::Predicate &predicate)
+inline void translatePredicate(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::Predicate &predicate)
 {
 	const auto &arguments = predicate.arguments;
 
@@ -42,13 +42,13 @@ inline void translatePredicate(colorlog::ColorStream &outputStream, const ::pddl
 		outputStream << ", ";
 
 		const auto handleConstant =
-			[&](const ::pddl::ast::ConstantPointer &constant)
+			[&](const ::pddl::normalizedAST::ConstantPointer &constant)
 			{
 				outputStream << colorlog::Keyword("constant") << "(" << *constant << ")";
 			};
 
 		const auto handleVariable =
-			[&](const ::pddl::ast::VariablePointer &variable)
+			[&](const ::pddl::normalizedAST::VariablePointer &variable)
 			{
 				outputStream << *variable;
 			};
@@ -67,7 +67,7 @@ inline void translatePredicate(colorlog::ColorStream &outputStream, const ::pddl
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline void translatePredicateDeclaration(colorlog::ColorStream &outputStream, const ::pddl::ast::PredicateDeclaration &predicateDeclaration)
+inline void translatePredicateDeclaration(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::PredicateDeclaration &predicateDeclaration)
 {
 	outputStream << colorlog::Keyword("variable") << "(";
 
@@ -84,7 +84,7 @@ inline void translatePredicateDeclaration(colorlog::ColorStream &outputStream, c
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void translatePredicateToVariable(colorlog::ColorStream &outputStream, const ::pddl::ast::Predicate &predicate, bool isPositive = true)
+void translatePredicateToVariable(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::Predicate &predicate, bool isPositive = true)
 {
 	outputStream << colorlog::Keyword("variable") << "(";
 	translatePredicate(outputStream, predicate);
