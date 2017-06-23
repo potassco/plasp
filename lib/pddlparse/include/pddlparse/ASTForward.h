@@ -245,9 +245,8 @@ class Fact;
 namespace detail
 {
 using FactT = Variant<
-	AtomicFormula,
 	AtPointer<Literal>,
-	NotPointer<Fact>>;
+	Literal>;
 }
 
 class Fact : public detail::FactT

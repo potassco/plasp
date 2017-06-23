@@ -79,7 +79,9 @@ TEST_CASE("[PDDL parser issues] Check past issues", "[PDDL parser issues]")
 			{
 				return
 					fact.template is<pddl::ast::AtPointer<pddl::ast::Literal>>()
-					|| (fact.template is<pddl::ast::AtomicFormula>() && fact.template get<pddl::ast::AtomicFormula>().template is<pddl::ast::UnsupportedPointer>());
+					|| (fact.template is<pddl::ast::Literal>()
+						&& fact.template get<pddl::ast::Literal>().template is<pddl::ast::AtomicFormula>()
+						&& fact.template get<pddl::ast::Literal>().template get<pddl::ast::AtomicFormula>().template is<pddl::ast::UnsupportedPointer>());
 			});
 
 		const auto containsInvalidFact = (invalidFact != facts.cend());

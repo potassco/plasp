@@ -289,31 +289,41 @@ void TranslatorASP::translateInitialState() const
 
 	const auto &facts = m_description.problem.value()->initialState.facts;
 
+	// TODO: move to separate header
 	for (const auto &fact : facts)
 	{
 		m_outputStream << std::endl << colorlog::Function("initialState") << "(";
 
-		// Translate single predicate
-		if (fact.is<::pddl::ast::AtomicFormula>() && fact.get<::pddl::ast::AtomicFormula>().is<::pddl::ast::PredicatePointer>())
-		{
-			const auto &predicate = fact.get<::pddl::ast::AtomicFormula>().get<::pddl::ast::PredicatePointer>();
+		const auto handleUnsupported =
+			[&](const auto &)
+			{
+				throw TranslatorException("only predicates and their negations supported in initial state currently");
+			};
 
-			translatePredicateToVariable(m_outputStream, *predicate, true);
-		}
-		// Assuming that "not" expression may only contain a predicate
-		else if (fact.is<::pddl::ast::NotPointer<::pddl::ast::Fact>>())
-		{
-			const auto &notExpression = fact.get<::pddl::ast::NotPointer<::pddl::ast::Fact>>();
+		const auto handleAtomicFormula =
+			[&](const ::pddl::ast::AtomicFormula &atomicFormula, bool isPositive = true)
+			{
+				if (!atomicFormula.is<::pddl::ast::PredicatePointer>())
+					handleUnsupported(atomicFormula);
 
-			if (!notExpression->argument.is<::pddl::ast::AtomicFormula>() || !notExpression->argument.get<::pddl::ast::AtomicFormula>().is<::pddl::ast::PredicatePointer>())
-				throw TranslatorException("only negations of simple predicates supported in initial state currently");
+				const auto &predicate = atomicFormula.get<::pddl::ast::PredicatePointer>();
 
-			const auto &predicate = notExpression->argument.get<::pddl::ast::AtomicFormula>().get<::pddl::ast::PredicatePointer>();
+				translatePredicateToVariable(m_outputStream, *predicate, isPositive);
+			};
 
-			translatePredicateToVariable(m_outputStream, *predicate, false);
-		}
-		else
-			throw TranslatorException("only predicates and their negations supported in initial state currently");
+		const auto handleNot =
+			[&](const ::pddl::ast::NotPointer<::pddl::ast::AtomicFormula> &not_)
+			{
+				handleAtomicFormula(not_->argument, false);
+			};
+
+		const auto handleLiteral =
+			[&](const ::pddl::ast::Literal &literal)
+			{
+				literal.match(handleAtomicFormula, handleNot);
+			};
+
+		fact.match(handleLiteral, handleUnsupported);
 
 		m_outputStream << ").";
 	}

@@ -143,17 +143,17 @@ TEST_CASE("[PDDL instances] The official PDDL instances are parsed correctly", "
 		const auto &facts = problem->initialState.facts;
 
 		REQUIRE(facts.size() == 9);
-		const auto &fact0 = facts[0].get<pddl::ast::AtomicFormula>().get<pddl::ast::PredicatePointer>();
+		const auto &fact0 = facts[0].get<pddl::ast::Literal>().get<pddl::ast::AtomicFormula>().get<pddl::ast::PredicatePointer>();
 		// TODO: check declaration once implemented
 		REQUIRE(fact0->arguments.size() == 1);
 		CHECK(fact0->arguments[0].get<pddl::ast::ConstantPointer>()->declaration->name == "c");
 		CHECK(fact0->arguments[0].get<pddl::ast::ConstantPointer>()->declaration->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration == typeBlock.get());
-		const auto &fact5 = facts[5].get<pddl::ast::AtomicFormula>().get<pddl::ast::PredicatePointer>();
+		const auto &fact5 = facts[5].get<pddl::ast::Literal>().get<pddl::ast::AtomicFormula>().get<pddl::ast::PredicatePointer>();
 		// TODO: check declaration once implemented
 		REQUIRE(fact5->arguments.size() == 1);
 		CHECK(fact5->arguments[0].get<pddl::ast::ConstantPointer>()->declaration->name == "a");
 		CHECK(fact5->arguments[0].get<pddl::ast::ConstantPointer>()->declaration->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration == typeBlock.get());
-		const auto &fact8 = facts[8].get<pddl::ast::AtomicFormula>().get<pddl::ast::PredicatePointer>();
+		const auto &fact8 = facts[8].get<pddl::ast::Literal>().get<pddl::ast::AtomicFormula>().get<pddl::ast::PredicatePointer>();
 		// TODO: check declaration once implemented
 		REQUIRE(fact8->arguments.empty());
 

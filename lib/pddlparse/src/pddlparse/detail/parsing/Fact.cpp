@@ -37,7 +37,7 @@ std::experimental::optional<ast::Fact> parseFact(Context &context, ASTContext &a
 	// Now, test supported expressions
 	std::experimental::optional<ast::Fact> fact;
 
-	if ((fact = parseNot<ast::Fact>(context, astContext, variableStack, parseAtomicFormula))
+	if ((fact = parseNot<ast::AtomicFormula>(context, astContext, variableStack, parseAtomicFormula))
 		|| (fact = parseAtomicFormula(context, astContext, variableStack)))
 	{
 		return std::move(fact.value());
