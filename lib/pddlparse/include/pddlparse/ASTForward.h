@@ -108,6 +108,7 @@ struct Description;
 using DescriptionPointer = std::unique_ptr<Description>;
 struct Domain;
 using DomainPointer = std::unique_ptr<Domain>;
+struct InitialState;
 struct Problem;
 using ProblemPointer = std::unique_ptr<Problem>;
 enum class Requirement;
