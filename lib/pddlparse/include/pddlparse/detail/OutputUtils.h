@@ -99,7 +99,7 @@ inline colorlog::ColorStream &operator<<(colorlog::ColorStream &stream, const Co
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-colorlog::ColorStream &printIndentedNewline(colorlog::ColorStream &stream, detail::PrintContext &printContext)
+inline colorlog::ColorStream &printIndentedNewline(colorlog::ColorStream &stream, detail::PrintContext &printContext)
 {
 	stream << std::endl;
 
