@@ -46,14 +46,6 @@ TEST_CASE("[PDDL parser] The PDDL parser behaves correctly", "[PDDL parser]")
 		CHECK(types[4]->parentTypes[2]->declaration == types[3].get());
 	}
 
-	// Check that whitespace is handled appropriately
-	SECTION("“either” in typing section")
-	{
-		const auto domainFile = fs::path("data") / "test-cases" / "white-space.pddl";
-		context.tokenizer.read(domainFile);
-		CHECK_NOTHROW(pddl::parseDescription(context));
-	}
-
 	SECTION("missing domains are detected")
 	{
 		const auto instanceFile = fs::path("data") / "pddl-instances" / "ipc-2000" / "domains" / "blocks-strips-typed" / "instances" / "instance-1.pddl";
