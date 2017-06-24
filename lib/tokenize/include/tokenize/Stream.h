@@ -104,10 +104,10 @@ class Stream
 			return m_position;
 		}
 
-		Location location() const
+		Location location(StreamPosition position) const
 		{
 			// Find current section
-			auto section = std::upper_bound(m_sections.cbegin(), m_sections.cend(), m_position,
+			auto section = std::upper_bound(m_sections.cbegin(), m_sections.cend(), position,
 				[&](const auto &lhs, const auto &rhs)
 				{
 					return lhs < rhs.position;
@@ -118,20 +118,25 @@ class Stream
 			section--;
 
 			// Find line (row) in the file
-			auto line = std::lower_bound(section->newlines.cbegin(), section->newlines.cend(), m_position);
+			auto line = std::lower_bound(section->newlines.cbegin(), section->newlines.cend(), position);
 
 			if (line == section->newlines.cbegin())
 			{
 				const auto row = 1;
-				const auto column = static_cast<StreamPosition>(m_position - section->position + 1);
+				const auto column = static_cast<StreamPosition>(position - section->position + 1);
 
-				return {m_position, section->name, section->name, row, row, column, column};
+				return {position, section->name, section->name, row, row, column, column};
 			}
 
 			const auto row = static_cast<StreamPosition>(line - section->newlines.cbegin() + 1);
-			const auto column = static_cast<StreamPosition>(m_position - *(line - 1));
+			const auto column = static_cast<StreamPosition>(position - *(line - 1));
 
-			return {m_position, section->name, section->name, row, row, column, column};
+			return {position, section->name, section->name, row, row, column, column};
+		}
+
+		Location location() const
+		{
+			return location(m_position);
 		}
 
 		const std::vector<Section> &sections() const
