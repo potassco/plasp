@@ -312,17 +312,15 @@ void eliminateDoubleNegations(ast::Precondition &precondition)
 	const auto handleNot =
 		[&](ast::NotPointer<ast::Precondition> &not_)
 		{
+			eliminateDoubleNegations(not_->argument);
+
 			if (not_->argument.is<ast::NotPointer<ast::Precondition>>())
 			{
-				eliminateDoubleNegations(not_->argument);
-
 				// As the parent contains the argument, the argument needs to be saved before overwriting the parent
 				// TODO: check whether this workaround can be avoided
 				auto argument = std::move(not_->argument.get<ast::NotPointer<ast::Precondition>>());
 				precondition = std::move(argument);
 			}
-
-			eliminateDoubleNegations(not_->argument);
 		};
 
 	const auto handleOr =
