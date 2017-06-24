@@ -5,6 +5,7 @@
 #include <pddlparse/NormalizedAST.h>
 #include <pddlparse/detail/normalization/AtomicFormula.h>
 #include <pddlparse/detail/normalization/CollectFreeVariables.h>
+#include <pddlparse/detail/normalization/Reduction.h>
 
 namespace pddl
 {
@@ -275,6 +276,9 @@ normalizedAST::AndPointer<normalizedAST::Literal> normalize(ast::AndPointer<ast:
 
 normalizedAST::Precondition normalize(ast::Precondition &&precondition, normalizedAST::DerivedPredicateDeclarations &derivedPredicates)
 {
+	// Bring precondition to normal form
+	reduce(precondition);
+
 	return precondition.match(
 		[&](auto &x) -> normalizedAST::Precondition
 		{
