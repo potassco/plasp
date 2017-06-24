@@ -301,15 +301,8 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Imply<A
 template<class Argument>
 inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Not<Argument> &not_, pddl::detail::PrintContext &printContext)
 {
-	stream << "(" << colorlog::Keyword("not");
-
-	printContext.indentationLevel++;
-
-	pddl::detail::printIndentedNewline(stream, printContext);
+	stream << "(" << colorlog::Keyword("not") << " ";
 	print(stream, not_.argument, printContext);
-
-	printContext.indentationLevel--;
-
 	return (stream << ")");
 }
 
