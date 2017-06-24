@@ -24,6 +24,7 @@ namespace detail
 void eliminateImply(ast::Precondition &precondition);
 void negationNormalize(ast::Precondition &precondition);
 void eliminateForAll(ast::Precondition &precondition);
+void eliminateDoubleNegations(ast::Precondition &precondition);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -275,6 +276,67 @@ void eliminateForAll(ast::Precondition &precondition)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void eliminateDoubleNegations(ast::Precondition &precondition)
+{
+	const auto handleAtomicFormula =
+		[](ast::AtomicFormula &)
+		{
+		};
+
+	const auto handleAnd =
+		[](ast::AndPointer<ast::Precondition> &and_)
+		{
+			for (auto &argument : and_->arguments)
+				eliminateDoubleNegations(argument);
+		};
+
+	const auto handleExists =
+		[](ast::ExistsPointer<ast::Precondition> &exists)
+		{
+			eliminateDoubleNegations(exists->argument);
+		};
+
+	const auto handleForAll =
+		[&](ast::ForAllPointer<ast::Precondition> &forAll)
+		{
+			eliminateDoubleNegations(forAll->argument);
+		};
+
+	const auto handleImply =
+		[&](ast::ImplyPointer<ast::Precondition> &imply)
+		{
+			eliminateDoubleNegations(imply->argumentLeft);
+			eliminateDoubleNegations(imply->argumentRight);
+		};
+
+	const auto handleNot =
+		[&](ast::NotPointer<ast::Precondition> &not_)
+		{
+			if (not_->argument.is<ast::NotPointer<ast::Precondition>>())
+			{
+				eliminateDoubleNegations(not_->argument);
+
+				// As the parent contains the argument, the argument needs to be saved before overwriting the parent
+				// TODO: check whether this workaround can be avoided
+				auto argument = std::move(not_->argument.get<ast::NotPointer<ast::Precondition>>());
+				precondition = std::move(argument);
+			}
+
+			eliminateDoubleNegations(not_->argument);
+		};
+
+	const auto handleOr =
+		[](ast::OrPointer<ast::Precondition> &or_)
+		{
+			for (auto &argument : or_->arguments)
+				eliminateDoubleNegations(argument);
+		};
+
+	precondition.match(handleAtomicFormula, handleAnd, handleExists, handleForAll, handleImply, handleNot, handleOr, handleUnsupported);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void reduce(ast::Precondition &precondition)
 {
 	// Replace “imply” statements with disjunctions
@@ -285,6 +347,9 @@ void reduce(ast::Precondition &precondition)
 
 	// Eliminate “forall” statements
 	eliminateForAll(precondition);
+
+	// Eliminate double negations introduced by eliminating “forall” statements
+	eliminateDoubleNegations(precondition);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
