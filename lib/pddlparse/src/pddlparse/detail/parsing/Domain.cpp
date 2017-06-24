@@ -7,6 +7,7 @@
 #include <pddlparse/detail/parsing/PredicateDeclaration.h>
 #include <pddlparse/detail/parsing/PrimitiveTypeDeclaration.h>
 #include <pddlparse/detail/parsing/Requirement.h>
+#include <pddlparse/detail/parsing/Unsupported.h>
 #include <pddlparse/detail/parsing/Utils.h>
 
 namespace pddl
@@ -112,8 +113,6 @@ void DomainParser::findSections(ast::Domain &domain)
 		tokenizer.expect<std::string>("(");
 		tokenizer.expect<std::string>(":");
 
-		const auto sectionIdentifierPosition = tokenizer.position();
-
 		// Save the parser position of the individual sections for later parsing
 		if (tokenizer.testIdentifierAndSkip("requirements"))
 			setSectionPosition("requirements", m_requirementsPosition, position, true);
@@ -133,13 +132,7 @@ void DomainParser::findSections(ast::Domain &domain)
 			|| tokenizer.testIdentifierAndSkip("durative-action")
 			|| tokenizer.testIdentifierAndSkip("derived"))
 		{
-			tokenizer.seek(sectionIdentifierPosition);
-
-			const auto sectionIdentifier = tokenizer.getIdentifier();
-
-			m_context.warningCallback(tokenizer.location(), "section type “" + sectionIdentifier + "” currently unsupported, ignoring section");
-
-			tokenizer.seek(sectionIdentifierPosition);
+			throw exceptUnsupportedSection(position, m_context);
 		}
 		else
 		{

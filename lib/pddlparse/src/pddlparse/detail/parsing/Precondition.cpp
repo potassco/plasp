@@ -29,10 +29,7 @@ std::experimental::optional<ast::Precondition> parsePrecondition(Context &contex
 	tokenizer.expect<std::string>("(");
 
 	if (tokenizer.testIdentifierAndReturn("preference"))
-	{
-		tokenizer.seek(position);
-		return parseUnsupported(context);
-	}
+		throw exceptUnsupportedExpression(position, context);
 
 	tokenizer.seek(position);
 
@@ -75,8 +72,7 @@ std::experimental::optional<ast::Precondition> parsePreconditionBody(Context &co
 		|| tokenizer.testIdentifierAndReturn(">=")
 		|| tokenizer.testIdentifierAndReturn("<="))
 	{
-		tokenizer.seek(position);
-		return parseUnsupported(context);
+		throw exceptUnsupportedExpression(position, context);
 	}
 
 	tokenizer.seek(position);

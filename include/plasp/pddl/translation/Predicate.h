@@ -53,13 +53,7 @@ inline void translatePredicate(colorlog::ColorStream &outputStream, const ::pddl
 				outputStream << *variable;
 			};
 
-		const auto handleUnsupported =
-			[&](const auto &)
-			{
-				throw TranslatorException("only variables and constants supported in predicates currently");
-			};
-
-		argument.match(handleConstant, handleVariable, handleUnsupported);
+		argument.match(handleConstant, handleVariable);
 	}
 
 	outputStream << ")";

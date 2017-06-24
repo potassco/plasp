@@ -28,7 +28,6 @@ normalizedAST::Literal normalizeNestedImpl(ast::ForAllPointer<ast::Precondition>
 normalizedAST::Literal normalizeNestedImpl(ast::ImplyPointer<ast::Precondition> &, normalizedAST::DerivedPredicateDeclarations &);
 normalizedAST::Literal normalizeNestedImpl(ast::NotPointer<ast::Precondition> &not_, normalizedAST::DerivedPredicateDeclarations &derivedPredicates);
 normalizedAST::Literal normalizeNestedImpl(ast::OrPointer<ast::Precondition> &or_, normalizedAST::DerivedPredicateDeclarations &derivedPredicates);
-normalizedAST::Literal normalizeNestedImpl(ast::UnsupportedPointer &unsupported, normalizedAST::DerivedPredicateDeclarations &);
 normalizedAST::Literal normalizeNestedImpl(ast::AtomicFormula &, normalizedAST::DerivedPredicateDeclarations &);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -175,23 +174,9 @@ normalizedAST::Literal normalizeNestedImpl(ast::OrPointer<ast::Precondition> &or
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-normalizedAST::Literal normalizeNestedImpl(ast::UnsupportedPointer &unsupported, normalizedAST::DerivedPredicateDeclarations &)
-{
-	throw NormalizationException("“" + unsupported->type + "” expressions in preconditions can’t be normalized currently");
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 normalizedAST::Literal normalizeNestedImpl(ast::AtomicFormula &atomicFormula, normalizedAST::DerivedPredicateDeclarations &)
 {
 	return normalize(std::move(atomicFormula));
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-normalizedAST::PredicatePointer normalizeImpl(ast::UnsupportedPointer &&unsupported, normalizedAST::DerivedPredicateDeclarations &)
-{
-	throw NormalizationException("“" + unsupported->type + "” expressions in preconditions can’t be normalized currently");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -252,15 +237,9 @@ normalizedAST::AndPointer<normalizedAST::Literal> normalizeImpl(ast::AndPointer<
 			return normalizeNestedImpl(nested, derivedPredicates);
 		};
 
-	const auto handleUnsupported =
-		[&](ast::UnsupportedPointer &unsupported) -> normalizedAST::Literal
-		{
-			throw NormalizationException("“" + unsupported->type + "” expressions in preconditions can’t be normalized currently");
-		};
-
 	for (auto &&argument : and_->arguments)
 	{
-		auto normalizedArgument = argument.match(handleAtomicFormula, handleNot, handleNested, handleUnsupported);
+		auto normalizedArgument = argument.match(handleAtomicFormula, handleNot, handleNested);
 
 		arguments.emplace_back(std::move(normalizedArgument));
 	}

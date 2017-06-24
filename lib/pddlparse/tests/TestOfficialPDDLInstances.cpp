@@ -186,7 +186,7 @@ TEST_CASE("[PDDL instances] The official PDDL instances are parsed correctly", "
 		CHECK(goal2->arguments[1].get<pddl::ast::ConstantPointer>()->declaration->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration == typeBlock.get());
 	}
 
-	SECTION("“either” type in zenotravel domain")
+	/*SECTION("“either” type in zenotravel domain")
 	{
 		context.mode = pddl::Mode::Compatibility;
 
@@ -206,7 +206,7 @@ TEST_CASE("[PDDL instances] The official PDDL instances are parsed correctly", "
 		REQUIRE(predicates[0]->parameters[1]->name == "c");
 		REQUIRE(predicates[0]->parameters[1]->type);
 		CHECK(predicates[0]->parameters[1]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "city");
-	}
+	}*/
 
 	SECTION("typed constants in schedule domain")
 	{

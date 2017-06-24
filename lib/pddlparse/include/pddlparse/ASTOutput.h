@@ -110,15 +110,6 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Primiti
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Unsupported &unsupported, pddl::detail::PrintContext &)
-{
-	const auto unsupportedName = "<unsupported " + unsupported.type + ">";
-
-	return (stream << colorlog::Reserved(unsupportedName.c_str()));
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Variable &variable, pddl::detail::PrintContext &)
 {
 	const auto variableName = "?" + variable.declaration->name;

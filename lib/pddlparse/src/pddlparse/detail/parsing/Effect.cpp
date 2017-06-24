@@ -64,8 +64,7 @@ std::experimental::optional<ast::Effect> parseEffectBody(Context &context, ASTCo
 		|| tokenizer.testIdentifierAndReturn("increase")
 		|| tokenizer.testIdentifierAndReturn("decrease"))
 	{
-		tokenizer.seek(position);
-		return parseUnsupported(context);
+		throw exceptUnsupportedExpression(position, context);
 	}
 
 	tokenizer.seek(position);
@@ -125,8 +124,7 @@ std::experimental::optional<ast::ConditionalEffect> parseConditionalEffectBody(C
 		|| tokenizer.testIdentifierAndReturn("increase")
 		|| tokenizer.testIdentifierAndReturn("decrease"))
 	{
-		tokenizer.seek(position);
-		return parseUnsupported(context);
+		throw exceptUnsupportedExpression(position, context);
 	}
 
 	tokenizer.seek(position);

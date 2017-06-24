@@ -1,8 +1,8 @@
 #ifndef __PDDL_PARSE__DETAIL__PARSING__UNSUPPORTED_H
 #define __PDDL_PARSE__DETAIL__PARSING__UNSUPPORTED_H
 
-#include <pddlparse/ASTForward.h>
 #include <pddlparse/Context.h>
+#include <pddlparse/Exception.h>
 
 namespace pddl
 {
@@ -15,7 +15,8 @@ namespace detail
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ast::UnsupportedPointer parseUnsupported(Context &context);
+ParserException exceptUnsupportedExpression(tokenize::StreamPosition position, Context &context);
+ParserException exceptUnsupportedSection(tokenize::StreamPosition position, Context &context);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

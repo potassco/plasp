@@ -26,10 +26,7 @@ std::experimental::optional<ast::AtomicFormula> parseAtomicFormula(Context &cont
 	tokenizer.skipWhiteSpace();
 
 	if (tokenizer.testIdentifierAndReturn("="))
-	{
-		tokenizer.seek(position);
-		return parseUnsupported(context);
-	}
+		throw exceptUnsupportedExpression(position, context);
 
 	tokenizer.seek(position);
 

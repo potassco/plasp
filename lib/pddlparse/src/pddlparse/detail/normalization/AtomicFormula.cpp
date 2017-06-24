@@ -17,19 +17,13 @@ namespace detail
 
 normalizedAST::AtomicFormula normalize(ast::AtomicFormula &&atomicFormula)
 {
-	const auto handleUnsupported =
-		[&](ast::UnsupportedPointer &unsupported) -> normalizedAST::AtomicFormula
-		{
-			throw NormalizationException("“" + unsupported->type + "” expressions as literals can’t be normalized currently");
-		};
-
 	const auto handlePredicate =
 		[&](ast::PredicatePointer &predicate) -> normalizedAST::AtomicFormula
 		{
 			return std::move(predicate);
 		};
 
-	return atomicFormula.match(handlePredicate, handleUnsupported);
+	return atomicFormula.match(handlePredicate);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

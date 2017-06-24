@@ -36,8 +36,6 @@ using PrimitiveTypes = std::vector<PrimitiveTypePointer>;
 struct PrimitiveTypeDeclaration;
 using PrimitiveTypeDeclarationPointer = std::unique_ptr<PrimitiveTypeDeclaration>;
 using PrimitiveTypeDeclarations = std::vector<PrimitiveTypeDeclarationPointer>;
-struct Unsupported;
-using UnsupportedPointer = std::unique_ptr<Unsupported>;
 struct Variable;
 using VariablePointer = std::unique_ptr<Variable>;
 using Variables = std::vector<VariablePointer>;
@@ -138,9 +136,9 @@ using Terms = std::vector<Term>;
 
 namespace detail
 {
+// TODO: add missing types
 using AtomicFormulaT = Variant<
-	PredicatePointer,
-	UnsupportedPointer>;
+	PredicatePointer>;
 }
 
 class AtomicFormula : public detail::AtomicFormulaT
@@ -156,6 +154,7 @@ class Precondition;
 
 namespace detail
 {
+// TODO: add missing types
 using PreconditionT = Variant<
 	AtomicFormula,
 	AndPointer<Precondition>,
@@ -163,8 +162,7 @@ using PreconditionT = Variant<
 	ForAllPointer<Precondition>,
 	ImplyPointer<Precondition>,
 	NotPointer<Precondition>,
-	OrPointer<Precondition>,
-	UnsupportedPointer>;
+	OrPointer<Precondition>>;
 }
 
 class Precondition : public detail::PreconditionT
@@ -182,11 +180,11 @@ class ConditionalEffect;
 
 namespace detail
 {
+// TODO: add missing types
 using ConditionalEffectT = Variant<
 	AtomicFormula,
 	AndPointer<ConditionalEffect>,
-	NotPointer<ConditionalEffect>,
-	UnsupportedPointer>;
+	NotPointer<ConditionalEffect>>;
 }
 
 class ConditionalEffect : public detail::ConditionalEffectT
@@ -202,13 +200,13 @@ class Effect;
 
 namespace detail
 {
+// TODO: add missing types
 using EffectT = Variant<
 	AtomicFormula,
 	AndPointer<Effect>,
 	ForAllPointer<Effect>,
 	NotPointer<Effect>,
-	WhenPointer<Precondition, ConditionalEffect>,
-	UnsupportedPointer>;
+	WhenPointer<Precondition, ConditionalEffect>>;
 }
 
 class Effect : public detail::EffectT

@@ -6,6 +6,7 @@
 #include <pddlparse/detail/parsing/InitialState.h>
 #include <pddlparse/detail/parsing/Precondition.h>
 #include <pddlparse/detail/parsing/Requirement.h>
+#include <pddlparse/detail/parsing/Unsupported.h>
 #include <pddlparse/detail/parsing/Utils.h>
 
 namespace pddl
@@ -109,8 +110,6 @@ void ProblemParser::findSections(ast::Problem &problem)
 		tokenizer.expect<std::string>("(");
 		tokenizer.expect<std::string>(":");
 
-		const auto sectionIdentifierPosition = tokenizer.position();
-
 		if (tokenizer.testIdentifierAndSkip("domain"))
 			setSectionPosition("domain", m_domainPosition, position, true);
 		else if (tokenizer.testIdentifierAndSkip("requirements"))
@@ -125,13 +124,7 @@ void ProblemParser::findSections(ast::Problem &problem)
 			|| tokenizer.testIdentifierAndSkip("metric")
 			|| tokenizer.testIdentifierAndSkip("length"))
 		{
-			tokenizer.seek(sectionIdentifierPosition);
-
-			const auto sectionIdentifier = tokenizer.getIdentifier();
-
-			m_context.warningCallback(tokenizer.location(), "section type “" + sectionIdentifier + "” currently unsupported, ignoring section");
-
-			tokenizer.seek(sectionIdentifierPosition);
+			throw exceptUnsupportedSection(position, m_context);
 		}
 		else
 		{

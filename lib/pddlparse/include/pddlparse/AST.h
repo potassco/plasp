@@ -96,23 +96,6 @@ struct PrimitiveTypeDeclaration
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct Unsupported
-{
-	explicit Unsupported(std::string &&type)
-	:	type{std::move(type)}
-	{
-	}
-
-	Unsupported(const Unsupported &other) = delete;
-	Unsupported &operator=(const Unsupported &&other) = delete;
-	Unsupported(Unsupported &&other) = default;
-	Unsupported &operator=(Unsupported &&other) = default;
-
-	std::string type;
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 struct Variable
 {
 	explicit Variable(VariableDeclaration *declaration)

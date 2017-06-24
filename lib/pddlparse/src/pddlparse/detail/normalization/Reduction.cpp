@@ -28,14 +28,6 @@ void eliminateDoubleNegations(ast::Precondition &precondition);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const auto handleUnsupported =
-	[](ast::UnsupportedPointer &unsupported)
-	{
-		throw NormalizationException("“" + unsupported->type + "” expressions in preconditions can’t be normalized currently");
-	};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 void eliminateImply(ast::Precondition &precondition)
 {
 	const auto handleAtomicFormula =
@@ -89,7 +81,7 @@ void eliminateImply(ast::Precondition &precondition)
 				eliminateImply(argument);
 		};
 
-	precondition.match(handleAtomicFormula, handleAnd, handleExists, handleForAll, handleImply, handleNot, handleOr, handleUnsupported);
+	precondition.match(handleAtomicFormula, handleAnd, handleExists, handleForAll, handleImply, handleNot, handleOr);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -167,7 +159,7 @@ void negationNormalizeNegated(ast::Precondition &precondition, ast::Precondition
 			parent = std::make_unique<ast::And<ast::Precondition>>(std::move(arguments));
 		};
 
-	precondition.match(handleAtomicFormula, handleAnd, handleExists, handleForAll, handleImply, handleNot, handleOr, handleUnsupported);
+	precondition.match(handleAtomicFormula, handleAnd, handleExists, handleForAll, handleImply, handleNot, handleOr);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -217,7 +209,7 @@ void negationNormalize(ast::Precondition &precondition)
 				negationNormalize(argument);
 		};
 
-	precondition.match(handleAtomicFormula, handleAnd, handleExists, handleForAll, handleImply, handleNot, handleOr, handleUnsupported);
+	precondition.match(handleAtomicFormula, handleAnd, handleExists, handleForAll, handleImply, handleNot, handleOr);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -271,7 +263,7 @@ void eliminateForAll(ast::Precondition &precondition)
 				eliminateForAll(argument);
 		};
 
-	precondition.match(handleAtomicFormula, handleAnd, handleExists, handleForAll, handleImply, handleNot, handleOr, handleUnsupported);
+	precondition.match(handleAtomicFormula, handleAnd, handleExists, handleForAll, handleImply, handleNot, handleOr);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -330,7 +322,7 @@ void eliminateDoubleNegations(ast::Precondition &precondition)
 				eliminateDoubleNegations(argument);
 		};
 
-	precondition.match(handleAtomicFormula, handleAnd, handleExists, handleForAll, handleImply, handleNot, handleOr, handleUnsupported);
+	precondition.match(handleAtomicFormula, handleAnd, handleExists, handleForAll, handleImply, handleNot, handleOr);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

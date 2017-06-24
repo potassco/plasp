@@ -115,13 +115,6 @@ void collectFreeVariables(const ast::OrPointer<Argument> &or_, std::vector<norma
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline void collectFreeVariables(const ast::UnsupportedPointer &unsupported, std::vector<normalizedAST::VariableDeclaration *> &, VariableStack &)
-{
-	throw NormalizationException("cannot collect free variables of unsupported “" + unsupported->type + "” expression");
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 }
 }
 
