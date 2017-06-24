@@ -23,6 +23,7 @@ namespace detail
 
 void eliminateImply(ast::Precondition &precondition);
 void negationNormalize(ast::Precondition &precondition);
+void eliminateForAll(ast::Precondition &precondition);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
