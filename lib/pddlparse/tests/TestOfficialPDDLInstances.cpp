@@ -186,17 +186,17 @@ TEST_CASE("[PDDL instances] The official PDDL instances are parsed correctly", "
 		CHECK(goal2->arguments[1].get<pddl::ast::ConstantPointer>()->declaration->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration == typeBlock.get());
 	}
 
-	/*SECTION("“either” type in zenotravel domain")
+	SECTION("“either” type in zenotravel domain")
 	{
 		context.mode = pddl::Mode::Compatibility;
 
-		const auto domainFile = pddlInstanceBasePath / "ipc-2002" / "domains" / "zenotravel-numeric-hand-coded" / "domain.pddl";
+		const auto domainFile = pddlInstanceBasePath / "ipc-2002" / "domains" / "zenotravel-strips-hand-coded" / "domain.pddl";
 		context.tokenizer.read(domainFile);
 		auto description = pddl::parseDescription(context);
 
 		const auto &predicates = description.domain->predicates;
 
-		REQUIRE(predicates.size() == 2);
+		REQUIRE(predicates.size() == 4);
 		REQUIRE(predicates[0]->name == "at");
 		REQUIRE(predicates[0]->parameters.size() == 2);
 		REQUIRE(predicates[0]->parameters[0]->name == "x");
@@ -206,7 +206,7 @@ TEST_CASE("[PDDL instances] The official PDDL instances are parsed correctly", "
 		REQUIRE(predicates[0]->parameters[1]->name == "c");
 		REQUIRE(predicates[0]->parameters[1]->type);
 		CHECK(predicates[0]->parameters[1]->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration->name == "city");
-	}*/
+	}
 
 	SECTION("typed constants in schedule domain")
 	{
