@@ -8,6 +8,8 @@
 
 #include <plasp/TranslatorException.h>
 
+#include <plasp/pddl/translation/DerivedPredicate.h>
+#include <plasp/pddl/translation/DerivedPredicatePrecondition.h>
 #include <plasp/pddl/translation/Effect.h>
 #include <plasp/pddl/translation/Goal.h>
 #include <plasp/pddl/translation/Precondition.h>
@@ -69,6 +71,12 @@ void TranslatorASP::translateDomain() const
 	{
 		m_outputStream << std::endl;
 		translatePredicates();
+	}
+
+	if (!domain->derivedPredicates.empty())
+	{
+		m_outputStream << std::endl;
+		translateDerivedPredicates();
 	}
 
 	// Actions
@@ -148,7 +156,11 @@ void TranslatorASP::translatePredicates() const
 
 		m_outputStream << ")";
 
-		translateVariablesForRuleBody(m_outputStream, predicate->parameters);
+		if (!predicate->parameters.empty())
+		{
+			m_outputStream << " :- ";
+			translateVariablesForRuleBody(m_outputStream, predicate->parameters);
+		}
 
 		m_outputStream << ".";
 	}
@@ -164,6 +176,115 @@ void TranslatorASP::translatePredicates() const
 		<< colorlog::Function("variable") << "(" << colorlog::Keyword("variable") << "(" << colorlog::Variable("X") << ")), "
 		<< colorlog::Function("boolean") << "(" << colorlog::Variable("B") << ")."
 		<< std::endl;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void TranslatorASP::translateDerivedPredicates() const
+{
+	m_outputStream << colorlog::Heading2("derived predicates");
+
+	const auto &derivedPredicates = m_description.domain->derivedPredicates;
+
+	for (const auto &derivedPredicate : derivedPredicates)
+	{
+		m_outputStream << std::endl << colorlog::Function("derivedVariable") << "(";
+
+		translateDerivedPredicateDeclaration(m_outputStream, *derivedPredicate);
+
+		m_outputStream << ")";
+
+		if (!derivedPredicate->parameters.empty() || !derivedPredicate->existentialParameters.empty())
+		{
+			m_outputStream << " :- ";
+			translateVariablesForRuleBody(m_outputStream, derivedPredicate->parameters);
+		}
+
+		m_outputStream << ".";
+	}
+
+	m_outputStream
+		<< std::endl << std::endl
+		<< colorlog::Function("boolean") << "(" << colorlog::Boolean("true") << ")." << std::endl
+		<< colorlog::Function("boolean") << "(" << colorlog::Boolean("false") << ")." << std::endl
+		<< std::endl
+		<< colorlog::Function("contains") << "("
+		<< colorlog::Keyword("derivedVariable") << "(" << colorlog::Variable("X") << "), "
+		<< colorlog::Keyword("value") << "(" << colorlog::Variable("X") << ", " << colorlog::Variable("B") << ")) :- "
+		<< colorlog::Function("derivedVariable") << "(" << colorlog::Keyword("derivedVariable") << "(" << colorlog::Variable("X") << ")), "
+		<< colorlog::Function("boolean") << "(" << colorlog::Variable("B") << ")."
+		<< std::endl << std::endl;
+
+	for (const auto &derivedPredicate : derivedPredicates)
+	{
+		const auto printDerivedPredicateName =
+			[&]()
+			{
+				m_outputStream << colorlog::Keyword("derivedPredicate") << "(";
+
+				if (derivedPredicate->parameters.empty())
+				{
+					m_outputStream << *derivedPredicate << ")";
+					return;
+				}
+
+				m_outputStream << "(" << *derivedPredicate;
+				// TODO: add existentially quantified parameters
+				translateVariablesForRuleHead(m_outputStream, derivedPredicate->parameters);
+
+				if (!derivedPredicate->existentialParameters.empty())
+					translateVariablesForRuleHead(m_outputStream, derivedPredicate->existentialParameters);
+
+				m_outputStream << "))";
+			};
+
+		m_outputStream << std::endl;
+
+		// Name
+		m_outputStream << colorlog::Function("derivedPredicate") << "(";
+		printDerivedPredicateName();
+		m_outputStream << ", " << colorlog::Keyword("type") << "(";
+
+		if (derivedPredicate->precondition.value().is<::pddl::normalizedAST::OrPointer<::pddl::normalizedAST::Literal>>())
+			m_outputStream << colorlog::Reserved("or");
+		else
+			m_outputStream << colorlog::Reserved("and");
+
+		m_outputStream << "))";
+
+		if (!derivedPredicate->parameters.empty() || !derivedPredicate->existentialParameters.empty())
+			m_outputStream << " :- ";
+
+		if (!derivedPredicate->parameters.empty())
+			translateVariablesForRuleBody(m_outputStream, derivedPredicate->parameters);
+
+		if (!derivedPredicate->existentialParameters.empty())
+		{
+			if (!derivedPredicate->parameters.empty())
+				m_outputStream << ", ";
+
+			translateVariablesForRuleBody(m_outputStream, derivedPredicate->existentialParameters);
+		}
+
+		m_outputStream << ".";
+
+		// Precondition
+		if (derivedPredicate->precondition)
+			translateDerivedPredicatePrecondition(m_outputStream, derivedPredicate->precondition.value(), "derivedPredicate", printDerivedPredicateName);
+
+		m_outputStream << std::endl << colorlog::Function("postcondition") << "(";
+		printDerivedPredicateName();
+		m_outputStream
+			<< ", " << colorlog::Keyword("effect") << "("
+			<< colorlog::Reserved("unconditional") << ")"
+			<< ", ";
+		translateDerivedPredicateDeclarationToVariable(m_outputStream, *derivedPredicate, true);
+		m_outputStream << ") :- " << colorlog::Function("derivedPredicate") << "(";
+		printDerivedPredicateName();
+		m_outputStream << ").";
+
+		m_outputStream << std::endl;
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -199,7 +320,11 @@ void TranslatorASP::translateActions() const
 		printActionName();
 		m_outputStream << ")";
 
-		translateVariablesForRuleBody(m_outputStream, action->parameters);
+		if (!action->parameters.empty())
+		{
+			m_outputStream << " :- ";
+			translateVariablesForRuleBody(m_outputStream, action->parameters);
+		}
 
 		m_outputStream << ".";
 

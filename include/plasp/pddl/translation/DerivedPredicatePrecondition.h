@@ -1,5 +1,5 @@
-#ifndef __PLASP__PDDL__TRANSLATION__PRECONDITION_H
-#define __PLASP__PDDL__TRANSLATION__PRECONDITION_H
+#ifndef __PLASP__PDDL__TRANSLATION__DERIVED_PREDICATE_PRECONDITION_H
+#define __PLASP__PDDL__TRANSLATION__DERIVED_PREDICATE_PRECONDITION_H
 
 #include <colorlog/Formatting.h>
 
@@ -18,12 +18,12 @@ namespace pddl
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// Precondition
+// DerivedPredicatePrecondition
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename PrintObjectName>
-inline void translatePrecondition(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::Precondition &precondition, const std::string &objectType, PrintObjectName printObjectName)
+inline void translateDerivedPredicatePrecondition(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::DerivedPredicatePrecondition &derivedPredicatePrecondition, const std::string &objectType, PrintObjectName printObjectName)
 {
 	const auto handlePredicate =
 		[&](const ::pddl::normalizedAST::PredicatePointer &predicate, bool isPositive = true)
@@ -86,7 +86,14 @@ inline void translatePrecondition(colorlog::ColorStream &outputStream, const ::p
 				handleLiteral(argument);
 		};
 
-	precondition.match(handleLiteral, handleAnd);
+	const auto handleOr =
+		[&](const ::pddl::normalizedAST::OrPointer<::pddl::normalizedAST::Literal> &or_)
+		{
+			for (const auto &argument : or_->arguments)
+				handleLiteral(argument);
+		};
+
+	derivedPredicatePrecondition.match(handleLiteral, handleAnd, handleOr);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

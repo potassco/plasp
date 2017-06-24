@@ -29,9 +29,6 @@ void translateVariablesForRuleBody(colorlog::ColorStream &outputStream, const T 
 template<class T>
 inline void translateVariablesForRuleHead(colorlog::ColorStream &outputStream, const T &variables)
 {
-	if (variables.empty())
-		return;
-
 	for (const auto &variable : variables)
 		outputStream << ", " << *variable;
 }
@@ -39,16 +36,11 @@ inline void translateVariablesForRuleHead(colorlog::ColorStream &outputStream, c
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-inline void translateVariablesForRuleBody(colorlog::ColorStream &outputStream, const T &variables)
+void translateVariablesForRuleBody(colorlog::ColorStream &outputStream, const T &variables)
 {
-	if (variables.empty())
-		return;
-
-	outputStream << " :- ";
-
 	for (const auto &variable : variables)
 	{
-		if (variable.get() != variables.begin()->get())
+		if (&variable != &*variables.begin())
 			outputStream << ", ";
 
 		if (variable->type)
