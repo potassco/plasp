@@ -120,6 +120,10 @@ normalizedAST::Literal normalizeNested(ast::ImplyPointer<ast::Precondition> &, n
 
 normalizedAST::Literal normalizeNested(ast::NotPointer<ast::Precondition> &not_, normalizedAST::DerivedPredicateDeclarations &derivedPredicates)
 {
+	// “not” expressions may be nested one time to form simple literals
+	if (not_->argument.is<ast::AtomicFormula>())
+		return std::make_unique<normalizedAST::Not<normalizedAST::AtomicFormula>>(normalize(std::move(not_->argument.get<ast::AtomicFormula>())));
+
 	std::vector<normalizedAST::VariableDeclaration *> parameters;
 	VariableStack variableStack;
 
