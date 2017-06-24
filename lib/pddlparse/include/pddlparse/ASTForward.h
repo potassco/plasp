@@ -127,6 +127,8 @@ using TermT = Variant<
 
 class Term : public detail::TermT
 {
+	Term() = delete;
+
 	using detail::TermT::TermT;
 };
 
@@ -143,6 +145,8 @@ using AtomicFormulaT = Variant<
 
 class AtomicFormula : public detail::AtomicFormulaT
 {
+	AtomicFormula() = delete;
+
 	using detail::AtomicFormulaT::AtomicFormulaT;
 };
 
@@ -165,6 +169,8 @@ using PreconditionT = Variant<
 
 class Precondition : public detail::PreconditionT
 {
+	Precondition() = delete;
+
 	using detail::PreconditionT::PreconditionT;
 };
 
@@ -185,6 +191,8 @@ using ConditionalEffectT = Variant<
 
 class ConditionalEffect : public detail::ConditionalEffectT
 {
+	ConditionalEffect() = delete;
+
 	using detail::ConditionalEffectT::ConditionalEffectT;
 };
 
@@ -205,6 +213,8 @@ using EffectT = Variant<
 
 class Effect : public detail::EffectT
 {
+	Effect() = delete;
+
 	using detail::EffectT::EffectT;
 };
 
@@ -219,6 +229,8 @@ using TypeT = Variant<
 
 class Type : public detail::TypeT
 {
+	Type() = delete;
+
 	using detail::TypeT::TypeT;
 };
 
@@ -233,6 +245,8 @@ using LiteralT = Variant<
 
 class Literal : public detail::LiteralT
 {
+	Literal() = delete;
+
 	using detail::LiteralT::LiteralT;
 };
 
@@ -251,6 +265,8 @@ using FactT = Variant<
 
 class Fact : public detail::FactT
 {
+	Fact() = delete;
+
 	using detail::FactT::FactT;
 };
 
