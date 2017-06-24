@@ -77,11 +77,7 @@ TEST_CASE("[PDDL parser issues] Check past issues", "[PDDL parser issues]")
 		const auto invalidFact = std::find_if(facts.cbegin(), facts.cend(),
 			[](const auto &fact)
 			{
-				return
-					fact.template is<pddl::ast::AtPointer<pddl::ast::Literal>>()
-					|| (fact.template is<pddl::ast::Literal>()
-						&& fact.template get<pddl::ast::Literal>().template is<pddl::ast::AtomicFormula>()
-						&& fact.template get<pddl::ast::Literal>().template get<pddl::ast::AtomicFormula>().template is<pddl::ast::UnsupportedPointer>());
+				return fact.template is<pddl::ast::AtPointer<pddl::ast::Literal>>();
 			});
 
 		const auto containsInvalidFact = (invalidFact != facts.cend());
