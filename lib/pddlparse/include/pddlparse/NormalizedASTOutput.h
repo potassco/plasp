@@ -59,15 +59,70 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Derived
 
 inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const DerivedPredicateDeclaration &derivedPredicateDeclaration, pddl::detail::PrintContext &printContext)
 {
-	// TODO: implement correctly
+	stream << "(" << colorlog::Keyword(":derived-predicate") << " " << pddl::detail::Identifier(derivedPredicateDeclaration.name);
 
-	stream << "(" << pddl::detail::Identifier(derivedPredicateDeclaration.name);
+	printContext.indentationLevel++;
 
-	for (const auto &parameter : derivedPredicateDeclaration.parameters)
+	if (!derivedPredicateDeclaration.parameters.empty())
 	{
-		stream << " ";
-		print(stream, *parameter, printContext);
+		pddl::detail::printIndentedNewline(stream, printContext);
+		stream << colorlog::Keyword(":parameters");
+
+		printContext.indentationLevel++;
+
+		pddl::detail::printIndentedNewline(stream, printContext);
+		stream << "(";
+
+		for (const auto &parameter : derivedPredicateDeclaration.parameters)
+		{
+			if (&parameter != &derivedPredicateDeclaration.parameters.front())
+				pddl::detail::printIndentedNewline(stream, printContext);
+
+			print(stream, *parameter, printContext);
+		}
+
+		stream << ")";
+
+		printContext.indentationLevel--;
 	}
+
+	if (!derivedPredicateDeclaration.existentialParameters.empty())
+	{
+		pddl::detail::printIndentedNewline(stream, printContext);
+		stream << colorlog::Keyword(":exists");
+
+		printContext.indentationLevel++;
+
+		pddl::detail::printIndentedNewline(stream, printContext);
+		stream << "(";
+
+		for (const auto &parameter : derivedPredicateDeclaration.existentialParameters)
+		{
+			if (parameter.get() != derivedPredicateDeclaration.existentialParameters.front().get())
+				pddl::detail::printIndentedNewline(stream, printContext);
+
+			print(stream, *parameter, printContext);
+		}
+
+		stream << ")";
+
+		printContext.indentationLevel--;
+	}
+
+	if (derivedPredicateDeclaration.precondition)
+	{
+		pddl::detail::printIndentedNewline(stream, printContext);
+		stream << colorlog::Keyword(":precondition");
+
+		printContext.indentationLevel++;
+
+		pddl::detail::printIndentedNewline(stream, printContext);
+		print(stream, derivedPredicateDeclaration.precondition.value(), printContext);
+
+		printContext.indentationLevel--;
+	}
+
+	printContext.indentationLevel--;
 
 	return (stream << ")");
 }
@@ -181,15 +236,7 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Domain 
 	if (!domain.derivedPredicates.empty())
 	{
 		printIndentedNewline(stream, printContext);
-		stream << "(" << colorlog::Keyword(":derived-predicates");
-
-		printContext.indentationLevel++;
-
-		printIndentedNewline(stream, printContext);
 		print(stream, domain.derivedPredicates, printContext);
-		stream << ")";
-
-		printContext.indentationLevel--;
 	}
 
 	if (!domain.actions.empty())
@@ -235,15 +282,7 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Problem
 	if (!problem.derivedPredicates.empty())
 	{
 		printIndentedNewline(stream, printContext);
-		stream << "(" << colorlog::Keyword(":derived-predicates");
-
-		printContext.indentationLevel++;
-
-		printIndentedNewline(stream, printContext);
 		print(stream, problem.derivedPredicates, printContext);
-		stream << ")";
-
-		printContext.indentationLevel--;
 	}
 
 	if (!problem.objects.empty())

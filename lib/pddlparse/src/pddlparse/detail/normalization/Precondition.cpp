@@ -4,6 +4,7 @@
 #include <pddlparse/Exception.h>
 #include <pddlparse/NormalizedAST.h>
 #include <pddlparse/detail/normalization/AtomicFormula.h>
+#include <pddlparse/detail/normalization/CollectFreeVariables.h>
 
 namespace pddl
 {
@@ -16,69 +17,173 @@ namespace detail
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-normalizedAST::DerivedPredicatePointer addDerivedPredicate(normalizedAST::DerivedPredicateDeclarations &derivedPredicates, const std::string &type)
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Forward Declarations
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+normalizedAST::Literal normalizeNested(ast::AndPointer<ast::Precondition> &and_, normalizedAST::DerivedPredicateDeclarations &derivedPredicates);
+normalizedAST::Literal normalizeNested(ast::ExistsPointer<ast::Precondition> &exists, normalizedAST::DerivedPredicateDeclarations &derivedPredicates);
+normalizedAST::Literal normalizeNested(ast::ForAllPointer<ast::Precondition> &forAll, normalizedAST::DerivedPredicateDeclarations &derivedPredicates);
+normalizedAST::Literal normalizeNested(ast::ImplyPointer<ast::Precondition> &, normalizedAST::DerivedPredicateDeclarations &);
+normalizedAST::Literal normalizeNested(ast::NotPointer<ast::Precondition> &not_, normalizedAST::DerivedPredicateDeclarations &derivedPredicates);
+normalizedAST::Literal normalizeNested(ast::OrPointer<ast::Precondition> &or_, normalizedAST::DerivedPredicateDeclarations &derivedPredicates);
+normalizedAST::Literal normalizeNested(ast::UnsupportedPointer &unsupported, normalizedAST::DerivedPredicateDeclarations &);
+normalizedAST::Literal normalizeNested(ast::AtomicFormula &, normalizedAST::DerivedPredicateDeclarations &);
+normalizedAST::PredicatePointer normalize(ast::UnsupportedPointer &&unsupported, normalizedAST::DerivedPredicateDeclarations &);
+normalizedAST::AtomicFormula normalize(ast::AtomicFormula &atomicFormula, normalizedAST::DerivedPredicateDeclarations &);
+normalizedAST::NotPointer<normalizedAST::AtomicFormula> normalize(ast::NotPointer<ast::Precondition> &&not_, normalizedAST::DerivedPredicateDeclarations &derivedPredicates);
+normalizedAST::AndPointer<normalizedAST::Literal> normalize(ast::AndPointer<ast::Precondition> &&and_, normalizedAST::DerivedPredicateDeclarations &derivedPredicates);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+normalizedAST::DerivedPredicatePointer addDerivedPredicate(const std::vector<normalizedAST::VariableDeclaration *> &parameters, normalizedAST::DerivedPredicateDeclarations &derivedPredicates)
 {
-	auto name = "derived-" + type + "-" + std::to_string(derivedPredicates.size() + 1);
+	auto name = "derived-predicate-" + std::to_string(derivedPredicates.size() + 1);
 
-	derivedPredicates.emplace_back(std::make_unique<normalizedAST::DerivedPredicateDeclaration>(std::move(name), normalizedAST::VariableDeclarations()));
+	normalizedAST::DerivedPredicate::Arguments arguments;
+	arguments.reserve(parameters.size());
 
-	return std::make_unique<normalizedAST::DerivedPredicate>(normalizedAST::DerivedPredicate::Arguments(), derivedPredicates.back().get());
+	for (const auto &parameter : parameters)
+		arguments.emplace_back(std::make_unique<normalizedAST::Variable>(parameter));
+
+	derivedPredicates.emplace_back(std::make_unique<normalizedAST::DerivedPredicateDeclaration>());
+
+	auto *derivedPredicate = derivedPredicates.back().get();
+	derivedPredicate->name = std::move(name);
+	derivedPredicate->parameters = std::move(parameters);
+
+	return std::make_unique<normalizedAST::DerivedPredicate>(std::move(arguments), derivedPredicate);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-normalizedAST::DerivedPredicatePointer normalizeNested(ast::AndPointer<ast::Precondition> &, normalizedAST::DerivedPredicateDeclarations &derivedPredicates)
+normalizedAST::Literal normalizeNested(ast::AndPointer<ast::Precondition> &and_, normalizedAST::DerivedPredicateDeclarations &derivedPredicates)
 {
-	// TODO: handle arguments recursively
-	return addDerivedPredicate(derivedPredicates, "and");
+	std::vector<normalizedAST::VariableDeclaration *> parameters;
+	VariableStack variableStack;
+
+	collectFreeVariables(and_, parameters, variableStack);
+
+	auto derivedPredicate = addDerivedPredicate(parameters, derivedPredicates);
+
+	normalizedAST::And<normalizedAST::Literal>::Arguments normalizedArguments;
+	normalizedArguments.reserve(and_->arguments.size());
+
+	for (auto &argument : and_->arguments)
+		normalizedArguments.emplace_back(argument.match(
+			[&](auto &x) -> normalizedAST::Literal
+			{
+				return normalizeNested(x, derivedPredicates);
+			}));
+
+	derivedPredicate->declaration->precondition = std::make_unique<normalizedAST::And<normalizedAST::Literal>>(std::move(normalizedArguments));
+
+	// TODO: investigate, could be a compiler bug
+	return std::move(derivedPredicate);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-normalizedAST::DerivedPredicatePointer normalizeNested(ast::AtomicFormula &, normalizedAST::DerivedPredicateDeclarations &)
+normalizedAST::Literal normalizeNested(ast::ExistsPointer<ast::Precondition> &exists, normalizedAST::DerivedPredicateDeclarations &derivedPredicates)
 {
-	// TODO: add explanation
-	throw std::logic_error("atomic formulas should have been handled earlier");
+	std::vector<normalizedAST::VariableDeclaration *> parameters;
+	VariableStack variableStack;
+
+	collectFreeVariables(exists, parameters, variableStack);
+
+	auto derivedPredicate = addDerivedPredicate(parameters, derivedPredicates);
+
+	derivedPredicate->declaration->existentialParameters = std::move(exists->parameters);
+	derivedPredicate->declaration->precondition = exists->argument.match([&](auto &x){return normalizeNested(x, derivedPredicates);});
+
+	// TODO: investigate, could be a compiler bug
+	return std::move(derivedPredicate);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-normalizedAST::DerivedPredicatePointer normalizeNested(ast::ExistsPointer<ast::Precondition> &, normalizedAST::DerivedPredicateDeclarations &derivedPredicates)
+normalizedAST::Literal normalizeNested(ast::ForAllPointer<ast::Precondition> &, normalizedAST::DerivedPredicateDeclarations &)
 {
-	// TODO: handle arguments recursively
-	return addDerivedPredicate(derivedPredicates, "exists");
+	// “forall” expressions should be reduced to negated “exists” statements at this point
+	throw std::logic_error("precondition not in normal form (forall), please report to the bug tracker");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-normalizedAST::DerivedPredicatePointer normalizeNested(ast::ForAllPointer<ast::Precondition> &, normalizedAST::DerivedPredicateDeclarations &derivedPredicates)
+normalizedAST::Literal normalizeNested(ast::ImplyPointer<ast::Precondition> &, normalizedAST::DerivedPredicateDeclarations &)
 {
-	// TODO: handle arguments recursively
-	return addDerivedPredicate(derivedPredicates, "forall");
+	// “imply” expressions should be reduced to disjunctions at this point
+	throw std::logic_error("precondition not in normal form (imply), please report to the bug tracker");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-normalizedAST::DerivedPredicatePointer normalizeNested(ast::ImplyPointer<ast::Precondition> &, normalizedAST::DerivedPredicateDeclarations &derivedPredicates)
+normalizedAST::Literal normalizeNested(ast::NotPointer<ast::Precondition> &not_, normalizedAST::DerivedPredicateDeclarations &derivedPredicates)
 {
-	// TODO: handle arguments recursively
-	return addDerivedPredicate(derivedPredicates, "imply");
+	std::vector<normalizedAST::VariableDeclaration *> parameters;
+	VariableStack variableStack;
+
+	collectFreeVariables(not_, parameters, variableStack);
+
+	auto derivedPredicate = addDerivedPredicate(parameters, derivedPredicates);
+
+	auto normalizedArgumentLiteral = not_->argument.match(
+		[&](auto &x) -> normalizedAST::Literal
+		{
+			return normalizeNested(x, derivedPredicates);
+		});
+
+	// Multiple negations should be eliminated at this point
+	if (normalizedArgumentLiteral.is<normalizedAST::NotPointer<normalizedAST::AtomicFormula>>())
+		throw std::logic_error("precondition not in normal form (multiple negation), please report to the bug tracker");
+
+	auto &normalizedArgument = normalizedArgumentLiteral.get<normalizedAST::AtomicFormula>();
+
+	derivedPredicate->declaration->precondition = std::make_unique<normalizedAST::Not<normalizedAST::AtomicFormula>>(std::move(normalizedArgument));
+
+	// TODO: investigate, could be a compiler bug
+	return std::move(derivedPredicate);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-normalizedAST::DerivedPredicatePointer normalizeNested(ast::NotPointer<ast::Precondition> &, normalizedAST::DerivedPredicateDeclarations &derivedPredicates)
+normalizedAST::Literal normalizeNested(ast::OrPointer<ast::Precondition> &or_, normalizedAST::DerivedPredicateDeclarations &derivedPredicates)
 {
-	// TODO: handle arguments recursively
-	return addDerivedPredicate(derivedPredicates, "not");
+	std::vector<normalizedAST::VariableDeclaration *> parameters;
+	VariableStack variableStack;
+
+	collectFreeVariables(or_, parameters, variableStack);
+
+	auto derivedPredicate = addDerivedPredicate(parameters, derivedPredicates);
+
+	normalizedAST::Or<normalizedAST::Literal>::Arguments normalizedArguments;
+	normalizedArguments.reserve(or_->arguments.size());
+
+	for (auto &argument : or_->arguments)
+		normalizedArguments.emplace_back(argument.match(
+			[&](auto &x) -> normalizedAST::Literal
+			{
+				return normalizeNested(x, derivedPredicates);
+			}));
+
+	derivedPredicate->declaration->precondition = std::make_unique<normalizedAST::Or<normalizedAST::Literal>>(std::move(normalizedArguments));
+
+	// TODO: investigate, could be a compiler bug
+	return std::move(derivedPredicate);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-normalizedAST::DerivedPredicatePointer normalizeNested(ast::OrPointer<ast::Precondition> &, normalizedAST::DerivedPredicateDeclarations &derivedPredicates)
+normalizedAST::Literal normalizeNested(ast::UnsupportedPointer &unsupported, normalizedAST::DerivedPredicateDeclarations &)
 {
-	// TODO: handle arguments recursively
-	return addDerivedPredicate(derivedPredicates, "or");
+	throw NormalizationException("“" + unsupported->type + "” expressions in preconditions can’t be normalized currently");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+normalizedAST::Literal normalizeNested(ast::AtomicFormula &atomicFormula, normalizedAST::DerivedPredicateDeclarations &)
+{
+	return normalize(std::move(atomicFormula));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -90,6 +195,13 @@ normalizedAST::PredicatePointer normalize(ast::UnsupportedPointer &&unsupported,
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+normalizedAST::AtomicFormula normalize(ast::AtomicFormula &&atomicFormula, normalizedAST::DerivedPredicateDeclarations &)
+{
+	return normalize(std::move(atomicFormula));
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // Normalize top-level negations
 normalizedAST::NotPointer<normalizedAST::AtomicFormula> normalize(ast::NotPointer<ast::Precondition> &&not_, normalizedAST::DerivedPredicateDeclarations &derivedPredicates)
 {
@@ -97,19 +209,17 @@ normalizedAST::NotPointer<normalizedAST::AtomicFormula> normalize(ast::NotPointe
 	if (not_->argument.is<ast::AtomicFormula>())
 		return std::make_unique<normalizedAST::Not<normalizedAST::AtomicFormula>>(normalize(std::move(not_->argument.get<ast::AtomicFormula>())));
 
-	const auto handleNested =
+	auto normalizedArgument = not_->argument.match(
 		[&](auto &nested) -> normalizedAST::AtomicFormula
 		{
-			return normalizeNested(nested, derivedPredicates);
-		};
+			auto normalizedLiteral = normalizeNested(nested, derivedPredicates);
 
-	const auto handleUnsupported =
-		[&](ast::UnsupportedPointer &unsupported) -> normalizedAST::AtomicFormula
-		{
-			throw NormalizationException("“" + unsupported->type + "” expressions in preconditions can’t be normalized currently");
-		};
+			// Multiple negations should be eliminated at this point
+			if (normalizedLiteral.template is<normalizedAST::NotPointer<normalizedAST::AtomicFormula>>())
+				throw std::logic_error("precondition not in normal form (multiple negation), please report to the bug tracker");
 
-	auto normalizedArgument = not_->argument.match(handleNested, handleUnsupported);
+			return std::move(normalizedLiteral.template get<normalizedAST::AtomicFormula>());
+		});
 
 	return std::make_unique<normalizedAST::Not<normalizedAST::AtomicFormula>>(std::move(normalizedArgument));
 }
@@ -161,55 +271,11 @@ normalizedAST::AndPointer<normalizedAST::Literal> normalize(ast::AndPointer<ast:
 
 normalizedAST::Precondition normalize(ast::Precondition &&precondition, normalizedAST::DerivedPredicateDeclarations &derivedPredicates)
 {
-	/*
-	reduce
-
-	AtomicFormula,
-	AndPointer<Precondition>,
-	NotPointer<Precondition>,
-	UnsupportedPointer>;
-
-	ExistsPointer<Precondition>,
-	ForAllPointer<Precondition>,
-	ImplyPointer<Precondition>,
-	OrPointer<Precondition>,
-
-	to
-
-	Literal,
-	AndPointer<Literal>>;
-	*/
-	const auto handleAtomicFormula =
-		[&](ast::AtomicFormula &atomicFormula) -> normalizedAST::Precondition
+	return precondition.match(
+		[&](auto &x) -> normalizedAST::Precondition
 		{
-			return normalize(std::move(atomicFormula));
-		};
-
-	const auto handleNot =
-		[&](ast::NotPointer<ast::Precondition> &not_) -> normalizedAST::Precondition
-		{
-			return normalize(std::move(not_), derivedPredicates);
-		};
-
-	const auto handleAnd =
-		[&](ast::AndPointer<ast::Precondition> &and_) -> normalizedAST::Precondition
-		{
-			return normalize(std::move(and_), derivedPredicates);
-		};
-
-	const auto handleNested =
-		[&](auto &nested) -> normalizedAST::Precondition
-		{
-			return normalizeNested(nested, derivedPredicates);
-		};
-
-	const auto handleUnsupported =
-		[&](ast::UnsupportedPointer &unsupported) -> normalizedAST::Precondition
-		{
-			throw NormalizationException("“" + unsupported->type + "” expressions in preconditions can’t be normalized currently");
-		};
-
-	return precondition.match(handleAtomicFormula, handleNot, handleAnd, handleUnsupported, handleNested);
+			return normalize(std::move(x), derivedPredicates);
+		});
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

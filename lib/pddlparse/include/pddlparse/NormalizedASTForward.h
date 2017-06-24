@@ -71,6 +71,8 @@ using ast::ForAll;
 using ast::ForAllPointer;
 using ast::Not;
 using ast::NotPointer;
+using ast::Or;
+using ast::OrPointer;
 using ast::When;
 using ast::WhenPointer;
 
@@ -145,6 +147,25 @@ class Precondition : public detail::PreconditionT
 };
 
 using Preconditions = std::vector<Precondition>;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class DerivedPredicatePrecondition;
+
+namespace detail
+{
+using DerivedPredicatePreconditionT = Variant<
+	Literal,
+	AndPointer<Literal>,
+	OrPointer<Literal>>;
+}
+
+class DerivedPredicatePrecondition : public detail::DerivedPredicatePreconditionT
+{
+	using detail::DerivedPredicatePreconditionT::DerivedPredicatePreconditionT;
+};
+
+using DerivedPredicatePreconditions = std::vector<DerivedPredicatePrecondition>;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

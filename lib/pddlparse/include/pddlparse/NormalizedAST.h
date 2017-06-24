@@ -21,48 +21,6 @@ namespace normalizedAST
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Compounds
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-struct DerivedPredicate
-{
-	using Arguments = Terms;
-
-	explicit DerivedPredicate(Arguments &&arguments, DerivedPredicateDeclaration *declaration)
-	:	arguments{std::move(arguments)},
-		declaration{declaration}
-	{
-	}
-
-	DerivedPredicate(const DerivedPredicate &other) = delete;
-	DerivedPredicate &operator=(const DerivedPredicate &&other) = delete;
-	DerivedPredicate(DerivedPredicate &&other) = default;
-	DerivedPredicate &operator=(DerivedPredicate &&other) = default;
-
-	Arguments arguments;
-	DerivedPredicateDeclaration *declaration;
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-struct DerivedPredicateDeclaration
-{
-	explicit DerivedPredicateDeclaration(std::string &&name, VariableDeclarations &&parameters)
-	:	name{std::move(name)},
-		parameters{std::move(parameters)}
-	{
-	}
-
-	DerivedPredicateDeclaration(const DerivedPredicateDeclaration &other) = delete;
-	DerivedPredicateDeclaration &operator=(const DerivedPredicateDeclaration &&other) = delete;
-	DerivedPredicateDeclaration(DerivedPredicateDeclaration &&other) = default;
-	DerivedPredicateDeclaration &operator=(DerivedPredicateDeclaration &&other) = default;
-
-	std::string name;
-	VariableDeclarations parameters;
-};
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // PDDL Structure
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -99,6 +57,45 @@ struct Domain
 	PredicateDeclarations predicates;
 	DerivedPredicateDeclarations derivedPredicates;
 	Actions actions;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct DerivedPredicate
+{
+	using Arguments = Terms;
+
+	explicit DerivedPredicate(Arguments &&arguments, DerivedPredicateDeclaration *declaration)
+	:	arguments{std::move(arguments)},
+		declaration{declaration}
+	{
+	}
+
+	DerivedPredicate(const DerivedPredicate &other) = delete;
+	DerivedPredicate &operator=(const DerivedPredicate &&other) = delete;
+	DerivedPredicate(DerivedPredicate &&other) = default;
+	DerivedPredicate &operator=(DerivedPredicate &&other) = default;
+
+	Arguments arguments;
+	DerivedPredicateDeclaration *declaration;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct DerivedPredicateDeclaration
+{
+	explicit DerivedPredicateDeclaration() = default;
+
+	DerivedPredicateDeclaration(const DerivedPredicateDeclaration &other) = delete;
+	DerivedPredicateDeclaration &operator=(const DerivedPredicateDeclaration &&other) = delete;
+	DerivedPredicateDeclaration(DerivedPredicateDeclaration &&other) = default;
+	DerivedPredicateDeclaration &operator=(DerivedPredicateDeclaration &&other) = default;
+
+	std::string name;
+
+	std::vector<VariableDeclaration *> parameters;
+	VariableDeclarations existentialParameters;
+	std::experimental::optional<DerivedPredicatePrecondition> precondition;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

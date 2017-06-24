@@ -24,6 +24,7 @@ class VariableStack
 		void pop();
 
 		std::experimental::optional<ast::VariableDeclaration *> findVariableDeclaration(const std::string &variableName);
+		bool contains(const ast::VariableDeclaration &variableDeclaration) const;
 
 	private:
 		std::vector<Layer> m_layers;

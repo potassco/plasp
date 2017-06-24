@@ -51,5 +51,27 @@ std::experimental::optional<ast::VariableDeclaration *> VariableStack::findVaria
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+bool VariableStack::contains(const ast::VariableDeclaration &variableDeclaration) const
+{
+	const auto variableDeclarationMatches =
+		[&](const auto &other)
+		{
+			return &variableDeclaration == other.get();
+		};
+
+	for (auto i = m_layers.rbegin(); i != m_layers.rend(); i++)
+	{
+		auto &layer = **i;
+		const auto matchingVariableDeclaration = std::find_if(layer.begin(), layer.end(), variableDeclarationMatches);
+
+		if (matchingVariableDeclaration != layer.end())
+			return true;
+	}
+
+	return false;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 }
 }
