@@ -27,13 +27,13 @@ void collectFreeVariables(const Variant &variant, std::vector<normalizedAST::Var
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void collectFreeVariables(const ast::ConstantPointer &, std::vector<normalizedAST::VariableDeclaration *> &, VariableStack &)
+inline void collectFreeVariables(const ast::ConstantPointer &, std::vector<normalizedAST::VariableDeclaration *> &, VariableStack &)
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void collectFreeVariables(const ast::VariablePointer &variable, std::vector<normalizedAST::VariableDeclaration *> &freeVariables, VariableStack &variableStack)
+inline void collectFreeVariables(const ast::VariablePointer &variable, std::vector<normalizedAST::VariableDeclaration *> &freeVariables, VariableStack &variableStack)
 {
 	if (variableStack.contains(*variable->declaration))
 		return;
@@ -48,7 +48,7 @@ void collectFreeVariables(const ast::VariablePointer &variable, std::vector<norm
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void collectFreeVariables(const ast::PredicatePointer &predicate, std::vector<normalizedAST::VariableDeclaration *> &freeVariables, VariableStack &variableStack)
+inline void collectFreeVariables(const ast::PredicatePointer &predicate, std::vector<normalizedAST::VariableDeclaration *> &freeVariables, VariableStack &variableStack)
 {
 	for (const auto &argument : predicate->arguments)
 		collectFreeVariables(argument, freeVariables, variableStack);
@@ -115,7 +115,7 @@ void collectFreeVariables(const ast::OrPointer<Argument> &or_, std::vector<norma
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void collectFreeVariables(const ast::UnsupportedPointer &unsupported, std::vector<normalizedAST::VariableDeclaration *> &, VariableStack &)
+inline void collectFreeVariables(const ast::UnsupportedPointer &unsupported, std::vector<normalizedAST::VariableDeclaration *> &, VariableStack &)
 {
 	throw NormalizationException("cannot collect free variables of unsupported “" + unsupported->type + "” expression");
 }
