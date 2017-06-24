@@ -14,6 +14,7 @@
 #include <pddlparse/Normalize.h>
 #include <pddlparse/NormalizedASTOutput.h>
 #include <pddlparse/Parse.h>
+#include <pddlparse/detail/normalization/Reduction.h>
 
 #include <plasp/LanguageDetection.h>
 #include <plasp/TranslatorException.h>
