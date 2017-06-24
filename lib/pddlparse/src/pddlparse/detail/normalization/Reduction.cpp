@@ -220,6 +220,60 @@ void negationNormalize(ast::Precondition &precondition)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void eliminateForAll(ast::Precondition &precondition)
+{
+	const auto handleAtomicFormula =
+		[](ast::AtomicFormula &)
+		{
+		};
+
+	const auto handleAnd =
+		[](ast::AndPointer<ast::Precondition> &and_)
+		{
+			for (auto &argument : and_->arguments)
+				eliminateForAll(argument);
+		};
+
+	const auto handleExists =
+		[](ast::ExistsPointer<ast::Precondition> &exists)
+		{
+			eliminateForAll(exists->argument);
+		};
+
+	const auto handleForAll =
+		[&](ast::ForAllPointer<ast::Precondition> &forAll)
+		{
+			auto negatedArgument = std::make_unique<ast::Not<ast::Precondition>>(std::move(forAll->argument));
+			auto exists = std::make_unique<ast::Exists<ast::Precondition>>(std::move(forAll->parameters), std::move(negatedArgument));
+
+			precondition = std::make_unique<ast::Not<ast::Precondition>>(std::move(exists));
+		};
+
+	const auto handleImply =
+		[&](ast::ImplyPointer<ast::Precondition> &imply)
+		{
+			eliminateForAll(imply->argumentLeft);
+			eliminateForAll(imply->argumentRight);
+		};
+
+	const auto handleNot =
+		[](ast::NotPointer<ast::Precondition> &not_)
+		{
+			eliminateForAll(not_->argument);
+		};
+
+	const auto handleOr =
+		[](ast::OrPointer<ast::Precondition> &or_)
+		{
+			for (auto &argument : or_->arguments)
+				eliminateForAll(argument);
+		};
+
+	precondition.match(handleAtomicFormula, handleAnd, handleExists, handleForAll, handleImply, handleNot, handleOr, handleUnsupported);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void reduce(ast::Precondition &precondition)
 {
 	// Replace “imply” statements with disjunctions
@@ -227,6 +281,9 @@ void reduce(ast::Precondition &precondition)
 
 	// Negation-normalize the precondition
 	negationNormalize(precondition);
+
+	// Eliminate “forall” statements
+	eliminateForAll(precondition);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
