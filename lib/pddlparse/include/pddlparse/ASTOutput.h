@@ -226,7 +226,9 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Quantif
 	printContext.indentationLevel++;
 
 	pddl::detail::printIndentedNewline(stream, printContext);
+	stream << "(";
 	print(stream, quantified.parameters, printContext);
+	stream << ")";
 	pddl::detail::printIndentedNewline(stream, printContext);
 	print(stream, quantified.argument, printContext);
 
