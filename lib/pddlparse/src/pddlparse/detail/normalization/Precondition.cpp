@@ -104,7 +104,11 @@ normalizedAST::Literal normalizeNested(ast::ExistsPointer<ast::Precondition> &ex
 	auto derivedPredicate = addDerivedPredicate(parameters, derivedPredicates);
 
 	derivedPredicate->declaration->existentialParameters = std::move(exists->parameters);
-	derivedPredicate->declaration->precondition = exists->argument.match([&](auto &x){return normalizeNested(x, derivedPredicates);});
+	derivedPredicate->declaration->precondition = exists->argument.match(
+		[&](auto &x) -> normalizedAST::DerivedPredicatePrecondition
+		{
+			return normalizeTopLevel(x, derivedPredicates);
+		});
 
 	// TODO: investigate, could be a compiler bug
 	return std::move(derivedPredicate);
