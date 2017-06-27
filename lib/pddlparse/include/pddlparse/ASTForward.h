@@ -219,10 +219,9 @@ namespace detail
 {
 // TODO: add missing types
 using EffectT = Variant<
-	AtomicFormula,
+	Literal,
 	AndPointer<Effect>,
 	ForAllPointer<Effect>,
-	NotPointer<Effect>,
 	WhenPointer<Precondition, ConditionalEffect>>;
 }
 

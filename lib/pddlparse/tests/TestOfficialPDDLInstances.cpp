@@ -87,25 +87,25 @@ TEST_CASE("[PDDL instances] The official PDDL instances are parsed correctly", "
 		REQUIRE(precondition2->arguments.empty());
 
 		const auto &effectAnd = actions[3]->effect.value().get<pddl::ast::AndPointer<pddl::ast::Effect>>();
-		const auto &effect0 = effectAnd->arguments[0].get<pddl::ast::AtomicFormula>().get<pddl::ast::PredicatePointer>();
+		const auto &effect0 = effectAnd->arguments[0].get<pddl::ast::Literal>().get<pddl::ast::AtomicFormula>().get<pddl::ast::PredicatePointer>();
 		// TODO: check declaration once implemented
 		REQUIRE(effect0->arguments.size() == 1);
 		CHECK(effect0->arguments[0].get<pddl::ast::VariablePointer>()->declaration->name == "x");
 		CHECK(effect0->arguments[0].get<pddl::ast::VariablePointer>()->declaration->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration == typeBlock.get());
-		const auto &effect1 = effectAnd->arguments[1].get<pddl::ast::AtomicFormula>().get<pddl::ast::PredicatePointer>();
+		const auto &effect1 = effectAnd->arguments[1].get<pddl::ast::Literal>().get<pddl::ast::AtomicFormula>().get<pddl::ast::PredicatePointer>();
 		// TODO: check declaration once implemented
 		REQUIRE(effect1->arguments.size() == 1);
 		CHECK(effect1->arguments[0].get<pddl::ast::VariablePointer>()->declaration->name == "y");
 		CHECK(effect1->arguments[0].get<pddl::ast::VariablePointer>()->declaration->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration == typeBlock.get());
-		const auto &effectNot2 = effectAnd->arguments[2].get<pddl::ast::NotPointer<pddl::ast::Effect>>()->argument.get<pddl::ast::AtomicFormula>().get<pddl::ast::PredicatePointer>();
+		const auto &effectNot2 = effectAnd->arguments[2].get<pddl::ast::Literal>().get<pddl::ast::NotPointer<pddl::ast::AtomicFormula>>()->argument.get<pddl::ast::PredicatePointer>();
 		// TODO: check declaration once implemented
 		REQUIRE(effectNot2->arguments.size() == 1);
 		CHECK(effectNot2->arguments[0].get<pddl::ast::VariablePointer>()->declaration->name == "x");
 		CHECK(effectNot2->arguments[0].get<pddl::ast::VariablePointer>()->declaration->type.value().get<pddl::ast::PrimitiveTypePointer>()->declaration == typeBlock.get());
-		const auto &effectNot3 = effectAnd->arguments[3].get<pddl::ast::NotPointer<pddl::ast::Effect>>()->argument.get<pddl::ast::AtomicFormula>().get<pddl::ast::PredicatePointer>();
+		const auto &effectNot3 = effectAnd->arguments[3].get<pddl::ast::Literal>().get<pddl::ast::NotPointer<pddl::ast::AtomicFormula>>()->argument.get<pddl::ast::PredicatePointer>();
 		// TODO: check declaration once implemented
 		REQUIRE(effectNot3->arguments.empty());
-		const auto &effectNot4 = effectAnd->arguments[4].get<pddl::ast::NotPointer<pddl::ast::Effect>>()->argument.get<pddl::ast::AtomicFormula>().get<pddl::ast::PredicatePointer>();
+		const auto &effectNot4 = effectAnd->arguments[4].get<pddl::ast::Literal>().get<pddl::ast::NotPointer<pddl::ast::AtomicFormula>>()->argument.get<pddl::ast::PredicatePointer>();
 		// TODO: check declaration once implemented
 		REQUIRE(effectNot4->arguments.size() == 2);
 		CHECK(effectNot4->arguments[0].get<pddl::ast::VariablePointer>()->declaration->name == "x");
@@ -351,10 +351,10 @@ TEST_CASE("[PDDL instances] The official PDDL instances are parsed correctly", "
 		CHECK(actions[1]->name == "do-roll");
 		const auto &effectAnd = actions[1]->effect.value().get<pddl::ast::AndPointer<pddl::ast::Effect>>();
 		REQUIRE(effectAnd->arguments.size() == 10);
-		CHECK(effectAnd->arguments[0].get<pddl::ast::AtomicFormula>().get<pddl::ast::PredicatePointer>()->arguments[0].get<pddl::ast::ConstantPointer>()->declaration->name == "roller");
-		CHECK(effectAnd->arguments[1].get<pddl::ast::AtomicFormula>().is<pddl::ast::PredicatePointer>());
-		CHECK(effectAnd->arguments[2].get<pddl::ast::AtomicFormula>().is<pddl::ast::PredicatePointer>());
-		CHECK(effectAnd->arguments[3].get<pddl::ast::AtomicFormula>().is<pddl::ast::PredicatePointer>());
+		CHECK(effectAnd->arguments[0].get<pddl::ast::Literal>().get<pddl::ast::AtomicFormula>().get<pddl::ast::PredicatePointer>()->arguments[0].get<pddl::ast::ConstantPointer>()->declaration->name == "roller");
+		CHECK(effectAnd->arguments[1].get<pddl::ast::Literal>().get<pddl::ast::AtomicFormula>().is<pddl::ast::PredicatePointer>());
+		CHECK(effectAnd->arguments[2].get<pddl::ast::Literal>().get<pddl::ast::AtomicFormula>().is<pddl::ast::PredicatePointer>());
+		CHECK(effectAnd->arguments[3].get<pddl::ast::Literal>().get<pddl::ast::AtomicFormula>().is<pddl::ast::PredicatePointer>());
 		const auto &effectWhen4 = effectAnd->arguments[4].get<pddl::ast::WhenPointer<pddl::ast::Precondition, pddl::ast::ConditionalEffect>>();
 		// TODO: check name of declaration
 		CHECK(effectWhen4->argumentLeft.get<pddl::ast::NotPointer<pddl::ast::Precondition>>()->argument.get<pddl::ast::AtomicFormula>().is<pddl::ast::PredicatePointer>());

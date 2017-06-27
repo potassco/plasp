@@ -72,7 +72,7 @@ std::experimental::optional<ast::Effect> parseEffectBody(Context &context, ASTCo
 	// Now, test supported expressions
 	std::experimental::optional<ast::Effect> effect;
 
-	if ((effect = parseNot<ast::Effect>(context, astContext, variableStack, parseAtomicFormula))
+	if ((effect = parseNot<ast::AtomicFormula>(context, astContext, variableStack, parseAtomicFormula))
 		|| (effect = parseAtomicFormula(context, astContext, variableStack)))
 	{
 		return std::move(effect.value());
