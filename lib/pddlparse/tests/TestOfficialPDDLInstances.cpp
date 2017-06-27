@@ -358,7 +358,7 @@ TEST_CASE("[PDDL instances] The official PDDL instances are parsed correctly", "
 		const auto &effectWhen4 = effectAnd->arguments[4].get<pddl::ast::WhenPointer<pddl::ast::Precondition, pddl::ast::ConditionalEffect>>();
 		// TODO: check name of declaration
 		CHECK(effectWhen4->argumentLeft.get<pddl::ast::NotPointer<pddl::ast::Precondition>>()->argument.get<pddl::ast::AtomicFormula>().is<pddl::ast::PredicatePointer>());
-		CHECK(effectWhen4->argumentRight.get<pddl::ast::AtomicFormula>().is<pddl::ast::PredicatePointer>());
+		CHECK(effectWhen4->argumentRight.get<pddl::ast::Literal>().get<pddl::ast::AtomicFormula>().is<pddl::ast::PredicatePointer>());
 		const auto &effectForAll5 = effectAnd->arguments[5].get<pddl::ast::ForAllPointer<pddl::ast::Effect>>();
 		REQUIRE(effectForAll5->parameters.size() == 1);
 		CHECK(effectForAll5->parameters[0]->name == "oldsurface");
@@ -366,7 +366,7 @@ TEST_CASE("[PDDL instances] The official PDDL instances are parsed correctly", "
 		const auto &effectForAll5When = effectForAll5->argument.get<pddl::ast::WhenPointer<pddl::ast::Precondition, pddl::ast::ConditionalEffect>>();
 		// TODO: check name of declaration
 		CHECK(effectForAll5When->argumentLeft.get<pddl::ast::AtomicFormula>().is<pddl::ast::PredicatePointer>());
-		CHECK(effectForAll5When->argumentRight.get<pddl::ast::NotPointer<pddl::ast::ConditionalEffect>>()->argument.get<pddl::ast::AtomicFormula>().is<pddl::ast::PredicatePointer>());
+		CHECK(effectForAll5When->argumentRight.get<pddl::ast::Literal>().get<pddl::ast::NotPointer<pddl::ast::AtomicFormula>>()->argument.is<pddl::ast::PredicatePointer>());
 		const auto &effectForAll6 = effectAnd->arguments[6].get<pddl::ast::ForAllPointer<pddl::ast::Effect>>();
 		REQUIRE(effectForAll6->parameters.size() == 1);
 		CHECK(effectForAll6->parameters[0]->name == "oldpaint");
@@ -378,6 +378,6 @@ TEST_CASE("[PDDL instances] The official PDDL instances are parsed correctly", "
 		const auto &effectForAll9When = effectForAll9->argument.get<pddl::ast::WhenPointer<pddl::ast::Precondition, pddl::ast::ConditionalEffect>>();
 		// TODO: check name of declaration
 		CHECK(effectForAll9When->argumentLeft.get<pddl::ast::AtomicFormula>().is<pddl::ast::PredicatePointer>());
-		CHECK(effectForAll9When->argumentRight.get<pddl::ast::NotPointer<pddl::ast::ConditionalEffect>>()->argument.get<pddl::ast::AtomicFormula>().is<pddl::ast::PredicatePointer>());
+		CHECK(effectForAll9When->argumentRight.get<pddl::ast::Literal>().get<pddl::ast::NotPointer<pddl::ast::AtomicFormula>>()->argument.is<pddl::ast::PredicatePointer>());
 	}
 }

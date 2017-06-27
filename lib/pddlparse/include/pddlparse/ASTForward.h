@@ -150,6 +150,24 @@ class AtomicFormula : public detail::AtomicFormulaT
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+namespace detail
+{
+using LiteralT = Variant<
+	AtomicFormula,
+	NotPointer<AtomicFormula>>;
+}
+
+class Literal : public detail::LiteralT
+{
+	Literal() = delete;
+
+	using detail::LiteralT::LiteralT;
+};
+
+using Literals = std::vector<Literal>;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class Precondition;
 
 namespace detail
@@ -182,9 +200,8 @@ namespace detail
 {
 // TODO: add missing types
 using ConditionalEffectT = Variant<
-	AtomicFormula,
-	AndPointer<ConditionalEffect>,
-	NotPointer<ConditionalEffect>>;
+	Literal,
+	AndPointer<Literal>>;
 }
 
 class ConditionalEffect : public detail::ConditionalEffectT
@@ -231,24 +248,6 @@ class Type : public detail::TypeT
 
 	using detail::TypeT::TypeT;
 };
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace detail
-{
-using LiteralT = Variant<
-	AtomicFormula,
-	NotPointer<AtomicFormula>>;
-}
-
-class Literal : public detail::LiteralT
-{
-	Literal() = delete;
-
-	using detail::LiteralT::LiteralT;
-};
-
-using Literals = std::vector<Literal>;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

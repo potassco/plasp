@@ -20,7 +20,7 @@ namespace detail
 
 std::experimental::optional<ast::Effect> parseEffectBody(Context &context, ASTContext &astContext, VariableStack &variableStack);
 std::experimental::optional<ast::ConditionalEffect> parseConditionalEffect(Context &context, ASTContext &astContext, VariableStack &variableStack);
-std::experimental::optional<ast::ConditionalEffect> parseConditionalEffectBody(Context &context, ASTContext &astContext, VariableStack &variableStack);
+std::experimental::optional<ast::Literal> parseConditionalEffectBody(Context &context, ASTContext &astContext, VariableStack &variableStack);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -95,7 +95,7 @@ std::experimental::optional<ast::ConditionalEffect> parseConditionalEffect(Conte
 
 	std::experimental::optional<ast::ConditionalEffect> conditionalEffect;
 
-	if ((conditionalEffect = parseAnd<ast::ConditionalEffect>(context, astContext, variableStack, parseConditionalEffectBody)))
+	if ((conditionalEffect = parseAnd<ast::Literal>(context, astContext, variableStack, parseConditionalEffectBody)))
 		return std::move(conditionalEffect.value());
 
 	return parseConditionalEffectBody(context, astContext, variableStack);
@@ -103,7 +103,7 @@ std::experimental::optional<ast::ConditionalEffect> parseConditionalEffect(Conte
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::experimental::optional<ast::ConditionalEffect> parseConditionalEffectBody(Context &context, ASTContext &astContext, VariableStack &variableStack)
+std::experimental::optional<ast::Literal> parseConditionalEffectBody(Context &context, ASTContext &astContext, VariableStack &variableStack)
 {
 	auto &tokenizer = context.tokenizer;
 
@@ -130,12 +130,12 @@ std::experimental::optional<ast::ConditionalEffect> parseConditionalEffectBody(C
 	tokenizer.seek(position);
 
 	// Now, test supported expressions
-	std::experimental::optional<ast::ConditionalEffect> conditionalEffect;
+	std::experimental::optional<ast::Literal> literal;
 
-	if ((conditionalEffect = parseNot<ast::ConditionalEffect>(context, astContext, variableStack, parseAtomicFormula))
-		|| (conditionalEffect = parseAtomicFormula(context, astContext, variableStack)))
+	if ((literal = parseNot<ast::AtomicFormula>(context, astContext, variableStack, parseAtomicFormula))
+		|| (literal = parseAtomicFormula(context, astContext, variableStack)))
 	{
-		return std::move(conditionalEffect.value());
+		return std::move(literal.value());
 	}
 
 	tokenizer.seek(expressionIdentifierPosition);
