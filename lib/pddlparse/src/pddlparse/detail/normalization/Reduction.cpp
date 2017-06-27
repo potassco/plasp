@@ -269,78 +269,16 @@ void eliminateForAll(ast::Precondition &precondition)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void eliminateDoubleNegations(ast::Precondition &precondition)
-{
-	const auto handleAtomicFormula =
-		[](ast::AtomicFormula &)
-		{
-		};
-
-	const auto handleAnd =
-		[](ast::AndPointer<ast::Precondition> &and_)
-		{
-			for (auto &argument : and_->arguments)
-				eliminateDoubleNegations(argument);
-		};
-
-	const auto handleExists =
-		[](ast::ExistsPointer<ast::Precondition> &exists)
-		{
-			eliminateDoubleNegations(exists->argument);
-		};
-
-	const auto handleForAll =
-		[&](ast::ForAllPointer<ast::Precondition> &forAll)
-		{
-			eliminateDoubleNegations(forAll->argument);
-		};
-
-	const auto handleImply =
-		[&](ast::ImplyPointer<ast::Precondition> &imply)
-		{
-			eliminateDoubleNegations(imply->argumentLeft);
-			eliminateDoubleNegations(imply->argumentRight);
-		};
-
-	const auto handleNot =
-		[&](ast::NotPointer<ast::Precondition> &not_)
-		{
-			eliminateDoubleNegations(not_->argument);
-
-			if (not_->argument.is<ast::NotPointer<ast::Precondition>>())
-			{
-				// As the parent contains the argument, the argument needs to be saved before overwriting the parent
-				// TODO: check whether this workaround can be avoided
-				auto argument = std::move(not_->argument.get<ast::NotPointer<ast::Precondition>>());
-				precondition = std::move(argument);
-			}
-		};
-
-	const auto handleOr =
-		[](ast::OrPointer<ast::Precondition> &or_)
-		{
-			for (auto &argument : or_->arguments)
-				eliminateDoubleNegations(argument);
-		};
-
-	precondition.match(handleAtomicFormula, handleAnd, handleExists, handleForAll, handleImply, handleNot, handleOr);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 void reduce(ast::Precondition &precondition)
 {
 	// Replace “imply” statements with disjunctions
 	eliminateImply(precondition);
 
-	// Negation-normalize the precondition
-	negationNormalize(precondition);
-
 	// Eliminate “forall” statements
 	eliminateForAll(precondition);
 
-	// Eliminate double negations introduced by eliminating “forall” statements
-	eliminateDoubleNegations(precondition);
+	// Negation-normalize the precondition
+	negationNormalize(precondition);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
