@@ -237,9 +237,10 @@ void eliminateForAll(ast::Precondition &precondition)
 	const auto handleForAll =
 		[&](ast::ForAllPointer<ast::Precondition> &forAll)
 		{
+			eliminateForAll(forAll->argument);
+
 			auto negatedArgument = std::make_unique<ast::Not<ast::Precondition>>(std::move(forAll->argument));
 			auto exists = std::make_unique<ast::Exists<ast::Precondition>>(std::move(forAll->parameters), std::move(negatedArgument));
-
 			precondition = std::make_unique<ast::Not<ast::Precondition>>(std::move(exists));
 		};
 
