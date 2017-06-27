@@ -337,6 +337,7 @@ void TranslatorASP::translateActions() const
 		if (action->precondition)
 			translatePrecondition(m_outputStream, action->precondition.value(), "action", printActionName);
 
+		// Effect
 		if (action->effect)
 			translateEffect(m_outputStream, action->effect.value(), "action", printActionName);
 

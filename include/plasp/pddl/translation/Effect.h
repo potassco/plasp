@@ -9,6 +9,8 @@
 
 #include <plasp/pddl/translation/Predicate.h>
 #include <plasp/pddl/translation/Primitives.h>
+#include <plasp/pddl/translation/Variables.h>
+#include <plasp/pddl/translation/VariableStack.h>
 
 namespace plasp
 {
@@ -22,7 +24,7 @@ namespace pddl
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename PrintObjectName>
-inline void translateEffect(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::Effect &effect, const std::string &objectType, PrintObjectName printObjectName)
+inline void translateEffect(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::Effect &effect, const std::string &objectType, PrintObjectName printObjectName, VariableStack &variableStack)
 {
 	const auto handlePredicate =
 		[&](const ::pddl::normalizedAST::PredicatePointer &predicate, bool isPositive = true)
@@ -36,13 +38,37 @@ inline void translateEffect(colorlog::ColorStream &outputStream, const ::pddl::n
 			translatePredicateToVariable(outputStream, *predicate, isPositive);
 			outputStream << ") :- " << colorlog::Function(objectType.c_str()) << "(";
 			printObjectName();
-			outputStream << ").";
+			outputStream << ")";
+
+			if (!variableStack.layers.empty())
+				for (const auto &layer : variableStack.layers)
+				{
+					if (!layer->empty())
+						outputStream << ", ";
+
+					translateVariablesForRuleBody(outputStream, *layer);
+				}
+
+			outputStream << ".";
+		};
+
+	const auto handleNegatedPredicate =
+		[&](const ::pddl::normalizedAST::PredicatePointer &predicate)
+		{
+			handlePredicate(predicate, false);
 		};
 
 	const auto handleDerivedPredicate =
 		[&](const ::pddl::normalizedAST::DerivedPredicatePointer &, bool = true)
 		{
-			throw TranslatorException("derived predicates not yet supported by translator");
+			// TODO: refactor as to exclude derived predicates from the Effect variant
+			throw TranslatorException("derived predicates should not appear in effects");
+		};
+
+	const auto handleNegatedDerivedPredicate =
+		[&](const ::pddl::normalizedAST::DerivedPredicatePointer &derivedPredicate)
+		{
+			handleDerivedPredicate(derivedPredicate, false);
 		};
 
 	const auto handleAtomicFormula =
@@ -54,12 +80,7 @@ inline void translateEffect(colorlog::ColorStream &outputStream, const ::pddl::n
 	const auto handleNot =
 		[&](const ::pddl::normalizedAST::NotPointer<::pddl::normalizedAST::AtomicFormula> &not_)
 		{
-			if (!not_->argument.is<::pddl::normalizedAST::PredicatePointer>())
-				throw TranslatorException("only “and” expressions and (negated) predicates supported as action effects currently");
-
-			const auto &predicate = not_->argument.get<::pddl::normalizedAST::PredicatePointer>();
-
-			handlePredicate(predicate, false);
+			not_->argument.match(handleNegatedPredicate, handleNegatedDerivedPredicate);
 		};
 
 	const auto handleLiteral =
@@ -72,13 +93,17 @@ inline void translateEffect(colorlog::ColorStream &outputStream, const ::pddl::n
 		[&](const ::pddl::normalizedAST::AndPointer<::pddl::normalizedAST::Effect> &and_)
 		{
 			for (const auto &argument : and_->arguments)
-				translateEffect(outputStream, argument, objectType, printObjectName);
+				translateEffect(outputStream, argument, objectType, printObjectName, variableStack);
 		};
 
 	const auto handleForAll =
-		[&](const ::pddl::normalizedAST::ForAllPointer<::pddl::normalizedAST::Effect> &)
+		[&](const ::pddl::normalizedAST::ForAllPointer<::pddl::normalizedAST::Effect> &forAll)
 		{
-			throw TranslatorException("“when” expressions not yet supported by translator");
+			variableStack.push(&forAll->parameters);
+
+			translateEffect(outputStream, forAll->argument, objectType, printObjectName, variableStack);
+
+			variableStack.pop();
 		};
 
 	const auto handleWhen =
@@ -88,6 +113,16 @@ inline void translateEffect(colorlog::ColorStream &outputStream, const ::pddl::n
 		};
 
 	effect.match(handleAnd, handleForAll, handleLiteral, handleWhen);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<typename PrintObjectName>
+inline void translateEffect(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::Effect &effect, const std::string &objectType, PrintObjectName printObjectName)
+{
+	VariableStack variableStack;
+
+	translateEffect(outputStream, effect, objectType, printObjectName, variableStack);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
