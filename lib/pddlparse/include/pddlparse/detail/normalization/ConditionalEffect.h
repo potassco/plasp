@@ -1,5 +1,5 @@
-#ifndef __PDDL_PARSE__DETAIL__NORMALIZATION__EFFECT_H
-#define __PDDL_PARSE__DETAIL__NORMALIZATION__EFFECT_H
+#ifndef __PDDL_PARSE__DETAIL__NORMALIZATION__CONDITIONAL_EFFECT_H
+#define __PDDL_PARSE__DETAIL__NORMALIZATION__CONDITIONAL_EFFECT_H
 
 #include <pddlparse/ASTForward.h>
 #include <pddlparse/Context.h>
@@ -12,11 +12,11 @@ namespace detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// Effect
+// ConditionalEffect
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-normalizedAST::Effect normalize(ast::Effect &&effect, normalizedAST::DerivedPredicateDeclarations &derivedPredicates);
+normalizedAST::ConditionalEffect normalize(ast::ConditionalEffect &&conditionalEffect);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -26,11 +26,8 @@ normalizedAST::ActionPointer normalize(ast::ActionPointer &&action, normalizedAS
 	if (action->precondition)
 		normalizedAction->precondition = normalize(std::move(action->precondition.value()), derivedPredicates);
 
-	// TODO: implement
-	/*
 	if (action->effect)
-	 	normalizedAction->effect = normalize(std::move(action->effect.value()));
-	*/
+		normalizedAction->effect = normalize(std::move(action->effect.value()), derivedPredicates);
 
 	return normalizedAction;
 }
