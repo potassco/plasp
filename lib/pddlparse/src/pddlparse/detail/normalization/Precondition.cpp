@@ -35,7 +35,7 @@ normalizedAST::Literal normalizeTopLevel(ast::ExistsPointer<ast::Precondition> &
 normalizedAST::Literal normalizeTopLevel(ast::ForAllPointer<ast::Precondition> &forAll, normalizedAST::DerivedPredicateDeclarations &);
 normalizedAST::Literal normalizeTopLevel(ast::ImplyPointer<ast::Precondition> &, normalizedAST::DerivedPredicateDeclarations &);
 normalizedAST::NotPointer<normalizedAST::AtomicFormula> normalizeTopLevel(ast::NotPointer<ast::Precondition> &not_, normalizedAST::DerivedPredicateDeclarations &derivedPredicates);
-normalizedAST::Literal normalizeTopLevel(ast::OrPointer<ast::Precondition> &or_, normalizedAST::DerivedPredicateDeclarations &derivedPredicates);
+normalizedAST::OrPointer<normalizedAST::Literal> normalizeTopLevel(ast::OrPointer<ast::Precondition> &or_, normalizedAST::DerivedPredicateDeclarations &derivedPredicates);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -277,9 +277,39 @@ normalizedAST::NotPointer<normalizedAST::AtomicFormula> normalizeTopLevel(ast::N
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-normalizedAST::Literal normalizeTopLevel(ast::OrPointer<ast::Precondition> &or_, normalizedAST::DerivedPredicateDeclarations &derivedPredicates)
+// TODO: refactor to avoid code duplication
+normalizedAST::OrPointer<normalizedAST::Literal> normalizeTopLevel(ast::OrPointer<ast::Precondition> &or_, normalizedAST::DerivedPredicateDeclarations &derivedPredicates)
 {
-	return normalizeNested(or_, derivedPredicates);
+	normalizedAST::Or<normalizedAST::Literal>::Arguments arguments;
+
+	arguments.reserve(or_->arguments.size());
+
+	const auto handleAtomicFormula =
+		[&](ast::AtomicFormula &atomicFormula) -> normalizedAST::Literal
+		{
+			return normalize(std::move(atomicFormula));
+		};
+
+	const auto handleNot =
+		[&](ast::NotPointer<ast::Precondition> &not_) -> normalizedAST::Literal
+		{
+			return normalizeTopLevel(not_, derivedPredicates);
+		};
+
+	const auto handleNested =
+		[&](auto &nested) -> normalizedAST::Literal
+		{
+			return normalizeNested(nested, derivedPredicates);
+		};
+
+	for (auto &argument : or_->arguments)
+	{
+		auto normalizedArgument = argument.match(handleAtomicFormula, handleNot, handleNested);
+
+		arguments.emplace_back(std::move(normalizedArgument));
+	}
+
+	return std::make_unique<normalizedAST::Or<normalizedAST::Literal>>(std::move(arguments));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -289,11 +319,49 @@ normalizedAST::Precondition normalize(ast::Precondition &&precondition, normaliz
 	// Bring precondition to normal form
 	reduce(precondition);
 
-	return precondition.match(
-		[&](auto &x) -> normalizedAST::Precondition
+	const auto handleAtomicFormula =
+		[&](ast::AtomicFormula &atomicFormula) -> normalizedAST::Precondition
 		{
-			return normalizeTopLevel(x, derivedPredicates);
-		});
+			return normalizeTopLevel(atomicFormula, derivedPredicates);
+		};
+
+	const auto handleAnd =
+		[&](ast::AndPointer<ast::Precondition> &and_) -> normalizedAST::Precondition
+		{
+			return normalizeTopLevel(and_, derivedPredicates);
+		};
+
+	const auto handleExists =
+		[&](ast::ExistsPointer<ast::Precondition> &exists) -> normalizedAST::Precondition
+		{
+			return normalizeTopLevel(exists, derivedPredicates);
+		};
+
+	const auto handleForAll =
+		[&](ast::ForAllPointer<ast::Precondition> &forAll) -> normalizedAST::Precondition
+		{
+			return normalizeTopLevel(forAll, derivedPredicates);
+		};
+
+	const auto handleImply =
+		[&](ast::ImplyPointer<ast::Precondition> &imply) -> normalizedAST::Precondition
+		{
+			return normalizeTopLevel(imply, derivedPredicates);
+		};
+
+	const auto handleNot =
+		[&](ast::NotPointer<ast::Precondition> &not_) -> normalizedAST::Precondition
+		{
+			return normalizeTopLevel(not_, derivedPredicates);
+		};
+
+	const auto handleOr =
+		[&](ast::OrPointer<ast::Precondition> &or_) -> normalizedAST::Precondition
+		{
+			return normalizeNested(or_, derivedPredicates);
+		};
+
+	return precondition.match(handleAtomicFormula, handleAnd, handleExists, handleForAll, handleImply, handleNot, handleOr);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
