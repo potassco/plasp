@@ -62,7 +62,7 @@ inline void translateEffect(colorlog::ColorStream &outputStream, const ::pddl::n
 		[&](const ::pddl::normalizedAST::DerivedPredicatePointer &, bool = true)
 		{
 			// TODO: refactor as to exclude derived predicates from the Effect variant
-			throw TranslatorException("derived predicates should not appear in effects");
+			throw TranslatorException("derived predicates should not appear in effects, please report to the bug tracker");
 		};
 
 	const auto handleNegatedDerivedPredicate =
