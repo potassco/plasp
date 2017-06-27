@@ -217,6 +217,11 @@ void TranslatorASP::translateDerivedPredicates() const
 
 	for (const auto &derivedPredicate : derivedPredicates)
 	{
+		// With “and” expressions, the existentially bound parameters are important
+		// Were they not the same in all arguments, the precondition would be treated like a disjunction
+		const auto enumerateExistentialParameters
+			= derivedPredicate->precondition.value().is<::pddl::normalizedAST::AndPointer<::pddl::normalizedAST::Literal>>();
+
 		const auto printDerivedPredicateName =
 			[&]()
 			{
@@ -232,7 +237,7 @@ void TranslatorASP::translateDerivedPredicates() const
 				// TODO: add existentially quantified parameters
 				translateVariablesForRuleHead(m_outputStream, derivedPredicate->parameters);
 
-				if (!derivedPredicate->existentialParameters.empty())
+				if (enumerateExistentialParameters && !derivedPredicate->existentialParameters.empty())
 					translateVariablesForRuleHead(m_outputStream, derivedPredicate->existentialParameters);
 
 				m_outputStream << "))";
@@ -258,7 +263,7 @@ void TranslatorASP::translateDerivedPredicates() const
 		if (!derivedPredicate->parameters.empty())
 			translateVariablesForRuleBody(m_outputStream, derivedPredicate->parameters);
 
-		if (!derivedPredicate->existentialParameters.empty())
+		if (enumerateExistentialParameters && !derivedPredicate->existentialParameters.empty())
 		{
 			if (!derivedPredicate->parameters.empty())
 				m_outputStream << ", ";
