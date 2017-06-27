@@ -22,8 +22,10 @@ namespace pddl
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<typename PrintObjectName>
-inline void translatePrecondition(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::Precondition &precondition, const std::string &objectType, PrintObjectName printObjectName)
+template<typename PrintObjectName, typename PrintRuleBody>
+inline void translatePrecondition(colorlog::ColorStream &outputStream,
+	const ::pddl::normalizedAST::Precondition &precondition, PrintObjectName printObjectName,
+	PrintRuleBody printRuleBody)
 {
 	const auto handlePredicate =
 		[&](const ::pddl::normalizedAST::PredicatePointer &predicate, bool isPositive = true)
@@ -32,9 +34,9 @@ inline void translatePrecondition(colorlog::ColorStream &outputStream, const ::p
 			printObjectName();
 			outputStream << ", ";
 			translatePredicateToVariable(outputStream, *predicate, isPositive);
-			outputStream << ") :- " << colorlog::Function(objectType.c_str()) << "(";
-			printObjectName();
-			outputStream << ").";
+			outputStream << ")";
+			printRuleBody();
+			outputStream << ".";
 		};
 
 	const auto handleNegatedPredicate =
@@ -50,9 +52,9 @@ inline void translatePrecondition(colorlog::ColorStream &outputStream, const ::p
 			printObjectName();
 			outputStream << ", ";
 			translateDerivedPredicateToVariable(outputStream, *derivedPredicate, isPositive);
-			outputStream << ") :- " << colorlog::Function(objectType.c_str()) << "(";
-			printObjectName();
-			outputStream << ").";
+			outputStream << ")";
+			printRuleBody();
+			outputStream << ".";
 		};
 
 	const auto handleNegatedDerivedPredicate =

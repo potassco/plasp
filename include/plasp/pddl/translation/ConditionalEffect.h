@@ -1,5 +1,5 @@
-#ifndef __PLASP__PDDL__TRANSLATION__EFFECT_H
-#define __PLASP__PDDL__TRANSLATION__EFFECT_H
+#ifndef __PLASP__PDDL__TRANSLATION__CONDITIONAL_EFFECT_H
+#define __PLASP__PDDL__TRANSLATION__CONDITIONAL_EFFECT_H
 
 #include <colorlog/Formatting.h>
 
@@ -7,8 +7,6 @@
 
 #include <plasp/TranslatorException.h>
 
-#include <plasp/pddl/translation/ConditionalEffect.h>
-#include <plasp/pddl/translation/Precondition.h>
 #include <plasp/pddl/translation/Predicate.h>
 #include <plasp/pddl/translation/Primitives.h>
 #include <plasp/pddl/translation/Variables.h>
@@ -21,14 +19,15 @@ namespace pddl
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// Effect
+// ConditionalEffect
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename PrintObjectName>
-inline void translateEffect(colorlog::ColorStream &outputStream,
-	const ::pddl::normalizedAST::Effect &effect, PrintObjectName printObjectName,
-	VariableStack &variableStack, size_t &numberOfConditionalEffects)
+inline void translateConditionalEffect(colorlog::ColorStream &outputStream,
+	const ::pddl::normalizedAST::ConditionalEffect &conditionalEffect,
+	PrintObjectName printObjectName, VariableStack &variableStack,
+	size_t &numberOfConditionalEffects)
 {
 	const auto handlePredicate =
 		[&](const ::pddl::normalizedAST::PredicatePointer &predicate, bool isPositive = true)
@@ -37,7 +36,7 @@ inline void translateEffect(colorlog::ColorStream &outputStream,
 			printObjectName();
 			outputStream
 				<< ", " << colorlog::Keyword("effect") << "("
-				<< colorlog::Reserved("unconditional") << ")"
+				<< colorlog::Number<size_t>(numberOfConditionalEffects) << ")"
 				<< ", ";
 			translatePredicateToVariable(outputStream, *predicate, isPositive);
 			outputStream << ") :- " << colorlog::Function("action") << "(";
@@ -94,74 +93,13 @@ inline void translateEffect(colorlog::ColorStream &outputStream,
 		};
 
 	const auto handleAnd =
-		[&](const ::pddl::normalizedAST::AndPointer<::pddl::normalizedAST::Effect> &and_)
+		[&](const ::pddl::normalizedAST::AndPointer<::pddl::normalizedAST::Literal> &and_)
 		{
 			for (const auto &argument : and_->arguments)
-				translateEffect(outputStream, argument, printObjectName, variableStack,
-					numberOfConditionalEffects);
+				handleLiteral(argument);
 		};
 
-	const auto handleForAll =
-		[&](const ::pddl::normalizedAST::ForAllPointer<::pddl::normalizedAST::Effect> &forAll)
-		{
-			variableStack.push(&forAll->parameters);
-
-			translateEffect(outputStream, forAll->argument, printObjectName,
-				variableStack, numberOfConditionalEffects);
-
-			variableStack.pop();
-		};
-
-	const auto handleWhen =
-		[&](const ::pddl::normalizedAST::WhenPointer<::pddl::normalizedAST::Precondition,
-			::pddl::normalizedAST::ConditionalEffect> &when)
-		{
-			numberOfConditionalEffects++;
-
-			const auto printConditionalEffectIdentifier =
-				[&]()
-				{
-					outputStream << colorlog::Keyword("effect") << "("
-						<< colorlog::Number<size_t>(numberOfConditionalEffects) << ")";
-				};
-
-			const auto printPreconditionRuleBody =
-				[&]()
-				{
-					outputStream << " :- " << colorlog::Function("action") << "(";
-					printObjectName();
-					outputStream << ")";
-
-					for (const auto &layer : variableStack.layers)
-					{
-						if (!layer->empty())
-							outputStream << ", ";
-
-						translateVariablesForRuleBody(outputStream, *layer);
-					}
-				};
-
-			translatePrecondition(outputStream, when->argumentLeft,
-				printConditionalEffectIdentifier, printPreconditionRuleBody);
-
-			translateConditionalEffect(outputStream, when->argumentRight, printObjectName,
-				variableStack, numberOfConditionalEffects);
-		};
-
-	effect.match(handleAnd, handleForAll, handleLiteral, handleWhen);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template<typename PrintObjectName>
-inline void translateEffect(colorlog::ColorStream &outputStream,
-	const ::pddl::normalizedAST::Effect &effect, PrintObjectName printObjectName,
-	size_t &numberOfConditionalEffects)
-{
-	VariableStack variableStack;
-
-	translateEffect(outputStream, effect, printObjectName, variableStack,
-		numberOfConditionalEffects);
+	conditionalEffect.match(handleAnd, handleLiteral);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

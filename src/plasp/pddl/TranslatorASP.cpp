@@ -300,6 +300,8 @@ void TranslatorASP::translateActions() const
 
 	const auto &actions = m_description.domain->actions;
 
+	size_t numberOfConditionalEffects{0};
+
 	for (const auto &action : actions)
 	{
 		const auto printActionName =
@@ -316,6 +318,14 @@ void TranslatorASP::translateActions() const
 				m_outputStream << "(" << *action;
 				translateVariablesForRuleHead(m_outputStream, action->parameters);
 				m_outputStream << "))";
+			};
+
+		const auto printPreconditionRuleBody =
+			[&]()
+			{
+				m_outputStream << " :- " << colorlog::Function("action") << "(";
+				printActionName();
+				m_outputStream << ")";
 			};
 
 		m_outputStream << std::endl;
@@ -335,11 +345,13 @@ void TranslatorASP::translateActions() const
 
 		// Precondition
 		if (action->precondition)
-			translatePrecondition(m_outputStream, action->precondition.value(), "action", printActionName);
+			translatePrecondition(m_outputStream, action->precondition.value(), printActionName,
+				printPreconditionRuleBody);
 
 		// Effect
 		if (action->effect)
-			translateEffect(m_outputStream, action->effect.value(), "action", printActionName);
+			translateEffect(m_outputStream, action->effect.value(), printActionName,
+				numberOfConditionalEffects);
 
 		m_outputStream << std::endl;
 	}
