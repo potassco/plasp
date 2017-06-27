@@ -45,17 +45,34 @@ inline void translateEffect(colorlog::ColorStream &outputStream, const ::pddl::n
 			throw TranslatorException("derived predicates not yet supported by translator");
 		};
 
+	const auto handleAtomicFormula =
+		[&](const ::pddl::normalizedAST::AtomicFormula &atomicFormula)
+		{
+			atomicFormula.match(handlePredicate, handleDerivedPredicate);
+		};
+
+	const auto handleNot =
+		[&](const ::pddl::normalizedAST::NotPointer<::pddl::normalizedAST::AtomicFormula> &not_)
+		{
+			if (!not_->argument.is<::pddl::normalizedAST::PredicatePointer>())
+				throw TranslatorException("only “and” expressions and (negated) predicates supported as action effects currently");
+
+			const auto &predicate = not_->argument.get<::pddl::normalizedAST::PredicatePointer>();
+
+			handlePredicate(predicate, false);
+		};
+
+	const auto handleLiteral =
+		[&](const ::pddl::normalizedAST::Literal &literal)
+		{
+			literal.match(handleAtomicFormula, handleNot);
+		};
+
 	const auto handleAnd =
 		[&](const ::pddl::normalizedAST::AndPointer<::pddl::normalizedAST::Effect> &and_)
 		{
 			for (const auto &argument : and_->arguments)
 				translateEffect(outputStream, argument, objectType, printObjectName);
-		};
-
-	const auto handleAtomicFormula =
-		[&](const ::pddl::normalizedAST::AtomicFormula &atomicFormula)
-		{
-			atomicFormula.match(handlePredicate, handleDerivedPredicate);
 		};
 
 	const auto handleForAll =
@@ -64,24 +81,13 @@ inline void translateEffect(colorlog::ColorStream &outputStream, const ::pddl::n
 			throw TranslatorException("“when” expressions not yet supported by translator");
 		};
 
-	const auto handleNot =
-		[&](const ::pddl::normalizedAST::NotPointer<::pddl::normalizedAST::Effect> &not_)
-		{
-			if (!not_->argument.is<::pddl::normalizedAST::AtomicFormula>() || !not_->argument.get<::pddl::normalizedAST::AtomicFormula>().is<::pddl::normalizedAST::PredicatePointer>())
-				throw TranslatorException("only “and” expressions and (negated) predicates supported as action effects currently");
-
-			const auto &predicate = not_->argument.get<::pddl::normalizedAST::AtomicFormula>().get<::pddl::normalizedAST::PredicatePointer>();
-
-			handlePredicate(predicate, false);
-		};
-
 	const auto handleWhen =
 		[&](const ::pddl::normalizedAST::WhenPointer<::pddl::normalizedAST::Precondition, ::pddl::normalizedAST::ConditionalEffect> &)
 		{
 			throw TranslatorException("“when” expressions not yet supported by translator");
 		};
 
-	effect.match(handleAtomicFormula, handleAnd, handleForAll, handleNot, handleWhen);
+	effect.match(handleAnd, handleForAll, handleLiteral, handleWhen);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

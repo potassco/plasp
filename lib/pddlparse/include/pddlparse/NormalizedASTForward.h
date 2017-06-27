@@ -183,8 +183,7 @@ namespace detail
 {
 using ConditionalEffectT = Variant<
 	Literal,
-	AndPointer<Literal>,
-	NotPointer<ConditionalEffect>>;
+	AndPointer<Literal>>;
 }
 
 class ConditionalEffect : public detail::ConditionalEffectT
@@ -196,16 +195,14 @@ class ConditionalEffect : public detail::ConditionalEffectT
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// TODO: support effects appropriately
 class Effect;
 
 namespace detail
 {
 using EffectT = Variant<
-	AtomicFormula,
+	Literal,
 	AndPointer<Effect>,
 	ForAllPointer<Effect>,
-	NotPointer<Effect>,
 	WhenPointer<Precondition, ConditionalEffect>>;
 }
 
