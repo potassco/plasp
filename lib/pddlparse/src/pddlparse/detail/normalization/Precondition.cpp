@@ -134,17 +134,6 @@ normalizedAST::Literal normalizeNested(ast::ImplyPointer<ast::Precondition> &, n
 
 normalizedAST::Literal normalizeNested(ast::NotPointer<ast::Precondition> &not_, normalizedAST::DerivedPredicateDeclarations &derivedPredicates)
 {
-	// “not” expressions may be nested one time to form simple literals
-	if (not_->argument.is<ast::AtomicFormula>())
-		return std::make_unique<normalizedAST::Not<normalizedAST::AtomicFormula>>(normalize(std::move(not_->argument.get<ast::AtomicFormula>())));
-
-	std::vector<normalizedAST::VariableDeclaration *> parameters;
-	VariableStack variableStack;
-
-	collectFreeVariables(not_, parameters, variableStack);
-
-	auto derivedPredicate = addDerivedPredicate(parameters, derivedPredicates);
-
 	auto normalizedArgumentLiteral = not_->argument.match(
 		[&](auto &x) -> normalizedAST::Literal
 		{
@@ -157,10 +146,7 @@ normalizedAST::Literal normalizeNested(ast::NotPointer<ast::Precondition> &not_,
 
 	auto &normalizedArgument = normalizedArgumentLiteral.get<normalizedAST::AtomicFormula>();
 
-	derivedPredicate->declaration->precondition = std::make_unique<normalizedAST::Not<normalizedAST::AtomicFormula>>(std::move(normalizedArgument));
-
-	// TODO: investigate, could be a compiler bug
-	return std::move(derivedPredicate);
+	return std::make_unique<normalizedAST::Not<normalizedAST::AtomicFormula>>(std::move(normalizedArgument));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
