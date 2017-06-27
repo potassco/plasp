@@ -81,7 +81,7 @@ int main(int argc, char **argv)
 
 	if (variablesMap.count("version"))
 	{
-		std::cout << "plasp version 3.0.3-git" << std::endl;
+		std::cout << "plasp version 3.1.0-git" << std::endl;
 		return EXIT_SUCCESS;
 	}
 
