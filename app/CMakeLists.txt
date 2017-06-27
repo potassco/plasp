@@ -1,5 +1,7 @@
 set(target plasp-app)
 
+find_package(Boost 1.55.0 COMPONENTS program_options iostreams system REQUIRED)
+
 file(GLOB core_sources "*.cpp")
 file(GLOB core_headers "*.h")
 
