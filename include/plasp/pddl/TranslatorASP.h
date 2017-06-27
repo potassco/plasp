@@ -26,6 +26,7 @@ class TranslatorASP
 
 	private:
 		void translateDomain() const;
+		void translateUtils() const;
 		void translateTypes() const;
 		void translatePredicates() const;
 		void translateDerivedPredicates() const;

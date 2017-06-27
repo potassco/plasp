@@ -55,6 +55,10 @@ void TranslatorASP::translateDomain() const
 
 	const auto &domain = m_description.domain;
 
+	// Utils
+	m_outputStream << std::endl;
+	translateUtils();
+
 	// Types
 	m_outputStream << std::endl;
 	translateTypes();
@@ -85,6 +89,18 @@ void TranslatorASP::translateDomain() const
 		m_outputStream << std::endl;
 		translateActions();
 	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void TranslatorASP::translateUtils() const
+{
+	m_outputStream << colorlog::Heading2("utils");
+
+	m_outputStream
+		<< std::endl
+		<< colorlog::Function("boolean") << "(" << colorlog::Boolean("true") << ")." << std::endl
+		<< colorlog::Function("boolean") << "(" << colorlog::Boolean("false") << ")." << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -167,9 +183,6 @@ void TranslatorASP::translatePredicates() const
 
 	m_outputStream
 		<< std::endl << std::endl
-		<< colorlog::Function("boolean") << "(" << colorlog::Boolean("true") << ")." << std::endl
-		<< colorlog::Function("boolean") << "(" << colorlog::Boolean("false") << ")." << std::endl
-		<< std::endl
 		<< colorlog::Function("contains") << "("
 		<< colorlog::Keyword("variable") << "(" << colorlog::Variable("X") << "), "
 		<< colorlog::Keyword("value") << "(" << colorlog::Variable("X") << ", " << colorlog::Variable("B") << ")) :- "
@@ -205,15 +218,12 @@ void TranslatorASP::translateDerivedPredicates() const
 
 	m_outputStream
 		<< std::endl << std::endl
-		<< colorlog::Function("boolean") << "(" << colorlog::Boolean("true") << ")." << std::endl
-		<< colorlog::Function("boolean") << "(" << colorlog::Boolean("false") << ")." << std::endl
-		<< std::endl
 		<< colorlog::Function("contains") << "("
 		<< colorlog::Keyword("derivedVariable") << "(" << colorlog::Variable("X") << "), "
 		<< colorlog::Keyword("value") << "(" << colorlog::Variable("X") << ", " << colorlog::Variable("B") << ")) :- "
 		<< colorlog::Function("derivedVariable") << "(" << colorlog::Keyword("derivedVariable") << "(" << colorlog::Variable("X") << ")), "
 		<< colorlog::Function("boolean") << "(" << colorlog::Variable("B") << ")."
-		<< std::endl << std::endl;
+		<< std::endl;
 
 	for (const auto &derivedPredicate : derivedPredicates)
 	{
