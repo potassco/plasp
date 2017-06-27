@@ -240,7 +240,14 @@ void TranslatorASP::translateDerivedPredicates() const
 				if (enumerateExistentialParameters && !derivedPredicate->existentialParameters.empty())
 					translateVariablesForRuleHead(m_outputStream, derivedPredicate->existentialParameters);
 
-				m_outputStream << "))";
+				m_outputStream << ")), " << colorlog::Keyword("type") << "(";
+
+				if (derivedPredicate->precondition.value().is<::pddl::normalizedAST::OrPointer<::pddl::normalizedAST::Literal>>())
+					m_outputStream << colorlog::Reserved("or");
+				else
+					m_outputStream << colorlog::Reserved("and");
+
+				m_outputStream << ")";
 			};
 
 		m_outputStream << std::endl;
@@ -248,14 +255,7 @@ void TranslatorASP::translateDerivedPredicates() const
 		// Name
 		m_outputStream << colorlog::Function("derivedPredicate") << "(";
 		printDerivedPredicateName();
-		m_outputStream << ", " << colorlog::Keyword("type") << "(";
-
-		if (derivedPredicate->precondition.value().is<::pddl::normalizedAST::OrPointer<::pddl::normalizedAST::Literal>>())
-			m_outputStream << colorlog::Reserved("or");
-		else
-			m_outputStream << colorlog::Reserved("and");
-
-		m_outputStream << "))";
+		m_outputStream << ")";
 
 		if (!derivedPredicate->parameters.empty() || !derivedPredicate->existentialParameters.empty())
 			m_outputStream << " :- ";
