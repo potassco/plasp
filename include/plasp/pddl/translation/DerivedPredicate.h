@@ -98,9 +98,8 @@ inline void translateDerivedPredicateToVariable(colorlog::ColorStream &outputStr
 
 inline void translateDerivedPredicateDeclarationToVariable(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::DerivedPredicateDeclaration &derivedPredicateDeclaration, bool isPositive = true)
 {
-	outputStream << colorlog::Keyword("derivedVariable") << "(";
 	translateDerivedPredicateDeclaration(outputStream, derivedPredicateDeclaration);
-	outputStream << "), " << colorlog::Keyword("value") << "(";
+	outputStream << ", " << colorlog::Keyword("value") << "(";
 	translateDerivedPredicateDeclaration(outputStream, derivedPredicateDeclaration);
 	outputStream << ", ";
 
