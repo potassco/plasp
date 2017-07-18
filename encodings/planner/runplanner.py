@@ -37,7 +37,7 @@ Planner and Clingo Options:
     epilog = " "
     epilog = """
 Default command-line:
-runplanner.py instance --closure=3 --parallel=0
+runplanner.py instance --closure=3 --parallel=3
 
 runplanner.py is part of Potassco: https://potassco.org/labs
 Get help/report bugs via : https://potassco.org/support
@@ -64,7 +64,7 @@ Get help/report bugs via : https://potassco.org/support
         normal = cmd_parser.add_argument_group('Solving Options')
         normal.add_argument('--translate','-tr',dest='translate',action='store_true',help='Run fast-downward translator to sas, then plasp translator, and solve')
         normal.add_argument('--closure',default=3,type=int,choices=[0,1,2,3],help='Static analysis of potentially relevant actions (default: 3)')
-        normal.add_argument('--parallel',default=2,type=int,choices=[0,1,2,3,4],help='Sequential and parallel planning encoding variants (default: 2)')
+        normal.add_argument('--parallel',default=3,type=int,choices=[0,1,2,3,4],help='Sequential and parallel planning encoding variants (default: 3)')
         normal.add_argument('--redundancy',action='store_true',help='Enforcement of redundant actions')
         normal.add_argument('--postprocess',action='store_true',help='Solve, serialize, and check if solution is correct (works also with --basic)')
 
