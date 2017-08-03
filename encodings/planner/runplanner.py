@@ -140,6 +140,7 @@ def run():
     # basic encoding
     if options['incmode']:
         call = call.replace(PLANNER,CLINGO + " " + INCMODE)
+        call = call.replace(BASIC_OPTIONS,"")
     elif options['basic']:
         call = "{} {} {}; {} {} | {} - {} {}".format(FAST_D_TR,domain,instance,PLASP,SAS_OUTPUT,PLANNER,BASIC," ".join(rest) +
                (postprocess if options['postprocess'] else ""))
