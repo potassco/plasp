@@ -18,7 +18,7 @@ set(includes
 	${PROJECT_SOURCE_DIR}/lib/tokenize/include
 	${PROJECT_SOURCE_DIR}/lib/colorlog/include
 	${PROJECT_SOURCE_DIR}/lib/variant/include
-	${PROJECT_SOURCE_DIR}/lib/pddlparse/include
+	${PROJECT_SOURCE_DIR}/lib/pddl/include
 )
 
 set(sources
@@ -50,7 +50,7 @@ set(sources
 set(libraries
 	${Boost_LIBRARIES}
 	colorlog
-	pddlparse
+	pddl
 	pthread
 )
 

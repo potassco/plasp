@@ -4,7 +4,7 @@
 
 #include <colorlog/Formatting.h>
 
-#include <pddlparse/NormalizedAST.h>
+#include <pddl/NormalizedAST.h>
 
 #include <plasp/TranslatorException.h>
 

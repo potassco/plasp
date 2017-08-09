@@ -32,7 +32,7 @@ endif()
 
 add_subdirectory(lib/tokenize)
 add_subdirectory(lib/colorlog)
-add_subdirectory(lib/pddlparse)
+add_subdirectory(lib/pddl)
 add_subdirectory(src)
 add_subdirectory(app)
 if(PLASP_BUILD_TESTS)

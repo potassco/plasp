@@ -3,8 +3,8 @@
 
 #include <colorlog/Formatting.h>
 
-#include <pddlparse/NormalizedAST.h>
-#include <pddlparse/Parse.h>
+#include <pddl/NormalizedAST.h>
+#include <pddl/Parse.h>
 
 #include <plasp/pddl/translation/Primitives.h>
 #include <plasp/pddl/translation/Variables.h>

@@ -13,7 +13,7 @@ Features:
 
 Internal:
 
-* reimplemented PDDL parser from scratch as stand-alone library `pddlparse`
+* reimplemented PDDL parser from scratch as stand-alone `pddl` library
 
 ## 3.0.3 (2016-09-02)
 

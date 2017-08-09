@@ -3,8 +3,8 @@
 
 #include <colorlog/ColorStream.h>
 
-#include <pddlparse/NormalizedASTForward.h>
-#include <pddlparse/Parse.h>
+#include <pddl/NormalizedASTForward.h>
+#include <pddl/Parse.h>
 
 namespace plasp
 {

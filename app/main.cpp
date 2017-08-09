@@ -8,13 +8,13 @@
 #include <colorlog/Logger.h>
 #include <colorlog/Priority.h>
 
-#include <pddlparse/AST.h>
-#include <pddlparse/Exception.h>
-#include <pddlparse/Mode.h>
-#include <pddlparse/Normalize.h>
-#include <pddlparse/NormalizedASTOutput.h>
-#include <pddlparse/Parse.h>
-#include <pddlparse/detail/normalization/Reduction.h>
+#include <pddl/AST.h>
+#include <pddl/Exception.h>
+#include <pddl/Mode.h>
+#include <pddl/Normalize.h>
+#include <pddl/NormalizedASTOutput.h>
+#include <pddl/Parse.h>
+#include <pddl/detail/normalization/Reduction.h>
 
 #include <plasp/LanguageDetection.h>
 #include <plasp/TranslatorException.h>

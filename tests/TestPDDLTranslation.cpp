@@ -5,9 +5,9 @@
 
 #include <colorlog/Logger.h>
 
-#include <pddlparse/AST.h>
-#include <pddlparse/Normalize.h>
-#include <pddlparse/Parse.h>
+#include <pddl/AST.h>
+#include <pddl/Normalize.h>
+#include <pddl/Parse.h>
 
 #include <plasp/pddl/TranslatorASP.h>
 

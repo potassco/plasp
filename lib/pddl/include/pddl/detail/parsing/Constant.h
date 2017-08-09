@@ -1,0 +1,27 @@
+#ifndef __PDDL__DETAIL__PARSING__CONSTANT_H
+#define __PDDL__DETAIL__PARSING__CONSTANT_H
+
+#include <pddl/ASTForward.h>
+#include <pddl/Context.h>
+#include <pddl/detail/ASTContext.h>
+
+namespace pddl
+{
+namespace detail
+{
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Constant
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+std::experimental::optional<ast::ConstantPointer> testParsingConstant(Context &context, ASTContext &astContext);
+ast::ConstantPointer parseConstant(Context &context, ASTContext &astContext);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+}
+}
+
+#endif
