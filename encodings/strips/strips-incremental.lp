@@ -7,6 +7,12 @@
 
 #const _parallel = 0.
 
+% Constant '_shallow' to cheaply approximate mutually disabling parallel actions
+% - value '0': detect incompatible pre/postconditions to reduce parallel actions
+% - otherwise: over-approximate parallel actions (in testing mutual disablement)
+
+#const _shallow = 0.
+
 % Constant 'planner_on' to enable encoding support for ASP-based planner
 % - value '0': no compatibility to ASP-based planner (no idle steps permitted)
 % - otherwise: compatibility to ASP-based planner (idle steps permitted)
@@ -22,12 +28,12 @@ selfdefeat(A,X) :- active(A), precondition(A,X,V), _parallel = 1,
 
 diverge(A1,A2,X) :- active(A1), active(A2), postcondition(A1,X,V),
                     has_condition(A2,X,1), not postcondition(A2,X,V),
-                    0 < _parallel, _parallel < 5.
+                    0 < _parallel, _parallel < 5, _shallow = 0.
 diverge(A1,A2)   :- diverge(A1,A2,X).
 
 exclude(A1,A2) :- active(A1), active(A2), precondition(A1,X,V),
                   has_condition(A2,X,0), not precondition(A2,X,V),
-                  0 < _parallel, _parallel < 5, _parallel != 2.
+                  0 < _parallel, _parallel < 5, _parallel != 2, _shallow = 0.
 
 disable(A1,A2) :- active(A1), active(A2), A1 != A2, postcondition(A1,X,V),
                   has_condition(A2,X,0), not precondition(A2,X,V),
@@ -46,6 +52,7 @@ fluent(X,V) :- initialState(X,V), fluent(X).
 fluent(X,V) :- active(A), postcondition(A,X,V), fluent(X).
 fluent(X)   :- fluent(X,V).
 fluent(X)   :- diverge(A1,A2,X), not exclude(A1,A2).
+fluent(X)   :- active(A), has_condition(A,X,1), 0 < _parallel, _parallel < 5, _shallow != 0.
 
 % Define unsubsumed mutexes
 
