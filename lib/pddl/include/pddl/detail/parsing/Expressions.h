@@ -25,6 +25,8 @@ template<typename Argument, typename ArgumentParser>
 std::experimental::optional<ast::AtPointer<Argument>> parseAt(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument);
 template<typename Argument, typename ArgumentParser>
 std::experimental::optional<ast::EitherPointer<Argument>> parseEither(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument);
+template<typename ArgumentLeft, typename ArgumentRight, typename ArgumentLeftParser, typename ArgumentRightParser>
+std::experimental::optional<ast::EqualsPointer<ArgumentLeft, ArgumentRight>> parseEquals(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentLeftParser parseArgumentLeft, ArgumentRightParser parseArgumentRight);
 template<typename Argument, typename ArgumentParser>
 std::experimental::optional<ast::ExistsPointer<Argument>> parseExists(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument);
 template<typename Argument, typename ArgumentParser>
@@ -173,6 +175,14 @@ template<typename Argument, typename ArgumentParser>
 std::experimental::optional<ast::EitherPointer<Argument>> parseEither(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument)
 {
 	return parseNAry<ast::Either<Argument>, ArgumentParser>(context, astContext, variableStack, parseArgument);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<typename ArgumentLeft, typename ArgumentRight, typename ArgumentLeftParser, typename ArgumentRightParser>
+std::experimental::optional<ast::EqualsPointer<ArgumentLeft, ArgumentRight>> parseEquals(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentLeftParser parseArgumentLeft, ArgumentRightParser parseArgumentRight)
+{
+	return parseBinary<ast::Equals<ArgumentLeft, ArgumentRight>, ArgumentLeftParser, ArgumentRightParser>(context, astContext, variableStack, parseArgumentLeft, parseArgumentRight);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

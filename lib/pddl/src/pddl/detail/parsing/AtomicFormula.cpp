@@ -1,8 +1,9 @@
 #include <pddl/detail/parsing/AtomicFormula.h>
 
 #include <pddl/AST.h>
+#include <pddl/detail/parsing/Expressions.h>
 #include <pddl/detail/parsing/Predicate.h>
-#include <pddl/detail/parsing/Unsupported.h>
+#include <pddl/detail/parsing/Term.h>
 
 namespace pddl
 {
@@ -17,20 +18,11 @@ namespace detail
 
 std::experimental::optional<ast::AtomicFormula> parseAtomicFormula(Context &context, ASTContext &astContext, VariableStack &variableStack)
 {
-	auto &tokenizer = context.tokenizer;
+	std::experimental::optional<ast::AtomicFormula> atomicFormula;
 
-	// Test unsupported expressions first
-	const auto position = tokenizer.position();
+	if ((atomicFormula = parseEquals<ast::Term, ast::Term>(context, astContext, variableStack, parseTerm, parseTerm)))
+		return std::move(atomicFormula.value());
 
-	tokenizer.expect<std::string>("(");
-	tokenizer.skipWhiteSpace();
-
-	if (tokenizer.testIdentifierAndReturn("="))
-		throw exceptUnsupportedExpression(position, context);
-
-	tokenizer.seek(position);
-
-	// Now, test supported expressions
 	return parsePredicate(context, astContext, variableStack);
 }
 
