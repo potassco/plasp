@@ -267,6 +267,14 @@ inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Either<
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template<class ArgumentLeft, class ArgumentRight>
+inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Equals<ArgumentLeft, ArgumentRight> &equals, pddl::detail::PrintContext &printContext)
+{
+	return print(stream, static_cast<const Binary<Equals<ArgumentLeft, ArgumentRight>, ArgumentLeft, ArgumentRight> &>(equals), printContext);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template<class Argument>
 inline colorlog::ColorStream &print(colorlog::ColorStream &stream, const Exists<Argument> &exists, pddl::detail::PrintContext &printContext)
 {

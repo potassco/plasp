@@ -65,6 +65,15 @@ void collectFreeVariables(const ast::AndPointer<Argument> &and_, std::vector<nor
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template<class ArgumentLeft, class ArgumentRight>
+void collectFreeVariables(const ast::EqualsPointer<ArgumentLeft, ArgumentRight> &equals, std::vector<normalizedAST::VariableDeclaration *> &freeVariables, VariableStack &variableStack)
+{
+	collectFreeVariables(equals->argumentLeft, freeVariables, variableStack);
+	collectFreeVariables(equals->argumentRight, freeVariables, variableStack);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template<class Argument>
 void collectFreeVariables(const ast::ExistsPointer<Argument> &exists, std::vector<normalizedAST::VariableDeclaration *> &freeVariables, VariableStack &variableStack)
 {

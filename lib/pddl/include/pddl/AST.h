@@ -292,6 +292,19 @@ struct Either: public NAry<Either<Argument>, Argument>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+template<class ArgumentLeft, class ArgumentRight>
+struct Equals: public Binary<Equals<ArgumentLeft, ArgumentRight>, ArgumentLeft, ArgumentRight>
+{
+	static constexpr const auto Identifier = "=";
+
+	explicit Equals(ArgumentLeft &&argumentLeft, ArgumentRight &&argumentRight)
+	:	Binary<Equals<ArgumentLeft, ArgumentRight>, ArgumentLeft, ArgumentRight>(std::move(argumentLeft), std::move(argumentRight))
+	{
+	}
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 template<class Argument>
 struct Exists: public Quantified<Exists<Argument>, Argument>
 {

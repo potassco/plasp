@@ -70,6 +70,10 @@ template<class Argument>
 struct Either;
 template<class Argument>
 using EitherPointer = std::unique_ptr<Either<Argument>>;
+template<class ArgumentLeft, class ArgumentRight>
+struct Equals;
+template<class ArgumentLeft, class ArgumentRight>
+using EqualsPointer = std::unique_ptr<Equals<ArgumentLeft, ArgumentRight>>;
 template<class Argument>
 struct Exists;
 template<class Argument>
@@ -136,8 +140,8 @@ using Terms = std::vector<Term>;
 
 namespace detail
 {
-// TODO: add missing types
 using AtomicFormulaT = Variant<
+	EqualsPointer<Term, Term>,
 	PredicatePointer>;
 }
 
