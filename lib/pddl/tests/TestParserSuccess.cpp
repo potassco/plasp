@@ -100,7 +100,7 @@ const std::set<std::experimental::filesystem::path> unsupportedInstances =
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST_CASE("[PDDL acceptance] All official PDDL domains are parsed without errors", "[PDDL acceptance]")
+TEST_CASE("[parser success] All official PDDL domains are parsed without errors", "[parser success]")
 {
 	for (const auto &competitionDirectory : fs::directory_iterator(pddlInstanceBasePath))
 	{
@@ -134,7 +134,7 @@ TEST_CASE("[PDDL acceptance] All official PDDL domains are parsed without errors
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST_CASE("[PDDL acceptance] The first instance for all official PDDL domains is parsed without errors", "[PDDL acceptance]")
+TEST_CASE("[parser success] The first instance for all official PDDL domains is parsed without errors", "[parser success]")
 {
 	for (const auto &competitionDirectory : fs::directory_iterator(pddlInstanceBasePath))
 	{
