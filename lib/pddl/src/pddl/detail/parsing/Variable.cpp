@@ -10,11 +10,11 @@ namespace detail
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// Predicate
+// Variable
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::experimental::optional<std::string> testParsingVariableName(Context &context)
+std::experimental::optional<ast::VariablePointer> parseVariable(Context &context, VariableStack &variableStack)
 {
 	auto &tokenizer = context.tokenizer;
 
@@ -23,48 +23,11 @@ std::experimental::optional<std::string> testParsingVariableName(Context &contex
 
 	tokenizer.expect<std::string>("?");
 
-	return tokenizer.getIdentifier();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-std::string parseVariableName(Context &context)
-{
-	auto &tokenizer = context.tokenizer;
-
-	tokenizer.expect<std::string>("?");
-
-	return tokenizer.getIdentifier();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-std::experimental::optional<ast::VariablePointer> testParsingVariable(Context &context, VariableStack &variableStack)
-{
-	auto variableName = testParsingVariableName(context);
-
-	if (!variableName)
-		return std::experimental::nullopt;
-
-	auto variableDeclaration = variableStack.findVariableDeclaration(variableName.value());
-
-	if (!variableDeclaration)
-		return std::experimental::nullopt;
-
-	return std::make_unique<ast::Variable>(variableDeclaration.value());
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-ast::VariablePointer parseVariable(Context &context, VariableStack &variableStack)
-{
-	auto &tokenizer = context.tokenizer;
-
-	auto variableName = parseVariableName(context);
+	auto variableName = tokenizer.getIdentifier();
 	auto variableDeclaration = variableStack.findVariableDeclaration(variableName);
 
 	if (!variableDeclaration)
-		throw ParserException(tokenizer.location(), "undeclared variable “" + variableName + "”");
+		return std::experimental::nullopt;
 
 	return std::make_unique<ast::Variable>(variableDeclaration.value());
 }

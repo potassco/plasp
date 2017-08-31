@@ -16,9 +16,7 @@ namespace detail
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// TODO: find consistent naming scheme
-std::experimental::optional<ast::VariablePointer> testParsingVariable(Context &context, VariableStack &variableStack);
-ast::VariablePointer parseVariable(Context &context, VariableStack &variableStack);
+std::experimental::optional<ast::VariablePointer> parseVariable(Context &context, VariableStack &variableStack);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

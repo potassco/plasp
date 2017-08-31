@@ -22,7 +22,7 @@ std::experimental::optional<ast::Term> parseTerm(Context &context, ASTContext &a
 	tokenizer.skipWhiteSpace();
 
 	// TODO: refactor
-	auto variable = testParsingVariable(context, variableStack);
+	auto variable = parseVariable(context, variableStack);
 
 	if (variable)
 		return std::move(variable.value());
