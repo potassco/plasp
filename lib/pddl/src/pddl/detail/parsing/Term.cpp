@@ -21,17 +21,13 @@ std::experimental::optional<ast::Term> parseTerm(Context &context, ASTContext &a
 
 	tokenizer.skipWhiteSpace();
 
-	// TODO: refactor
-	auto variable = parseVariable(context, variableStack);
+	std::experimental::optional<ast::Term> term;
 
-	if (variable)
-		return std::move(variable.value());
-
-	// Parse argument if it is a constant
-	auto constant = parseConstant(context, astContext);
-
-	if (constant)
-		return std::move(constant.value());
+	if ((term = parseVariable(context, variableStack))
+	    || (term = parseConstant(context, astContext)))
+	{
+		return std::move(term.value());
+	}
 
 	return std::experimental::nullopt;
 }
