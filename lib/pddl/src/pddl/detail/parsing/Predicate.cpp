@@ -3,9 +3,7 @@
 #include <pddl/AST.h>
 #include <pddl/Exception.h>
 #include <pddl/detail/SignatureMatching.h>
-#include <pddl/detail/parsing/Constant.h>
-#include <pddl/detail/parsing/Variable.h>
-#include <pddl/detail/parsing/VariableDeclaration.h>
+#include <pddl/detail/parsing/Term.h>
 
 namespace pddl
 {
@@ -39,29 +37,17 @@ std::experimental::optional<ast::PredicatePointer> parsePredicate(Context &conte
 	// Parse arguments
 	while (tokenizer.currentCharacter() != ')')
 	{
-		// Parse argument if it is a variable
-		auto variable = testParsingVariable(context, variableStack);
+		auto term = parseTerm(context, astContext, variableStack);
 
-		if (variable)
+		if (term)
 		{
-			arguments.emplace_back(std::move(variable.value()));
+			arguments.emplace_back(std::move(term.value()));
 
 			tokenizer.skipWhiteSpace();
 			continue;
 		}
 
-		// Parse argument if it is a constant
-		auto constant = testParsingConstant(context, astContext);
-
-		if (constant)
-		{
-			arguments.emplace_back(std::move(constant.value()));
-
-			tokenizer.skipWhiteSpace();
-			continue;
-		}
-
-		// If argument is neither variable nor constant, this is not a valid predicate
+		// If the term couldn’t be parsed, this is not a valid predicate
 		tokenizer.seek(previousPosition);
 		return std::experimental::nullopt;
 	}
