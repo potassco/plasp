@@ -50,7 +50,7 @@ std::experimental::optional<ast::ConstantPointer> findConstant(const std::string
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::experimental::optional<ast::ConstantPointer> testParsingConstant(Context &context, ASTContext &astContext)
+std::experimental::optional<ast::ConstantPointer> parseConstant(Context &context, ASTContext &astContext)
 {
 	auto &tokenizer = context.tokenizer;
 
@@ -59,21 +59,6 @@ std::experimental::optional<ast::ConstantPointer> testParsingConstant(Context &c
 
 	if (!constant)
 		return std::experimental::nullopt;
-
-	return std::move(constant.value());
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-ast::ConstantPointer parseConstant(Context &context, ASTContext &astContext)
-{
-	auto &tokenizer = context.tokenizer;
-
-	const auto constantName = tokenizer.getIdentifier();
-	auto constant = findConstant(constantName, astContext);
-
-	if (!constant)
-		throw ParserException(tokenizer.location(), "undeclared constant “" + constantName + "”");
 
 	return std::move(constant.value());
 }

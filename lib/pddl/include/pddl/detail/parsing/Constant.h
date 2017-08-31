@@ -16,8 +16,7 @@ namespace detail
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::experimental::optional<ast::ConstantPointer> testParsingConstant(Context &context, ASTContext &astContext);
-ast::ConstantPointer parseConstant(Context &context, ASTContext &astContext);
+std::experimental::optional<ast::ConstantPointer> parseConstant(Context &context, ASTContext &astContext);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

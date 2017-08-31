@@ -28,7 +28,7 @@ std::experimental::optional<ast::Term> parseTerm(Context &context, ASTContext &a
 		return std::move(variable.value());
 
 	// Parse argument if it is a constant
-	auto constant = testParsingConstant(context, astContext);
+	auto constant = parseConstant(context, astContext);
 
 	if (constant)
 		return std::move(constant.value());
