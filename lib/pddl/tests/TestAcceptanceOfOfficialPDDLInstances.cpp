@@ -13,12 +13,6 @@ const auto pddlInstanceBasePath = fs::path("data") / "pddl-instances";
 
 const std::set<std::experimental::filesystem::path> unsupportedDomains =
 	{
-		// “=” expressions unsupported
-		pddlInstanceBasePath / "ipc-1998" / "domains" / "assembly-round-1-adl" / "domain.pddl",
-		// “=” expressions unsupported
-		pddlInstanceBasePath / "ipc-1998" / "domains" / "mystery-prime-round-1-strips" / "domain.pddl",
-		// “=” expressions unsupported
-		pddlInstanceBasePath / "ipc-1998" / "domains" / "mystery-prime-round-2-strips" / "domain.pddl",
 		// “:functions” sections unsupported
 		pddlInstanceBasePath / "ipc-2002" / "domains" / "depots-numeric-automatic" / "domain.pddl",
 		// “:functions” sections unsupported
@@ -69,10 +63,6 @@ const std::set<std::experimental::filesystem::path> unsupportedDomains =
 		pddlInstanceBasePath / "ipc-2002" / "domains" / "satellite-numeric-hand-coded" / "domain.pddl",
 		// “:functions” sections unsupported
 		pddlInstanceBasePath / "ipc-2002" / "domains" / "satellite-numeric-hard-automatic" / "domain.pddl",
-		// “=” expressions unsupported
-		pddlInstanceBasePath / "ipc-2002" / "domains" / "satellite-strips-automatic" / "domain.pddl",
-		// “=” expressions unsupported
-		pddlInstanceBasePath / "ipc-2002" / "domains" / "satellite-strips-hand-coded" / "domain.pddl",
 		// “:functions” sections unsupported
 		pddlInstanceBasePath / "ipc-2002" / "domains" / "satellite-time-automatic" / "domain.pddl",
 		// “:functions” sections unsupported
