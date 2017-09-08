@@ -1,0 +1,71 @@
+#ifndef __PLASP_APP__COMMON_OPTIONS_H
+#define __PLASP_APP__COMMON_OPTIONS_H
+
+#include <boost/program_options.hpp>
+
+#include <colorlog/ColorStream.h>
+#include <colorlog/Priority.h>
+
+#include <pddl/Exception.h>
+#include <pddl/Mode.h>
+
+#include <plasp/Language.h>
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Common Options
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace po = boost::program_options;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class OptionException : public pddl::Exception
+{
+	public:
+		using Exception::Exception;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+po::options_description basicOptions();
+po::options_description outputOptions();
+po::options_description parserOptions();
+po::positional_options_description parserPositionalOptions();
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct BasicOptions
+{
+	bool help = false;
+	bool version = false;
+	bool warningsAsErrors = false;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct OutputOptions
+{
+	colorlog::ColorStream::ColorPolicy colorPolicy = colorlog::ColorStream::ColorPolicy::Auto;
+	colorlog::Priority logPriority = colorlog::Priority::Info;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct ParserOptions
+{
+	std::vector<std::string> inputFiles;
+	pddl::Mode parsingMode = pddl::Mode::Strict;
+	plasp::Language::Type language = plasp::Language::Type::Automatic;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+BasicOptions parseBasicOptions(const po::variables_map &variablesMap);
+OutputOptions parseOutputOptions(const po::variables_map &variablesMap);
+ParserOptions parseParserOptions(const po::variables_map &variablesMap);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif
