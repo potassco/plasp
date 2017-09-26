@@ -4,6 +4,7 @@ import clingo
 import sys
 
 STR_UNSAT = "error: input program is UNSAT"
+GROUNDING_ERROR = "error: invalid grounding steps"
 INIT = "init"
 
 #
@@ -19,38 +20,6 @@ INIT = "init"
 #   - init/1 defines the initial situation
 #   - external last/0 is set to true only at the last step
 #
-# NOTE: 
-#   - EXTERNALS DO NOT WORK NOW (ASK ROLAND)
-#
-
-# example program
-base = """
-% background
-fluent(loaded). fluent(alive).
-value(true). value(false).
-action(load). action(shoot).
-
-
-% transition generation
-holds(loaded,true) :- occ(load).
-holds(alive,false) :- occ(shoot), holds'(loaded,true).
-holds(F,V) :- holds'(F,V), not holds(F,VV) : value(VV), VV != V.
-1 { occ(A) : action(A) } 1.
-%:- holds(alive,true), last.
-
-#show holds/2.
-#show occ/1.
-#show last/0.
-
-% state generation
-#external holds'(F,V) : fluent(F), value(V).
-#external last.
-
-% init
-init(holds(loaded,false)).
-init(holds(alive,true)).
-"""
-
 
 class DLPGenerator:
 
@@ -257,11 +226,22 @@ class DynamicLogicProgram:
     def start(self, ctl):
         self.ctl = ctl
         self.backend = ctl.backend
-        self.ctl.register_observer(self)
+        self.steps = 0
+        #self.ctl.register_observer(self)
         for atom in self.init:
             self.backend.add_rule([atom], [], False)
 
-    def ground(self, start, end):
+    # ground(n) grounds n steps
+    # ground(i,j) grounds from i to j (both included)
+    def ground(self, start, end=None):
+        # preprocess
+        if end == None:
+            end = self.steps + start
+            start = self.steps + 1
+        elif self.steps != start-1:
+            raise Exception(GROUNDING_ERROR)
+        self.steps = end
+        # start
         for step in range(start, end+1):
             offset = (step-1)*self.offset
             for rule in self.rules:
@@ -280,13 +260,13 @@ class DynamicLogicProgram:
                     rule[0]
                 )
             for symbol in self.normal_externals.keys():
-                self.assigned_externals[(step, symbol)] = False
+                self.assigned_externals[(step, symbol)] = -1
 
     def assign_external(self, step, symbol, value):
         if value is None:
             self.assigned_externals.pop((step, symbol), None)
         else:
-            self.assigned_externals[(step, symbol)] = value
+            self.assigned_externals[(step, symbol)] = 1 if value else -1
 
     def release_external(self, step, symbol):
         self.assigned_externals.pop((step, symbol), None)
@@ -299,16 +279,11 @@ class DynamicLogicProgram:
         for i in range(step+1):
             for atom, symbol in self.output:
                 if model.is_true(atom+(i*self.offset)):
-                    print(atom+(i*self.offset)) #TODO
                     out.append((i, symbol))
         return out
 
     def get_assumptions(self):
-        out =  [(self.normal_externals[key[1]]+(self.offset*key[0]), value)
-                for key, value in self.assigned_externals.items()]
-        print(out)
-        return out #TODO
-        return [(self.normal_externals[key[1]]+(self.offset*key[0]), value)
+        return [(self.normal_externals[key[1]]+(self.offset*key[0])*value)
                 for key, value in self.assigned_externals.items()]
 
     def rule(self, choice, head, body):
@@ -316,6 +291,40 @@ class DynamicLogicProgram:
 
     def weight_rule(self, choice, head, lower_bound, body):
         print("{}:{}:{}:{}".format(choice, head, lower_bound, body))
+
+
+# example program
+base = """
+% background
+fluent(loaded). fluent(alive).
+value(true). value(false).
+action(load). action(shoot).
+
+
+% transition generation
+holds(loaded,true) :- occ(load).
+holds(alive,false) :- occ(shoot), holds'(loaded,true).
+holds(F,V) :- holds'(F,V), not holds(F,VV) : value(VV), VV != V.
+1 { occ(A) : action(A) } 1.
+:- holds(alive,true), last.
+
+#show occ/1.
+
+% state generation
+#external holds'(F,V) : fluent(F), value(V).
+#external last.
+
+% init
+init(holds(loaded,false)).
+init(holds(alive,true)).
+
+% extension: always one wait action
+action(wait).
+done(wait) :- occ(wait).
+done(wait) :- done'(wait).
+:- last, not done(wait).
+#external done'(wait).
+"""
 
 
 def main():
@@ -328,14 +337,12 @@ def main():
     dynamic_lp = generator.run()
     ctl = clingo.Control(["0"])
     dynamic_lp.start(ctl)
-    steps = 1
-    #steps = 2
-    dynamic_lp.ground(1,steps)
-    # TOGGLE
-    dynamic_lp.assign_external(1, clingo.parse_term("last"), True)
-    #dynamic_lp.release_external(1, clingo.parse_term("last"))
-    #dynamic_lp.release_external(2, clingo.parse_term("last"))
-    #dynamic_lp.assign_external(2, clingo.parse_term("last"), True)
+    steps = 3
+    dynamic_lp.ground(1)
+    dynamic_lp.ground(2)
+    for i in range(1,steps):
+        dynamic_lp.release_external(i, clingo.parse_term("last"))
+    dynamic_lp.assign_external(steps, clingo.parse_term("last"), True)
     with ctl.solve(
         assumptions = dynamic_lp.get_assumptions(), yield_=True
     ) as handle:
@@ -345,6 +352,8 @@ def main():
             print("Answer: {}".format(answers))
             answer = dynamic_lp.get_answer(m,steps)
             print(" ".join(["{}:{}".format(x,y) for x,y in answer]))
+        if not answers:
+            print("UNSATISFIABLE")
 
 if __name__ == "__main__":
     main()
