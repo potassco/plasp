@@ -13,11 +13,14 @@ INIT = "init"
 # Semantics:
 #   - the transition is defined by the stable models of the program
 #   - the possible initial states are defined by the set of primed externals
-#   - normal (not primed) externals work normally
+#   - normal (not primed) externals work as usual
 #
 # Extensions:
 #   - init/1 defines the initial situation
 #   - external last/0 is set to true only at the last step
+#
+# NOTE: 
+#   - EXTERNALS DO NOT WORK NOW (ASK ROLAND)
 #
 
 # example program
@@ -37,6 +40,7 @@ holds(F,V) :- holds'(F,V), not holds(F,VV) : value(VV), VV != V.
 
 #show holds/2.
 #show occ/1.
+#show last/0.
 
 % state generation
 #external holds'(F,V) : fluent(F), value(V).
@@ -66,7 +70,7 @@ class DLPGenerator:
         self.offset = 0
         self.mapping = []
         self.init_externals = []
-        self.normal_externals = []
+        self.normal_externals = {}
         self.output = set()
         self.init = []
 
@@ -147,7 +151,7 @@ class DLPGenerator:
             if mapping <= self.offset: # init external
                 self.init_externals.append((mapping, i.symbol))
             else:                      # normal external
-                self.normal_externals.append((mapping-self.offset, i.symbol))
+                self.normal_externals[i.symbol] = mapping-self.offset
                 self.rules.append((True, [mapping], []))
 
     def set_output(self):
@@ -174,8 +178,8 @@ class DLPGenerator:
 
     def update_max(self, _list):
         for i in _list:
-            if i>self.max:
-                self.max = i
+            if abs(i)>self.max:
+                self.max = abs(i)
 
     def rule(self, choice, head, body):
         self.update_max(head)
@@ -222,7 +226,7 @@ class DLPGenerator:
             ["{}:{}".format(x, y) for x, y in sorted(self.init_externals)]
         )
         out += "\nNORMAL EXTERNALS\n" + "\n".join(
-            ["{}:{}".format(x, y) for x, y in sorted(self.normal_externals)]
+            ["{}:{}".format(x, y) for x, y in sorted(self.normal_externals.items())]
         )
         out += "\nOUTPUT\n" + "\n".join(
             ["{}:{}".format(x, y) for x, y in sorted(self.output)]
@@ -253,8 +257,7 @@ class DynamicLogicProgram:
     def start(self, ctl):
         self.ctl = ctl
         self.backend = ctl.backend
-        #self.ctl.register_observer(self)
-        # TODO: tell ROLAND to reorder
+        self.ctl.register_observer(self)
         for atom in self.init:
             self.backend.add_rule([atom], [], False)
 
@@ -276,30 +279,37 @@ class DynamicLogicProgram:
                     [(x-offset,y) for x, y in rule[3] if x<=0],
                     rule[0]
                 )
-            for atom, symbol in self.normal_externals:
-                self.backend.add_rule([],[-(atom+offset+self.offset)],False)
-                self.assigned_externals[(step, symbol)] = False #atom + (step*self.offset))
+            for symbol in self.normal_externals.keys():
+                self.assigned_externals[(step, symbol)] = False
 
     def assign_external(self, step, symbol, value):
-        del self.assigned_externals[(step, symbol)]
-        if value is not None:
+        if value is None:
+            self.assigned_externals.pop((step, symbol), None)
+        else:
             self.assigned_externals[(step, symbol)] = value
 
     def release_external(self, step, symbol):
-        del self.assigned_externals[(step, symbol)]
-        #self.backend.add_rule([], [atom], False)
+        self.assigned_externals.pop((step, symbol), None)
+        self.backend.add_rule(
+            [], [self.normal_externals[symbol]+(step*self.offset)], False
+        )
 
     def get_answer(self, model, step):
         out = []
         for i in range(step+1):
             for atom, symbol in self.output:
                 if model.is_true(atom+(i*self.offset)):
+                    print(atom+(i*self.offset)) #TODO
                     out.append((i, symbol))
         return out
 
-    # TODO
     def get_assumptions(self):
-        return []
+        out =  [(self.normal_externals[key[1]]+(self.offset*key[0]), value)
+                for key, value in self.assigned_externals.items()]
+        print(out)
+        return out #TODO
+        return [(self.normal_externals[key[1]]+(self.offset*key[0]), value)
+                for key, value in self.assigned_externals.items()]
 
     def rule(self, choice, head, body):
         print("{}:{}:{}".format(choice, head, body))
@@ -307,8 +317,6 @@ class DynamicLogicProgram:
     def weight_rule(self, choice, head, lower_bound, body):
         print("{}:{}:{}:{}".format(choice, head, lower_bound, body))
 
-    def external(self, atom, value):
-        print("{}:{}".format(atom, value))
 
 def main():
     generator = DLPGenerator(
@@ -320,8 +328,14 @@ def main():
     dynamic_lp = generator.run()
     ctl = clingo.Control(["0"])
     dynamic_lp.start(ctl)
-    steps = 3
+    steps = 1
+    #steps = 2
     dynamic_lp.ground(1,steps)
+    # TOGGLE
+    dynamic_lp.assign_external(1, clingo.parse_term("last"), True)
+    #dynamic_lp.release_external(1, clingo.parse_term("last"))
+    #dynamic_lp.release_external(2, clingo.parse_term("last"))
+    #dynamic_lp.assign_external(2, clingo.parse_term("last"), True)
     with ctl.solve(
         assumptions = dynamic_lp.get_assumptions(), yield_=True
     ) as handle:
