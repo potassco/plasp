@@ -1,16 +1,24 @@
 #!/bin/usr/python
 
+from __future__ import print_function
 import clingo
 import sys
 from collections import namedtuple
+from time import clock
 
+# defines
 STR_UNSAT = "error: input program is UNSAT"
 GROUNDING_ERROR = "error: invalid grounding steps"
 INIT = "init"
-
 PRIMED_EXTERNAL = -1
 TRUE  = -2
 FALSE = -3
+
+log_level = 0
+def log(*args):
+    if log_level == 1:
+        print(*args)
+
 
 #
 # Syntax Restriction:
@@ -26,10 +34,20 @@ FALSE = -3
 #   - external last/0 is set to true only at the last step
 #
 
+
+#
 # example program
+#
+
 base = """
 % background
-{a;b}. :- a, b. :- a, not b. b :- occ(A). % a is false, b is true
+dom(1..10000).
+{a(X)} :- dom(X).
+{b(X)} :- dom(X).
+:- a(X), b(X).
+:- a(X), not b(X).
+:- not a(X), b(X).
+a :- a(X).
 fluent(loaded) :- not a.
 fluent(alive)  :- not a.
 value(true)    :- not a.
@@ -37,8 +55,9 @@ value(false)   :- not a.
 action(load)   :- not a.
 action(shoot)  :- not a.
 #show fluent/1.
-#show b/0.
-%#show a/0.
+#show a/0.
+na :- not a. #show na/0.
+#show a/1. #show b/1.
 
 % transition generation
 holds(loaded,true) :- occ(load).
@@ -67,6 +86,7 @@ done(wait) :- done'(wait).
 
 """
 
+
 class DLPGenerator:
 
     def __init__(self, files = [], adds = [], parts = [], options = []):
@@ -91,6 +111,7 @@ class DLPGenerator:
 
     def run(self):
         # preliminaries
+        time0 = clock()
         ctl = self.ctl = clingo.Control(self.options)
         ctl.register_observer(self)
         for i in self.files:
@@ -100,7 +121,11 @@ class DLPGenerator:
         ctl.ground(self.parts)
         # analyze
         self.set_externals()
+        log("preliminaries:\t {:.2f}s".format(clock()-time0))
+        time0 = clock()
         self.simplify()
+        log("simplify:\t {:.2f}s".format(clock()-time0))
+        time0 = clock()
         self.set_next()
         self.set_mapping()
         self.map_rules()
@@ -108,6 +133,7 @@ class DLPGenerator:
         self.handle_externals()
         self.set_output()
         self.set_init()
+        log("rest:\t {:.2f}s".format(clock()-time0))
         # return
         return DynamicLogicProgram(
             self.offset, self.rules, self.weight_rules,
@@ -291,9 +317,15 @@ class DLPGeneratorSimplifier(DLPGenerator):
     def simplify(self):
         self.mapping = [None]*len(self.satoms)
         self.offset = len(self.satoms)
+        time0 = clock()
         self.false = self.get_consequences("brave", False)
+        log("\tbrave:\t\t {:.2f}s".format(clock()-time0))
+        time0 = clock()
         self.cautious = set(self.get_consequences("cautious", True))
+        log("\tcautious:\t {:.2f}s".format(clock()-time0))
+        time0 = clock()
         self.fitting()
+        log("\tfitting:\t {:.2f}s".format(clock()-time0))
 
     def get_consequences(self, opt, true):
         self.ctl.configuration.solve.enum_mode = opt
@@ -476,7 +508,6 @@ class DLPGeneratorSimplifier(DLPGenerator):
                     rule[2][i] = -self.mapping[-atom]
         self.rules = self.rules[0:idx]
         for i in self.cautious:
-            print(self.mapping[i])
             self.rules.append((False, [], [-self.mapping[i]]))
         for i in self.add_facts:
             self.rules.append((False, [i], []))
@@ -662,9 +693,11 @@ class DynamicLogicProgram:
 
 
 def main():
+    global log_level
+    log_level = 0
+    time0 = clock()
     generator_class = DLPGenerator
     if len(sys.argv)>=2 and sys.argv[1] == "simple":
-        print("SIMPLIFIER")
         generator_class = DLPGeneratorSimplifier
     generator = generator_class(
         files = [],
@@ -673,6 +706,8 @@ def main():
         options = ["0"],
     )
     dynamic_lp = generator.run()
+    log("generate:\t {:.2f}s".format(clock()-time0))
+    time0 = clock()
     #print(generator)
     ctl = clingo.Control(["0"])
     dynamic_lp.start(ctl)
@@ -682,6 +717,8 @@ def main():
     for i in range(1,steps):
         dynamic_lp.release_external(i, clingo.parse_term("last"))
     dynamic_lp.assign_external(steps, clingo.parse_term("last"), True)
+    log("ground:\t {:.2f}s".format(clock()-time0))
+    time0 = clock()
     with ctl.solve(
         assumptions = dynamic_lp.get_assumptions(), 
         yield_=True
@@ -694,6 +731,10 @@ def main():
             print(" ".join(["{}:{}".format(x,y) for x,y in answer]))
         if not answers:
             print("UNSATISFIABLE")
+    log("RULES = {}, WRULES = {}".format(
+        len(dynamic_lp.rules), len(dynamic_lp.weight_rules))
+    )
+    log("solve:\t {:.2f}s".format(clock()-time0))
 
 if __name__ == "__main__":
     main()
