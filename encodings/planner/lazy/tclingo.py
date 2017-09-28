@@ -7,10 +7,10 @@ from collections import namedtuple
 STR_UNSAT = "error: input program is UNSAT"
 GROUNDING_ERROR = "error: invalid grounding steps"
 INIT = "init"
+
 PRIMED_EXTERNAL = -1
-NORMAL_EXTERNAL = -2
-TRUE  = -3
-FALSE = -4
+TRUE  = -2
+FALSE = -3
 
 #
 # Syntax Restriction:
@@ -21,37 +21,24 @@ FALSE = -4
 #   - the possible initial states are defined by the set of primed externals
 #   - normal (not primed) externals work as usual
 #
-# Extensions:
+# Extensions (made by the controller object):
 #   - init/1 defines the initial situation
 #   - external last/0 is set to true only at the last step
 #
 
-base1 = """
-{a;b}.
-:- a, b.
-:- a, not b.
-
-c :- not a.
-e :- f, not a.
-f :- e, not a.
-e :- not a.
-g :- 2 #sum{ 2: not a }.
-"""
-
 # example program
 base = """
-{a;b}. :- a, b. :- a, not b. 
-b :- occ(A).
-fluent(loaded) :- not a. fluent(alive) :- not a.
-value(true) :- not a. value(false) :- not a.
-action(load) :- not a. action(shoot) :- not a.
-
-%*
 % background
-fluent(loaded). fluent(alive).
-value(true). value(false).
-action(load). action(shoot).
-*%
+{a;b}. :- a, b. :- a, not b. b :- occ(A). % a is false, b is true
+fluent(loaded) :- not a.
+fluent(alive)  :- not a.
+value(true)    :- not a.
+value(false)   :- not a.
+action(load)   :- not a.
+action(shoot)  :- not a.
+#show fluent/1.
+#show b/0.
+%#show a/0.
 
 % transition generation
 holds(loaded,true) :- occ(load).
@@ -59,7 +46,6 @@ holds(alive,false) :- occ(shoot), holds'(loaded,true).
 holds(F,V) :- holds'(F,V), not holds(F,VV) : value(VV), VV != V.
 { occ(A) : action(A) } 1.
 :- holds(alive,true), last.
-%:- not holds(loaded,false).
 #show occ/1.
 
 % state generation
@@ -72,13 +58,11 @@ holds(F,V) :- holds'(F,V), not holds(F,VV) : value(VV), VV != V.
 init(holds(loaded,false)).
 init(holds(alive,true)).
 
-
 % extension: always one wait action
 action(wait).
-done(wait) :- occ(wait), not last.
+done(wait) :- occ(wait).
 done(wait) :- done'(wait).
 :- last, not done(wait).
-:- last, not occ(wait).
 #external done'(wait).
 
 """
@@ -91,19 +75,19 @@ class DLPGenerator:
         self.adds = adds
         self.parts = parts
         self.options = options
-        # rest
-        self.ctl = None
+        # output
         self.offset = 0
         self.rules = []
         self.weight_rules = []
-        self.externals = []
-        self.next = {}
-        self.mapping = []
-        self.primed_externals = []
+        self.primed_externals = {}
         self.normal_externals = {}
         self.output = []
         self.output_facts = []
         self.init = []
+        # rest
+        self.ctl = None
+        self.next = {}
+        self.mapping = []
 
     def run(self):
         # preliminaries
@@ -127,9 +111,18 @@ class DLPGenerator:
         # return
         return DynamicLogicProgram(
             self.offset, self.rules, self.weight_rules,
-            self.primed_externals, self.normal_externals, 
+            self.primed_externals, self.normal_externals,
             self.output, self.output_facts, self.init
         )
+
+    def set_externals(self):
+        for x in self.ctl.symbolic_atoms:
+            if x.is_external:
+                self.ctl.assign_external(x.symbol, None)
+                if len(x.symbol.name) and x.symbol.name[-1]=="'":
+                    self.primed_externals[x.symbol] = x.literal
+                else:
+                    self.normal_externals[x.symbol] = x.literal
 
     def simplify(self):
         pass
@@ -141,22 +134,12 @@ class DLPGenerator:
         except Exception:
             return default
 
-    def set_externals(self):
-        for x in self.ctl.symbolic_atoms:
-            if x.is_external:
-                self.externals.append(x)
-                self.ctl.assign_external(x.symbol, None)
-
     def set_next(self):
-        self.next = {x.literal : self.get_next_literal(x.symbol, x.literal)
-                     for x in self.externals if
-                         len(x.symbol.name) and
-                         x.symbol.name[-1] == "'"
-                    }
+        self.next = {literal : self.get_next_literal(symbol, literal)
+                     for symbol, literal in self.primed_externals.items() }
 
     def set_mapping(self):
-        self.mapping = [0] * (self.offset + 1)
-        self.offset = self.offset # TODO: check if this works
+        self.mapping = [0] * (self.offset + 1) # TODO: check if offset works
         for i in range(1, self.offset + 1):
             self.mapping[i] = self.next.get(i, i + self.offset)
 
@@ -181,13 +164,11 @@ class DLPGenerator:
                     rule[3][i] = (-self.mapping[-atom[0]], atom[1])
 
     def handle_externals(self):
-        for i in self.externals:
-            mapping = self.mapping[i.literal]
-            if mapping <= self.offset: # init external
-                self.primed_externals.append((mapping, i.symbol))
-            else:                      # normal external
-                self.normal_externals[i.symbol] = mapping-self.offset
-                self.rules.append((True, [mapping], []))
+        for symbol, literal in self.primed_externals.items():
+            self.primed_externals[symbol] = self.mapping[literal]
+        for symbol, literal in self.normal_externals.items():
+            self.normal_externals[symbol] = self.mapping[literal] - self.offset
+            self.rules.append((True, [self.mapping[literal]], []))
 
     def set_output(self):
         # gather output
@@ -197,13 +178,19 @@ class DLPGenerator:
             if handle.get().unsatisfiable:
                 raise Exception(STR_UNSAT)
         # map
-        for idx, (atom, symbol) in enumerate(self.output):
+        idx = 0
+        for atom, symbol in self.output:
+            if atom == 0:
+                self.output_facts.append(symbol)
+                continue
             mapped_atom = self.mapping[atom]
             if mapped_atom > self.offset:
                 mapped_atom -= self.offset
-            else: # elif mapped_atom # init external
+            elif mapped_atom:                              # primed external
                 symbol = clingo.Function(symbol.name[:-1], symbol.arguments)
             self.output[idx] = (mapped_atom, symbol)
+            idx += 1
+        self.output = self.output[0:idx]
 
     def set_init(self):
         self.init = [self.mapping[
@@ -223,12 +210,6 @@ class DLPGenerator:
         for i in _list:
             if abs(i)>self.offset:
                 self.offset = abs(i)
-
-    def add_satoms(self, i, start=True):
-        if i >= len(self.satoms):
-            self.satoms += [None] * (i-len(self.satoms)+1)
-        if start and self.satoms[i] == None:
-            self.satoms[i] = SAtom(set(), [], [], set(), [], [])
 
     def rule(self, choice, head, body):
         self.update_offset(head)
@@ -267,8 +248,10 @@ class DLPGenerator:
                 i[0], i[1], i[2], i[3]
             ) for i in self.weight_rules if i is not None]
         )
-        out += "\nINIT EXTERNALS\n" + "\n".join(
-            ["{}:{}".format(x, y) for x, y in sorted(self.primed_externals)]
+        out += "\nPRIMED EXTERNALS\n" + "\n".join(
+            ["{}:{}".format(x, y) for x, y in sorted(
+                self.primed_externals.items()
+            )]
         )
         out += "\nNORMAL EXTERNALS\n" + "\n".join(
             ["{}:{}".format(x, y) for x, y in sorted(
@@ -277,6 +260,9 @@ class DLPGenerator:
         )
         out += "\nOUTPUT\n" + "\n".join(
             ["{}:{}".format(x, y) for x, y in sorted(self.output)]
+        )
+        out += "\nOUTPUT FACTS\n" + "\n".join(
+            ["{}".format(x) for x in sorted(self.output_facts)]
         )
         out += "\nINIT\n" + "\n".join(
             ["{}".format(x) for x in sorted(self.init)]
@@ -447,37 +433,32 @@ class DLPGeneratorSimplifier(DLPGenerator):
             self.satoms[atom] = None
 
     def set_next(self):
-        for x in self.externals:
-            if len(x.symbol.name) and x.symbol.name[-1]=="'":
-                self.mapping[x.literal] = PRIMED_EXTERNAL
-                next_literal = self.get_next_literal(x.symbol, 0)
-                if next_literal and \
-                   self.mapping[next_literal] not in {TRUE,FALSE}:
-                    self.offset -= 1
-                self.next[x.literal] = next_literal
-                continue
-            self.mapping[x.literal] = NORMAL_EXTERNAL
+        for symbol, literal in self.primed_externals.items():
+            self.mapping[literal] = PRIMED_EXTERNAL
+            next_literal = self.get_next_literal(symbol, 0)
+            self.next[literal] = next_literal
+            if next_literal and self.mapping[next_literal] not in {TRUE,FALSE}:
+                self.offset -= 1
 
     def set_mapping(self):
         number = -1           # we do self.mapping[0]=offset
         for idx, item in enumerate(self.mapping):
-            if item is None or item == NORMAL_EXTERNAL:
+            if item is None:
                 number += 1
                 self.mapping[idx] = number + self.offset
-        for idx, item in enumerate(self.mapping):
-            if item == PRIMED_EXTERNAL:
-                next_literal = self.next[idx]
-                next_mapping = self.mapping[next_literal]
-                if not next_literal or next_mapping == FALSE:
-                    number += 1
-                    self.mapping[idx] = number
-                    self.add_constraints.append(number + self.offset)
-                elif next_mapping == TRUE:
-                    number += 1
-                    self.mapping[idx] = number
-                    self.add_facts.append(number + self.offset)
-                else:
-                    self.mapping[idx] = next_mapping - self.offset
+        for symbol, literal in self.primed_externals.items():
+            next_literal = self.next[literal]
+            next_mapping = self.mapping[next_literal]
+            if not next_literal or next_mapping == FALSE:
+                number += 1
+                self.mapping[literal] = number
+                self.add_constraints.append(number + self.offset)
+            elif next_mapping == TRUE:
+                number += 1
+                self.mapping[literal] = number
+                self.add_constraints.append(number + self.offset)
+            else:
+                self.mapping[literal] = next_mapping - self.offset
 
     def map_rules(self):
         idx = 0
@@ -495,11 +476,12 @@ class DLPGeneratorSimplifier(DLPGenerator):
                     rule[2][i] = -self.mapping[-atom]
         self.rules = self.rules[0:idx]
         for i in self.cautious:
-            self.rules.append(False, [], [-self.mapping[i]])
+            print(self.mapping[i])
+            self.rules.append((False, [], [-self.mapping[i]]))
         for i in self.add_facts:
-            self.rules.append(False, [i], [])
+            self.rules.append((False, [i], []))
         for i in self.add_constraints:
-            self.rules.append(False, [], [i])
+            self.rules.append((False, [], [i]))
 
     def map_weight_rules(self):
         idx = 0
@@ -520,15 +502,31 @@ class DLPGeneratorSimplifier(DLPGenerator):
             self.weight_rules = self.weight_rules[0:idx]
 
     def set_output(self):
-        for idx, (atom, symbol) in enumerate(self.output):
+        idx = 0
+        for atom, symbol in self.output:
             mapped_atom = self.mapping[atom]
-            if mapped_atom == TRUE:
+            if atom == 0 or mapped_atom == TRUE:
                 self.output_facts.append(symbol)
+                continue
+            elif mapped_atom == FALSE:
+                continue
             elif mapped_atom > self.offset:
                 mapped_atom -= self.offset
-            else: # elif mapped_atom # init external
+            else:                                          # primed external
                 symbol = clingo.Function(symbol.name[:-1], symbol.arguments)
             self.output[idx] = (mapped_atom, symbol)
+            idx += 1
+        self.output = self.output[0:idx]
+
+    #
+    # observer
+    #
+
+    def add_satoms(self, i, start=True):
+        if i >= len(self.satoms):
+            self.satoms += [None] * (i-len(self.satoms)+1)
+        if start and self.satoms[i] == None:
+            self.satoms[i] = SAtom(set(), [], [], set(), [], [])
 
     def rule(self, choice, head, body):
         # facts
@@ -585,7 +583,6 @@ class DynamicLogicProgram:
         self.weight_rules = weight_rules
         self.primed_externals = primed_externals
         self.normal_externals = normal_externals
-        self.assigned_externals = {}
         self.output = output
         self.output_facts = output_facts
         self.init = init
@@ -593,6 +590,7 @@ class DynamicLogicProgram:
         self.ctl = None
         self.backend = None
         self.steps = 0
+        self.assigned_externals = {}
 
     def start(self, ctl):
         self.ctl = ctl
@@ -678,14 +676,15 @@ def main():
     #print(generator)
     ctl = clingo.Control(["0"])
     dynamic_lp.start(ctl)
-    steps = 4
-    dynamic_lp.ground(3)
+    steps = 3
+    dynamic_lp.ground(steps-1)
     dynamic_lp.ground(1)
     for i in range(1,steps):
         dynamic_lp.release_external(i, clingo.parse_term("last"))
     dynamic_lp.assign_external(steps, clingo.parse_term("last"), True)
     with ctl.solve(
-        assumptions = dynamic_lp.get_assumptions(), yield_=True
+        assumptions = dynamic_lp.get_assumptions(), 
+        yield_=True
     ) as handle:
         answers = 0
         for m in handle:
