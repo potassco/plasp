@@ -6,14 +6,20 @@ import sys
 from collections import namedtuple
 from time import clock
 
-# defines
+# DEFINES
 STR_UNSAT = "error: input program is UNSAT"
 GROUNDING_ERROR = "error: invalid grounding steps"
 INIT = "init"
+# mapping
 PRIMED_EXTERNAL = -1
 TRUE  = -2
 FALSE = -3
+# fitting
+FITTING_TRUE     = 1
+FITTING_FALSE    = 2
+FITTING_CAUTIOUS = 3
 
+# log
 log_level = 0
 def log(*args):
     if log_level == 1:
@@ -38,26 +44,30 @@ def log(*args):
 #
 # example program
 #
-
+base2 = "#external a'. b :- a'. :- b."
 base = """
 % background
-dom(1..10000).
+
+dom(1..10).
 {a(X)} :- dom(X).
 {b(X)} :- dom(X).
 :- a(X), b(X).
 :- a(X), not b(X).
 :- not a(X), b(X).
-a :- a(X).
+a :- a(X). % a(X), b(X), a and b are false
+b :- b(X).
+b :- 1 #sum { 1,X: a(X); -2,X: not b(X), dom(X) }.
+
+#show a/1.
+#show nb/0.
+nb :- not b.
+
 fluent(loaded) :- not a.
 fluent(alive)  :- not a.
 value(true)    :- not a.
 value(false)   :- not a.
 action(load)   :- not a.
 action(shoot)  :- not a.
-#show fluent/1.
-#show a/0.
-na :- not a. #show na/0.
-#show a/1. #show b/1.
 
 % transition generation
 holds(loaded,true) :- occ(load).
@@ -83,7 +93,6 @@ done(wait) :- occ(wait).
 done(wait) :- done'(wait).
 :- last, not done(wait).
 #external done'(wait).
-
 """
 
 
@@ -119,6 +128,7 @@ class DLPGenerator:
         for i in self.adds:
             ctl.add(i[0], i[1], i[2])
         ctl.ground(self.parts)
+        #print(self)
         # analyze
         self.set_externals()
         log("preliminaries:\t {:.2f}s".format(clock()-time0))
@@ -207,14 +217,14 @@ class DLPGenerator:
         idx = 0
         for atom, symbol in self.output:
             if atom == 0:
-                self.output_facts.append(symbol)
+                self.output_facts.append(str(symbol))
                 continue
             mapped_atom = self.mapping[atom]
             if mapped_atom > self.offset:
                 mapped_atom -= self.offset
             elif mapped_atom:                              # primed external
                 symbol = clingo.Function(symbol.name[:-1], symbol.arguments)
-            self.output[idx] = (mapped_atom, symbol)
+            self.output[idx] = (mapped_atom, str(symbol))
             idx += 1
         self.output = self.output[0:idx]
 
@@ -311,12 +321,11 @@ class DLPGeneratorSimplifier(DLPGenerator):
         self.true = []
         self.false = []
         self.cautious = set()
-        self.add_facts = []
         self.add_constraints = []
 
     def simplify(self):
         self.mapping = [None]*len(self.satoms)
-        self.offset = len(self.satoms)
+        self.offset = len(self.satoms) - 1
         time0 = clock()
         self.false = self.get_consequences("brave", False)
         log("\tbrave:\t\t {:.2f}s".format(clock()-time0))
@@ -350,69 +359,121 @@ class DLPGeneratorSimplifier(DLPGenerator):
         if not satom.heads and not satom.wheads:
             self.false.append(atom)
 
+    def rule_is_single_constraint(self, idx, rule, tmp_cautious):
+        literal = rule[2].pop()
+        if literal > 0:
+            self.false.append(literal)
+        else:
+            tmp_cautious.append(-literal)
+        self.rules[idx] = None
+
+    def weight_rule_is_single_constraint(self, idx, rule, tmp_cautious):
+        literal, w = rule[3].pop()
+        if w >= rule[2][0]:
+            if literal > 0:
+                self.false.append(literal)
+            else:
+                tmp_cautious.append(-literal)
+        self.weight_rules[idx] = None
+
     def fitting(self):
+        tmp_cautious = list(self.cautious)
+        self.cautious = set()
         while True:
-            # preprocess
+            # preprocessing
             if len(self.true):
                 atom = self.true[0]
                 self.true = self.true[1:]
-                true = True
+                if self.mapping[atom] == TRUE:
+                    continue
+                else:
+                    self.mapping[atom] = TRUE
+                atom_type = FITTING_TRUE
                 signed = atom
-                self.mapping[atom] = TRUE
-                self.cautious.discard(atom)
                 self.offset -= 1
             elif len(self.false):
                 atom = self.false[0]
                 self.false = self.false[1:]
-                true = False
+                if self.mapping[atom] == FALSE:
+                    continue
+                else:
+                    self.mapping[atom] = FALSE
+                atom_type = FITTING_FALSE
                 signed = -atom
-                self.mapping[atom] = FALSE
                 self.offset -= 1
+            elif len(tmp_cautious):
+                atom = tmp_cautious[0]
+                tmp_cautious = tmp_cautious[1:]
+                if self.mapping[atom] == TRUE or (atom in self.cautious):
+                    continue
+                self.cautious.add(atom)
+                atom_type = FITTING_CAUTIOUS
+                signed = atom
             else:
                 return
             satom = self.satoms[atom]
-            if satom is None:
+            if satom is None: # fact not appearing elsewhere
                 continue
-            if true:
+            # selection
+            if atom_type == FITTING_TRUE:
+                heads             = satom.heads
+                wheads            = satom.wheads
                 satisfied_body    = satom.bodypos
                 unsatisfied_body  = satom.bodyneg
                 satisfied_wbody   = satom.wbodypos
                 unsatisfied_wbody = satom.wbodyneg
-            else:
+            elif atom_type == FITTING_FALSE:
+                heads             = satom.heads
+                wheads            = satom.wheads
                 satisfied_body    = satom.bodyneg
                 unsatisfied_body  = satom.bodypos
                 satisfied_wbody   = satom.wbodyneg
                 unsatisfied_wbody = satom.wbodypos
+            else: # FITTING_CAUTIOUS
+                heads             = []
+                wheads            = []
+                satisfied_body    = []
+                unsatisfied_body  = satom.bodyneg
+                satisfied_wbody   = []
+                unsatisfied_wbody = satom.wbodyneg
             # heads
-            for i in satom.heads:
+            for i in heads:
                 rule = self.rules[i]
                 if rule is None:
                     continue
                 if not rule[0]: # disjunction
-                    if true:
+                    if atom_type == FITTING_TRUE:
                         for head in rule[1]:
                             if head != atom:
                                 self.remove_rule_from_heads(i, head)
                         self.rules[i] = None
                     else:
                         rule[1].remove(atom)
+                        if not rule[1] and len(rule[2]) == 1: # 1-constraint
+                            self.rule_is_single_constraint(
+                                i, rule, tmp_cautious
+                            )
                 else:           # choice
                     rule[1].remove(atom)
                     if not rule[1]:
                         self.rules[i] = None
             # wheads
-            for i in satom.wheads:
+            for i in wheads:
                 rule = self.weight_rules[i]
                 if rule is None:
                     continue
                 if not rule[0]: # disjunction
-                    if true:
+                    if atom_type == FITTING_TRUE:
                         for head in rule[1]:
                             if head != atom:
                                 self.remove_rule_from_heads(i, head, True)
                         self.weight_rules[i] = None
                     else:
                         rule[1].remove(atom)
+                        if not rule[1] and len(rule[3]) == 1: # 1-constraint
+                            self.weight_rule_is_single_constraint(
+                                i, rule, tmp_cautious
+                            )
                 else:            # choice
                     rule[1].remove(atom)
                     if not rule[1]:
@@ -426,6 +487,8 @@ class DLPGeneratorSimplifier(DLPGenerator):
                 if not rule[0] and len(rule[1]) == 1 and not rule[2]: # fact
                     self.true.append(rule[1].pop())
                     self.rules[i] = None
+                elif not rule[0] and not rule[1] and len(rule[2]) == 1: # 1-c
+                    self.rule_is_single_constraint(i, rule, tmp_cautious)
             # unsatisfied body
             for i in unsatisfied_body:
                 rule = self.rules[i]
@@ -435,11 +498,11 @@ class DLPGeneratorSimplifier(DLPGenerator):
                     self.remove_rule_from_heads(i, head)
                 self.rules[i] = None
             # satisfied wbody
-            for w, i in satisfied_wbody:
+            for i, w in satisfied_wbody:
                 rule = self.weight_rules[i]
                 if rule is None:
                     continue
-                rule[3].remove((w,signed))
+                rule[3].remove((signed, w))
                 rule[2][0] -= w
                 if rule[2][0] <= 0:
                     if not rule[0] and len(rule[1]) == 1: # fact
@@ -451,46 +514,67 @@ class DLPGeneratorSimplifier(DLPGenerator):
                             head.wheads.remove(i)
                             head.heads.add(new_rule)
                     self.weight_rules[i] = None
+                elif not rule[0] and not rule[1] and len(rule[3]) == 1: # 1-c
+                    self.weight_rule_is_single_constraint(
+                        i, rule, tmp_cautious
+                    )
             # unsatisfied wbody
-            for w, i in unsatisfied_wbody:
+            for i, w in unsatisfied_wbody:
                 rule = self.weight_rules[i]
                 if rule is None:
                     continue
-                rule[3].remove((w,signed))
-                if sum([a for a, _ in rule[3]]) < rule[2][0]:
+                rule[3].remove((-signed, w))
+                if sum([ww for _, ww in rule[3]]) < rule[2][0]:
                     for head in rule[1]:
                         self.remove_rule_from_heads(i, head, True)
                     self.weight_rules[i] = None
             # finish
-            self.satoms[atom] = None
+            if type == FITTING_CAUTIOUS:
+                satom.bodyneg = []
+                satom.wbodyneg = []
+            else:
+                self.satoms[atom] = None
 
     def set_next(self):
         for symbol, literal in self.primed_externals.items():
+            # handle FALSE primed externals
+            if self.mapping[literal] == FALSE:
+                self.offset += 1
+                self.rules.append((False, [], [literal]))
             self.mapping[literal] = PRIMED_EXTERNAL
             next_literal = self.get_next_literal(symbol, 0)
             self.next[literal] = next_literal
-            if next_literal and self.mapping[next_literal] not in {TRUE,FALSE}:
+            if next_literal and self.mapping[next_literal] not in {TRUE, FALSE}:
                 self.offset -= 1
 
     def set_mapping(self):
+        # handle FALSE normal externals
+        for _, literal in self.normal_externals.items():
+            if self.mapping[literal] == FALSE:
+                self.offset += 1
+                self.rules.append((False, [], [literal]))
+                self.mapping[literal] = None
+        # do atoms and normal externals
         number = -1           # we do self.mapping[0]=offset
         for idx, item in enumerate(self.mapping):
             if item is None:
                 number += 1
                 self.mapping[idx] = number + self.offset
+        # do primed externals
         for symbol, literal in self.primed_externals.items():
             next_literal = self.next[literal]
             next_mapping = self.mapping[next_literal]
             if not next_literal or next_mapping == FALSE:
                 number += 1
                 self.mapping[literal] = number
-                self.add_constraints.append(number + self.offset)
+                self.add_constraints.append((number + self.offset, False))
             elif next_mapping == TRUE:
                 number += 1
                 self.mapping[literal] = number
-                self.add_constraints.append(number + self.offset)
+                self.add_constraints.append((number + self.offset, True))
             else:
                 self.mapping[literal] = next_mapping - self.offset
+        assert number == self.offset
 
     def map_rules(self):
         idx = 0
@@ -507,12 +591,15 @@ class DLPGeneratorSimplifier(DLPGenerator):
                 else:
                     rule[2][i] = -self.mapping[-atom]
         self.rules = self.rules[0:idx]
+        # cautious and add_constraints
         for i in self.cautious:
-            self.rules.append((False, [], [-self.mapping[i]]))
-        for i in self.add_facts:
-            self.rules.append((False, [i], []))
-        for i in self.add_constraints:
-            self.rules.append((False, [], [i]))
+            if self.mapping[i] != TRUE:
+                self.rules.append((False, [], [-self.mapping[i]]))
+        for i, value in self.add_constraints:
+            if value:
+                self.rules.append((False, [], [-i]))
+            else:
+                self.rules.append((False, [], [ i]))
 
     def map_weight_rules(self):
         idx = 0
@@ -537,7 +624,7 @@ class DLPGeneratorSimplifier(DLPGenerator):
         for atom, symbol in self.output:
             mapped_atom = self.mapping[atom]
             if atom == 0 or mapped_atom == TRUE:
-                self.output_facts.append(symbol)
+                self.output_facts.append(str(symbol))
                 continue
             elif mapped_atom == FALSE:
                 continue
@@ -545,7 +632,7 @@ class DLPGeneratorSimplifier(DLPGenerator):
                 mapped_atom -= self.offset
             else:                                          # primed external
                 symbol = clingo.Function(symbol.name[:-1], symbol.arguments)
-            self.output[idx] = (mapped_atom, symbol)
+            self.output[idx] = (mapped_atom, str(symbol))
             idx += 1
         self.output = self.output[0:idx]
 
@@ -592,9 +679,9 @@ class DLPGeneratorSimplifier(DLPGenerator):
             for i, w in body:
                 self.add_satoms(abs(i))
                 if i > 0:
-                    self.satoms[i].wbodypos.append((w,wrule))
+                    self.satoms[i].wbodypos.append((wrule,w))
                 else:
-                    self.satoms[-i].wbodyneg.append((w,wrule))
+                    self.satoms[-i].wbodyneg.append((wrule,w))
             self.weight_rules.append(
                 (choice, set(head), [lower_bound], set(body))
             )
@@ -674,7 +761,7 @@ class DynamicLogicProgram:
         )
 
     def get_answer(self, model, step):
-        out = [((),symbol) for symbol in self.output_facts]
+        out = [("*",symbol) for symbol in self.output_facts]
         for i in range(step+1):
             for atom, symbol in self.output:
                 if model.is_true(atom+(i*self.offset)):
@@ -685,16 +772,65 @@ class DynamicLogicProgram:
         return [(self.normal_externals[key[1]]+(self.offset*key[0])*value)
                 for key, value in self.assigned_externals.items()]
 
-    def rule(self, choice, head, body):
-        print("{}:{}:{}".format(choice, head, body))
-
-    def weight_rule(self, choice, head, lower_bound, body):
-        print("{}:{}:{}:{}".format(choice, head, lower_bound, body))
+    def __str__(self):
+        out = ""
+        output_dict = {}
+        for atom, symbol in self.output:
+            output_dict[atom] = "#prev(" + symbol + ")"
+            output_dict[atom + self.offset] = symbol
+        for rule in self.rules:
+            if rule[0]:
+                out += "{"
+            out += "; ".join(
+                [output_dict.get(head, str(head)) for head in rule[1]]
+            )
+            if rule[0]:
+                out += "}"
+            if not len(rule[2]):
+                out += ".\n"
+                continue
+            if rule[1]:
+                out += " "
+            out += ":- " 
+            out += ", ".join(
+                [output_dict.get(b, str(b)) for b in rule[2] if b  > 0] +
+                ["not " + output_dict.get(
+                    -b, str(-b)
+                ) for b in rule[2] if b <= 0]
+            )
+            out += ".\n"
+        for rule in self.weight_rules:
+            if rule[0]:
+                out += "{"
+            out += "; ".join(
+                [output_dict.get(head, str(head)) for head in rule[1]]
+            )
+            if rule[0]:
+                out += "}"
+            if not len(rule[3]):
+                out += ".\n"
+                continue
+            if rule[1]:
+                out += " "
+            out += ":- {} #sum ".format(rule[2])
+            out += "{"
+            out += "; ".join(
+                [str(w) + "," + output_dict.get(b, str(b)) + ": " +
+                 output_dict.get(b,str(b)) for b,w in rule[3] if b  > 0] +
+                [str(w) + "," + output_dict.get(-b, str(-b)) + ": not " +
+                 output_dict.get(-b,str(-b)) for b,w in rule[3] if b  <= 0]
+            )
+            out += "}.\n"
+        for symbol, _ in self.primed_externals.items():
+            out += "#external {}.\n".format(str(symbol))
+        for symbol, _ in self.normal_externals.items():
+            out += "#external {}.\n".format(str(symbol))
+        for symbol in self.output_facts:
+            out += "{}.\n".format(symbol)
+        return out
 
 
 def main():
-    global log_level
-    log_level = 0
     time0 = clock()
     generator_class = DLPGenerator
     if len(sys.argv)>=2 and sys.argv[1] == "simple":
@@ -711,6 +847,7 @@ def main():
     #print(generator)
     ctl = clingo.Control(["0"])
     dynamic_lp.start(ctl)
+    print(dynamic_lp)
     steps = 3
     dynamic_lp.ground(steps-1)
     dynamic_lp.ground(1)
@@ -720,7 +857,7 @@ def main():
     log("ground:\t {:.2f}s".format(clock()-time0))
     time0 = clock()
     with ctl.solve(
-        assumptions = dynamic_lp.get_assumptions(), 
+        assumptions = dynamic_lp.get_assumptions(),
         yield_=True
     ) as handle:
         answers = 0
