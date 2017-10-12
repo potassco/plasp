@@ -1,7 +1,5 @@
 set(target plasp-app)
 
-find_package(Boost 1.55.0 COMPONENTS program_options iostreams system REQUIRED)
-
 file(GLOB core_sources "plasp-app/*.cpp")
 file(GLOB core_headers "../include/plasp-app/*.h")
 
@@ -9,12 +7,12 @@ file(GLOB commands_sources "plasp-app/commands/*.cpp")
 file(GLOB commands_headers "../include/plasp-app/commands/*.h")
 
 set(includes
-	${Boost_INCLUDE_DIRS}
 	${PROJECT_SOURCE_DIR}/include
 	${PROJECT_SOURCE_DIR}/lib/tokenize/include
 	${PROJECT_SOURCE_DIR}/lib/colorlog/include
 	${PROJECT_SOURCE_DIR}/lib/variant/include
 	${PROJECT_SOURCE_DIR}/lib/pddl/include
+	${PROJECT_SOURCE_DIR}/lib/cxxopts/include
 	${PROJECT_SOURCE_DIR}/app/include
 )
 
@@ -27,7 +25,6 @@ set(sources
 
 set(libraries
 	stdc++fs
-	${Boost_LIBRARIES}
 	plasp
 )
 

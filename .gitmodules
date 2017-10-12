@@ -7,3 +7,6 @@
 [submodule "tests/data/pddl-instances"]
 	path = tests/data/pddl-instances
 	url = https://github.com/potassco/pddl-instances.git
+[submodule "lib/cxxopts"]
+	path = lib/cxxopts
+	url = https://github.com/jarro2783/cxxopts
