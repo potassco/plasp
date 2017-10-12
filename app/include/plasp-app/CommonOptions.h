@@ -1,7 +1,7 @@
 #ifndef __PLASP_APP__COMMON_OPTIONS_H
 #define __PLASP_APP__COMMON_OPTIONS_H
 
-#include <boost/program_options.hpp>
+#include <cxxopts.hpp>
 
 #include <colorlog/ColorStream.h>
 #include <colorlog/Priority.h>
@@ -17,10 +17,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace po = boost::program_options;
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 class OptionException : public pddl::Exception
 {
 	public:
@@ -29,10 +25,9 @@ class OptionException : public pddl::Exception
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-po::options_description basicOptions();
-po::options_description outputOptions();
-po::options_description parserOptions();
-po::positional_options_description parserPositionalOptions();
+void addBasicOptions(cxxopts::Options &options);
+void addOutputOptions(cxxopts::Options &options);
+void addParserOptions(cxxopts::Options &options);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -62,9 +57,9 @@ struct ParserOptions
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-BasicOptions parseBasicOptions(const po::variables_map &variablesMap);
-OutputOptions parseOutputOptions(const po::variables_map &variablesMap);
-ParserOptions parseParserOptions(const po::variables_map &variablesMap);
+BasicOptions parseBasicOptions(cxxopts::Options &options);
+OutputOptions parseOutputOptions(cxxopts::Options &options);
+ParserOptions parseParserOptions(cxxopts::Options &options);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

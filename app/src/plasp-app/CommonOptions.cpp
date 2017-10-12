@@ -6,72 +6,54 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-po::options_description basicOptions()
+void addBasicOptions(cxxopts::Options &options)
 {
-	po::options_description basicOptions("Basic options");
-	basicOptions.add_options()
-		("help,h", po::bool_switch(), "Display this help message")
-		("version,v", po::bool_switch(), "Display version information")
-		("warnings-as-errors", po::bool_switch(), "Treat warnings as errors");
-
-	return basicOptions;
+	options.add_options("basic")
+		("h,help", "Display this help message")
+		("v,version", "Display version information")
+		("warnings-as-errors", "Treat warnings as errors");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-po::options_description outputOptions()
+void addOutputOptions(cxxopts::Options &options)
 {
-	po::options_description outputOptions("Output options");
-	outputOptions.add_options()
-		("color", po::value<std::string>()->default_value("auto"), "Colorize output (always, never, auto)")
-		("log-priority,p", po::value<std::string>()->default_value("info"), "Log messages starting from this priority (debug, info, warning, error)");
-
-	return outputOptions;
+	options.add_options("output")
+		("color", "Colorize output (always, never, auto)", cxxopts::value<std::string>()->default_value("auto"))
+		("p,log-priority", "Log messages starting from this priority (debug, info, warning, error)", cxxopts::value<std::string>()->default_value("info"));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-po::options_description parserOptions()
+void addParserOptions(cxxopts::Options &options)
 {
-	po::options_description parserOptions("Parser options options");
-	parserOptions.add_options()
-		("input,i", po::value<std::vector<std::string>>(), "Input files (in PDDL or SAS format)")
-		("parsing-mode", po::value<std::string>()->default_value("strict"), "Parsing mode (strict, compatibility)")
-		("language,l", po::value<std::string>()->default_value("auto"), "Input language (pddl, sas, auto)");
-
-	return parserOptions;
+	options.add_options("parser")
+		("i,input", "Input files (in PDDL or SAS format)", cxxopts::value<std::vector<std::string>>())
+		("parsing-mode", "Parsing mode (strict, compatibility)", cxxopts::value<std::string>()->default_value("strict"))
+		("l,language", "Input language (pddl, sas, auto)", cxxopts::value<std::string>()->default_value("auto"));
+	options.parse_positional("input");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-po::positional_options_description parserPositionalOptions()
-{
-	po::positional_options_description positionalOptions;
-	positionalOptions.add("input", -1);
-
-	return positionalOptions;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-BasicOptions parseBasicOptions(const po::variables_map &variablesMap)
+BasicOptions parseBasicOptions(cxxopts::Options &options)
 {
 	BasicOptions basicOptions;
 
-	basicOptions.help = variablesMap["help"].as<bool>();
-	basicOptions.version = variablesMap["version"].as<bool>();
-	basicOptions.warningsAsErrors = variablesMap["warnings-as-errors"].as<bool>();
+	basicOptions.help = options["help"].as<bool>();
+	basicOptions.version = options["version"].as<bool>();
+	basicOptions.warningsAsErrors = options["warnings-as-errors"].as<bool>();
 
 	return basicOptions;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-OutputOptions parseOutputOptions(const po::variables_map &variablesMap)
+OutputOptions parseOutputOptions(cxxopts::Options &options)
 {
 	OutputOptions outputOptions;
 
-	const auto colorPolicy = variablesMap["color"].as<std::string>();
+	const auto colorPolicy = options["color"].as<std::string>();
 
 	if (colorPolicy == "auto")
 		outputOptions.colorPolicy = colorlog::ColorStream::ColorPolicy::Auto;
@@ -82,7 +64,7 @@ OutputOptions parseOutputOptions(const po::variables_map &variablesMap)
 	else
 		throw OptionException("unknown color policy “" + colorPolicy + "”");
 
-	const auto logPriorityString = variablesMap["log-priority"].as<std::string>();
+	const auto logPriorityString = options["log-priority"].as<std::string>();
 
 	try
 	{
@@ -98,21 +80,21 @@ OutputOptions parseOutputOptions(const po::variables_map &variablesMap)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ParserOptions parseParserOptions(const po::variables_map &variablesMap)
+ParserOptions parseParserOptions(cxxopts::Options &options)
 {
 	ParserOptions parserOptions;
 
-	const auto parsingModeString = variablesMap["parsing-mode"].as<std::string>();
+	const auto parsingModeString = options["parsing-mode"].as<std::string>();
 
 	if (parsingModeString == "compatibility")
 		parserOptions.parsingMode = pddl::Mode::Compatibility;
 	else if (parsingModeString != "strict")
 		throw OptionException("unknown parsing mode “" + parsingModeString + "”");
 
-	if (variablesMap.count("input"))
-		parserOptions.inputFiles = variablesMap["input"].as<std::vector<std::string>>();
+	if (options.count("input"))
+		parserOptions.inputFiles = options["input"].as<std::vector<std::string>>();
 
-	const auto languageName = variablesMap["language"].as<std::string>();
+	const auto languageName = options["language"].as<std::string>();
 	parserOptions.language = plasp::Language::fromString(languageName);
 
 	if (parserOptions.language == plasp::Language::Type::Unknown)
