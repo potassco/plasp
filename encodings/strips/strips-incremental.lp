@@ -1,11 +1,12 @@
 % Constant '_parallel' to enable parallel actions
+% - value '0': parallel actions *without* checking for mutual disablement
 % - value '1': "forall" parallel actions that can be arranged in any sequence
 % - value '2': "exists" parallel actions that can be arranged in some sequence
 % - value '3': "exists" parallel actions omitting achievement of preconditions
 % - value '4': "exists" parallel actions like '3' implemented by acyclicity
 % - otherwise: sequential actions
 
-#const _parallel = 0.
+#const _parallel = 5.
 
 % Constant '_shallow' to cheaply approximate mutually disabling parallel actions
 % - value '0': detect incompatible pre/postconditions to reduce parallel actions
@@ -28,12 +29,12 @@ selfdefeat(A,X) :- active(A), precondition(A,X,V), _parallel = 1,
 
 diverge(A1,A2,X) :- active(A1), active(A2), postcondition(A1,X,V),
                     has_condition(A2,X,1), not postcondition(A2,X,V),
-                    0 < _parallel, _parallel < 5, _shallow = 0.
+                    0 <= _parallel, _parallel < 5, _shallow = 0.
 diverge(A1,A2)   :- diverge(A1,A2,X).
 
 exclude(A1,A2) :- active(A1), active(A2), precondition(A1,X,V),
                   has_condition(A2,X,0), not precondition(A2,X,V),
-                  0 < _parallel, _parallel < 5, _parallel != 2, _shallow = 0.
+                  0 <= _parallel, _parallel < 5, _parallel != 2, _shallow = 0.
 
 disable(A1,A2) :- active(A1), active(A2), A1 != A2, postcondition(A1,X,V),
                   has_condition(A2,X,0), not precondition(A2,X,V),
@@ -52,7 +53,7 @@ fluent(X,V) :- initialState(X,V), fluent(X).
 fluent(X,V) :- active(A), postcondition(A,X,V), fluent(X).
 fluent(X)   :- fluent(X,V).
 fluent(X)   :- diverge(A1,A2,X), not exclude(A1,A2).
-fluent(X)   :- active(A), has_condition(A,X,1), 0 < _parallel, _parallel < 5, _shallow != 0.
+fluent(X)   :- active(A), has_condition(A,X,1), 0 <= _parallel, _parallel < 5, _shallow != 0.
 
 % Define unsubsumed mutexes
 
@@ -92,7 +93,8 @@ effect(X,t) :- occurs(A,t), postcondition(A,X,V), fluent(X), not precondition(A,
 
 % Checks w.r.t. parallel mode
 
-:- _parallel != 1, _parallel != 2, _parallel != 3, _parallel != 4, #count{A : occurs(A,t)} > 1.
+:- _parallel != 0, _parallel != 1, _parallel != 2, _parallel != 3, _parallel != 4,
+   #count{A : occurs(A,t)} > 1.
 
 :- _parallel != 2, occurs(A,t), precondition(A,X,V), not holds(X,V,t-1).
 
