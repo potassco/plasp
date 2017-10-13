@@ -8,7 +8,7 @@
 
 void OptionGroupBasic::addTo(cxxopts::Options &options)
 {
-	options.add_options("basic")
+	options.add_options(Name)
 	("h,help", "Display this help message")
 	("v,version", "Display version information")
 	("warnings-as-errors", "Treat warnings as errors");
@@ -27,7 +27,7 @@ void OptionGroupBasic::parse(cxxopts::Options &options)
 
 void OptionGroupOutput::addTo(cxxopts::Options &options)
 {
-	options.add_options("output")
+	options.add_options(Name)
 		("color", "Colorize output (always, never, auto)", cxxopts::value<std::string>()->default_value("auto"))
 		("p,log-priority", "Log messages starting from this priority (debug, info, warning, error)", cxxopts::value<std::string>()->default_value("info"));
 }
@@ -63,7 +63,7 @@ void OptionGroupOutput::parse(cxxopts::Options &options)
 
 void OptionGroupParser::addTo(cxxopts::Options &options)
 {
-	options.add_options("parser")
+	options.add_options(Name)
 		("i,input", "Input files (in PDDL or SAS format)", cxxopts::value<std::vector<std::string>>())
 		("parsing-mode", "Parsing mode (strict, compatibility)", cxxopts::value<std::string>()->default_value("strict"))
 		("l,language", "Input language (pddl, sas, auto)", cxxopts::value<std::string>()->default_value("auto"));

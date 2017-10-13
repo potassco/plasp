@@ -35,6 +35,23 @@ class Command
 				});
 		}
 
+		void printHelp(cxxopts::Options &options)
+		{
+			const auto numberOfOptionGroups = std::tuple_size<std::decay_t<decltype(m_optionGroups)>>();
+
+			std::vector<std::string> optionGroupNames;
+			optionGroupNames.reserve(numberOfOptionGroups + 1);
+			optionGroupNames.emplace_back("");
+
+			forEach(m_optionGroups,
+				[&](auto &optionGroup)
+				{
+					optionGroupNames.emplace_back(optionGroup.Name);
+				});
+
+			std::cout << options.help(optionGroupNames) << std::endl;
+		}
+
 		std::tuple<OptionGroups...> m_optionGroups;
 };
 

@@ -27,6 +27,8 @@ class OptionException : public pddl::Exception
 
 struct OptionGroupBasic
 {
+	static constexpr const auto Name = "basic";
+
 	void addTo(cxxopts::Options &options);
 	void parse(cxxopts::Options &options);
 
@@ -39,6 +41,8 @@ struct OptionGroupBasic
 
 struct OptionGroupOutput
 {
+	static constexpr const auto Name = "output";
+
 	void addTo(cxxopts::Options &options);
 	void parse(cxxopts::Options &options);
 
@@ -50,6 +54,8 @@ struct OptionGroupOutput
 
 struct OptionGroupParser
 {
+	static constexpr const auto Name = "parser";
+
 	void addTo(cxxopts::Options &options);
 	void parse(cxxopts::Options &options);
 
