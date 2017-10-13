@@ -96,37 +96,42 @@ int CommandTranslate::run(int argc, char **argv)
 				return parserOptions.language;
 			};
 
-		const auto language = detectLanguage();
-
-		// TODO: get rid of unknown language type, use exception instead
-		if (language == plasp::Language::Type::Unknown)
+		switch (detectLanguage())
 		{
-			logger.log(colorlog::Priority::Error, "unknown input language");
-			std::cout << std::endl;
-			printHelp();
-			return EXIT_FAILURE;
-		}
+			case plasp::Language::Type::Automatic:
+			case plasp::Language::Type::Unknown:
+			{
+				logger.log(colorlog::Priority::Error, "unknown input language");
+				std::cout << std::endl;
+				printHelp();
+				return EXIT_FAILURE;
+			}
 
-		if (language == plasp::Language::Type::PDDL)
-		{
-			const auto logWarning =
-				[&](const auto &location, const auto &warning)
-				{
-					logger.log(colorlog::Priority::Warning, location, warning);
-				};
+			// TODO: get rid of unknown language type, use exception instead
+			case plasp::Language::Type::PDDL:
+			{
+				const auto logWarning =
+					[&](const auto &location, const auto &warning)
+					{
+						logger.log(colorlog::Priority::Warning, location, warning);
+					};
 
-			auto context = pddl::Context(std::move(tokenizer), logWarning);
-			context.mode = parserOptions.parsingMode;
-			auto description = pddl::parseDescription(context);
-			auto normalizedDescription = pddl::normalize(std::move(description));
-			const auto translator = plasp::pddl::TranslatorASP(std::move(normalizedDescription), logger.outputStream());
-			translator.translate();
-		}
-		else if (language == plasp::Language::Type::SAS)
-		{
-			const auto description = plasp::sas::Description::fromTokenizer(std::move(tokenizer));
-			const auto translator = plasp::sas::TranslatorASP(description, logger.outputStream());
-			translator.translate();
+				auto context = pddl::Context(std::move(tokenizer), logWarning);
+				context.mode = parserOptions.parsingMode;
+				auto description = pddl::parseDescription(context);
+				auto normalizedDescription = pddl::normalize(std::move(description));
+				const auto translator = plasp::pddl::TranslatorASP(std::move(normalizedDescription), logger.outputStream());
+				translator.translate();
+				break;
+			}
+
+			case plasp::Language::Type::SAS:
+			{
+				const auto description = plasp::sas::Description::fromTokenizer(std::move(tokenizer));
+				const auto translator = plasp::sas::TranslatorASP(description, logger.outputStream());
+				translator.translate();
+				break;
+			}
 		}
 	}
 	catch (const tokenize::TokenizerException &e)
