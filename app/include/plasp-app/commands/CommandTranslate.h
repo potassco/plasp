@@ -1,5 +1,5 @@
-#ifndef __PLASP_APP__COMMANDS__TRANSLATE_H
-#define __PLASP_APP__COMMANDS__TRANSLATE_H
+#ifndef __PLASP_APP__COMMANDS__COMMAND_TRANSLATE_H
+#define __PLASP_APP__COMMANDS__COMMAND_TRANSLATE_H
 
 #include <plasp-app/Command.h>
 #include <plasp-app/OptionGroups.h>
