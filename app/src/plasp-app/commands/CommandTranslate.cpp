@@ -1,4 +1,5 @@
-#include <plasp-app/commands/Translate.h>
+#include <plasp-app/commands/CommandTranslate.h>
+
 #include <iostream>
 #include <string>
 
@@ -23,18 +24,19 @@
 #include <plasp/sas/Description.h>
 #include <plasp/sas/TranslatorASP.h>
 
-#include <plasp-app/Commands.h>
-#include <plasp-app/CommonOptions.h>
 #include <plasp-app/Version.h>
-#include <plasp-app/commands/Translate.h>
 
-int translate(int argc, char **argv)
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Command Translate
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int CommandTranslate::run(int argc, char **argv)
 {
 	cxxopts::Options options("plasp translate", "Translate PDDL to ASP.");
 
-	addBasicOptions(options);
-	addOutputOptions(options);
-	addParserOptions(options);
+	addOptionGroupsTo(options);
 
 	const auto printHelp =
 		[&]()
@@ -44,9 +46,11 @@ int translate(int argc, char **argv)
 
 	options.parse(argc, argv);
 
-	const auto basicOptions = parseBasicOptions(options);
-	const auto outputOptions = parseOutputOptions(options);
-	const auto parserOptions = parseParserOptions(options);
+	parseOptionGroups(options);
+
+	const auto &basicOptions = std::get<OptionGroupBasic>(m_optionGroups);
+	const auto &outputOptions = std::get<OptionGroupOutput>(m_optionGroups);
+	const auto &parserOptions = std::get<OptionGroupParser>(m_optionGroups);
 
 	if (basicOptions.help)
 	{

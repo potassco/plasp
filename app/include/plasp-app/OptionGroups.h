@@ -1,5 +1,5 @@
-#ifndef __PLASP_APP__COMMON_OPTIONS_H
-#define __PLASP_APP__COMMON_OPTIONS_H
+#ifndef __PLASP_APP__OPTION_GROUPS_H
+#define __PLASP_APP__OPTION_GROUPS_H
 
 #include <cxxopts.hpp>
 
@@ -13,7 +13,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// Common Options
+// Option Groups
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -25,14 +25,12 @@ class OptionException : public pddl::Exception
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void addBasicOptions(cxxopts::Options &options);
-void addOutputOptions(cxxopts::Options &options);
-void addParserOptions(cxxopts::Options &options);
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-struct BasicOptions
+struct OptionGroupBasic
 {
+	void addTo(cxxopts::Options &options);
+	void parse(cxxopts::Options &options);
+	void printHelp(std::ostream &stream);
+
 	bool help = false;
 	bool version = false;
 	bool warningsAsErrors = false;
@@ -40,26 +38,28 @@ struct BasicOptions
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct OutputOptions
+struct OptionGroupOutput
 {
+	void addTo(cxxopts::Options &options);
+	void parse(cxxopts::Options &options);
+	void printHelp(std::ostream &stream);
+
 	colorlog::ColorStream::ColorPolicy colorPolicy = colorlog::ColorStream::ColorPolicy::Auto;
 	colorlog::Priority logPriority = colorlog::Priority::Info;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct ParserOptions
+struct OptionGroupParser
 {
+	void addTo(cxxopts::Options &options);
+	void parse(cxxopts::Options &options);
+	void printHelp(std::ostream &stream);
+
 	std::vector<std::string> inputFiles;
 	pddl::Mode parsingMode = pddl::Mode::Strict;
 	plasp::Language::Type language = plasp::Language::Type::Automatic;
 };
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-BasicOptions parseBasicOptions(cxxopts::Options &options);
-OutputOptions parseOutputOptions(cxxopts::Options &options);
-ParserOptions parseParserOptions(cxxopts::Options &options);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

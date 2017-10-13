@@ -7,9 +7,58 @@
 #include <colorlog/Logger.h>
 #include <colorlog/Priority.h>
 
-#include <plasp-app/Commands.h>
+#include <plasp-app/Command.h>
 #include <plasp-app/Version.h>
-#include <plasp-app/commands/Translate.h>
+#include <plasp-app/commands/CommandTranslate.h>
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Main
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+enum class CommandType
+{
+	Help,
+	Version,
+	CheckSyntax,
+	Requirements,
+	PrettyPrint,
+	Normalize,
+	Translate
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+static const std::map<std::string, CommandType> commandNames =
+	{
+		{"help", CommandType::Help},
+		{"-h", CommandType::Help},
+		{"--help", CommandType::Help},
+		{"version", CommandType::Version},
+		{"-v", CommandType::Version},
+		{"--version", CommandType::Version},
+		{"check-syntax", CommandType::CheckSyntax},
+		{"requirements", CommandType::Requirements},
+		{"pretty-print", CommandType::PrettyPrint},
+		{"normalize", CommandType::Normalize},
+		{"translate", CommandType::Translate},
+	};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+const auto parseCommandType =
+	[](const std::string &commandString)
+	{
+		const auto matchingCommand = commandNames.find(commandString);
+
+		if (matchingCommand == commandNames.cend())
+			throw std::runtime_error(std::string("“") + commandString + "” is not a plasp command");
+
+		return matchingCommand->second;
+	};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char **argv)
 {
@@ -19,8 +68,7 @@ int main(int argc, char **argv)
 			// TODO: add list of available commands
 			std::cout
 				<< "ASP planning tools for PDDL." << std::endl
-				<< "Usage: plasp <command> [<arguments>]" << std::endl
-				<< "Translate PDDL to ASP." << std::endl;
+				<< "Usage: plasp <command> [<arguments>]" << std::endl;
 		};
 
 	const auto printVersion =
@@ -39,16 +87,16 @@ int main(int argc, char **argv)
 
 	try
 	{
-		switch (parseCommand(argv[1]))
+		switch (parseCommandType(argv[1]))
 		{
-			case Command::Help:
+			case CommandType::Help:
 				printHelp();
 				return EXIT_SUCCESS;
-			case Command::Version:
+			case CommandType::Version:
 				printVersion();
 				return EXIT_SUCCESS;
-			case Command::Translate:
-				return translate(argc - 1, &argv[1]);
+			case CommandType::Translate:
+				return CommandTranslate().run(argc - 1, &argv[1]);
 			default:
 				exit(EXIT_FAILURE);
 		}
