@@ -13,10 +13,10 @@ Changes:
 Features:
 
 * extended PDDL parser support (`imply`, `exists`, `forall`, `when`, and `=` expressions)
-* new command-line option `--log-level` to control which status messages should be shown
-* new command-line option `--warnings-as-errors` to abort program execution upon warnings (replaces `--warning-level`)
-* compatibility mode for parser, which supports more legacy domains
-* new command-line option `--parsing-mode` to specify whether to apply strict or compatibility parsing rules
+* new output option `--log-level` to control which status messages should be shown
+* new basic option `--warnings-as-errors` to abort program execution upon warnings (replaces `--warning-level`)
+* adds compatibility mode for parser, which supports more legacy domains
+* new parser option `--parsing-mode` to specify whether to apply strict or compatibility parsing rules
 
 Internal:
 
