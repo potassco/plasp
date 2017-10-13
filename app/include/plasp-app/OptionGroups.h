@@ -29,7 +29,6 @@ struct OptionGroupBasic
 {
 	void addTo(cxxopts::Options &options);
 	void parse(cxxopts::Options &options);
-	void printHelp(std::ostream &stream);
 
 	bool help = false;
 	bool version = false;
@@ -42,7 +41,6 @@ struct OptionGroupOutput
 {
 	void addTo(cxxopts::Options &options);
 	void parse(cxxopts::Options &options);
-	void printHelp(std::ostream &stream);
 
 	colorlog::ColorStream::ColorPolicy colorPolicy = colorlog::ColorStream::ColorPolicy::Auto;
 	colorlog::Priority logPriority = colorlog::Priority::Info;
@@ -54,7 +52,6 @@ struct OptionGroupParser
 {
 	void addTo(cxxopts::Options &options);
 	void parse(cxxopts::Options &options);
-	void printHelp(std::ostream &stream);
 
 	std::vector<std::string> inputFiles;
 	pddl::Mode parsingMode = pddl::Mode::Strict;
