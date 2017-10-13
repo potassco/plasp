@@ -13,6 +13,8 @@
 class CommandTranslate : public Command<OptionGroupBasic, OptionGroupOutput, OptionGroupParser>
 {
 	public:
+		CommandTranslate();
+
 		int run(int argc, char **argv);
 };
 

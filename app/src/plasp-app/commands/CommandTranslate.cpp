@@ -32,13 +32,16 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+CommandTranslate::CommandTranslate()
+:	Command(cxxopts::Options("plasp translate", "Translate PDDL to ASP."))
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 int CommandTranslate::run(int argc, char **argv)
 {
-	cxxopts::Options options("plasp translate", "Translate PDDL to ASP.");
-
-	addOptionGroupsTo(options);
-	options.parse(argc, argv);
-	parseOptionGroups(options);
+	parseOptions(argc, argv);
 
 	const auto &basicOptions = std::get<OptionGroupBasic>(m_optionGroups);
 	const auto &outputOptions = std::get<OptionGroupOutput>(m_optionGroups);
@@ -46,7 +49,7 @@ int CommandTranslate::run(int argc, char **argv)
 
 	if (basicOptions.help)
 	{
-		printHelp(options);
+		printHelp();
 		return EXIT_SUCCESS;
 	}
 
@@ -102,7 +105,7 @@ int CommandTranslate::run(int argc, char **argv)
 		{
 			logger.log(colorlog::Priority::Error, "unknown input language");
 			std::cout << std::endl;
-			printHelp(options);
+			printHelp();
 			return EXIT_FAILURE;
 		}
 

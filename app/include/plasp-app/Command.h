@@ -17,25 +17,28 @@ template<class... OptionGroups>
 class Command
 {
 	protected:
-		void addOptionGroupsTo(cxxopts::Options &options)
+		Command(cxxopts::Options &&options)
+		:	m_options{options}
 		{
 			forEach(m_optionGroups,
 				[&](auto &optionGroup)
 		        {
-					optionGroup.addTo(options);
+					optionGroup.addTo(m_options);
 				});
 		}
 
-		void parseOptionGroups(cxxopts::Options &options)
+		void parseOptions(int argc, char **argv)
 		{
+			m_options.parse(argc, argv);
+
 			forEach(m_optionGroups,
 				[&](auto &optionGroup)
 		        {
-					optionGroup.parse(options);
+					optionGroup.parse(m_options);
 				});
 		}
 
-		void printHelp(cxxopts::Options &options)
+		void printHelp()
 		{
 			const auto numberOfOptionGroups = std::tuple_size<std::decay_t<decltype(m_optionGroups)>>();
 
@@ -49,9 +52,10 @@ class Command
 					optionGroupNames.emplace_back(optionGroup.Name);
 				});
 
-			std::cout << options.help(optionGroupNames) << std::endl;
+			std::cout << m_options.help(optionGroupNames) << std::endl;
 		}
 
+		cxxopts::Options m_options;
 		std::tuple<OptionGroups...> m_optionGroups;
 };
 
