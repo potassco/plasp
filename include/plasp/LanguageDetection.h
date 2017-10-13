@@ -14,7 +14,7 @@ namespace plasp
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Language::Type detectLanguage(tokenize::Tokenizer<tokenize::CaseInsensitiveTokenizerPolicy> &tokenizer)
+inline Language::Type detectLanguage(tokenize::Tokenizer<tokenize::CaseInsensitiveTokenizerPolicy> &tokenizer)
 {
 	tokenizer.skipWhiteSpace();
 
