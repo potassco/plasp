@@ -6,6 +6,7 @@
 #include <cxxopts.hpp>
 
 #include <plasp-app/Utils.h>
+#include <plasp-app/Version.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -53,6 +54,11 @@ class Command
 				});
 
 			std::cout << m_options.help(optionGroupNames) << std::endl;
+		}
+
+		void printVersion()
+		{
+			std::cout << Version << std::endl;
 		}
 
 		cxxopts::Options m_options;

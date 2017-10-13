@@ -24,8 +24,6 @@
 #include <plasp/sas/Description.h>
 #include <plasp/sas/TranslatorASP.h>
 
-#include <plasp-app/Version.h>
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Command Translate
@@ -55,7 +53,7 @@ int CommandTranslate::run(int argc, char **argv)
 
 	if (basicOptions.version)
 	{
-		std::cout << Version << std::endl;
+		printVersion();
 		return EXIT_SUCCESS;
 	}
 
