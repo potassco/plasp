@@ -10,6 +10,7 @@
 #include <plasp-app/Command.h>
 #include <plasp-app/Version.h>
 #include <plasp-app/commands/CommandTranslate.h>
+#include <plasp-app/commands/CommandVersion.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -71,12 +72,6 @@ int main(int argc, char **argv)
 				<< "Usage: plasp <command> [<arguments>]" << std::endl;
 		};
 
-	const auto printVersion =
-		[&]()
-		{
-			std::cout << Version << std::endl;
-		};
-
 	colorlog::Logger logger;
 
 	if (argc < 2)
@@ -93,7 +88,7 @@ int main(int argc, char **argv)
 				printHelp();
 				return EXIT_SUCCESS;
 			case CommandType::Version:
-				printVersion();
+				return CommandVersion().run(argc - 1, &argv[1]);
 				return EXIT_SUCCESS;
 			case CommandType::Translate:
 				return CommandTranslate().run(argc - 1, &argv[1]);
