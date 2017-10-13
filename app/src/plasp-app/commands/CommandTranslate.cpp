@@ -115,7 +115,7 @@ int CommandTranslate::run(int argc, char **argv)
 				auto normalizedDescription = pddl::normalize(std::move(description));
 				const auto translator = plasp::pddl::TranslatorASP(std::move(normalizedDescription), logger.outputStream());
 				translator.translate();
-				break;
+				return EXIT_SUCCESS;
 			}
 
 			case plasp::Language::Type::SAS:
@@ -123,7 +123,7 @@ int CommandTranslate::run(int argc, char **argv)
 				const auto description = plasp::sas::Description::fromTokenizer(std::move(tokenizer));
 				const auto translator = plasp::sas::TranslatorASP(description, logger.outputStream());
 				translator.translate();
-				break;
+				return EXIT_SUCCESS;
 			}
 		}
 	}

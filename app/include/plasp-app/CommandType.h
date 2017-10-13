@@ -5,6 +5,7 @@
 #include <string>
 
 #include <plasp-app/commands/CommandBeautify.h>
+#include <plasp-app/commands/CommandCheckSyntax.h>
 #include <plasp-app/commands/CommandHelp.h>
 #include <plasp-app/commands/CommandNormalize.h>
 #include <plasp-app/commands/CommandTranslate.h>
@@ -59,7 +60,7 @@ const auto parseCommandType =
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-using AvailableCommands = std::tuple<CommandTranslate, CommandNormalize, CommandBeautify, CommandHelp, CommandVersion>;
+using AvailableCommands = std::tuple<CommandTranslate, CommandNormalize, CommandCheckSyntax, CommandBeautify, CommandHelp, CommandVersion>;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

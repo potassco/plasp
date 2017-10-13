@@ -36,6 +36,10 @@ int CommandHelp::run(int argc, char **argv)
 					CommandBeautify().printHelp();
 					return EXIT_SUCCESS;
 
+				case CommandType::CheckSyntax:
+					CommandCheckSyntax().printHelp();
+					return EXIT_SUCCESS;
+
 				default:
 					logger.log(colorlog::Priority::Error, std::string("command “") + argv[1] + "” not yet implemented");
 					exit(EXIT_FAILURE);
