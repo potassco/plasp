@@ -24,12 +24,16 @@ int CommandHelp::run(int argc, char **argv)
 				case CommandType::Version:
 					break;
 
+				case CommandType::Translate:
+					CommandTranslate().printHelp();
+					return EXIT_SUCCESS;
+
 				case CommandType::Normalize:
 					CommandNormalize().printHelp();
 					return EXIT_SUCCESS;
 
-				case CommandType::Translate:
-					CommandTranslate().printHelp();
+				case CommandType::Beautify:
+					CommandBeautify().printHelp();
 					return EXIT_SUCCESS;
 
 				default:

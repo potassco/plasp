@@ -1,4 +1,4 @@
-#include <plasp-app/commands/CommandNormalize.h>
+#include <plasp-app/commands/CommandBeautify.h>
 
 #include <iostream>
 #include <string>
@@ -10,22 +10,20 @@
 #include <colorlog/Priority.h>
 
 #include <pddl/AST.h>
+#include <pddl/ASTOutput.h>
 #include <pddl/Exception.h>
 #include <pddl/Mode.h>
-#include <pddl/Normalize.h>
-#include <pddl/NormalizedASTOutput.h>
 #include <pddl/Parse.h>
-#include <pddl/detail/normalization/Reduction.h>
 
 #include <plasp/LanguageDetection.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// Command Normalize
+// Command Beautify
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int CommandNormalize::run(int argc, char **argv)
+int CommandBeautify::run(int argc, char **argv)
 {
 	parseOptions(argc, argv);
 
@@ -107,14 +105,13 @@ int CommandNormalize::run(int argc, char **argv)
 				auto context = pddl::Context(std::move(tokenizer), logWarning);
 				context.mode = parserOptions.parsingMode;
 				auto description = pddl::parseDescription(context);
-				auto normalizedDescription = pddl::normalize(std::move(description));
-				logger.outputStream() << normalizedDescription << std::endl;
+				logger.outputStream() << description << std::endl;
 				break;
 			}
 
 			case plasp::Language::Type::SAS:
 			{
-				logger.log(colorlog::Priority::Error, "Normalization is only supported for PDDL specifications");
+				logger.log(colorlog::Priority::Error, "Beautification is only supported for PDDL specifications");
 				return EXIT_FAILURE;
 			}
 		}

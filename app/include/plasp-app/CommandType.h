@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 
+#include <plasp-app/commands/CommandBeautify.h>
 #include <plasp-app/commands/CommandHelp.h>
 #include <plasp-app/commands/CommandNormalize.h>
 #include <plasp-app/commands/CommandTranslate.h>
@@ -21,7 +22,7 @@ enum class CommandType
 	Version,
 	CheckSyntax,
 	Requirements,
-	PrettyPrint,
+	Beautify,
 	Normalize,
 	Translate
 };
@@ -38,7 +39,7 @@ static const std::map<std::string, CommandType> commandNames =
 		{"--version", CommandType::Version},
 		{"check-syntax", CommandType::CheckSyntax},
 		{"requirements", CommandType::Requirements},
-		{"pretty-print", CommandType::PrettyPrint},
+		{"beautify", CommandType::Beautify},
 		{"normalize", CommandType::Normalize},
 		{"translate", CommandType::Translate},
 	};
@@ -58,7 +59,7 @@ const auto parseCommandType =
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-using AvailableCommands = std::tuple<CommandTranslate, CommandNormalize, CommandHelp, CommandVersion>;
+using AvailableCommands = std::tuple<CommandTranslate, CommandNormalize, CommandBeautify, CommandHelp, CommandVersion>;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
