@@ -10,11 +10,13 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class CommandTranslate : public Command<OptionGroupBasic, OptionGroupOutput, OptionGroupParser>
+class CommandTranslate : public Command<CommandTranslate, OptionGroupBasic, OptionGroupOutput, OptionGroupParser>
 {
 	public:
-		CommandTranslate();
+		static constexpr auto Name = "translate";
+		static constexpr auto Description = "Translate PDDL and SAS to ASP";
 
+	public:
 		int run(int argc, char **argv);
 };
 

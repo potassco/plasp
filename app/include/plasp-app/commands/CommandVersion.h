@@ -10,11 +10,13 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class CommandVersion : public Command<>
+class CommandVersion : public Command<CommandVersion>
 {
 	public:
-		CommandVersion();
+		static constexpr auto Name = "version";
+		static constexpr auto Description = "Display version information";
 
+	public:
 		int run(int argc, char **argv);
 };
 

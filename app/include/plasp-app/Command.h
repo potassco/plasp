@@ -14,12 +14,30 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template<class... OptionGroups>
+template<class Derived, class... OptionGroups>
 class Command
 {
+	public:
+		void printHelp()
+		{
+			const auto numberOfOptionGroups = std::tuple_size<std::decay_t<decltype(m_optionGroups)>>();
+
+			std::vector<std::string> optionGroupNames;
+			optionGroupNames.reserve(numberOfOptionGroups + 1);
+			optionGroupNames.emplace_back("");
+
+			forEach(m_optionGroups,
+				[&](auto &optionGroup)
+				{
+					optionGroupNames.emplace_back(optionGroup.Name);
+				});
+
+			std::cout << m_options.help(optionGroupNames) << std::endl;
+		}
+
 	protected:
-		Command(cxxopts::Options &&options)
-		:	m_options{options}
+		Command()
+		:	m_options(std::string("plasp ") + Derived::Name, std::string(Derived::Description) + ".")
 		{
 			forEach(m_optionGroups,
 				[&](auto &optionGroup)
@@ -39,24 +57,7 @@ class Command
 				});
 		}
 
-		void printHelp()
-		{
-			const auto numberOfOptionGroups = std::tuple_size<std::decay_t<decltype(m_optionGroups)>>();
-
-			std::vector<std::string> optionGroupNames;
-			optionGroupNames.reserve(numberOfOptionGroups + 1);
-			optionGroupNames.emplace_back("");
-
-			forEach(m_optionGroups,
-				[&](auto &optionGroup)
-				{
-					optionGroupNames.emplace_back(optionGroup.Name);
-				});
-
-			std::cout << m_options.help(optionGroupNames) << std::endl;
-		}
-
-		void printVersion()
+		static void printVersion()
 		{
 			std::cout << Version << std::endl;
 		}

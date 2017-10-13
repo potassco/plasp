@@ -1,20 +1,20 @@
-#ifndef __PLASP_APP__COMMANDS__COMMAND_NORMALIZE_H
-#define __PLASP_APP__COMMANDS__COMMAND_NORMALIZE_H
+#ifndef __PLASP_APP__COMMANDS__COMMAND_HELP_H
+#define __PLASP_APP__COMMANDS__COMMAND_HELP_H
 
 #include <plasp-app/Command.h>
 #include <plasp-app/OptionGroups.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-// Command Normalize
+// Command Help
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class CommandNormalize : public Command<CommandNormalize, OptionGroupBasic, OptionGroupOutput, OptionGroupParser>
+class CommandHelp : public Command<CommandHelp>
 {
 	public:
-		static constexpr auto Name = "normalize";
-		static constexpr auto Description = "Normalize PDDL to plasp’s custom PDDL format";
+		static constexpr auto Name = "help";
+		static constexpr auto Description = "Display this help message";
 
 	public:
 		int run(int argc, char **argv);
