@@ -9,6 +9,7 @@
 
 #include <plasp-app/Command.h>
 #include <plasp-app/Version.h>
+#include <plasp-app/commands/CommandNormalize.h>
 #include <plasp-app/commands/CommandTranslate.h>
 #include <plasp-app/commands/CommandVersion.h>
 
@@ -90,6 +91,8 @@ int main(int argc, char **argv)
 			case CommandType::Version:
 				return CommandVersion().run(argc - 1, &argv[1]);
 				return EXIT_SUCCESS;
+			case CommandType::Normalize:
+				return CommandNormalize().run(argc - 1, &argv[1]);
 			case CommandType::Translate:
 				return CommandTranslate().run(argc - 1, &argv[1]);
 			default:
