@@ -1,6 +1,6 @@
 # plasp [![GitHub Release](https://img.shields.io/github/release/potassco/plasp.svg?maxAge=3600)](https://github.com/potassco/plasp/releases) [![Build Status](https://img.shields.io/travis/potassco/plasp/master.svg?maxAge=3600&label=build%20%28master%29)](https://travis-ci.org/potassco/plasp?branch=master) [![Build Status](https://img.shields.io/travis/potassco/plasp/develop.svg?maxAge=3600&label=build%20%28develop%29)](https://travis-ci.org/potassco/plasp?branch=develop)
 
-> Translate PDDL to ASP
+> ASP planning tools for PDDL
 
 ## Overview
 
