@@ -83,7 +83,7 @@ void OptionGroupParser::addTo(cxxopts::Options &options)
 		("parsing-mode", "Parsing mode (strict, compatibility)", cxxopts::value<std::string>()->default_value("strict"))
 		("l,language", "Input language (pddl, sas, auto)", cxxopts::value<std::string>()->default_value("auto"));
 	options.parse_positional("input");
-	options.positional_help("[<input_file...>]");
+	options.positional_help("[<input file...>]");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
