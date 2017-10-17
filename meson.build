@@ -3,7 +3,9 @@ project(
 	'cpp',
 	default_options : [
 		'buildtype=release',
-		'cpp_std=c++1z',
+		'warning_level=3',
+		'werror=true',
+		'cpp_std=c++17',
 	],
 	subproject_dir: 'lib',
 )
@@ -21,6 +23,7 @@ colorlog = subproject('colorlog')
 pddl = subproject('pddl')
 
 make_include_directories = [
+	include_directories('lib/catch/include'),
 	tokenize.get_variable('include_directories'),
 	colorlog.get_variable('include_directories'),
 	pddl.get_variable('include_directories'),
@@ -64,6 +67,30 @@ plasp = shared_library(
 	link_args: link_args,
 	link_with: link_with,
 	sources: sources,
+)
+
+test_sources = [
+	'tests/main.cpp',
+	'tests/TestPDDLNormalization.cpp',
+	'tests/TestPDDLTranslation.cpp',
+	'tests/TestSASParser.cpp',
+]
+
+test_link_with = [
+	link_with,
+	plasp,
+]
+
+tests = executable(
+	'plasp-tests',
+	include_directories: [make_include_directories, include_directories],
+	link_with: test_link_with,
+	sources: test_sources,
+)
+
+test(
+	'plasp-tests',
+	tests,
 )
 
 app_include_directories = [
