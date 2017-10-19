@@ -13,7 +13,7 @@ holds(X,V,0) :- initialState(X,V). %, fluent(X).
 
 % generate (a SAT problem)
 {     holds(X,V,t) } :- contains(X,V).
-{ occurs(A,t) : action(A) }.  
+{ occurs(A,t) : action(A) }.
 
 % effects
 :- occurs(A,t), postcondition(A,_,X,V), not holds(X,V,t).
@@ -29,7 +29,7 @@ holds(X,V,0) :- initialState(X,V). %, fluent(X).
 :- not 1 { holds(X,V,t) } 1, variable(X). 
 
 % mutexes
-:- 2 #sum { 1,X,V: holds(X,V,t), contains(mutexGroup(G),X,V) }, mutex(G).
+:- 2 #sum { 1,X,V: holds(X,V,t), contains(G,X,V) }, mutex(G).
 
 #program check(t). % as strips-incremental.lp
 
