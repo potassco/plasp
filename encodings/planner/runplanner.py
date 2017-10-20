@@ -14,6 +14,13 @@ POSTPROCESS   = PLASP_DIR + "encodings/strips/postprocess.lp"
 INCMODE       = PLASP_DIR + "encodings/strips/incmode.lp"
 TMP           = os.path.dirname(os.path.realpath(__file__)) + "/run.tmp"
 BASIC_OPTIONS = " --query-at-last --forbid-actions --force-actions "
+TEST_FILES    = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test_files")
+TEST_FILE     = os.path.join(TEST_FILES,"test.lp")
+TEST_FILE2    = os.path.join(TEST_FILES,"test_const.lp")
+TEST_ACT_1    = os.path.join(TEST_FILES,"block_actions_1.lp")
+TEST_ACT_T    = os.path.join(TEST_FILES,"block_actions_t.lp")
+TEST_ENC_1    = os.path.join(TEST_FILES,"block_encoding_1.lp")
+TEST_ENC_T    = os.path.join(TEST_FILES,"block_encoding_t.lp")
 
 # Other systems
 CLINGO      = "clingo"
@@ -64,10 +71,15 @@ Get help/report bugs via : https://potassco.org/support
         normal = cmd_parser.add_argument_group('Solving Options')
         normal.add_argument('--translate','-tr',dest='translate',action='store_true',help='Run fast-downward translator to sas, then plasp translator, and solve')
         normal.add_argument('--closure',default=3,type=int,choices=[0,1,2,3],help='Static analysis of potentially relevant actions (default: 3)')
-        normal.add_argument('--parallel',default=3,type=int,choices=[0,1,2,3,4],help='Sequential and parallel planning encoding variants (default: 3)')
+        normal.add_argument('--parallel',default=3,type=int,choices=[0,1,2,3,4,5],help='Sequential and parallel planning encoding variants (default: 3)')
+        normal.add_argument('--shallow',action='store_true', help='Cheaply approcimate mutually disabling parallel actions')
         normal.add_argument('--redundancy',action='store_true',help='Enforcement of redundant actions')
         normal.add_argument('--postprocess',action='store_true',help='Solve, serialize, and check if solution is correct (works also with --basic)')
-
+        normal.add_argument('--test',default=None, type=int, choices=[0,1,2,3,4,5,6,7],
+                            help="""Test solution and add blocking encoding with value <mask {0..7}>: \
+(1) use a minimal set of non-serializable actions (or any set), \
+(2) use encoding inforcing serializability (or forbid the sets of non-serializable actions), and \
+(4) add programs for all time steps (or for the time steps of the non-serializable actions).""")
 
         extended = cmd_parser.add_argument_group('Other Solving Modes')
         extended.add_argument('--incmode',dest='incmode',action='store_true',help='Run clingo incmode')
@@ -124,10 +136,32 @@ def run():
         else:
             postprocess = " --outf=1 | grep -A1 ANSWER | tail -n1 > {}; {} {} {} | clingo - {} {}; rm {}".format(TMP,PLASP,instance,domain,POSTPROCESS,TMP,TMP)
 
-    # normal plan
+    # generate and test
+    test = ""
+    if options['test'] is not None:
+        v = options['test']
+        test += "--test=- --test={} ".format(TEST_FILE)
+        if v%2 == 1:
+            test += "--test={} ".format(TEST_FILE2)
+        v = v/2
+        test_enc = True if v%2 == 1 else False
+        v = v/2
+        test_all = True if v%2 == 1 else False
+        if not test_enc and not test_all:
+            test += "{} ".format(TEST_ACT_1)
+        elif not test_enc and test_all:
+            test += "{} ".format(TEST_ACT_T)
+        elif test_enc and not test_all:
+            test += "{} ".format(TEST_ENC_1)
+        else:
+            test += "{} --test-once ".format(TEST_ENC_T)
+    
+    # normal  plan
     call += " | {} - {} {} {}".format(PLANNER,PREPROCESS,STRIPS,
         (" ".join(rest))                                           +
-         BASIC_OPTIONS                                             +
+        BASIC_OPTIONS                                              +
+        test                                                       +
+        (" -c _shallow=1 " if options['shallow'] else "")          +
         " -c _closure={}  ".format(options['closure'])             +
         " -c _parallel={} ".format(options['parallel'])            +
         (" " + REDUNDANCY + " " if options['redundancy']  else "") +
@@ -142,8 +176,10 @@ def run():
         call = call.replace(PLANNER,CLINGO + " " + INCMODE)
         call = call.replace(BASIC_OPTIONS,"")
     elif options['basic']:
-        call = "{} {} {}; {} {} | {} - {} {}".format(FAST_D_TR,domain,instance,PLASP,SAS_OUTPUT,PLANNER,BASIC," ".join(rest) +
-               (postprocess if options['postprocess'] else ""))
+        call = "{} {} {}; {} {} | {} - {} {} {} {}".format(
+            FAST_D_TR,domain,instance,PLASP,SAS_OUTPUT,PLANNER,BASIC_OPTIONS,BASIC,test," ".join(rest) +
+               (postprocess if options['postprocess'] else "")
+        )
     # fast-downward
     elif options['fast-downward']:
         call = "{} {} {} {}".format(FAST_D,domain,instance," ".join(rest))
