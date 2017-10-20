@@ -7,13 +7,15 @@ PLASP         = "plasp"
 PLASP_DIR     = os.path.dirname(os.path.realpath(__file__)) + "/../../"
 PLANNER       = PLASP_DIR + "encodings/planner/planner.py"
 BASIC         = PLASP_DIR + "encodings/planner/basic.lp"
+HEURISTIC     = PLASP_DIR + "encodings/planner/heuristic.lp"
 PREPROCESS    = PLASP_DIR + "encodings/strips/preprocess.lp"
 STRIPS        = PLASP_DIR + "encodings/strips/strips-incremental.lp"
 REDUNDANCY    = PLASP_DIR + "encodings/strips/redundancy.lp"
 POSTPROCESS   = PLASP_DIR + "encodings/strips/postprocess.lp"
 INCMODE       = PLASP_DIR + "encodings/strips/incmode.lp"
-TMP           = os.path.dirname(os.path.realpath(__file__)) + "/run.tmp"
+TMP           = os.path.dirname(os.path.realpath(__file__)) + "/run.tmp" + str(os.getpid())
 BASIC_OPTIONS = " --query-at-last --forbid-actions --force-actions "
+
 TEST_FILES    = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test_files")
 TEST_FILE     = os.path.join(TEST_FILES,"test.lp")
 TEST_FILE2    = os.path.join(TEST_FILES,"test_const.lp")
@@ -75,6 +77,7 @@ Get help/report bugs via : https://potassco.org/support
         normal.add_argument('--shallow',action='store_true', help='Cheaply approximate mutually disabling parallel actions')
         normal.add_argument('--redundancy',action='store_true',help='Enforcement of redundant actions')
         normal.add_argument('--postprocess',action='store_true',help='Solve, serialize, and check if solution is correct (works also with --basic)')
+        normal.add_argument('--heuristic',action='store_true',help='Run domain heuristic for planning')
         normal.add_argument('--test',default=None, type=int, choices=[0,1,2,3,4,5,6,7],
                             help="""Test solution and add blocking encoding with value <mask {0..7}>: \
 (1) use a minimal set of non-serializable actions (or any set), \
@@ -114,6 +117,9 @@ def run():
         domain = os.path.dirname(os.path.realpath(instance)) + "/domain.pddl"
         if not os.path.isfile(domain):
             domain = os.path.dirname(os.path.realpath(instance)) + "/domain_" + os.path.basename(instance)
+        if not os.path.isfile(domain):
+            domain = os.path.dirname(os.path.realpath(instance)) + "/../domain.pddl"
+
     if not os.path.isfile(domain):
         print "Domain File not found"
         return
@@ -155,12 +161,17 @@ def run():
             test += "{} ".format(TEST_ENC_1)
         else:
             test += "{} --test-once ".format(TEST_ENC_T)
-    
+    # heurisitic
+    heuristic = ""
+    if options['heuristic']:
+        heuristic = " --heuristic=Domain {} ".format(HEURISTIC)
+
     # normal  plan
     call += " | {} - {} {} {}".format(PLANNER,PREPROCESS,STRIPS,
         (" ".join(rest))                                           +
         BASIC_OPTIONS                                              +
         test                                                       +
+        heuristic                                                  +
         (" -c _shallow=1 " if options['shallow'] else "")          +
         " -c _closure={}  ".format(options['closure'])             +
         " -c _parallel={} ".format(options['parallel'])            +
@@ -176,8 +187,8 @@ def run():
         call = call.replace(PLANNER,CLINGO + " " + INCMODE)
         call = call.replace(BASIC_OPTIONS,"")
     elif options['basic']:
-        call = "{} {} {}; {} {} | {} - {} {} {} {}".format(
-            FAST_D_TR,domain,instance,PLASP,SAS_OUTPUT,PLANNER,BASIC_OPTIONS,BASIC,test," ".join(rest) +
+        call = "{} {} {}; {} {} | {} - {} {} {} {} {}".format(
+            FAST_D_TR,domain,instance,PLASP,SAS_OUTPUT,PLANNER,BASIC_OPTIONS,BASIC,test,heuristic," ".join(rest) +
                (postprocess if options['postprocess'] else "")
         )
     # fast-downward
