@@ -90,4 +90,5 @@ pddl_tests = executable(
 test(
 	'pddl-tests',
 	pddl_tests,
+	workdir: meson.source_root() + '/tests',
 )

@@ -25,4 +25,5 @@ tokenize_tests = executable(
 test(
 	'tokenize-tests',
 	tokenize_tests,
+	workdir: meson.source_root() + '/tests',
 )

@@ -74,6 +74,7 @@ plasp_tests = executable(
 test(
 	'plasp-tests',
 	plasp_tests,
+	workdir: meson.source_root() + '/tests',
 )
 
 plasp_app_dependencies = [
