@@ -1,19 +1,14 @@
 # Use container-based distribution
 sudo: false
+dist: trusty
 language: c++
 addons:
   apt:
     sources: &default_sources
       - ubuntu-toolchain-r-test
-      - boost-latest
-    packages: &default_packages
-      - libboost-program-options1.55-dev
-      - libboost-iostreams1.55-dev
-      - libboost-system1.55-dev
-      - libboost-filesystem1.55-dev
 matrix:
   include:
-    - env: COMPILER_NAME=g++ _CXX=g++-6
+    - env: BUILD_SYSTEM=cmake _CXX=g++-6
       os: linux
       language: cpp
       addons:
@@ -21,8 +16,22 @@ matrix:
           sources:
             - *default_sources
           packages:
-            - *default_packages
             - g++-6
+    - env: BUILD_SYSTEM=meson _CXX=g++-6
+      os: linux
+      language: cpp
+      python: 3.5
+      addons:
+        apt:
+          sources:
+            - *default_sources
+          packages:
+            - ninja-build
+            - g++-6
+      before_install:
+        - pyenv global system 3.5
+      install:
+        - pip3 install meson
 script:
   - if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
       CMAKE_URL="http://www.cmake.org/files/v3.9/cmake-3.9.4-Linux-x86_64.tar.gz";
@@ -32,5 +41,10 @@ script:
   - git submodule update --recursive --init
   - mkdir -p build/debug
   - cd build/debug
-  - cmake ../.. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=$_CXX -DTOKENIZE_BUILD_TESTS=ON -DPDDL_BUILD_TESTS=ON -DPLASP_BUILD_TESTS=ON
-  - make -j3 plasp-app && make -j3 run-tokenize-tests && make -j3 run-pddl-tests && make -j3 run-tests
+  - if [[ "${BUILD_SYSTEM}" == "cmake" ]]; then
+      cmake ../.. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=$_CXX -DTOKENIZE_BUILD_TESTS=ON -DPDDL_BUILD_TESTS=ON -DPLASP_BUILD_TESTS=ON;
+      make -j3 plasp-app && make -j3 run-tokenize-tests && make -j3 run-pddl-tests && make -j3 run-tests;
+    elif [[ "${BUILD_SYSTEM}" == "meson" ]]; then
+      CXX=${_CXX} meson ../.. --buildtype=debug;
+      ninja plasp && ninja test;
+    fi
