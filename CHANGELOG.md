@@ -21,6 +21,7 @@
 ### Internal
 
 * reimplemented PDDL parser from scratch as stand-alone `pddl` library
+* added support for building plasp with the meson build system
 
 ## 3.0.3 (2016-09-02)
 
