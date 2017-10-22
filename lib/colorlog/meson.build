@@ -1,22 +1,24 @@
-project(
-	'colorlog',
-	'cpp',
-	default_options : ['cpp_std=c++1z'],
-)
+colorlog_dependencies = [
+	tokenize_dependency,
+]
 
-tokenize = subproject('tokenize')
-
-include_directories = [
-	tokenize.get_variable('include_directories'),
+colorlog_include_directories = [
 	include_directories('include'),
 ]
 
-sources = [
+colorlog_sources = [
 	'src/colorlog/Logger.cpp',
 ]
 
-library = shared_library(
+colorlog_library = static_library(
 	'colorlog',
-	include_directories: [include_directories],
-	sources: sources,
+	dependencies: colorlog_dependencies,
+	include_directories: colorlog_include_directories,
+	sources: colorlog_sources,
+)
+
+colorlog_dependency = declare_dependency(
+	link_with: colorlog_library,
+	dependencies: colorlog_dependencies,
+	include_directories: colorlog_include_directories,
 )

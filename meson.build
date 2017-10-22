@@ -5,44 +5,23 @@ project(
 		'buildtype=release',
 		'warning_level=3',
 		'werror=true',
-		'cpp_std=c++17',
+		'cpp_std=c++1z',
 	],
-	subproject_dir: 'lib',
 )
 
-add_global_arguments(
-	'-Wall',
-	'-Wextra',
-	'-Wpedantic',
-	'-Werror',
-	language: 'cpp',
-)
+subdir('lib')
 
-tokenize = subproject('tokenize')
-colorlog = subproject('colorlog')
-pddl = subproject('pddl')
-
-make_include_directories = [
-	include_directories('lib/catch/include'),
-	tokenize.get_variable('include_directories'),
-	colorlog.get_variable('include_directories'),
-	pddl.get_variable('include_directories'),
+plasp_dependencies = [
+	tokenize_dependency,
+	colorlog_dependency,
+	pddl_dependency,
 ]
 
-include_directories = [
+plasp_include_directories = [
 	include_directories('include'),
 ]
 
-link_with = [
-	colorlog.get_variable('library'),
-	pddl.get_variable('library'),
-]
-
-link_args = [
-	'-lstdc++fs',
-]
-
-sources = [
+plasp_sources = [
 	'src/plasp/Language.cpp',
 	'src/plasp/pddl/TranslatorASP.cpp',
 	'src/plasp/sas/AssignedVariable.cpp',
@@ -61,49 +40,52 @@ sources = [
 	'src/plasp/sas/VariableTransition.cpp',
 ]
 
-plasp = shared_library(
+plasp_library = static_library(
 	'plasp',
-	include_directories : [make_include_directories, include_directories],
-	link_args: link_args,
-	link_with: link_with,
-	sources: sources,
+	dependencies: plasp_dependencies,
+	include_directories : plasp_include_directories,
+	sources: plasp_sources,
 )
 
-test_sources = [
+plasp_dependency = declare_dependency(
+	link_with: plasp_library,
+	dependencies: plasp_dependencies,
+	include_directories: plasp_include_directories,
+)
+
+plasp_tests_include_directories = [
+	include_directories('lib/catch/include'),
+]
+
+plasp_tests_sources = [
 	'tests/main.cpp',
 	'tests/TestPDDLNormalization.cpp',
 	'tests/TestPDDLTranslation.cpp',
 	'tests/TestSASParser.cpp',
 ]
 
-test_link_with = [
-	link_with,
-	plasp,
-]
-
-tests = executable(
+plasp_tests = executable(
 	'plasp-tests',
-	include_directories: [make_include_directories, include_directories],
-	link_with: test_link_with,
-	sources: test_sources,
+	dependencies: plasp_dependency,
+	include_directories: plasp_tests_include_directories,
+	sources: plasp_tests_sources,
 )
 
 test(
 	'plasp-tests',
-	tests,
+	plasp_tests,
 )
 
-app_include_directories = [
+plasp_app_dependencies = [
+	plasp_dependency,
+]
+
+plasp_app_include_directories = [
 	include_directories('app/include'),
 	include_directories('lib/cxxopts/include'),
 ]
 
-app_link_with = [
-	link_with,
-	plasp,
-]
-
-app_sources = [
+plasp_app_sources = [
 	'app/src/plasp-app/commands/CommandBeautify.cpp',
 	'app/src/plasp-app/commands/CommandCheckSyntax.cpp',
 	'app/src/plasp-app/commands/CommandHelp.cpp',
@@ -116,7 +98,7 @@ app_sources = [
 
 plasp_app = executable(
 	'plasp',
-	include_directories: [make_include_directories, include_directories, app_include_directories],
-	link_with: app_link_with,
-	sources: app_sources,
+	dependencies: plasp_app_dependencies,
+	include_directories: plasp_app_include_directories,
+	sources: plasp_app_sources,
 )

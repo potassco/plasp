@@ -1,28 +1,18 @@
-project(
-	'pddl',
-	'cpp',
-	default_options : ['cpp_std=c++1z'],
-)
-
-tokenize = subproject('tokenize')
-colorlog = subproject('colorlog')
-
-make_include_directories = [
-	include_directories('../catch/include'),
+pddl_dependencies = [
+	tokenize_dependency,
+	colorlog_dependency,
 ]
 
-include_directories = [
+pddl_include_directories = [
 	include_directories('../variant/include'),
-	tokenize.get_variable('include_directories'),
-	colorlog.get_variable('include_directories'),
 	include_directories('include'),
 ]
 
-link_args = [
+pddl_link_args = [
 	'-lstdc++fs',
 ]
 
-sources = [
+pddl_sources = [
 	'src/pddl/detail/normalization/Action.cpp',
 	'src/pddl/detail/normalization/AtomicFormula.cpp',
 	'src/pddl/detail/normalization/ConditionalEffect.cpp',
@@ -62,14 +52,26 @@ sources = [
 	'src/pddl/Parse.cpp',
 ]
 
-library = shared_library(
+pddl_library = static_library(
 	'pddl',
-	include_directories: [make_include_directories, include_directories],
-	link_args: link_args,
-	sources: sources,
+	link_args: pddl_link_args,
+	dependencies: pddl_dependencies,
+	include_directories: pddl_include_directories,
+	sources: pddl_sources,
 )
 
-test_sources = [
+pddl_dependency = declare_dependency(
+	link_with: pddl_library,
+	link_args: pddl_link_args,
+	dependencies: pddl_dependencies,
+	include_directories: pddl_include_directories,
+)
+
+pddl_tests_include_directories = [
+	include_directories('../catch/include'),
+]
+
+pddl_tests_sources = [
 	'tests/main.cpp',
 	'tests/TestIssues.cpp',
 	'tests/TestParserBasics.cpp',
@@ -78,15 +80,14 @@ test_sources = [
 	'tests/TestSignatureMatching.cpp',
 ]
 
-tests = executable(
+pddl_tests = executable(
 	'pddl-tests',
-	include_directories: [make_include_directories, include_directories],
-	link_args: link_args,
-	link_with: library,
-	sources: test_sources,
+	dependencies: pddl_dependency,
+	include_directories: pddl_tests_include_directories,
+	sources: pddl_tests_sources,
 )
 
 test(
 	'pddl-tests',
-	tests,
+	pddl_tests,
 )
