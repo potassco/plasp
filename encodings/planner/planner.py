@@ -666,8 +666,6 @@ class Planner:
             #log("\n" + clingo_stats.Stats().summary(ctl),PRINT)
             #if options['stats']:
             #    log(clingo_stats.Stats().statistics(ctl),PRINT)
-            if i==12:
-                pass #break
 
         # stats
         log("\n" + clingo_stats.Stats().summary(ctl),PRINT)

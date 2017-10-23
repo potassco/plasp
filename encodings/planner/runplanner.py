@@ -23,6 +23,9 @@ TEST_ACT_1    = os.path.join(TEST_FILES,"block_actions_1.lp")
 TEST_ACT_T    = os.path.join(TEST_FILES,"block_actions_t.lp")
 TEST_ENC_1    = os.path.join(TEST_FILES,"block_encoding_1.lp")
 TEST_ENC_T    = os.path.join(TEST_FILES,"block_encoding_t.lp")
+TEST_B_ENC_1  = os.path.join(TEST_FILES,"block_encoding_1_basic.lp")
+TEST_B_ENC_T  = os.path.join(TEST_FILES,"block_encoding_t_basic.lp")
+TEST_SIMPLE   = os.path.join(TEST_FILES,"block_model.lp")
 
 # Other systems
 CLINGO      = "clingo"
@@ -68,6 +71,7 @@ Get help/report bugs via : https://potassco.org/support
         #basic.add_argument('-v','--verbose',dest='verbose',action="store_true",help="Be a bit more verbose")
         basic.add_argument('instance',help="PDDL instance, with corresponding domain file in the same directory (named either domain.pddl, or domain_instance), or defined via option --domain")
         basic.add_argument('--domain',dest='domain',help="PDDL domain",default=None)
+        basic.add_argument('--hack',dest='hack',action='store_true',help=argparse.SUPPRESS)
 
         # specific
         normal = cmd_parser.add_argument_group('Solving Options')
@@ -78,11 +82,12 @@ Get help/report bugs via : https://potassco.org/support
         normal.add_argument('--redundancy',action='store_true',help='Enforcement of redundant actions')
         normal.add_argument('--postprocess',action='store_true',help='Solve, serialize, and check if solution is correct (works also with --basic)')
         normal.add_argument('--heuristic',action='store_true',help='Run domain heuristic for planning')
-        normal.add_argument('--test',default=None, type=int, choices=[0,1,2,3,4,5,6,7],
+        normal.add_argument('--test',default=None, type=int, choices=[0,1,2,3,4,5,6,7,8],
                             help="""Test solution and add blocking encoding with value <mask {0..7}>: \
 (1) use a minimal set of non-serializable actions (or any set), \
 (2) use encoding inforcing serializability (or forbid the sets of non-serializable actions), and \
-(4) add programs for all time steps (or for the time steps of the non-serializable actions).""")
+(4) add programs for all time steps (or for the time steps of the non-serializable actions). \
+Use value 8 for simply deleting the plan.""")
 
         extended = cmd_parser.add_argument_group('Other Solving Modes')
         extended.add_argument('--incmode',dest='incmode',action='store_true',help='Run clingo incmode')
@@ -158,9 +163,19 @@ def run():
         elif not test_enc and test_all:
             test += "{} ".format(TEST_ACT_T)
         elif test_enc and not test_all:
-            test += "{} ".format(TEST_ENC_1)
+            if options['basic']:
+                test += "{} ".format(TEST_B_ENC_1)
+            else:
+                test += "{} ".format(TEST_ENC_1)
         else:
-            test += "{} --test-once ".format(TEST_ENC_T)
+            if options['basic']:
+                test += "{} --test-once ".format(TEST_B_ENC_T)
+            else:
+                test += "{} --test-once ".format(TEST_ENC_T)
+        # handle cases 8 -> delete the plan 
+        if options['test'] == 8:
+            test = "--test=- --test={} {}".format(TEST_FILE, TEST_SIMPLE)
+
     # heurisitic
     heuristic = ""
     if options['heuristic']:
@@ -198,7 +213,7 @@ def run():
     elif options['M']:
         call = "{} {} {} {}".format(  M,domain,instance," ".join(rest))
     elif options['Mp']:
-        call = "{} {} {} {}".format( MP,domain,instance," ".join(rest))
+        call = '{} {} {} {}'.format(MP,domain,instance," ".join(rest))
     elif options['MpC']:
         call = "{} {} {} {}".format(MPC,domain,instance," ".join(rest))
 
@@ -210,5 +225,8 @@ def run():
         print call
     else:
         os.system(call)
+
+    if options['hack']:
+        os.system('echo "a." | clingo --stats -')
 
 run()
