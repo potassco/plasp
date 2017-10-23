@@ -14,7 +14,7 @@ REDUNDANCY    = PLASP_DIR + "encodings/strips/redundancy.lp"
 POSTPROCESS   = PLASP_DIR + "encodings/strips/postprocess.lp"
 INCMODE       = PLASP_DIR + "encodings/strips/incmode.lp"
 TMP           = os.path.dirname(os.path.realpath(__file__)) + "/run.tmp" + str(os.getpid())
-BASIC_OPTIONS = " --query-at-last --forbid-actions --force-actions "
+BASIC_OPTIONS = " --query-at-last --forbid-actions --force-actions -c planner_on=1 "
 
 TEST_FILES    = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test_files")
 TEST_FILE     = os.path.join(TEST_FILES,"test.lp")

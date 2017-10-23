@@ -1,7 +1,8 @@
 #program block_base.
-disable(A1,A2) :- active(A1), active(A2), A1 != A2, postcondition(A1,X,V),
-                  has_condition(A2,X,0), not precondition(A2,X,V),
-                  not diverge(A1,A2), not exclude(A1,A2).
+% ADAPT
+active(A) :- action(A).
+disable(A1,A2) :- action(A1), action(A2), A1 != A2,
+                  postcondition(A1,_,X,V1), precondition(A2,X,V2), V1 != V2.
 
 #program block_step(t).
 
