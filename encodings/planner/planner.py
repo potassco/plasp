@@ -287,9 +287,9 @@ class C_Scheduler(Scheduler):
             self.__first  = False
 
         # NONE: check if all Nones, append and pop
-        elif result != NO_MEM:
+        elif result == NO_MEM:
             self.__nones.add(self.__runs[0])
-            if len(self.__nones) == len(self.__runs): 
+            if len(self.__nones) == len(self.__runs):
                 return None
             self.__runs.append(self.__runs[0])
             self.__runs = self.__runs[1:]
@@ -586,6 +586,7 @@ class Planner:
 
     def run(self,options,clingo_options):
 
+        time0 = clock()
         ctl = clingo.Control(clingo_options)
 
         # input files
@@ -640,7 +641,8 @@ class Planner:
         verbose = options['verbose']
         memory = memory_usage()
         if verbose and memory!=-1:
-            log("\nMemory: {}MB\n".format(memory))
+            log("\nTime:\t {:.2f}s".format(clock()- time0))
+            log("Memory: {}MB\n".format(memory))
 
         # loop
         i=1
