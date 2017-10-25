@@ -18,7 +18,7 @@ namespace detail
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-normalizedAST::Effect normalize(ast::Effect &&effect, normalizedAST::DerivedPredicateDeclarations &derivedPredicates)
+normalizedAST::Effect normalize(ast::Effect &&effect, detail::NormalizationContext &normalizationContext)
 {
 	const auto handleLiteral =
 		[](ast::Literal &literal) -> normalizedAST::Effect
@@ -32,7 +32,7 @@ normalizedAST::Effect normalize(ast::Effect &&effect, normalizedAST::DerivedPred
 			normalizedAST::And<normalizedAST::Effect>::Arguments arguments;
 
 			for (auto &argument : and_->arguments)
-				arguments.emplace_back(normalize(std::move(argument), derivedPredicates));
+				arguments.emplace_back(normalize(std::move(argument), normalizationContext));
 
 			return std::make_unique<normalizedAST::And<normalizedAST::Effect>>(std::move(arguments));
 		};
@@ -40,14 +40,14 @@ normalizedAST::Effect normalize(ast::Effect &&effect, normalizedAST::DerivedPred
 	const auto handleForAll =
 		[&](ast::ForAllPointer<ast::Effect> &forAll) -> normalizedAST::Effect
 		{
-			auto normalizedArgument = normalize(std::move(forAll->argument), derivedPredicates);
+			auto normalizedArgument = normalize(std::move(forAll->argument), normalizationContext);
 			return std::make_unique<normalizedAST::ForAll<normalizedAST::Effect>>(std::move(forAll->parameters), std::move(normalizedArgument));
 		};
 
 	const auto handleWhen =
 		[&](ast::WhenPointer<ast::Precondition, ast::ConditionalEffect> &when) -> normalizedAST::Effect
 		{
-			auto normalizedCondition = normalize(std::move(when->argumentLeft), derivedPredicates);
+			auto normalizedCondition = normalize(std::move(when->argumentLeft), normalizationContext);
 			auto normalizedConditionalEffect = normalize(std::move(when->argumentRight));
 
 			return std::make_unique<normalizedAST::When<normalizedAST::Precondition, normalizedAST::ConditionalEffect>>(std::move(normalizedCondition), std::move(normalizedConditionalEffect));

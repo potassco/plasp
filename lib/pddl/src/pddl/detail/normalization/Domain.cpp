@@ -26,8 +26,10 @@ normalizedAST::DomainPointer normalize(ast::DomainPointer &&domain)
 
 	normalizedDomain->actions.reserve(domain->actions.size());
 
+	NormalizationContext normalizationContext(normalizedDomain->derivedPredicates);
+
 	for (auto &&action : domain->actions)
-		normalizedDomain->actions.emplace_back(normalize(std::move(action), normalizedDomain->derivedPredicates));
+		normalizedDomain->actions.emplace_back(normalize(std::move(action), normalizationContext));
 
 	return normalizedDomain;
 }

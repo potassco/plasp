@@ -25,7 +25,12 @@ normalizedAST::ProblemPointer normalize(ast::ProblemPointer &&problem, normalize
 	normalizedProblem->initialState = normalize(std::move(problem->initialState));
 
 	if (problem->goal)
-		normalizedProblem->goal = normalize(std::move(problem->goal.value()), normalizedProblem->derivedPredicates);
+	{
+		NormalizationContext normalizationContext(normalizedProblem->derivedPredicates);
+		normalizationContext.derivedPredicateIDStart = domain->derivedPredicates.size() + 1;
+
+		normalizedProblem->goal = normalize(std::move(problem->goal.value()), normalizationContext);
+	}
 
 	return normalizedProblem;
 }

@@ -16,7 +16,7 @@ namespace detail
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-normalizedAST::ActionPointer normalize(ast::ActionPointer &&action, normalizedAST::DerivedPredicateDeclarations &derivedPredicates)
+normalizedAST::ActionPointer normalize(ast::ActionPointer &&action, detail::NormalizationContext &normalizationContext)
 {
 	auto normalizedAction = std::make_unique<normalizedAST::Action>();
 
@@ -24,10 +24,10 @@ normalizedAST::ActionPointer normalize(ast::ActionPointer &&action, normalizedAS
 	normalizedAction->parameters = std::move(action->parameters);
 
 	if (action->precondition)
-		normalizedAction->precondition = normalize(std::move(action->precondition.value()), derivedPredicates);
+		normalizedAction->precondition = normalize(std::move(action->precondition.value()), normalizationContext);
 
 	if (action->effect)
-		normalizedAction->effect = normalize(std::move(action->effect.value()), derivedPredicates);
+		normalizedAction->effect = normalize(std::move(action->effect.value()), normalizationContext);
 
 	return normalizedAction;
 }

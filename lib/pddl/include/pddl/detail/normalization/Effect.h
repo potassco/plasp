@@ -3,7 +3,7 @@
 
 #include <pddl/ASTForward.h>
 #include <pddl/Context.h>
-#include <pddl/NormalizedASTForward.h>
+#include <pddl/detail/normalization/NormalizationContext.h>
 
 namespace pddl
 {
@@ -16,7 +16,7 @@ namespace detail
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-normalizedAST::Effect normalize(ast::Effect &&effect, normalizedAST::DerivedPredicateDeclarations &derivedPredicates);
+normalizedAST::Effect normalize(ast::Effect &&effect, detail::NormalizationContext &normalizationContext);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
