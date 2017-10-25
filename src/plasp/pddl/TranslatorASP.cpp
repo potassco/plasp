@@ -77,6 +77,7 @@ void TranslatorASP::translateDomain() const
 		translatePredicates();
 	}
 
+	// Derived predicates
 	if (!domain->derivedPredicates.empty())
 	{
 		m_outputStream << std::endl;
