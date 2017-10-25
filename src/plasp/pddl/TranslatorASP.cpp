@@ -81,7 +81,7 @@ void TranslatorASP::translateDomain() const
 	if (!domain->derivedPredicates.empty())
 	{
 		m_outputStream << std::endl;
-		translateDerivedPredicates();
+		translateDerivedPredicates(domain->derivedPredicates);
 	}
 
 	// Actions
@@ -194,11 +194,9 @@ void TranslatorASP::translatePredicates() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void TranslatorASP::translateDerivedPredicates() const
+void TranslatorASP::translateDerivedPredicates(const ::pddl::normalizedAST::DerivedPredicateDeclarations &derivedPredicates) const
 {
 	m_outputStream << colorlog::Heading2("derived predicates");
-
-	const auto &derivedPredicates = m_description.domain->derivedPredicates;
 
 	for (const auto &derivedPredicate : derivedPredicates)
 	{
@@ -208,11 +206,10 @@ void TranslatorASP::translateDerivedPredicates() const
 
 		m_outputStream << ")";
 
-		if (!derivedPredicate->parameters.empty() || !derivedPredicate->existentialParameters.empty())
-		{
+		if (!derivedPredicate->parameters.empty())
 			m_outputStream << " :- ";
-			translateVariablesForRuleBody(m_outputStream, derivedPredicate->parameters);
-		}
+
+		translateVariablesForRuleBody(m_outputStream, derivedPredicate->parameters);
 
 		m_outputStream << ".";
 	}
@@ -228,28 +225,21 @@ void TranslatorASP::translateDerivedPredicates() const
 
 	for (const auto &derivedPredicate : derivedPredicates)
 	{
-		// With “and” expressions, the existentially bound parameters are important
-		// Were they not the same in all arguments, the precondition would be treated like a disjunction
-		const auto enumerateExistentialParameters
-			= derivedPredicate->precondition.value().is<::pddl::normalizedAST::AndPointer<::pddl::normalizedAST::Literal>>();
-
 		const auto printDerivedPredicateName =
 			[&]()
 			{
 				m_outputStream << colorlog::Keyword("derivedPredicate") << "(";
 
-				if (derivedPredicate->parameters.empty())
+				if (derivedPredicate->parameters.empty() && derivedPredicate->existentialParameters.empty())
 				{
 					m_outputStream << *derivedPredicate << ")";
 					return;
 				}
 
 				m_outputStream << "(" << *derivedPredicate;
-				// TODO: add existentially quantified parameters
-				translateVariablesForRuleHead(m_outputStream, derivedPredicate->parameters);
 
-				if (enumerateExistentialParameters && !derivedPredicate->existentialParameters.empty())
-					translateVariablesForRuleHead(m_outputStream, derivedPredicate->existentialParameters);
+				translateVariablesForRuleHead(m_outputStream, derivedPredicate->parameters);
+				translateVariablesForRuleHead(m_outputStream, derivedPredicate->existentialParameters);
 
 				m_outputStream << ")), " << colorlog::Keyword("type") << "(";
 
@@ -271,16 +261,12 @@ void TranslatorASP::translateDerivedPredicates() const
 		if (!derivedPredicate->parameters.empty() || !derivedPredicate->existentialParameters.empty())
 			m_outputStream << " :- ";
 
-		if (!derivedPredicate->parameters.empty())
-			translateVariablesForRuleBody(m_outputStream, derivedPredicate->parameters);
+		translateVariablesForRuleBody(m_outputStream, derivedPredicate->parameters);
 
-		if (enumerateExistentialParameters && !derivedPredicate->existentialParameters.empty())
-		{
-			if (!derivedPredicate->parameters.empty())
-				m_outputStream << ", ";
+		if (!derivedPredicate->existentialParameters.empty() && !derivedPredicate->parameters.empty())
+			m_outputStream << ", ";
 
-			translateVariablesForRuleBody(m_outputStream, derivedPredicate->existentialParameters);
-		}
+		translateVariablesForRuleBody(m_outputStream, derivedPredicate->existentialParameters);
 
 		m_outputStream << ".";
 
@@ -424,6 +410,13 @@ void TranslatorASP::translateProblem() const
 	// Initial state
 	m_outputStream << std::endl;
 	translateInitialState();
+
+	// Derived predicates
+	if (!problem->derivedPredicates.empty())
+	{
+		m_outputStream << std::endl;
+		translateDerivedPredicates(problem->derivedPredicates);
+	}
 
 	// Goal
 	if (problem->goal)

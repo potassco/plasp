@@ -42,7 +42,7 @@ normalizedAST::OrPointer<normalizedAST::Literal> normalizeTopLevel(ast::OrPointe
 normalizedAST::DerivedPredicatePointer addDerivedPredicate(const std::vector<normalizedAST::VariableDeclaration *> &parameters, detail::NormalizationContext &normalizationContext)
 {
 	auto &derivedPredicates = normalizationContext.derivedPredicates;
-	const auto derivedPredicateID = normalizationContext.derivedPredicateIDStart + derivedPredicates.size() + 1;
+	const auto derivedPredicateID = normalizationContext.derivedPredicateIDStart + derivedPredicates.size();
 	auto name = "derived-predicate-" + std::to_string(derivedPredicateID);
 
 	normalizedAST::DerivedPredicate::Arguments arguments;

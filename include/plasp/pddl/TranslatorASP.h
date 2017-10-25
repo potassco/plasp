@@ -29,7 +29,7 @@ class TranslatorASP
 		void translateUtils() const;
 		void translateTypes() const;
 		void translatePredicates() const;
-		void translateDerivedPredicates() const;
+		void translateDerivedPredicates(const ::pddl::normalizedAST::DerivedPredicateDeclarations &derivedPredicates) const;
 		void translateActions() const;
 
 		void translateProblem() const;
