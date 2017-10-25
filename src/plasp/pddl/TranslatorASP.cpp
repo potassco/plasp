@@ -421,7 +421,7 @@ void TranslatorASP::translateProblem() const
 		translateConstants("objects", problem->objects);
 	}
 
-	// Initial State
+	// Initial state
 	m_outputStream << std::endl;
 	translateInitialState();
 
