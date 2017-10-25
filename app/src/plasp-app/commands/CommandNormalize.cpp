@@ -108,7 +108,7 @@ int CommandNormalize::run(int argc, char **argv)
 				context.mode = parserOptions.parsingMode;
 				auto description = pddl::parseDescription(context);
 				auto normalizedDescription = pddl::normalize(std::move(description));
-				logger.outputStream() << normalizedDescription << std::endl;
+				logger.outputStream() << normalizedDescription;
 				return EXIT_SUCCESS;
 			}
 

@@ -105,7 +105,7 @@ int CommandBeautify::run(int argc, char **argv)
 				auto context = pddl::Context(std::move(tokenizer), logWarning);
 				context.mode = parserOptions.parsingMode;
 				auto description = pddl::parseDescription(context);
-				logger.outputStream() << description << std::endl;
+				logger.outputStream() << description;
 				break;
 			}
 
