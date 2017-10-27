@@ -92,16 +92,16 @@ Get help/report bugs via : https://potassco.org/support
         normal.add_argument('--heuristic',action='store_true',help='Run domain heuristic for planning')
         normal.add_argument('--test',default=None, type=int, choices=[0,1],
                             help="Test solution (0) using all non-serializable actions, or (1) using a minimal subset of them")
-        normal.add_argument('--test-add',default=0, type=int, choices=[0,1,2,3,4,5],
+        normal.add_argument('--test-add', dest="test_add", default=2, type=int, choices=[0,1,2,3,4,5],
                             help="""Add constraints \
-(0, default) deleting the model, or \ 
+(0) deleting the model, or \ 
 (1) deleting the non-serializable actions, or \
-(2) inforcing sequential plans, or \
+(2, default) inforcing sequential plans, or \
 (3) inforcing sequential plans (relaxed), or \
 (4) inforcing forall plans, or \
 (5) inforcing exists plans""")
-        normal.add_argument('--test-times',default=0, type=int, choices=[0,1],
-                            help="Add constraints (0, default) for action's times, or (1) for all times")
+        normal.add_argument('--test-times', dest = "test_times", default=1, type=int, choices=[0,1],
+                            help="Add constraints (0) for action's times, or (1, default) for all times")
 
         extended = cmd_parser.add_argument_group('Other Solving Modes')
         extended.add_argument('--incmode',dest='incmode',action='store_true',help='Run clingo incmode')
@@ -168,35 +168,35 @@ def run():
         test += "--test=- --test={} ".format(TEST_FILE)
         if options['test'] == 1:
             test += "--test={} ".format(TEST_FILE2)
-        test_add = options['test-add']
-        test_times = options['test-times']
+        test_add = options['test_add']
+        test_times = options['test_times']
         if test_add == 0:
             test = "--test=- --test={} {}".format(TEST_FILEM, TEST_MODEL)
         elif test_add == 1:
-            if test_time == 0:
+            if test_times == 0:
                 test += TEST_ACT_1
             else:
                 test += TEST_ACT_T
         elif test_add == 2:
-            if test_time == 0:
+            if test_times == 0:
                 test += TEST_SEQ_1
             else:
-                test += TEST_SEQ_T
+                test += TEST_SEQ_T + " --test-once "
         elif test_add == 3:
-            if test_time == 0:
+            if test_times == 0:
                 test += TEST_DSEQ_1
             else:
                 test += TEST_DSEQ_T
         elif test_add == 4:
-            if test_time == 0:
+            if test_times == 0:
                 test += TEST_FORALL_1
             else:
-                test += TEST_FORALL_T
+                test += TEST_FORALL_T + " --test-once "
         elif test_add == 5:
-            if test_time == 0:
+            if test_times == 0:
                 test += TEST_B_EX_1
             else:
-                test += TEST_B_EX_T
+                test += TEST_B_EX_T + " --test-once "
         test += " "
 
     # heurisitic
