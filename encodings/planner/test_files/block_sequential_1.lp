@@ -3,5 +3,6 @@
 #program block_step(t).
 
 #program block_model(m,length).
-:- occurs(A,T) : _test(occurs(A,T),m);
-   _test(occurs(A,T),m) : occurs(A,T).
+:- 2 { occurs(A,T) },
+   _test(_occurs(_,T),m).
+

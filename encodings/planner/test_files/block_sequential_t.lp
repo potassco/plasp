@@ -1,7 +1,8 @@
 #program block_base.
 
 #program block_step(t).
+:- 2 { occurs(A,T) }, T=t.
 
 #program block_model(m,length).
-:- occurs(A,T) : _test(occurs(A,T),m);
-   _test(occurs(A,T),m) : occurs(A,T).
+:- 2 { occurs(A,T) }, T=1..length.
+

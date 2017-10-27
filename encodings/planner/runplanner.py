@@ -7,6 +7,7 @@ PLASP         = "plasp"
 PLASP_DIR     = os.path.dirname(os.path.realpath(__file__)) + "/../../"
 PLANNER       = PLASP_DIR + "encodings/planner/planner.py"
 BASIC         = PLASP_DIR + "encodings/planner/basic.lp"
+BASIC_EXT     = PLASP_DIR + "encodings/planner/basic_ext.lp"
 HEURISTIC     = PLASP_DIR + "encodings/planner/heuristic.lp"
 PREPROCESS    = PLASP_DIR + "encodings/strips/preprocess.lp"
 STRIPS        = PLASP_DIR + "encodings/strips/strips-incremental.lp"
@@ -19,13 +20,20 @@ BASIC_OPTIONS = " --query-at-last --forbid-actions --force-actions -c planner_on
 TEST_FILES    = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test_files")
 TEST_FILE     = os.path.join(TEST_FILES,"test.lp")
 TEST_FILE2    = os.path.join(TEST_FILES,"test_const.lp")
+TEST_FILEM    = os.path.join(TEST_FILES,"test_model.lp")
+TEST_MODEL    = os.path.join(TEST_FILES,"block_model.lp")
 TEST_ACT_1    = os.path.join(TEST_FILES,"block_actions_1.lp")
 TEST_ACT_T    = os.path.join(TEST_FILES,"block_actions_t.lp")
-TEST_ENC_1    = os.path.join(TEST_FILES,"block_encoding_1.lp")
-TEST_ENC_T    = os.path.join(TEST_FILES,"block_encoding_t.lp")
-TEST_B_ENC_1  = os.path.join(TEST_FILES,"block_encoding_1_basic.lp")
-TEST_B_ENC_T  = os.path.join(TEST_FILES,"block_encoding_t_basic.lp")
-TEST_SIMPLE   = os.path.join(TEST_FILES,"block_model.lp")
+TEST_SEQ_1    = os.path.join(TEST_FILES,"block_sequential_1.lp")
+TEST_SEQ_T    = os.path.join(TEST_FILES,"block_sequential_t.lp")
+TEST_DSEQ_1   = os.path.join(TEST_FILES,"block_dyn_sequential_1.lp")
+TEST_DSEQ_T   = os.path.join(TEST_FILES,"block_dyn_sequential_t.lp")
+TEST_FORALL_1 = os.path.join(TEST_FILES,"block_forall_1.lp")
+TEST_FORALL_T = os.path.join(TEST_FILES,"block_forall_t.lp")
+TEST_EXISTS_1 = os.path.join(TEST_FILES,"block_exists_1.lp")
+TEST_EXISTS_T = os.path.join(TEST_FILES,"block_exists_t.lp")
+TEST_B_EX_1   = os.path.join(TEST_FILES,"block_exists_1_basic.lp")
+TEST_B_EX_T   = os.path.join(TEST_FILES,"block_exists_t_basic.lp")
 
 # Other systems
 CLINGO      = "clingo"
@@ -82,16 +90,23 @@ Get help/report bugs via : https://potassco.org/support
         normal.add_argument('--redundancy',action='store_true',help='Enforcement of redundant actions')
         normal.add_argument('--postprocess',action='store_true',help='Solve, serialize, and check if solution is correct (works also with --basic)')
         normal.add_argument('--heuristic',action='store_true',help='Run domain heuristic for planning')
-        normal.add_argument('--test',default=None, type=int, choices=[0,1,2,3,4,5,6,7,8],
-                            help="""Test solution and add blocking encoding with value <mask {0..7}>: \
-(1) use a minimal set of non-serializable actions (or any set), \
-(2) use encoding inforcing serializability (or forbid the sets of non-serializable actions), and \
-(4) add programs for all time steps (or for the time steps of the non-serializable actions). \
-Use value 8 for simply deleting the plan.""")
+        normal.add_argument('--test',default=None, type=int, choices=[0,1],
+                            help="Test solution (0) using all non-serializable actions, or (1) using a minimal subset of them")
+        normal.add_argument('--test-add',default=0, type=int, choices=[0,1,2,3,4,5],
+                            help="""Add constraints \
+(0, default) deleting the model, or \ 
+(1) deleting the non-serializable actions, or \
+(2) inforcing sequential plans, or \
+(3) inforcing sequential plans (relaxed), or \
+(4) inforcing forall plans, or \
+(5) inforcing exists plans""")
+        normal.add_argument('--test-times',default=0, type=int, choices=[0,1],
+                            help="Add constraints (0, default) for action's times, or (1) for all times")
 
         extended = cmd_parser.add_argument_group('Other Solving Modes')
         extended.add_argument('--incmode',dest='incmode',action='store_true',help='Run clingo incmode')
         extended.add_argument('--basic',dest='basic',action='store_true',help='Run fast-downward translator to sas, then plasp translator, and solve with the basic encoding')
+        extended.add_argument('--basic-ext',dest='basic-ext',action='store_true',help='Run fast-downward translator to sas, then plasp translator, and solve with the basic extended encoding')
         extended.add_argument('--fast-downward','-fd',dest='fast-downward',action='store_true',help='Run fast-downward heuristic search planner with LAMA settings')
         extended.add_argument('--madagascar-M',  dest='M',  action='store_true',help='Run version   M of madagascar SAT planner')
         extended.add_argument('--madagascar-Mp', dest='Mp', action='store_true',help='Run version  Mp of madagascar SAT planner')
@@ -150,31 +165,39 @@ def run():
     # generate and test
     test = ""
     if options['test'] is not None:
-        v = options['test']
         test += "--test=- --test={} ".format(TEST_FILE)
-        if v%2 == 1:
+        if options['test'] == 1:
             test += "--test={} ".format(TEST_FILE2)
-        v = v/2
-        test_enc = True if v%2 == 1 else False
-        v = v/2
-        test_all = True if v%2 == 1 else False
-        if not test_enc and not test_all:
-            test += "{} ".format(TEST_ACT_1)
-        elif not test_enc and test_all:
-            test += "{} ".format(TEST_ACT_T)
-        elif test_enc and not test_all:
-            if options['basic']:
-                test += "{} ".format(TEST_B_ENC_1)
+        test_add = options['test-add']
+        test_times = options['test-times']
+        if test_add == 0:
+            test = "--test=- --test={} {}".format(TEST_FILEM, TEST_MODEL)
+        elif test_add == 1:
+            if test_time == 0:
+                test += TEST_ACT_1
             else:
-                test += "{} ".format(TEST_ENC_1)
-        else:
-            if options['basic']:
-                test += "{} --test-once ".format(TEST_B_ENC_T)
+                test += TEST_ACT_T
+        elif test_add == 2:
+            if test_time == 0:
+                test += TEST_SEQ_1
             else:
-                test += "{} --test-once ".format(TEST_ENC_T)
-        # handle cases 8 -> delete the plan 
-        if options['test'] == 8:
-            test = "--test=- --test={} {}".format(TEST_FILE, TEST_SIMPLE)
+                test += TEST_SEQ_T
+        elif test_add == 3:
+            if test_time == 0:
+                test += TEST_DSEQ_1
+            else:
+                test += TEST_DSEQ_T
+        elif test_add == 4:
+            if test_time == 0:
+                test += TEST_FORALL_1
+            else:
+                test += TEST_FORALL_T
+        elif test_add == 5:
+            if test_time == 0:
+                test += TEST_B_EX_1
+            else:
+                test += TEST_B_EX_T
+        test += " "
 
     # heurisitic
     heuristic = ""
@@ -204,6 +227,11 @@ def run():
     elif options['basic']:
         call = "{} {} {}; {} {} | {} - {} {} {} {} {}".format(
             FAST_D_TR,domain,instance,PLASP,SAS_OUTPUT,PLANNER,BASIC_OPTIONS,BASIC,test,heuristic," ".join(rest) +
+               (postprocess if options['postprocess'] else "")
+        )
+    elif options['basic-ext']:
+        call = "{} {} {}; {} {} | {} - {} {} {} {} {}".format(
+            FAST_D_TR,domain,instance,PLASP,SAS_OUTPUT,PLANNER,BASIC_OPTIONS,BASIC_EXT,test,heuristic," ".join(rest) +
                (postprocess if options['postprocess'] else "")
         )
     # fast-downward

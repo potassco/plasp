@@ -4,11 +4,23 @@ import clingo
 import sys
 
 STR_UNSAT = "error: input program is UNSAT"
+INIT = "init"
 
 #
-# primed atoms are not allowed in the heads
+# Syntax Restriction:
+#   - primed atoms are not allowed in the heads
+#
+# Semantics:
+#   - the transition is defined by the stable models of the program
+#   - the possible initial states are defined by the set of primed externals
+#   - normal (not primed) externals work normally
+#
+# Extensions:
+#   - init/1 defines the initial situation
+#   - external last/0 is set to true only at the last step
 #
 
+# example program
 base = """
 % background
 fluent(loaded). fluent(alive).
@@ -20,8 +32,8 @@ action(load). action(shoot).
 holds(loaded,true) :- occ(load).
 holds(alive,false) :- occ(shoot), holds'(loaded,true).
 holds(F,V) :- holds'(F,V), not holds(F,VV) : value(VV), VV != V.
-{ occ(A) : action(A) } 1.
-:- holds(alive,true), last.
+1 { occ(A) : action(A) } 1.
+%:- holds(alive,true), last.
 
 #show holds/2.
 #show occ/1.
@@ -29,6 +41,10 @@ holds(F,V) :- holds'(F,V), not holds(F,VV) : value(VV), VV != V.
 % state generation
 #external holds'(F,V) : fluent(F), value(V).
 #external last.
+
+% init
+init(holds(loaded,false)).
+init(holds(alive,true)).
 """
 
 
@@ -52,6 +68,7 @@ class DLPGenerator:
         self.init_externals = []
         self.normal_externals = []
         self.output = set()
+        self.init = []
 
     def run(self):
         # preliminaries
@@ -63,6 +80,7 @@ class DLPGenerator:
             ctl.add(i[0], i[1], i[2])
         ctl.ground(self.parts)
         # analyze
+        self.simplify_program()
         self.set_externals()
         self.set_next()
         self.set_mapping()
@@ -70,11 +88,15 @@ class DLPGenerator:
         self.map_weight_rules()
         self.handle_externals()
         self.set_output()
+        self.set_init()
         # return
         return DynamicLogicProgram(
             self.offset, self.rules, self.weight_rules,
-            self.init_externals, self.normal_externals, self.output
+            self.init_externals, self.normal_externals, self.output, self.init
         )
+
+    def simplify_program(self):
+        return
 
     def set_externals(self):
         self.externals = [x for x in self.ctl.symbolic_atoms if x.is_external]
@@ -86,7 +108,6 @@ class DLPGenerator:
         except Exception:
             return literal
 
-    # TODO: check special cases
     def set_next(self):
         self.next = {x.literal : self.get_next_literal(x.symbol, x.literal)
                      for x in self.externals if
@@ -102,17 +123,23 @@ class DLPGenerator:
 
     def map_rules(self):
         for rule in self.rules:
-            for i, head in enumerate(rule[1]):
-                rule[1][i] = self.mapping[head]
-            for i, head in enumerate(rule[2]):
-                rule[2][i] = self.mapping[head]
+            for i, atom in enumerate(rule[1]):
+                rule[1][i] = self.mapping[atom]
+            for i, atom in enumerate(rule[2]):
+                if atom>0:
+                    rule[2][i] = self.mapping[atom]
+                else:
+                    rule[2][i] = -self.mapping[-atom]
 
     def map_weight_rules(self):
         for rule in self.weight_rules:
-            for i, head in enumerate(rule[1]):
-                rule[1][i] = self.mapping[head]
-            for i, head in enumerate(rule[3]):
-                rule[3][i] = (self.mapping[head[0]], head[1])
+            for i, atom in enumerate(rule[1]):
+                rule[1][i] = self.mapping[atom]
+            for i, atom in enumerate(rule[3]):
+                if atom[0]>0:
+                    rule[3][i] = (self.mapping[atom[0]], atom[1])
+                else:
+                    rule[3][i] = (-self.mapping[-atom[0]], atom[1])
 
     def handle_externals(self):
         for i in self.externals:
@@ -128,6 +155,18 @@ class DLPGenerator:
             for m in handle:
                 return
         raise Exception(STR_UNSAT)
+
+    def set_init(self):
+        self.init = [self.mapping[
+                         self.ctl.symbolic_atoms[
+                             clingo.Function(i.symbol.arguments[0].name+"'",
+                                             i.symbol.arguments[0].arguments
+                                            )
+                         ].literal
+                     ]
+                     for i in self.ctl.symbolic_atoms
+                         if i.symbol.name == INIT
+        ]
 
     #
     # observer
@@ -188,18 +227,88 @@ class DLPGenerator:
         out += "\nOUTPUT\n" + "\n".join(
             ["{}:{}".format(x, y) for x, y in sorted(self.output)]
         )
+        out += "\nINIT\n" + "\n".join(
+            ["{}".format(x) for x in sorted(self.init)]
+        )
         return out
+
 
 class DynamicLogicProgram:
 
     def __init__(self, offset, rules, weight_rules,
-                 init_externals, normal_externals, output):
+                 init_externals, normal_externals, output, init):
+        # init
         self.offset = offset
         self.rules = rules
         self.weight_rules = weight_rules
         self.init_externals = init_externals
         self.normal_externals = normal_externals
+        self.assigned_externals = {}
         self.output = output
+        self.init = init
+        # rest
+        self.ctl = None
+        self.backend = None
+
+    def start(self, ctl):
+        self.ctl = ctl
+        self.backend = ctl.backend
+        #self.ctl.register_observer(self)
+        # TODO: tell ROLAND to reorder
+        for atom in self.init:
+            self.backend.add_rule([atom], [], False)
+
+    def ground(self, start, end):
+        for step in range(start, end+1):
+            offset = (step-1)*self.offset
+            for rule in self.rules:
+                self.backend.add_rule(
+                    [x+offset for x in rule[1]],
+                    [x+offset for x in rule[2] if x >0] +
+                    [x-offset for x in rule[2] if x<=0],
+                    rule[0]
+                )
+            for rule in self.weight_rules:
+                self.backend.add_weight_rule(
+                    [x+offset for x in rule[1]],
+                    rule[2],
+                    [(x+offset,y) for x, y in rule[3] if x >0] +
+                    [(x-offset,y) for x, y in rule[3] if x<=0],
+                    rule[0]
+                )
+            for atom, symbol in self.normal_externals:
+                self.backend.add_rule([],[-(atom+offset+self.offset)],False)
+                self.assigned_externals[(step, symbol)] = False #atom + (step*self.offset))
+
+    def assign_external(self, step, symbol, value):
+        del self.assigned_externals[(step, symbol)]
+        if value is not None:
+            self.assigned_externals[(step, symbol)] = value
+
+    def release_external(self, step, symbol):
+        del self.assigned_externals[(step, symbol)]
+        #self.backend.add_rule([], [atom], False)
+
+    def get_answer(self, model, step):
+        out = []
+        for i in range(step+1):
+            for atom, symbol in self.output:
+                if model.is_true(atom+(i*self.offset)):
+                    out.append((i, symbol))
+        return out
+
+    # TODO
+    def get_assumptions(self):
+        return []
+
+    def rule(self, choice, head, body):
+        print("{}:{}:{}".format(choice, head, body))
+
+    def weight_rule(self, choice, head, lower_bound, body):
+        print("{}:{}:{}:{}".format(choice, head, lower_bound, body))
+
+    def external(self, atom, value):
+        print("{}:{}".format(atom, value))
 
 def main():
     generator = DLPGenerator(
@@ -209,7 +318,20 @@ def main():
         options = []
     )
     dynamic_lp = generator.run()
-    print(generator)
+    ctl = clingo.Control(["0"])
+    dynamic_lp.start(ctl)
+    steps = 3
+    dynamic_lp.ground(1,steps)
+    with ctl.solve(
+        assumptions = dynamic_lp.get_assumptions(), yield_=True
+    ) as handle:
+        answers = 0
+        for m in handle:
+            answers += 1
+            print("Answer: {}".format(answers))
+            answer = dynamic_lp.get_answer(m,steps)
+            print(" ".join(["{}:{}".format(x,y) for x,y in answer]))
 
 if __name__ == "__main__":
     main()
+

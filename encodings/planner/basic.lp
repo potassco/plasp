@@ -15,6 +15,9 @@ holds(X,V,0) :- initialState(X,V). %, fluent(X).
 {     holds(X,V,t) } :- contains(X,V).
 { occurs(A,t) : action(A) }.
 
+#const _parallel=0.
+:- _parallel=5, 2 { occurs(A,t) }.
+
 % effects
 :- occurs(A,t), postcondition(A,_,X,V), not holds(X,V,t).
 

@@ -354,10 +354,11 @@ _test(A,B) :- #false, _test(A,B).
 
 class Tester:
 
-    def __init__(self, ctl, _files, print_errors):
+    def __init__(self, ctl, _files, print_errors, test_once):
         self.__ctl = ctl
         self.__files = _files
         self.__print_errors = print_errors
+        self.__test_once = test_once
         # rest
         self.__shown = None
         self.__model = 0
@@ -374,6 +375,9 @@ class Tester:
         return self.__shown
 
     def test(self, shown, length):
+        if self.__model and self.__test_once:
+            log("SERIALIZABLE?", PRINT)
+            return True
         # do test
         ctl = clingo.Control(["--warn=none"])#, "--output-debug=text"])
         for i in self.__files:
@@ -437,11 +441,13 @@ class Solver:
 
         # tester
         self.__test = False if options['test'] is None else True
+        self.__run_test = self.__test
         self.__shown = None
         self.__tester = None
         if self.__test:
             self.__tester = Tester(
-                self.__ctl, options['test'], options['print_errors']
+                self.__ctl, options['test'],
+                options['print_errors'], options['test_once']
             )
 
     def __print_model(self, shown):
@@ -556,13 +562,11 @@ class Solver:
         self.__last_length = length
 
         # test
-        if result.satisfiable and self.__test:
+        if result.satisfiable and self.__run_test:
             log("Testing...", PRINT)
             if self.__verbose: self.__verbose_start()
             test_result = self.__tester.test(self.__shown, self.__length)
             if self.__verbose: self.__verbose_end("Testing")
-            if self.__options['test_once']:
-                self.__test = False
             if test_result:
                 self.__print_model(self.__shown)
                 return SATISFIABLE
