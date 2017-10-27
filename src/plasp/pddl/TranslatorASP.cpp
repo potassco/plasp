@@ -456,8 +456,7 @@ void TranslatorASP::translateInitialState() const
 		const auto handleDerivedPredicate =
 			[&](const ::pddl::normalizedAST::DerivedPredicatePointer &, bool = true)
 			{
-				// TODO: implement
-				//translatePredicateToVariable(m_outputStream, *predicate, true);
+				throw TranslatorException("derived predicates should not occur in initial state");
 			};
 
 		const auto handleNegatedDerivedPredicate =
