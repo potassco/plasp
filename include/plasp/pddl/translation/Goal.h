@@ -24,11 +24,20 @@ namespace pddl
 
 inline void translateGoal(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::Goal &goal)
 {
+	const auto ensureNoVariables =
+		[](const auto &predicate)
+		{
+			for (const auto &argument : predicate->arguments)
+				if (argument.template is<::pddl::normalizedAST::VariablePointer>())
+					throw TranslatorException("goal descriptions must be variable-free");
+		};
+
 	const auto handlePredicate =
 		[&](const ::pddl::normalizedAST::PredicatePointer &predicate, bool isPositive = true)
 		{
+			ensureNoVariables(predicate);
+
 			outputStream << std::endl << colorlog::Function("goal") << "(";
-			// TODO: assert that goal is variable-free
 			translatePredicateToVariable(outputStream, *predicate, isPositive);
 			outputStream << ").";
 		};
@@ -42,8 +51,9 @@ inline void translateGoal(colorlog::ColorStream &outputStream, const ::pddl::nor
 	const auto handleDerivedPredicate =
 		[&](const ::pddl::normalizedAST::DerivedPredicatePointer &derivedPredicate, bool isPositive = true)
 		{
+			ensureNoVariables(derivedPredicate);
+
 			outputStream << std::endl << colorlog::Function("goal") << "(";
-			// TODO: assert that goal is variable-free
 			translateDerivedPredicateToVariable(outputStream, *derivedPredicate, isPositive);
 			outputStream << ").";
 		};
