@@ -463,7 +463,7 @@ void TranslatorASP::translateGoal() const
 	m_outputStream << colorlog::Heading2("goal");
 
 	const auto &goal = m_description.problem.value()->goal.value();
-	// TODO: refactor
+
 	::plasp::pddl::translateGoal(m_outputStream, goal);
 
 	m_outputStream << std::endl;

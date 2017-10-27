@@ -7,6 +7,7 @@
 
 #include <plasp/TranslatorException.h>
 
+#include <plasp/pddl/translation/DerivedPredicate.h>
 #include <plasp/pddl/translation/Predicate.h>
 #include <plasp/pddl/translation/Primitives.h>
 
@@ -39,12 +40,11 @@ inline void translateGoal(colorlog::ColorStream &outputStream, const ::pddl::nor
 		};
 
 	const auto handleDerivedPredicate =
-		[&](const ::pddl::normalizedAST::DerivedPredicatePointer &, bool = true)
+		[&](const ::pddl::normalizedAST::DerivedPredicatePointer &derivedPredicate, bool isPositive = true)
 		{
 			outputStream << std::endl << colorlog::Function("goal") << "(";
 			// TODO: assert that goal is variable-free
-			// TODO: implement
-			//translatePredicateToVariable(outputStream, *predicate, isPositive);
+			translateDerivedPredicateToVariable(outputStream, *derivedPredicate, isPositive);
 			outputStream << ").";
 		};
 
