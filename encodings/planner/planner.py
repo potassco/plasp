@@ -563,15 +563,27 @@ class Solver:
 
         # test
         if result.satisfiable and self.__run_test:
-            log("Testing...", PRINT)
-            if self.__verbose: self.__verbose_start()
-            test_result = self.__tester.test(self.__shown, self.__length)
-            if self.__verbose: self.__verbose_end("Testing")
-            if test_result:
-                self.__print_model(self.__shown)
-                return SATISFIABLE
-            else:
-                return UNKNOWN
+            while True:
+                log("Testing...", PRINT)
+                if self.__verbose: self.__verbose_start()
+                # run the test
+                test_result = self.__tester.test(self.__shown, self.__length)
+                if self.__verbose: self.__verbose_end("Testing")
+                # if passed, return SAT
+                if test_result:
+                    self.__print_model(self.__shown)
+                    return SATISFIABLE
+                # return UNKNOWN
+                if not self.__options["test_until_not_sat"]:
+                    return UNKNOWN
+                # unless test_until_unsat
+                log("Solving...", PRINT)
+                if self.__verbose: self.__verbose_start()
+                result = self.__ctl.solve(on_model=self.__on_model)
+                if self.__verbose: self.__verbose_end("Solving")
+                log(str(result))
+                if not result.satisfiable:
+                    break
 
         # return
         if result.satisfiable:
@@ -770,6 +782,10 @@ Get help/report bugs via : https://potassco.org/support
         solving.add_argument(
             '--test-once', dest='test_once', action="store_true",
             help="Test solution only once (using option --test)"
+        )
+        solving.add_argument(
+            '--test-until-not-sat', dest='test_until_not_sat', action="store_true",
+            help="Test solutions of one time point until not SAT (using option --test)"
         )
         solving.add_argument(
             '--query-at-last',dest='move_query',action="store_false",
