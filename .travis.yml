@@ -5,12 +5,6 @@ addons:
   apt:
     sources: &default_sources
       - ubuntu-toolchain-r-test
-      - boost-latest
-    packages: &default_packages
-      - libboost-program-options1.55-dev
-      - libboost-iostreams1.55-dev
-      - libboost-system1.55-dev
-      - libboost-filesystem1.55-dev
 matrix:
   include:
     - env: COMPILER_NAME=g++ _CXX=g++-6
@@ -21,7 +15,6 @@ matrix:
           sources:
             - *default_sources
           packages:
-            - *default_packages
             - g++-6
 script:
   - if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
