@@ -1,7 +1,6 @@
 #include <catch.hpp>
 
-#include <boost/iostreams/stream.hpp>
-#include <boost/iostreams/device/null.hpp>
+#include <iostream>
 
 #include <colorlog/Logger.h>
 
@@ -11,15 +10,17 @@
 
 #include <plasp/pddl/TranslatorASP.h>
 
-boost::iostreams::stream<boost::iostreams::null_sink> nullStream((boost::iostreams::null_sink()));
+#include "NullOutputStream.h"
+
 const pddl::Context::WarningCallback ignoreWarnings = [](const auto &, const auto &){};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 TEST_CASE("[PDDL translation] Former issues are fixed", "[PDDL translation]")
 {
-	// TODO: refactor
-	colorlog::Logger logger(nullStream, nullStream);
+	NullOutputStream nullOutputStream;
+
+	colorlog::Logger logger(nullOutputStream, nullOutputStream);
 	pddl::Tokenizer tokenizer;
 	pddl::Context context(std::move(tokenizer), ignoreWarnings);
 
