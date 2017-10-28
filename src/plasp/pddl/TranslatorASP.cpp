@@ -1,6 +1,6 @@
 #include <plasp/pddl/TranslatorASP.h>
 
-#include <boost/assert.hpp>
+#include <cassert>
 
 #include <colorlog/Formatting.h>
 

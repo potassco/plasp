@@ -1,7 +1,5 @@
 #include <plasp/sas/TranslatorASP.h>
 
-#include <boost/assert.hpp>
-
 #include <colorlog/Formatting.h>
 
 namespace plasp
@@ -121,7 +119,7 @@ void TranslatorASP::translateVariables() const
 		{
 			const auto &values = variable.values();
 
-			BOOST_ASSERT(!values.empty());
+			assert(!values.empty());
 
 			m_outputStream << std::endl << colorlog::Function("variable") << "(";
 			variable.printNameAsASPPredicate(m_outputStream);

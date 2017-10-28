@@ -1,8 +1,7 @@
 #include <plasp/sas/AssignedVariable.h>
 
+#include <cassert>
 #include <iostream>
-
-#include <boost/assert.hpp>
 
 namespace plasp
 {
@@ -57,7 +56,7 @@ AssignedVariable AssignedVariable::fromSAS(tokenize::Tokenizer<> &tokenizer, con
 
 const Variable &AssignedVariable::variable() const
 {
-	BOOST_ASSERT(m_variable != nullptr);
+	assert(m_variable != nullptr);
 
 	return *m_variable;
 }
@@ -66,7 +65,7 @@ const Variable &AssignedVariable::variable() const
 
 const Value &AssignedVariable::value() const
 {
-	BOOST_ASSERT(m_value != nullptr);
+	assert(m_value != nullptr);
 
 	return *m_value;
 }
