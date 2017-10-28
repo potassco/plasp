@@ -1,7 +1,6 @@
 #include <plasp/Language.h>
 
-#include <boost/assign.hpp>
-#include <boost/bimap.hpp>
+#include <map>
 
 namespace plasp
 {
@@ -12,38 +11,23 @@ namespace plasp
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-using LanguageNames = boost::bimap<Language::Type, std::string>;
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-const LanguageNames languageNames = boost::assign::list_of<LanguageNames::relation>
-	(Language::Type::Automatic, "auto")
-	(Language::Type::PDDL, "pddl")
-	(Language::Type::SAS, "sas")
-	(Language::Type::Unknown, "unknown");
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-std::string Language::toString(Language::Type language)
-{
-	const auto match = languageNames.left.find(language);
-
-	if (match == languageNames.left.end())
-		return "unknown";
-
-	return match->second;
-}
+static const std::map<std::string, Language::Type> languageNames =
+	{
+		{"auto", Language::Type::Automatic},
+		{"pddl", Language::Type::PDDL},
+		{"sas", Language::Type::SAS},
+	};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 Language::Type Language::fromString(const std::string &languageName)
 {
-	const auto match = languageNames.right.find(languageName);
+	const auto matchingLanguageName = languageNames.find(languageName);
 
-	if (match == languageNames.right.end())
+	if (matchingLanguageName == languageNames.cend())
 		return Language::Type::Unknown;
 
-	return match->second;
+	return matchingLanguageName->second;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

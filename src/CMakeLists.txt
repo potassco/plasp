@@ -13,7 +13,6 @@ file(GLOB sas_sources "plasp/sas/*.cpp")
 file(GLOB sas_headers "../include/plasp/sas/*.h")
 
 set(includes
-	${Boost_INCLUDE_DIRS}
 	${PROJECT_SOURCE_DIR}/include
 	${PROJECT_SOURCE_DIR}/lib/tokenize/include
 	${PROJECT_SOURCE_DIR}/lib/colorlog/include
@@ -48,7 +47,6 @@ set(sources
 )
 
 set(libraries
-	${Boost_LIBRARIES}
 	colorlog
 	pddl
 	pthread

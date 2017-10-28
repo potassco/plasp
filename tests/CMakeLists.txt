@@ -3,7 +3,6 @@ set(target tests)
 file(GLOB core_sources "*.cpp")
 
 set(includes
-	${Boost_INCLUDE_DIRS}
 	${PROJECT_SOURCE_DIR}/include
 	${PROJECT_SOURCE_DIR}/lib/catch/single_include
 	${PROJECT_SOURCE_DIR}/lib/tokenize/include
@@ -14,7 +13,6 @@ set(includes
 
 set(libraries
 	stdc++fs
-	${Boost_LIBRARIES}
 	plasp
 )
 

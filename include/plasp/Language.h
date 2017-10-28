@@ -23,7 +23,6 @@ class Language
 			SAS
 		};
 
-		static std::string toString(Type language);
 		static Language::Type fromString(const std::string &languageName);
 
 	public:
