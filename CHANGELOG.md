@@ -21,6 +21,7 @@
 ### Internal
 
 * reimplemented PDDL parser from scratch as stand-alone `pddl` library
+* removed dependency to Boost
 
 ## 3.0.3 (2016-09-02)
 
