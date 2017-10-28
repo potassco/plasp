@@ -1,6 +1,6 @@
 # Building
 
-`plasp` requires a C++17 compiler (preferrably GCC ≥ 6.1 or clang ≥ 3.8), the `boost` libraries (≥ 1.55), and CMake for building.
+`plasp` requires a C++17 compiler (preferably GCC ≥ 6.1 or clang ≥ 3.8), the `boost` libraries (≥ 1.55), and CMake for building.
 
 ```bash
 $ git clone https://github.com/potassco/plasp.git
