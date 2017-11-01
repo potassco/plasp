@@ -59,6 +59,8 @@ inline void translateFact(colorlog::ColorStream &outputStream, const ::pddl::nor
 		};
 
 	fact.match(handleAtomicFormula, handleNot);
+
+	outputStream << ").";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
