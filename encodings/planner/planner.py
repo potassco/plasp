@@ -20,6 +20,7 @@ SATISFIABLE = 1
 UNSATISFIABLE = 2
 UNKNOWN = 3
 NO_MEM = 4
+CHECK_MEM_PARAM = 0.9
 
 #
 # STDIN
@@ -89,7 +90,8 @@ class Scheduler:
 
 class A_Scheduler(Scheduler):
 
-    def __init__(self, start, inc, limit, size, propagate_unsat):
+    def __init__(self, solver, start, inc, limit, size, propagate_unsat):
+        self.__solver          = solver
         self.__length          = start
         self.__inc             = inc
         self.__limit           = limit
@@ -97,7 +99,7 @@ class A_Scheduler(Scheduler):
         self.__propagate_unsat = propagate_unsat
         self.__runs            = []
         self.__first           = True
-        self.__nones           = 0
+        self.__nomems           = set()
 
     def next(self, result):
 
@@ -109,22 +111,25 @@ class A_Scheduler(Scheduler):
             ]
             self.__runs   = [ i for i in self.__runs if i<=self.__limit ]
             if len(self.__runs) > 0: self.__length = self.__runs[-1]
-            self.__nones  = set()
 
-        # NONE: check if all Nones, enqueue, and pop
+        # NO_MEM: check if all nomems, enqueue, and pop
         elif result == NO_MEM:
             current_length = self.__runs[0]
-            self.__nones.add(current_length)
-            if len(self.__nones) == len(self.__runs): return None
+            self.__nomems.add(current_length)
             self.__runs.append(current_length)
             self.__runs = self.__runs[1:]
+            if len(self.__nomems) == len(self.__runs):
+                self.__nomems = []
+                self.__solver.mem_turn_off()
+                self.__runs = [min(self.__runs)]
+                self.__size = 1
 
-        # not NONE
+        # not NO_MEM
         else:
 
             current_length = self.__runs[0]
-            if current_length in self.__nones:
-                self.__nones.remove(current_length)
+            if current_length in self.__nomems:
+                self.__nomems.remove(current_length)
 
             # UNKNOWN: enqueue and pop
             if result == UNKNOWN:
@@ -134,11 +139,11 @@ class A_Scheduler(Scheduler):
             else:
                 if self.__propagate_unsat: # propagate unsat
                     self.__runs = [
-                        i for i in self.__runs if i>=current_length 
+                        i for i in self.__runs if i>=current_length
                     ]
                 next_length = self.__length + self.__inc
                 # if inside the limit and mem: enqueue next
-                if next_length <= self.__limit and not self.__nones:
+                if next_length <= self.__limit and not self.__nomems:
                     self.__length = next_length
                     self.__runs.append(self.__length)
 
@@ -165,7 +170,8 @@ class Run:
 
 class B_Scheduler:
 
-    def __init__(self, start, inc, limit, size, propagate_unsat, gamma):
+    def __init__(self, solver, start, inc, limit, size, propagate_unsat, gamma):
+        self.__solver          = solver
         self.__index           = 0
         self.__start           = start
         self.__inc             = inc
@@ -176,7 +182,7 @@ class B_Scheduler:
         self.__runs            = []
         self.__next_runs       = []
         self.__first           = True
-        self.__nones           = set()
+        self.__nomems           = set()
 
     def next(self, result):
 
@@ -185,15 +191,15 @@ class B_Scheduler:
 
             current = self.__runs[0]
 
-            # NONE: append to __next_runs
+            # NO_MEM: append to __next_runs
             if result == NO_MEM:
-                self.__nones.add(current)
+                self.__nomems.add(current)
                 self.__next_runs.append(current)
 
-            # not NONE
+            # not NO_MEM
             else:
-                if current in self.__nones:
-                    self.__nones.remove(current)
+                if current in self.__nomems:
+                    self.__nomems.remove(current)
                 # UNKNOWN: effort++, and append to __next_runs
                 if result == UNKNOWN:
                     current.effort += 1
@@ -202,7 +208,7 @@ class B_Scheduler:
                 elif result == UNSATISFIABLE and self.__propagate_unsat:
                     self.__next_runs = []
 
-            # NONE, UNKNOWN or UNSAT: pop __runs
+            # NO_MEM, UNKNOWN or UNSAT: pop __runs
             self.__runs = self.__runs[1:]
             # move to __next_runs while not solve
             while self.__runs != [] and not self.__runs[0].solve:
@@ -216,11 +222,14 @@ class B_Scheduler:
 
             # if __next_runs is not empty: add to __runs
             if self.__next_runs != []:
-                if len(self.__nones) == len(self.__next_runs):
-                    return None
+                if len(self.__nomems) == len(self.__next_runs):
+                    self.__nomems = []
+                    self.__solver.mem_turn_off()
+                    self.__next_runs = self.__next_runs[0:0]
+                    self.__size = 1
                 first = self.__next_runs[0]
                 first.solve = True
-                self.__runs = [ first ]
+                self.__runs = [first]
                 for i in self.__next_runs[1:]:
                     i.solve = i.effort < ((
                         (first.effort+1) * (
@@ -239,7 +248,7 @@ class B_Scheduler:
                 ]
                 self.__index += 1
                 first = self.__runs[0]
-                if first.length > self.__limit: 
+                if first.length > self.__limit:
                     return None
 
             # reset __next_runs
@@ -250,8 +259,8 @@ class B_Scheduler:
                 (first.effort+1) * (self.__gamma ** (
                     self.__index - first.index
                 )
-            ))) and not self.__nones:
-                if len(self.__runs)>= self.__size: 
+            ))) and not self.__nomems:
+                if len(self.__runs) >= self.__size:
                     break
                 next_length = self.__start+(self.__inc*self.__index)
                 if next_length > self.__limit: 
@@ -264,60 +273,66 @@ class B_Scheduler:
         return self.__runs[0].length
 
 
-
 class C_Scheduler(Scheduler):
 
-    def __init__(self, start, inc, limit, propagate_unsat):
+    def __init__(self, solver, start, inc, limit, propagate_unsat, size = 0):
+        self.__solver          = solver
         self.__length          = start
         self.__inc             = float(inc)
         self.__limit           = limit
         self.__propagate_unsat = propagate_unsat
+        self.__size            = size
         self.__runs            = []
         self.__first           = True
-        self.__nones           = set()
-
+        self.__nomems          = set()
 
     def next(self, result):
 
         # START: add first run
         if self.__first:
-            self.__runs   = [self.__length]
+            self.__runs = [self.__length]
             if self.__length == 0:
                 self.__length = 1
             self.__first  = False
 
-        # NONE: check if all Nones, append and pop
+        # NO_MEM: check if all nomems, append and pop
         elif result == NO_MEM:
-            self.__nones.add(self.__runs[0])
-            if len(self.__nones) == len(self.__runs):
-                return None
+            self.__nomems.add(self.__runs[0])
             self.__runs.append(self.__runs[0])
             self.__runs = self.__runs[1:]
+            if len(self.__nomems) == len(self.__runs):
+                self.__nomems = []
+                self.__solver.mem_turn_off()
+                self.__runs = [min(self.__runs)]
+                self.__size = 1
 
         # ELSE: add new and handle last
         else:
             current_length = self.__runs[0]
-            if current_length in self.__nones:
-                self.__nones.remove(current_length)
-            next_length = self.__length * self.__inc
-            if int(next_length) == int(self.__length): 
-                next_length = self.__length + 1
-            if int(next_length) <= self.__limit and not self.__nones:
-                self.__runs.append(int(next_length))
-                self.__length = next_length
-            # UNKNOWN: append
+            if current_length in self.__nomems:
+                self.__nomems.remove(current_length)
+            # UNSAT: pop
+            if result == UNSATISFIABLE:
+                self.__runs = self.__runs[1:]
+                if self.__propagate_unsat: # propagate
+                    self.__runs = [i for i in self.__runs if i > current_length]
+            # add new one
+            if not self.__nomems and \
+                (not self.__size or len(self.__runs) < self.__size):
+                next_length = self.__length * self.__inc
+                if int(next_length) == int(self.__length):
+                    next_length = self.__length + 1
+                if int(next_length) <= self.__limit:
+                    self.__runs.append(int(next_length))
+                    self.__length = next_length
+            # UNKNOWN: append and pop
             if result == UNKNOWN:
                 self.__runs.append(current_length)
-            # UNSAT: propagate_unsat
-            elif self.__propagate_unsat:
-                self.__runs = [i for i in self.__runs if i>=current_length]
-            # pop
-            self.__runs = self.__runs[1:]
+                self.__runs = self.__runs[1:]
 
         # log and return
         log("Queue:\t\t " + str(self.__runs))
         return self.__runs[0] if len(self.__runs)>0 else None
-
 
 
 #
@@ -421,10 +436,11 @@ class Solver:
         self.__verbose     = options['verbose']
         if self.__verbose: self.__memory = memory_usage()
         self.__models      = 0
+        self.__configs     = options['configs']
 
         # mem
         self.__mem         = True if options['check_mem'] else False
-        self.__mem_limit   = options['check_mem']*0.9
+        self.__mem_limit   = options['check_mem'] * CHECK_MEM_PARAM
         self.__mem_max     = 0
         self.__mem_before  = 0
 
@@ -485,12 +501,14 @@ class Solver:
         log("Memory:\t\t "+str(memory)+"MB (+"+str(memory-self.__memory)+"MB)")
         self.__memory = memory
 
+    def mem_turn_off(self):
+        self.__mem = False
+
     def __mem_check_limit(self, length):
         self.__mem_before = memory_usage("VmSize")
-        log("Expected Memory: {}MB".format(
-            self.__mem_before + (self.__mem_max*length)
-        ))
-        if self.__mem_limit < (self.__mem_before + (self.__mem_max*length)):
+        expected = self.__mem_before + (self.__mem_max*length)
+        log("Expected Memory: {}MB".format(expected))
+        if self.__mem_limit < expected:
             return True
         return False
 
@@ -498,6 +516,15 @@ class Solver:
         self.__mem_max = max(self.__mem_max, (
             memory_usage("VmSize") - self.__mem_before
         )/float(length))
+
+    def __set_config(self):
+        if not self.__configs:
+            return
+        try:
+            self.__iconfigs = (self.__iconfigs + 1) % len(self.__configs)
+        except:
+            self.__iconfigs = 0
+        self.__ctl.configuration.configuration = self.__configs[self.__iconfigs]
 
     def solve(self, length):
 
@@ -554,6 +581,7 @@ class Solver:
             self.__ctl.assign_external(
                 clingo.Function(QUERY,[length]), True
             )
+        self.__set_config()
         result = self.__ctl.solve(on_model=self.__on_model)
         if self.__verbose: self.__verbose_end("Solving")
         log(str(result))
@@ -634,22 +662,22 @@ class Planner:
         # (start, inc, limit, restarts, size, propagate_unsat)
         if options['A'] is not None:
             scheduler = A_Scheduler(
-                options['start'], options['inc'], options['limit'],
+                solver, options['start'], options['inc'], options['limit'],
                 options['A'], options['propagate_unsat']
             )
         elif options['B'] is not None:
             scheduler = B_Scheduler(
-                options['start'], options['inc'], options['limit'],
+                solver, options['start'], options['inc'], options['limit'],
                 options['processes'], options['propagate_unsat'], options['B']
             )
         elif options['C'] is not None:
             scheduler = C_Scheduler(
-                options['start'], options['C'], options['limit'],
+                solver, options['start'], options['C'], options['limit'],
                 options['propagate_unsat']
             )
         else: # default
             scheduler = B_Scheduler(
-                options['start'], options['inc'], options['limit'],
+                solver, options['start'], options['inc'], options['limit'],
                 options['processes'], options['propagate_unsat'], 0.9
             )
 
@@ -860,6 +888,11 @@ Get help/report bugs via : https://potassco.org/support
             '--keep-after-unsat',dest='propagate_unsat',
             help="After finding n to be UNSAT, do keep runs with m<n",
             action="store_false"
+        )
+        scheduler.add_argument(
+            '--configs',dest='configs', default=None, 
+            help="Run clingo configurations in a round-robin fashion",
+            metavar='c', action="append"
         )
 
         # parse

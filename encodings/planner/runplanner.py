@@ -199,7 +199,7 @@ def run():
                 test += TEST_B_EX_T + " --test-once "
         test += " "
 
-    # heurisitic
+    # heuristic
     heuristic = ""
     if options['heuristic']:
         heuristic = " --heuristic=Domain {} ".format(HEURISTIC)
