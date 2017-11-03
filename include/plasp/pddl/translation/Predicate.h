@@ -81,10 +81,17 @@ inline void translatePredicateDeclaration(colorlog::ColorStream &outputStream, c
 void translatePredicateToVariable(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::Predicate &predicate, bool isPositive = true)
 {
 	outputStream << colorlog::Keyword("variable") << "(";
+
 	translatePredicate(outputStream, predicate);
-	outputStream << "), " << colorlog::Keyword("value") << "(";
+
+	outputStream
+		<< "), "
+		<< colorlog::Keyword("value") << "("
+		<< colorlog::Keyword("variable") << "(";
+
 	translatePredicate(outputStream, predicate);
-	outputStream << ", ";
+
+	outputStream << "), ";
 
 	if (isPositive)
 		outputStream << colorlog::Boolean("true");

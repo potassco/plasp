@@ -25,6 +25,7 @@ void translateDerivedPredicateDeclaration(colorlog::ColorStream &outputStream, c
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// TODO: avoid code duplication with translatePredicate
 inline void translateDerivedPredicate(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::DerivedPredicate &derivedPredicate)
 {
 	const auto &arguments = derivedPredicate.arguments;
@@ -81,10 +82,17 @@ inline void translateDerivedPredicateDeclaration(colorlog::ColorStream &outputSt
 inline void translateDerivedPredicateToVariable(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::DerivedPredicate &derivedPredicate, bool isPositive = true)
 {
 	outputStream << colorlog::Keyword("derivedVariable") << "(";
+
 	translateDerivedPredicate(outputStream, derivedPredicate);
-	outputStream << "), " << colorlog::Keyword("value") << "(";
+
+	outputStream
+		<< "), "
+		<< colorlog::Keyword("value") << "("
+		<< colorlog::Keyword("derivedVariable") << "(";
+
 	translateDerivedPredicate(outputStream, derivedPredicate);
-	outputStream << ", ";
+
+	outputStream << "), ";
 
 	if (isPositive)
 		outputStream << colorlog::Boolean("true");

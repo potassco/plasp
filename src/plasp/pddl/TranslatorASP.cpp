@@ -186,9 +186,9 @@ void TranslatorASP::translatePredicates() const
 	m_outputStream
 		<< std::endl << std::endl
 		<< colorlog::Function("contains") << "("
-		<< colorlog::Keyword("variable") << "(" << colorlog::Variable("X") << "), "
+		<< colorlog::Variable("X") << ", "
 		<< colorlog::Keyword("value") << "(" << colorlog::Variable("X") << ", " << colorlog::Variable("B") << ")) :- "
-		<< colorlog::Function("variable") << "(" << colorlog::Keyword("variable") << "(" << colorlog::Variable("X") << ")), "
+		<< colorlog::Function("variable") << "(" << colorlog::Variable("X") << "), "
 		<< colorlog::Function("boolean") << "(" << colorlog::Variable("B") << ")."
 		<< std::endl;
 }
@@ -218,9 +218,9 @@ void TranslatorASP::translateDerivedPredicates(const ::pddl::normalizedAST::Deri
 	m_outputStream
 		<< std::endl << std::endl
 		<< colorlog::Function("contains") << "("
-		<< colorlog::Keyword("derivedVariable") << "(" << colorlog::Variable("X") << "), "
+		<< colorlog::Variable("X") << ", "
 		<< colorlog::Keyword("value") << "(" << colorlog::Variable("X") << ", " << colorlog::Variable("B") << ")) :- "
-		<< colorlog::Function("derivedVariable") << "(" << colorlog::Keyword("derivedVariable") << "(" << colorlog::Variable("X") << ")), "
+		<< colorlog::Function("derivedVariable") << "(" << colorlog::Variable("X") << "), "
 		<< colorlog::Function("boolean") << "(" << colorlog::Variable("B") << ")."
 		<< std::endl;
 
@@ -443,12 +443,12 @@ void TranslatorASP::translateInitialState() const
 	m_outputStream
 		<< std::endl << std::endl
 		<< colorlog::Function("initialState") << "("
-		<< colorlog::Keyword("variable") << "(" << colorlog::Variable("X") << "), "
+		<< colorlog::Variable("X") << ", "
 		<< colorlog::Keyword("value") << "(" << colorlog::Variable("X") << ", " << colorlog::Boolean("false") << ")) :- "
-		<< colorlog::Function("variable") << "(" << colorlog::Keyword("variable") << "(" << colorlog::Variable("X") << ")), "
+		<< colorlog::Function("variable") << "(" << colorlog::Variable("X") << "), "
 		<< colorlog::Keyword("not") << " "
 		<< colorlog::Function("initialState") << "("
-		<< colorlog::Keyword("variable") << "(" << colorlog::Variable("X") << "), "
+		<< colorlog::Variable("X") << ", "
 		<< colorlog::Keyword("value") << "(" << colorlog::Variable("X") << ", " << colorlog::Boolean("true") << "))."
 		<< std::endl;
 }
