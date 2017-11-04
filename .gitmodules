@@ -1,6 +1,6 @@
 [submodule "lib/catch"]
 	path = lib/catch
-	url = https://github.com/philsquared/Catch
+	url = https://github.com/catchorg/Catch2
 [submodule "lib/variant"]
 	path = lib/variant
 	url = https://github.com/mapbox/variant
