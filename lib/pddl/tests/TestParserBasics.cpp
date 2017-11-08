@@ -63,6 +63,8 @@ TEST_CASE("[parser basics] The PDDL parser behaves correctly", "[parser basics]"
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 TEST_CASE("[parser basics] Syntax errors are correctly recognized", "[parser basics]")
 {
 	pddl::Tokenizer tokenizer;
