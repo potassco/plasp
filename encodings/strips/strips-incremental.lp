@@ -14,6 +14,12 @@
 
 #const _shallow = 0.
 
+% Constant '_inertia' to choose flat or tiered format for transition constraints
+% - value '0': use flat rules (integrity constraints) for transition constraints
+% - otherwise: use rules that provide auxiliary atoms for transition constraints
+
+#const _inertia = 0.
+
 % Constant 'planner_on' to enable encoding support for ASP-based planner
 % - value '0': no compatibility to ASP-based planner (no idle steps permitted)
 % - otherwise: compatibility to ASP-based planner (idle steps permitted)
@@ -77,7 +83,7 @@ holds(X,V,0) :- initialState(X,V), fluent(X).
 
 :- mutex(G), #count{X,V : holds(X,V,t), contains(G,X,V)} > 1.
 
-change(X,t) :- holds(X,V,t-1), not holds(X,V,t).
+change(X,t) :- holds(X,V,t-1), not holds(X,V,t), _inertia != 0.
 
 % Generate actions
 
@@ -87,9 +93,13 @@ change(X,t) :- holds(X,V,t-1), not holds(X,V,t).
 
 :- occurs(A,t), postcondition(A,X,V), fluent(X), not holds(X,V,t).
 
-effect(X,t) :- occurs(A,t), postcondition(A,X,V), fluent(X), not precondition(A,X,V).
+effect(X,t) :- occurs(A,t), postcondition(A,X,V), fluent(X), not precondition(A,X,V),
+               _inertia != 0.
 
 :- change(X,t), not effect(X,t).
+
+:- _inertia = 0, holds(X,V,t), not holds(X,V,t-1),
+   not occurs(A,t) : active(A), postcondition(A,X,V), not precondition(A,X,V).
 
 % Checks w.r.t. parallel mode
 
