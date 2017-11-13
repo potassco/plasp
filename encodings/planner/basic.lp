@@ -17,7 +17,6 @@ mutex(G)   :- mutexGroup(G), #count{X : mutex(G,X)} > 1.
 
 holds(X,V,0) :- initialState(X,V). %, fluent(X).
 
-
 #program step(t). % new
 
 % generate (a SAT problem)
@@ -35,11 +34,10 @@ holds(X,V,0) :- initialState(X,V). %, fluent(X).
    not occurs(A,t) : postcondition(A,_,X,V).
 
 % existence and uniqueness of value
-:- not 1 { holds(X,V,t) } 1, variable(X). 
+:- not 1 { holds(X,V,t) } 1, variable(X).
 
 % mutexes
 :- 2 #sum { 1,X,V: holds(X,V,t), contains(G,X,V) }, mutex(G).
-
 
 #program check(t). % as strips-incremental.lp
 

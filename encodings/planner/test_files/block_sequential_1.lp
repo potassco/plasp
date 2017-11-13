@@ -4,5 +4,5 @@
 
 #program block_model(m,length).
 :- 2 { occurs(A,T) },
-   _test(_occurs(_,T),m).
+   _test(_error(_,T),m).
 

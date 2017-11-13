@@ -7,6 +7,7 @@ PLASP         = "plasp"
 PLASP_DIR     = os.path.dirname(os.path.realpath(__file__)) + "/../../"
 PLANNER       = PLASP_DIR + "encodings/planner/planner.py"
 BASIC         = PLASP_DIR + "encodings/planner/basic.lp"
+PRE_SIMPLE    = PLASP_DIR + "encodings/planner/preprocess_simple.lp"
 BASIC_EXT     = PLASP_DIR + "encodings/planner/basic_ext.lp"
 HEURISTIC     = PLASP_DIR + "encodings/planner/heuristic.lp"
 PREPROCESS    = PLASP_DIR + "encodings/strips/preprocess.lp"
@@ -15,25 +16,31 @@ REDUNDANCY    = PLASP_DIR + "encodings/strips/redundancy.lp"
 POSTPROCESS   = PLASP_DIR + "encodings/strips/postprocess.lp"
 INCMODE       = PLASP_DIR + "encodings/strips/incmode.lp"
 TMP           = os.path.dirname(os.path.realpath(__file__)) + "/run.tmp" + str(os.getpid())
-BASIC_OPTIONS = " --query-at-last --forbid-actions --force-actions -c planner_on=1 "
+BASIC_OPTIONS = " --query-at-last --check-at-last --forbid-actions --force-actions -c planner_on=1 "
 
 TEST_FILES    = os.path.join(os.path.dirname(os.path.realpath(__file__)), "test_files")
 TEST_FILE     = os.path.join(TEST_FILES,"test.lp")
 TEST_FILE2    = os.path.join(TEST_FILES,"test_const.lp")
 TEST_FILEM    = os.path.join(TEST_FILES,"test_model.lp")
 TEST_MODEL    = os.path.join(TEST_FILES,"block_model.lp")
-TEST_ACT_1    = os.path.join(TEST_FILES,"block_actions_1.lp")
-TEST_ACT_T    = os.path.join(TEST_FILES,"block_actions_t.lp")
-TEST_SEQ_1    = os.path.join(TEST_FILES,"block_sequential_1.lp")
-TEST_SEQ_T    = os.path.join(TEST_FILES,"block_sequential_t.lp")
-TEST_DSEQ_1   = os.path.join(TEST_FILES,"block_dyn_sequential_1.lp")
-TEST_DSEQ_T   = os.path.join(TEST_FILES,"block_dyn_sequential_t.lp")
 TEST_FORALL_1 = os.path.join(TEST_FILES,"block_forall_1.lp")
 TEST_FORALL_T = os.path.join(TEST_FILES,"block_forall_t.lp")
+TEST_B_FALL_1 = os.path.join(TEST_FILES,"block_forall_1_basic.lp")
+TEST_B_FALL_T = os.path.join(TEST_FILES,"block_forall_t_basic.lp")
 TEST_EXISTS_1 = os.path.join(TEST_FILES,"block_exists_1.lp")
 TEST_EXISTS_T = os.path.join(TEST_FILES,"block_exists_t.lp")
 TEST_B_EX_1   = os.path.join(TEST_FILES,"block_exists_1_basic.lp")
 TEST_B_EX_T   = os.path.join(TEST_FILES,"block_exists_t_basic.lp")
+TEST_EDGE_1   = os.path.join(TEST_FILES,"block_exists_edge_1.lp")
+TEST_EDGE_T   = os.path.join(TEST_FILES,"block_exists_edge_t.lp")
+TEST_B_EDGE_1 = os.path.join(TEST_FILES,"block_exists_edge_1_basic.lp")
+TEST_B_EDGE_T = os.path.join(TEST_FILES,"block_exists_edge_t_basic.lp")
+TEST_SEQ_1    = os.path.join(TEST_FILES,"block_sequential_1.lp")
+TEST_SEQ_T    = os.path.join(TEST_FILES,"block_sequential_t.lp")
+TEST_DSEQ_1   = os.path.join(TEST_FILES,"block_dyn_sequential_1.lp")
+TEST_DSEQ_T   = os.path.join(TEST_FILES,"block_dyn_sequential_t.lp")
+TEST_ACT_1    = os.path.join(TEST_FILES,"block_actions_1.lp")
+TEST_ACT_T    = os.path.join(TEST_FILES,"block_actions_t.lp")
 
 # Other systems
 CLINGO      = "clingo"
@@ -89,17 +96,19 @@ Get help/report bugs via : https://potassco.org/support
         normal.add_argument('--shallow',action='store_true', help='Cheaply approximate mutually disabling parallel actions')
         normal.add_argument('--redundancy',action='store_true',help='Enforcement of redundant actions')
         normal.add_argument('--postprocess',action='store_true',help='Solve, serialize, and check if solution is correct (works also with --basic)')
+        normal.add_argument('--preprocess-simple',action='store_true',help='Use simple preprocessing encoding')
         normal.add_argument('--heuristic',action='store_true',help='Run domain heuristic for planning')
         normal.add_argument('--test',default=None, type=int, choices=[0,1],
                             help="Test solution (0) using all non-serializable actions, or (1) using a minimal subset of them")
-        normal.add_argument('--test-add', dest="test_add", default=2, type=int, choices=[0,1,2,3,4,5],
+        normal.add_argument('--test-add', dest="test_add", default=5, type=int, choices=[0,1,2,3,4,5],
                             help="""Add constraints \
 (0) deleting the model, or \ 
-(1) deleting the non-serializable actions, or \
-(2, default) inforcing sequential plans, or \
-(3) inforcing sequential plans (relaxed), or \
-(4) inforcing forall plans, or \
-(5) inforcing exists plans""")
+(1) inforcing forall plans, or \
+(3) inforcing exists plans, or \
+(4) inforcing exists plans with #edge directives, or \
+(5, default) inforcing sequential plans, or \
+(6) inforcing sequential plans (relaxed), or \
+(7) deleting the non-serializable actions""")
         normal.add_argument('--test-times', dest = "test_times", default=1, type=int, choices=[0,1],
                             help="Add constraints (0) for action's times, or (1, default) for all times")
 
@@ -165,38 +174,65 @@ def run():
     # generate and test
     test = ""
     if options['test'] is not None:
+        # test files
         test += "--test=- --test={} ".format(TEST_FILE)
         if options['test'] == 1:
             test += "--test={} ".format(TEST_FILE2)
+        # options
         test_add = options['test_add']
         test_times = options['test_times']
+        # case
+        # 0: delete model
         if test_add == 0:
             test = "--test=- --test={} {}".format(TEST_FILEM, TEST_MODEL)
+        # 1: forall
         elif test_add == 1:
-            if test_times == 0:
-                test += TEST_ACT_1
+            if test_times == 0 and not options['basic']:
+                test += TEST_FORALL_1
+            elif not options['basic']:
+                test += TEST_FORALL_T + " --test-once"
+            elif test_times == 0:
+                test += TEST_B_FALL_1
             else:
-                test += TEST_ACT_T
-        elif test_add == 2:
+                test += TEST_B_FALL_T + " --test-once"
+        # 3: exists
+        elif test_add == 3:
+            if test_times == 0 and not options['basic']:
+                test += TEST_EXISTS_1
+            elif not options['basic']:
+                test += TEST_EXISTS_T + " --test-once"
+            elif test_times == 0:
+                test += TEST_B_EX_1
+            else:
+                test += TEST_B_EX_T + " --test-once"
+        # 4: exists with #edge
+        elif test_add == 4:
+            if test_times == 0 and not options['basic']:
+                test += TEST_EDGE_1
+            elif not options['basic']:
+                test += TEST_EDGE_T + " --test-once"
+            elif test_times == 0:
+                test += TEST_B_EDGE_1
+            else:
+                test += TEST_B_EDGE_T + " --test-once"
+        # 5: sequential
+        elif test_add == 5:
             if test_times == 0:
                 test += TEST_SEQ_1
             else:
-                test += TEST_SEQ_T + " --test-once "
-        elif test_add == 3:
+                test += TEST_SEQ_T + " --test-once"
+        # 6: dynamic sequential
+        elif test_add == 6:
             if test_times == 0:
                 test += TEST_DSEQ_1
             else:
                 test += TEST_DSEQ_T
-        elif test_add == 4:
+        # 7: delete actions
+        elif test_add == 7:
             if test_times == 0:
-                test += TEST_FORALL_1
+                test += TEST_ACT_1
             else:
-                test += TEST_FORALL_T + " --test-once "
-        elif test_add == 5:
-            if test_times == 0:
-                test += TEST_B_EX_1
-            else:
-                test += TEST_B_EX_T + " --test-once "
+                test += TEST_ACT_T
         test += " "
 
     # heuristic
@@ -204,8 +240,13 @@ def run():
     if options['heuristic']:
         heuristic = " --heuristic=Domain {} ".format(HEURISTIC)
 
+    # preprocess
+    preprocess = PREPROCESS
+    if options['preprocess_simple']:
+        preprocess = PRE_SIMPLE
+
     # normal  plan
-    call += " | {} - {} {} {}".format(PLANNER,PREPROCESS,STRIPS,
+    call += " | {} - {} {} {}".format(PLANNER,preprocess,STRIPS,
         (" ".join(rest))                                           +
         BASIC_OPTIONS                                              +
         test                                                       +

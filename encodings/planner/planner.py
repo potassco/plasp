@@ -21,6 +21,7 @@ UNSATISFIABLE = 2
 UNKNOWN = 3
 NO_MEM = 4
 CHECK_MEM_PARAM = 0.9
+ALL_CONFIGS = ["tweety", "trendy", "frumpy", "crafty", "jumpy", "handy"]
 
 #
 # STDIN
@@ -429,14 +430,16 @@ class Solver:
 
     def __init__(self, ctl, options):
 
-        self.__ctl         = ctl
-        self.__length      = 0
-        self.__last_length = 0
-        self.__options     = options
-        self.__verbose     = options['verbose']
+        self.__ctl            = ctl
+        self.__length         = 0
+        self.__last_length    = 0
+        self.__options        = options
+        self.__verbose        = options['verbose']
         if self.__verbose: self.__memory = memory_usage()
-        self.__models      = 0
-        self.__configs     = options['configs']
+        self.__models         = 0
+        self.__configs        = options['configs']
+        self.__check_at_last  = options['check_at_last']
+
 
         # mem
         self.__mem         = True if options['check_mem'] else False
@@ -537,8 +540,10 @@ class Solver:
                 log("Skipping: not enough memory for grounding...\n")
                 return NO_MEM
             parts  = [(STEP, [t]) for t in range(self.__length+1, length+1)]
-            # parts = parts + [(CHECK,[length])]
-            parts += [(CHECK,[t]) for t in range(self.__length+1, length+1)]
+            if self.__check_at_last:
+                parts = parts + [(CHECK,[length])]
+            else:
+                parts += [(CHECK,[t]) for t in range(self.__length+1, length+1)]
             if not self.__move_query:
                 self.__ctl.release_external(
                     clingo.Function(QUERY,[self.__length])
@@ -709,9 +714,6 @@ class Planner:
                 sol_length = length
                 break
             if verbose: log("Iteration Time:\t {:.2f}s\n".format(clock()-time0))
-            #log("\n" + clingo_stats.Stats().summary(ctl),PRINT)
-            #if options['stats']:
-            #    log(clingo_stats.Stats().statistics(ctl),PRINT)
 
         # stats
         log("\n" + clingo_stats.Stats().summary(ctl),PRINT)
@@ -827,6 +829,10 @@ Get help/report bugs via : https://potassco.org/support
             '--force-actions',dest='force_actions',action="store_true",
             help="Force at least one action at time points before current plan length"
         )
+        solving.add_argument(
+            '--check-at-last',dest='check_at_last',action="store_true",
+            help="Ground check program only for the current latest time point"
+        )
 
         # Scheduler
         scheduler = cmd_parser.add_argument_group('Scheduler Options')
@@ -891,7 +897,7 @@ Get help/report bugs via : https://potassco.org/support
         )
         scheduler.add_argument(
             '--configs',dest='configs', default=None, 
-            help="Run clingo configurations in a round-robin fashion",
+            help="Run clingo configurations iteratively (use 'all' for all)",
             metavar='c', action="append"
         )
 
@@ -912,6 +918,10 @@ Get help/report bugs via : https://potassco.org/support
         # add constants to clingo_options
         for i in options['constants']:
             clingo_options.append("-c {}".format(i))
+
+        # handle all configs
+        if options['configs'] is not None and 'all' in options['configs']:
+            options['configs'] = ALL_CONFIGS
 
         # set log options
         global log_level
