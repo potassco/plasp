@@ -1,0 +1,310 @@
+#ifndef __COLOR_LOG__FORMATTING_H
+#define __COLOR_LOG__FORMATTING_H
+
+#include <iostream>
+
+#include <colorlog/ColorStream.h>
+
+namespace colorlog
+{
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Formatting
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+enum class Color
+{
+	Default = 39,
+	Black = 30,
+	Red = 31,
+	Green = 32,
+	Yellow = 33,
+	Blue = 34,
+	Magenta = 35,
+	Cyan = 36,
+	LightGray = 37,
+	DarkGray = 90,
+	LightRed = 91,
+	LightGreen = 92,
+	LightYellow = 93,
+	LightBlue = 94,
+	LightMagenta = 95,
+	LightCyan = 96,
+	White = 97
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+enum class FontWeight
+{
+	Normal = 21,
+	Bold = 1
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct Format
+{
+	Color color = Color::Default;
+	FontWeight fontWeight = FontWeight::Normal;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline ColorStream &operator<<(ColorStream &stream, const Format &format)
+{
+	if (!stream.supportsColor())
+		return stream;
+
+	const auto fontWeightCode = static_cast<int>(format.fontWeight);
+	const auto colorCode = static_cast<int>(format.color);
+
+	return (stream << "\033[" << fontWeightCode << ";" << colorCode << "m");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct ResetFormat
+{
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline ColorStream &operator<<(ColorStream &stream, const ResetFormat &)
+{
+	if (!stream.supportsColor())
+		return stream;
+
+	return (stream << "\033[0m");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct Function
+{
+	Function(const char *name)
+	:	name{name}
+	{
+	}
+
+	const char *name;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline ColorStream &operator<<(ColorStream &stream, const Function &function)
+{
+	return (stream
+		<< Format({Color::White, FontWeight::Normal})
+		<< function.name
+		<< ResetFormat());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct Keyword
+{
+	Keyword(const char *name)
+	:	name{name}
+	{
+	}
+
+	const char *name;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline ColorStream &operator<<(ColorStream &stream, const Keyword &keyword)
+{
+	return (stream
+		<< Format({Color::Blue, FontWeight::Normal})
+		<< keyword.name
+		<< ResetFormat());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct Operator
+{
+	Operator(const char *name)
+	:	name{name}
+	{
+	}
+
+	const char *name;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline ColorStream &operator<<(ColorStream &stream, const Operator &operator_)
+{
+	return (stream << operator_.name);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<typename T>
+struct Number
+{
+	Number(T value)
+	:	value{value}
+	{
+	}
+
+	T value;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<typename T>
+inline ColorStream &operator<<(ColorStream &stream, const Number<T> &number)
+{
+	return (stream
+		<< Format({Color::Yellow, FontWeight::Normal})
+		<< number.value
+		<< ResetFormat());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct Variable
+{
+	Variable(const char *name)
+	:	name{name}
+	{
+	}
+
+	const char *name;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline ColorStream &operator<<(ColorStream &stream, const Variable &variable)
+{
+	return (stream
+		<< Format({Color::Green, FontWeight::Bold})
+		<< variable.name
+		<< ResetFormat());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct String
+{
+	String(const char *content)
+	:	content{content}
+	{
+	}
+
+	const char *content;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline ColorStream &operator<<(ColorStream &stream, const String &string)
+{
+	return (stream
+		<< Format({Color::Green, FontWeight::Normal})
+		<< "\"" << string.content << "\""
+		<< ResetFormat());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct Boolean
+{
+	Boolean(const char *value)
+	:	value{value}
+	{
+	}
+
+	const char *value;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline ColorStream &operator<<(ColorStream &stream, const Boolean &boolean)
+{
+	return (stream
+		<< Format({Color::Red, FontWeight::Normal})
+		<< boolean.value
+		<< ResetFormat());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct Reserved
+{
+	Reserved(const char *name)
+	:	name{name}
+	{
+	}
+
+	const char *name;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline ColorStream &operator<<(ColorStream &stream, const Reserved &reserved)
+{
+	return (stream
+		<< Format({Color::White, FontWeight::Normal})
+		<< reserved.name
+		<< ResetFormat());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct Heading1
+{
+	Heading1(const char *content)
+	:	content{content}
+	{
+	}
+
+	const char *content;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline ColorStream &operator<<(ColorStream &stream, const Heading1 &heading1)
+{
+	return (stream
+		<< Format({Color::Blue, FontWeight::Bold})
+		<< "%---------------------------------------" << std::endl
+		<< "% " << heading1.content << std::endl
+		<< "%---------------------------------------"
+		<< ResetFormat()
+		<< std::endl);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct Heading2
+{
+	Heading2(const char *content)
+	:	content{content}
+	{
+	}
+
+	const char *content;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inline ColorStream &operator<<(ColorStream &stream, const Heading2 &heading2)
+{
+	return (stream
+		<< Format({Color::Blue, FontWeight::Bold})
+		<< "% " << heading2.content
+		<< ResetFormat());
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+}
+
+#endif

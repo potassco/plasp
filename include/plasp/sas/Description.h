@@ -1,11 +1,12 @@
 #ifndef __PLASP__SAS__DESCRIPTION_H
 #define __PLASP__SAS__DESCRIPTION_H
 
+#include <experimental/filesystem>
 #include <iosfwd>
 #include <memory>
 #include <vector>
 
-#include <boost/filesystem/path.hpp>
+#include <tokenize/Tokenizer.h>
 
 #include <plasp/sas/AxiomRule.h>
 #include <plasp/sas/Goal.h>
@@ -13,7 +14,6 @@
 #include <plasp/sas/MutexGroup.h>
 #include <plasp/sas/Operator.h>
 #include <plasp/sas/Variable.h>
-#include <plasp/utils/Parser.h>
 
 namespace plasp
 {
@@ -29,9 +29,9 @@ namespace sas
 class Description
 {
 	public:
-		static Description fromParser(utils::Parser<> &&parser);
+		static Description fromTokenizer(tokenize::Tokenizer<> &&tokenizer);
 		static Description fromStream(std::istream &istream);
-		static Description fromFile(const boost::filesystem::path &path);
+		static Description fromFile(const std::experimental::filesystem::path &path);
 
 	public:
 		bool usesActionCosts() const;
@@ -50,16 +50,16 @@ class Description
 	private:
 		Description();
 
-		void parseContent(utils::Parser<> &parser);
+		void parseContent(tokenize::Tokenizer<> &tokenizer);
 
-		void parseVersionSection(utils::Parser<> &parser) const;
-		void parseMetricSection(utils::Parser<> &parser);
-		void parseVariablesSection(utils::Parser<> &parser);
-		void parseMutexSection(utils::Parser<> &parser);
-		void parseInitialStateSection(utils::Parser<> &parser);
-		void parseGoalSection(utils::Parser<> &parser);
-		void parseOperatorSection(utils::Parser<> &parser);
-		void parseAxiomSection(utils::Parser<> &parser);
+		void parseVersionSection(tokenize::Tokenizer<> &tokenizer) const;
+		void parseMetricSection(tokenize::Tokenizer<> &tokenizer);
+		void parseVariablesSection(tokenize::Tokenizer<> &tokenizer);
+		void parseMutexSection(tokenize::Tokenizer<> &tokenizer);
+		void parseInitialStateSection(tokenize::Tokenizer<> &tokenizer);
+		void parseGoalSection(tokenize::Tokenizer<> &tokenizer);
+		void parseOperatorSection(tokenize::Tokenizer<> &tokenizer);
+		void parseAxiomSection(tokenize::Tokenizer<> &tokenizer);
 
 		bool m_usesActionCosts;
 

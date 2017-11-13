@@ -13,19 +13,19 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Goal Goal::fromSAS(utils::Parser<> &parser, const Variables &variables)
+Goal Goal::fromSAS(tokenize::Tokenizer<> &tokenizer, const Variables &variables)
 {
 	Goal goal;
 
-	parser.expect<std::string>("begin_goal");
+	tokenizer.expect<std::string>("begin_goal");
 
-	const auto numberOfGoalFacts = parser.parse<size_t>();
+	const auto numberOfGoalFacts = tokenizer.get<size_t>();
 	goal.m_facts.reserve(numberOfGoalFacts);
 
 	for (size_t i = 0; i < numberOfGoalFacts; i++)
-		goal.m_facts.emplace_back(Fact::fromSAS(parser, variables));
+		goal.m_facts.emplace_back(Fact::fromSAS(tokenizer, variables));
 
-	parser.expect<std::string>("end_goal");
+	tokenizer.expect<std::string>("end_goal");
 
 	return goal;
 }

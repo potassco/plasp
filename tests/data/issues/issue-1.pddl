@@ -59,7 +59,6 @@
 		(Uninitialized)
 
 )
-(:functions (total-cost) - number)
 (:action initialize
  :parameters ()
  :precondition (and
@@ -90,8 +89,7 @@
 		(not (Available EndCap-RSRC))
 		(Location ?sheet HtmOverBlack_Entry-EndCap_Exit)
 		(not (Location ?sheet EndCap_Entry-BlackContainer_Exit))
-		(Available EndCap-RSRC)
-		(increase (total-cost) 2000))
+		(Available EndCap-RSRC))
 )
 (:action HtmOverBlack-Move-Letter
  :parameters ( ?sheet - sheet_t)
@@ -103,8 +101,7 @@
 		(not (Available HtmOverBlack-RSRC))
 		(Location ?sheet HtmOverBlack_Exit-Down_TopEntry)
 		(not (Location ?sheet HtmOverBlack_Entry-EndCap_Exit))
-		(Available HtmOverBlack-RSRC)
-		(increase (total-cost) 17999))
+		(Available HtmOverBlack-RSRC))
 )
 (:action ColorContainer-ToIME-Letter
  :parameters ( ?sheet - sheet_t)
@@ -116,8 +113,7 @@
 		(not (Available ColorContainer-RSRC))
 		(Location ?sheet ColorContainer_ExitToIME-ColorPrinter_Entry)
 		(not (Location ?sheet ColorContainer_Entry-Down_BottomExit))
-		(Available ColorContainer-RSRC)
-		(increase (total-cost) 8000))
+		(Available ColorContainer-RSRC))
 )
 (:action ColorContainer-FromIME-Letter
  :parameters ( ?sheet - sheet_t)
@@ -129,8 +125,7 @@
 		(not (Available ColorContainer-RSRC))
 		(Location ?sheet ColorContainer_Exit-Up_BottomEntry)
 		(not (Location ?sheet ColorPrinter_Exit-ColorContainer_EntryFromIME))
-		(Available ColorContainer-RSRC)
-		(increase (total-cost) 8000))
+		(Available ColorContainer-RSRC))
 )
 (:action ColorPrinter-Simplex-Letter
  :parameters ( ?sheet - sheet_t ?face - side_t ?image - image_t)
@@ -147,8 +142,7 @@
 		(Hasimage ?sheet ?face ?image)
 		(not (Location ?sheet ColorContainer_ExitToIME-ColorPrinter_Entry))
 		(not (Notprintedwith ?sheet ?face Color))
-		(Available ColorPrinter-RSRC)
-		(increase (total-cost) 224040))
+		(Available ColorPrinter-RSRC))
 )
 (:action ColorPrinter-SimplexMono-Letter
  :parameters ( ?sheet - sheet_t ?face - side_t ?image - image_t)
@@ -165,8 +159,7 @@
 		(Hasimage ?sheet ?face ?image)
 		(not (Location ?sheet ColorContainer_ExitToIME-ColorPrinter_Entry))
 		(not (Notprintedwith ?sheet ?face Black))
-		(Available ColorPrinter-RSRC)
-		(increase (total-cost) 224040))
+		(Available ColorPrinter-RSRC))
 )
 (:action ColorFeeder-Feed-Letter
  :parameters ( ?sheet - sheet_t)
@@ -179,8 +172,7 @@
 		(Location ?sheet Down_BottomEntry-ColorFeeder_Exit)
 		(Sideup ?sheet Front)
 		(not (Location ?sheet Some_Feeder_Tray))
-		(Available ColorFeeder-RSRC)
-		(increase (total-cost) 8000))
+		(Available ColorFeeder-RSRC))
 )
 (:action BlackFeeder-Feed-Letter
  :parameters ( ?sheet - sheet_t)
@@ -193,8 +185,7 @@
 		(Location ?sheet BlackContainer_Entry-BlackFeeder_Exit)
 		(Sideup ?sheet Front)
 		(not (Location ?sheet Some_Feeder_Tray))
-		(Available BlackFeeder-RSRC)
-		(increase (total-cost) 8000))
+		(Available BlackFeeder-RSRC))
 )
 (:action Down-MoveTop-Letter
  :parameters ( ?sheet - sheet_t)
@@ -206,8 +197,7 @@
 		(not (Available Down-RSRC))
 		(Location ?sheet Down_TopExit-HtmOverColor_Entry)
 		(not (Location ?sheet HtmOverBlack_Exit-Down_TopEntry))
-		(Available Down-RSRC)
-		(increase (total-cost) 2999))
+		(Available Down-RSRC))
 )
 (:action Down-MoveBottom-Letter
  :parameters ( ?sheet - sheet_t)
@@ -219,8 +209,7 @@
 		(not (Available Down-RSRC))
 		(Location ?sheet ColorContainer_Entry-Down_BottomExit)
 		(not (Location ?sheet Down_BottomEntry-ColorFeeder_Exit))
-		(Available Down-RSRC)
-		(increase (total-cost) 2999))
+		(Available Down-RSRC))
 )
 (:action Down-MoveDown-Letter
  :parameters ( ?sheet - sheet_t)
@@ -232,8 +221,7 @@
 		(not (Available Down-RSRC))
 		(Location ?sheet ColorContainer_Entry-Down_BottomExit)
 		(not (Location ?sheet HtmOverBlack_Exit-Down_TopEntry))
-		(Available Down-RSRC)
-		(increase (total-cost) 9999))
+		(Available Down-RSRC))
 )
 (:action HtmOverColor-Move-Letter
  :parameters ( ?sheet - sheet_t)
@@ -245,8 +233,7 @@
 		(not (Available HtmOverColor-RSRC))
 		(Location ?sheet HtmOverColor_Exit-Up_TopEntry)
 		(not (Location ?sheet Down_TopExit-HtmOverColor_Entry))
-		(Available HtmOverColor-RSRC)
-		(increase (total-cost) 9999))
+		(Available HtmOverColor-RSRC))
 )
 (:action BlackContainer-ToIME-Letter
  :parameters ( ?sheet - sheet_t)
@@ -258,8 +245,7 @@
 		(not (Available BlackContainer-RSRC))
 		(Location ?sheet BlackContainer_ExitToIME-BlackPrinter_Entry)
 		(not (Location ?sheet BlackContainer_Entry-BlackFeeder_Exit))
-		(Available BlackContainer-RSRC)
-		(increase (total-cost) 2000))
+		(Available BlackContainer-RSRC))
 )
 (:action BlackContainer-FromIME-Letter
  :parameters ( ?sheet - sheet_t)
@@ -271,8 +257,7 @@
 		(not (Available BlackContainer-RSRC))
 		(Location ?sheet EndCap_Entry-BlackContainer_Exit)
 		(not (Location ?sheet BlackPrinter_Exit-BlackContainer_EntryFromIME))
-		(Available BlackContainer-RSRC)
-		(increase (total-cost) 2000))
+		(Available BlackContainer-RSRC))
 )
 (:action BlackPrinter-Simplex-Letter
  :parameters ( ?sheet - sheet_t ?face - side_t ?image - image_t)
@@ -289,8 +274,7 @@
 		(Hasimage ?sheet ?face ?image)
 		(not (Location ?sheet BlackContainer_ExitToIME-BlackPrinter_Entry))
 		(not (Notprintedwith ?sheet ?face Black))
-		(Available BlackPrinter-RSRC)
-		(increase (total-cost) 113013))
+		(Available BlackPrinter-RSRC))
 )
 (:action BlackPrinter-SimplexAndInvert-Letter
  :parameters ( ?sheet - sheet_t ?face - side_t ?otherface - side_t ?image - image_t)
@@ -310,8 +294,7 @@
 		(not (Location ?sheet BlackContainer_ExitToIME-BlackPrinter_Entry))
 		(not (Notprintedwith ?sheet ?face Black))
 		(not (Sideup ?sheet ?face))
-		(Available BlackPrinter-RSRC)
-		(increase (total-cost) 123013))
+		(Available BlackPrinter-RSRC))
 )
 (:action Up-MoveTop-Letter
  :parameters ( ?sheet - sheet_t)
@@ -323,8 +306,7 @@
 		(not (Available Up-RSRC))
 		(Location ?sheet Finisher1_Entry-Up_TopExit)
 		(not (Location ?sheet HtmOverColor_Exit-Up_TopEntry))
-		(Available Up-RSRC)
-		(increase (total-cost) 2999))
+		(Available Up-RSRC))
 )
 (:action Up-MoveUp-Letter
  :parameters ( ?sheet - sheet_t)
@@ -336,8 +318,7 @@
 		(not (Available Up-RSRC))
 		(Location ?sheet Finisher1_Entry-Up_TopExit)
 		(not (Location ?sheet ColorContainer_Exit-Up_BottomEntry))
-		(Available Up-RSRC)
-		(increase (total-cost) 9999))
+		(Available Up-RSRC))
 )
 (:action Finisher1-PassThrough-Letter
  :parameters ( ?sheet - sheet_t)
@@ -349,8 +330,7 @@
 		(not (Available Finisher1-RSRC))
 		(Location ?sheet Finisher2_Entry-Finisher1_Exit)
 		(not (Location ?sheet Finisher1_Entry-Up_TopExit))
-		(Available Finisher1-RSRC)
-		(increase (total-cost) 8000))
+		(Available Finisher1-RSRC))
 )
 (:action Finisher1-Stack-Letter
  :parameters ( ?sheet - sheet_t ?prevsheet - sheet_t)
@@ -365,8 +345,7 @@
 		(Location ?sheet Some_Finisher_Tray)
 		(Stackedin ?sheet Finisher1_Tray)
 		(not (Location ?sheet Finisher1_Entry-Up_TopExit))
-		(Available Finisher1-RSRC)
-		(increase (total-cost) 8000))
+		(Available Finisher1-RSRC))
 )
 (:action Finisher2-PassThrough-Letter
  :parameters ( ?sheet - sheet_t)
@@ -378,8 +357,7 @@
 		(not (Available Finisher2-RSRC))
 		(Location ?sheet Finisher2_Exit)
 		(not (Location ?sheet Finisher2_Entry-Finisher1_Exit))
-		(Available Finisher2-RSRC)
-		(increase (total-cost) 8000))
+		(Available Finisher2-RSRC))
 )
 (:action Finisher2-Stack-Letter
  :parameters ( ?sheet - sheet_t ?prevsheet - sheet_t)
@@ -394,8 +372,7 @@
 		(Location ?sheet Some_Finisher_Tray)
 		(Stackedin ?sheet Finisher2_Tray)
 		(not (Location ?sheet Finisher2_Entry-Finisher1_Exit))
-		(Available Finisher2-RSRC)
-		(increase (total-cost) 8000))
+		(Available Finisher2-RSRC))
 )
 )
 

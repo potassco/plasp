@@ -4,9 +4,10 @@
 #include <iosfwd>
 #include <vector>
 
+#include <tokenize/Tokenizer.h>
+
 #include <plasp/sas/Value.h>
 #include <plasp/sas/Variable.h>
-#include <plasp/utils/Parser.h>
 
 namespace plasp
 {
@@ -27,8 +28,8 @@ using AssignedVariables = std::vector<AssignedVariable>;
 class AssignedVariable
 {
 	public:
-		static AssignedVariable fromSAS(utils::Parser<> &parser, const Variables &variables);
-		static AssignedVariable fromSAS(utils::Parser<> &parser, const Variable &variable);
+		static AssignedVariable fromSAS(tokenize::Tokenizer<> &tokenizer, const Variables &variables);
+		static AssignedVariable fromSAS(tokenize::Tokenizer<> &tokenizer, const Variable &variable);
 
 	public:
 		explicit AssignedVariable(const Variable &variable, const Value &value);

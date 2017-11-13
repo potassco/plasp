@@ -1,8 +1,7 @@
 #include <plasp/sas/AssignedVariable.h>
 
+#include <cassert>
 #include <iostream>
-
-#include <boost/assert.hpp>
 
 namespace plasp
 {
@@ -31,24 +30,24 @@ AssignedVariable::AssignedVariable(const Variable &variable, const Value &value)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-AssignedVariable AssignedVariable::fromSAS(utils::Parser<> &parser, const Variables &variables)
+AssignedVariable AssignedVariable::fromSAS(tokenize::Tokenizer<> &tokenizer, const Variables &variables)
 {
 	AssignedVariable assignedVariable;
 
-	assignedVariable.m_variable = &Variable::referenceFromSAS(parser, variables);
-	assignedVariable.m_value = &Value::referenceFromSAS(parser, *assignedVariable.m_variable);
+	assignedVariable.m_variable = &Variable::referenceFromSAS(tokenizer, variables);
+	assignedVariable.m_value = &Value::referenceFromSAS(tokenizer, *assignedVariable.m_variable);
 
 	return assignedVariable;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-AssignedVariable AssignedVariable::fromSAS(utils::Parser<> &parser, const Variable &variable)
+AssignedVariable AssignedVariable::fromSAS(tokenize::Tokenizer<> &tokenizer, const Variable &variable)
 {
 	AssignedVariable assignedVariable;
 
 	assignedVariable.m_variable = &variable;
-	assignedVariable.m_value = &Value::referenceFromSAS(parser, *assignedVariable.m_variable);
+	assignedVariable.m_value = &Value::referenceFromSAS(tokenizer, *assignedVariable.m_variable);
 
 	return assignedVariable;
 }
@@ -57,7 +56,7 @@ AssignedVariable AssignedVariable::fromSAS(utils::Parser<> &parser, const Variab
 
 const Variable &AssignedVariable::variable() const
 {
-	BOOST_ASSERT(m_variable != nullptr);
+	assert(m_variable != nullptr);
 
 	return *m_variable;
 }
@@ -66,7 +65,7 @@ const Variable &AssignedVariable::variable() const
 
 const Value &AssignedVariable::value() const
 {
-	BOOST_ASSERT(m_value != nullptr);
+	assert(m_value != nullptr);
 
 	return *m_value;
 }

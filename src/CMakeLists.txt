@@ -6,21 +6,18 @@ file(GLOB core_headers "../include/plasp/*.h")
 file(GLOB pddl_sources "plasp/pddl/*.cpp")
 file(GLOB pddl_headers "../include/plasp/pddl/*.h")
 
-file(GLOB pddl_expressions_sources "plasp/pddl/expressions/*.cpp")
-file(GLOB pddl_expressions_headers "../include/plasp/pddl/expressions/*.h")
+file(GLOB pddl_translation_sources "plasp/pddl/translation/*.cpp")
+file(GLOB pddl_translation_headers "../include/plasp/pddl/translation/*.h")
 
 file(GLOB sas_sources "plasp/sas/*.cpp")
 file(GLOB sas_headers "../include/plasp/sas/*.h")
 
-file(GLOB utils_sources "plasp/utils/*.cpp")
-file(GLOB utils_headers "../include/plasp/utils/*.h")
-
-include_directories(
-	${Boost_INCLUDE_DIRS}
-)
-
-include_directories(
+set(includes
 	${PROJECT_SOURCE_DIR}/include
+	${PROJECT_SOURCE_DIR}/lib/tokenize/include
+	${PROJECT_SOURCE_DIR}/lib/colorlog/include
+	${PROJECT_SOURCE_DIR}/lib/variant/include
+	${PROJECT_SOURCE_DIR}/lib/pddl/include
 )
 
 set(sources
@@ -33,17 +30,28 @@ set(sources
 	${pddl_expressions_sources}
 	${pddl_expressions_headers}
 
+	${pddl_translation_sources}
+	${pddl_translation_headers}
+
 	${sas_sources}
 	${sas_headers}
+
+	${input_sources}
+	${input_headers}
+
+	${output_sources}
+	${output_headers}
 
 	${utils_sources}
 	${utils_headers}
 )
 
 set(libraries
-	${Boost_LIBRARIES}
+	colorlog
+	pddl
 	pthread
 )
 
 add_library(${target} ${sources})
+target_include_directories(${target} PRIVATE ${includes})
 target_link_libraries(${target} ${libraries})

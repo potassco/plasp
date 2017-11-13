@@ -1,0 +1,28 @@
+#ifndef __PDDL__DETAIL__PARSING__PREDICATE_H
+#define __PDDL__DETAIL__PARSING__PREDICATE_H
+
+#include <pddl/ASTForward.h>
+#include <pddl/Context.h>
+#include <pddl/detail/ASTContext.h>
+#include <pddl/detail/VariableStack.h>
+
+namespace pddl
+{
+namespace detail
+{
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Predicate
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// TODO: rename consistently
+std::experimental::optional<ast::PredicatePointer> parsePredicate(Context &context, ASTContext &astContext, VariableStack &variableStack);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+}
+}
+
+#endif

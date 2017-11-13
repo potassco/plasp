@@ -23,17 +23,17 @@ Effect::Effect(Conditions conditions, Condition postcondition)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Effect Effect::fromSAS(utils::Parser<> &parser, const Variables &variables, Conditions &preconditions)
+Effect Effect::fromSAS(tokenize::Tokenizer<> &tokenizer, const Variables &variables, Conditions &preconditions)
 {
 	Effect::Conditions conditions;
 
-	const auto numberOfEffectConditions = parser.parse<size_t>();
+	const auto numberOfEffectConditions = tokenizer.get<size_t>();
 	conditions.reserve(numberOfEffectConditions);
 
 	for (size_t k = 0; k < numberOfEffectConditions; k++)
-		conditions.emplace_back(Condition::fromSAS(parser, variables));
+		conditions.emplace_back(Condition::fromSAS(tokenizer, variables));
 
-	const auto variableTransition = VariableTransition::fromSAS(parser, variables);
+	const auto variableTransition = VariableTransition::fromSAS(tokenizer, variables);
 
 	if (&variableTransition.valueBefore() != &Value::Any)
 		preconditions.emplace_back(Condition(variableTransition.variable(), variableTransition.valueBefore()));

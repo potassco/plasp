@@ -1,18 +1,18 @@
 # Command-Line Interface
 
 ```bash
-$ plasp [files] [options]
+$ plasp [options] file...
 ```
 
 `plasp` automatically detects the language of the input files.
 
 Multiple files may be provided in an arbitrary order.
-`[files]` may also be omitted, in which case the input is read from `std::cin`.
+The `file...` arguments may also be omitted, in which case the input is read from `std::cin`.
 
 `plasp` supports the following options:
 
-| **option**                        | **explanation**                                                                                                                   |
-|-----------------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
-| `-l` [ `--language` ]             | Specify the input language (`sas` or `pddl`). Omit for automatic detection.                                                       |
-| `--warning-level` arg (=`normal`) | Specify whether to output warnings normally (`normal`), to treat them as critical errors (`error`), or to ignore them (`ignore`). |
-| `--color` arg (=`auto`)           | Specify whether to colorize the output (`always`, `never`, or `auto`).                                                            |
+| **option** | **explanation** |
+|------------|-----------------|
+| `-l` [ `--language` ] arg (=`auto`) | Input language (`pddl`, `sas`, `auto`) |
+| `--warning-level` arg (=`show`) | Show warnings (`show`), treat them as errors (`error`), or ignore them (`ignore`) |
+| `--color` arg (=`auto`) | Colorize output (`always`, `never`, `auto`) |

@@ -4,12 +4,15 @@
 #include <string>
 #include <vector>
 
+#include <tokenize/Tokenizer.h>
+
+#include <colorlog/ColorStream.h>
+
 #include <plasp/sas/AssignedVariable.h>
 #include <plasp/sas/Effect.h>
 #include <plasp/sas/Predicate.h>
 #include <plasp/sas/Variable.h>
-#include <plasp/utils/LogStream.h>
-#include <plasp/utils/Parser.h>
+
 
 namespace plasp
 {
@@ -33,10 +36,10 @@ class Operator
 		using Condition = AssignedVariable;
 		using Conditions = AssignedVariables;
 
-		static Operator fromSAS(utils::Parser<> &parser, const Variables &variables);
+		static Operator fromSAS(tokenize::Tokenizer<> &tokenizer, const Variables &variables);
 
 	public:
-		void printPredicateAsASP(utils::LogStream &ostream) const;
+		void printPredicateAsASP(colorlog::ColorStream &stream) const;
 
 		const Predicate &predicate() const;
 		const Conditions &preconditions() const;
