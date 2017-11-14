@@ -32,7 +32,7 @@ The rest of the instances of those predicates are set to `false`.
 
 Option `--query-at-last` sets `query(m)` to true instead of `query(n)`, where `m` is the latest time point that the `planner` has grounded.
 
-Option `--check-at-last` at every ground step, grounds the check program only at the latest current time point.
+Option `--check-at-last`, at every ground step, grounds the check program only at the latest current time point.
 
 Option `--forbid-actions`  forbids actions at time points after current plan length `n`.
 This uses predicate `occurs/2`, and is implemented by the following subprogram:
