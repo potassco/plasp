@@ -1,4 +1,12 @@
-[submodule "tests/googletest"]
-	path = tests/googletest
-	url = https://github.com/google/googletest.git
-	ignore = dirty
+[submodule "lib/catch"]
+	path = lib/catch
+	url = https://github.com/catchorg/Catch2
+[submodule "lib/variant"]
+	path = lib/variant
+	url = https://github.com/mapbox/variant
+[submodule "tests/data/pddl-instances"]
+	path = tests/data/pddl-instances
+	url = https://github.com/potassco/pddl-instances.git
+[submodule "lib/cxxopts"]
+	path = lib/cxxopts
+	url = https://github.com/jarro2783/cxxopts

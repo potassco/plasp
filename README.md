@@ -1,6 +1,6 @@
-# plasp [![GitHub Release](https://img.shields.io/github/release/potassco/plasp.svg?maxAge=3600)](https://github.com/potassco/plasp/releases) [![Build Status](https://img.shields.io/travis/potassco/plasp/master.svg?maxAge=3600&label=build (master))](https://travis-ci.org/potassco/plasp?branch=master) [![Build Status](https://img.shields.io/travis/potassco/plasp/develop.svg?maxAge=3600&label=build (develop))](https://travis-ci.org/potassco/plasp?branch=develop)
+# plasp [![GitHub Release](https://img.shields.io/github/release/potassco/plasp.svg?maxAge=3600)](https://github.com/potassco/plasp/releases) [![Build Status](https://img.shields.io/travis/potassco/plasp/master.svg?maxAge=3600&label=build%20%28master%29)](https://travis-ci.org/potassco/plasp?branch=master) [![Build Status](https://img.shields.io/travis/potassco/plasp/develop.svg?maxAge=3600&label=build%20%28develop%29)](https://travis-ci.org/potassco/plasp?branch=develop)
 
-> Translate PDDL to ASP
+> ASP planning tools for PDDL
 
 ## Overview
 
@@ -45,7 +45,7 @@ $ clingo encodings/sequential-incremental.lp instance.lp
 ## Command-Line Interface
 
 ```bash
-$ plasp [files] [options]
+$ plasp [options] file...
 ```
 
 `plasp` automatically detects the language of the input program.
@@ -62,7 +62,7 @@ If you want to write your own meta encoding for `plasp`’s output, this [simple
 
 ## Building
 
-`plasp` requires `boost` and is built via CMake and a C++ compiler.
+`plasp` is built via CMake and a C++ compiler.
 
 See [building](doc/building.md) for more details.
 

@@ -11,18 +11,18 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-InitialState InitialState::fromSAS(utils::Parser<> &parser, const Variables &variables)
+InitialState InitialState::fromSAS(tokenize::Tokenizer<> &tokenizer, const Variables &variables)
 {
 	InitialState initialState;
 
-	parser.expect<std::string>("begin_state");
+	tokenizer.expect<std::string>("begin_state");
 
 	initialState.m_facts.reserve(variables.size());
 
 	for (size_t i = 0; i < variables.size(); i++)
-		initialState.m_facts.emplace_back(Fact::fromSAS(parser, variables[i]));
+		initialState.m_facts.emplace_back(Fact::fromSAS(tokenizer, variables[i]));
 
-	parser.expect<std::string>("end_state");
+	tokenizer.expect<std::string>("end_state");
 
 	return initialState;
 }

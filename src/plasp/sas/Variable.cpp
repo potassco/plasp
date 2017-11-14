@@ -2,8 +2,9 @@
 
 #include <iostream>
 
-#include <plasp/utils/Formatting.h>
-#include <plasp/utils/ParserException.h>
+#include <tokenize/TokenizerException.h>
+
+#include <colorlog/Formatting.h>
 
 namespace plasp
 {
@@ -23,49 +24,49 @@ Variable::Variable()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Variable Variable::fromSAS(utils::Parser<> &parser)
+Variable Variable::fromSAS(tokenize::Tokenizer<> &tokenizer)
 {
 	Variable variable;
 
-	parser.expect<std::string>("begin_variable");
-	parser.expect<std::string>("var");
+	tokenizer.expect<std::string>("begin_variable");
+	tokenizer.expect<std::string>("var");
 
-	variable.m_name = parser.parse<std::string>();
-	variable.m_axiomLayer = parser.parse<int>();
+	variable.m_name = tokenizer.get<std::string>();
+	variable.m_axiomLayer = tokenizer.get<int>();
 
-	const auto numberOfValues = parser.parse<size_t>();
+	const auto numberOfValues = tokenizer.get<size_t>();
 	variable.m_values.reserve(numberOfValues);
 
 	for (size_t j = 0; j < numberOfValues; j++)
 	{
-		variable.m_values.emplace_back(Value::fromSAS(parser));
+		variable.m_values.emplace_back(Value::fromSAS(tokenizer));
 
 		// <none of those> values are only allowed at the end
 		if (j < numberOfValues - 1 && variable.m_values[j] == Value::None)
-			throw utils::ParserException(parser.coordinate(), "<none of those> value must be the last value of a variable");
+			throw tokenize::TokenizerException(tokenizer.location(), "<none of those> value must be the last value of a variable");
 	}
 
-	parser.expect<std::string>("end_variable");
+	tokenizer.expect<std::string>("end_variable");
 
 	return variable;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Variable::printNameAsASPPredicate(utils::LogStream &outputStream) const
+void Variable::printNameAsASPPredicate(colorlog::ColorStream &stream) const
 {
 	// TODO: assert that name is a number indeed
-	outputStream << utils::Keyword("variable") << "(" << utils::Number(m_name) << ")";
+	stream << colorlog::Keyword("variable") << "(" << colorlog::Number<std::string>(m_name) << ")";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const Variable &Variable::referenceFromSAS(utils::Parser<> &parser, const Variables &variables)
+const Variable &Variable::referenceFromSAS(tokenize::Tokenizer<> &tokenizer, const Variables &variables)
 {
-	const auto variableID = parser.parse<size_t>();
+	const auto variableID = tokenizer.get<size_t>();
 
 	if (variableID >= variables.size())
-		throw utils::ParserException(parser.coordinate(), "variable index out of range (index " + std::to_string(variableID) + ")");
+		throw tokenize::TokenizerException(tokenizer.location(), "variable index out of range (index " + std::to_string(variableID) + ")");
 
 	return variables[variableID];
 }

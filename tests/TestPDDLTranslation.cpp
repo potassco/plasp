@@ -1,30 +1,42 @@
-#include <gtest/gtest.h>
+#include <catch.hpp>
 
-#include <boost/iostreams/stream.hpp>
-#include <boost/iostreams/device/null.hpp>
+#include <iostream>
 
-#include <plasp/pddl/Description.h>
+#include <colorlog/Logger.h>
+
+#include <pddl/AST.h>
+#include <pddl/Normalize.h>
+#include <pddl/Parse.h>
+
 #include <plasp/pddl/TranslatorASP.h>
 
-using namespace plasp::pddl;
+#include "NullOutputStream.h"
 
-boost::iostreams::stream<boost::iostreams::null_sink> nullStream((boost::iostreams::null_sink()));
+const pddl::Context::WarningCallback ignoreWarnings = [](const auto &, const auto &){};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-TEST(PDDLTranslationTests, CheckIssues)
+TEST_CASE("[PDDL translation] Former issues are fixed", "[PDDL translation]")
 {
-	// Check that translating domains without typing information works
+	NullOutputStream nullOutputStream;
+
+	colorlog::Logger logger(nullOutputStream, nullOutputStream);
+	pddl::Tokenizer tokenizer;
+	pddl::Context context(std::move(tokenizer), ignoreWarnings);
+
+	SECTION("translating domains without typing information works")
 	{
-		auto description = Description::fromFile("data/issues/issue-4.pddl");
-		const auto translator = TranslatorASP(description, description.context().logger.outputStream());
-		ASSERT_NO_THROW(translator.translate());
+		context.tokenizer.read("data/issues/issue-4.pddl");
+		auto description = pddl::normalize(pddl::parseDescription(context));
+		const auto translator = plasp::pddl::TranslatorASP(std::move(description), logger.outputStream());
+		CHECK_NOTHROW(translator.translate());
 	}
 
-	// Check that translating the simple blocks world domain works
+	SECTION("translating the simple blocks world domain works")
 	{
-		auto description = Description::fromFile("data/issues/issue-5.pddl");
-		const auto translator = TranslatorASP(description, description.context().logger.outputStream());
-		ASSERT_NO_THROW(translator.translate());
+		context.tokenizer.read("data/issues/issue-5.pddl");
+		auto description = pddl::normalize(pddl::parseDescription(context));
+		const auto translator = plasp::pddl::TranslatorASP(std::move(description), logger.outputStream());
+		CHECK_NOTHROW(translator.translate());
 	}
 }

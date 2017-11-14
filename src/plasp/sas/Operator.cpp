@@ -3,8 +3,9 @@
 #include <iostream>
 #include <limits>
 
+#include <colorlog/Formatting.h>
+
 #include <plasp/sas/VariableTransition.h>
-#include <plasp/utils/Formatting.h>
 
 namespace plasp
 {
@@ -17,40 +18,40 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Operator Operator::fromSAS(utils::Parser<> &parser, const Variables &variables)
+Operator Operator::fromSAS(tokenize::Tokenizer<> &tokenizer, const Variables &variables)
 {
 	Operator operator_;
 
-	parser.expect<std::string>("begin_operator");
+	tokenizer.expect<std::string>("begin_operator");
 
-	operator_.m_predicate = Predicate::fromSAS(parser);
+	operator_.m_predicate = Predicate::fromSAS(tokenizer);
 
-	const auto numberOfPrevailConditions = parser.parse<size_t>();
+	const auto numberOfPrevailConditions = tokenizer.get<size_t>();
 	operator_.m_preconditions.reserve(numberOfPrevailConditions);
 
 	for (size_t j = 0; j < numberOfPrevailConditions; j++)
-		operator_.m_preconditions.emplace_back(Condition::fromSAS(parser, variables));
+		operator_.m_preconditions.emplace_back(Condition::fromSAS(tokenizer, variables));
 
-	const auto numberOfEffects = parser.parse<size_t>();
+	const auto numberOfEffects = tokenizer.get<size_t>();
 	operator_.m_effects.reserve(numberOfEffects);
 
 	for (size_t j = 0; j < numberOfEffects; j++)
-		operator_.m_effects.emplace_back(Effect::fromSAS(parser, variables, operator_.m_preconditions));
+		operator_.m_effects.emplace_back(Effect::fromSAS(tokenizer, variables, operator_.m_preconditions));
 
-	operator_.m_costs = parser.parse<size_t>();
+	operator_.m_costs = tokenizer.get<size_t>();
 
-	parser.expect<std::string>("end_operator");
+	tokenizer.expect<std::string>("end_operator");
 
 	return operator_;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Operator::printPredicateAsASP(utils::LogStream &outputStream) const
+void Operator::printPredicateAsASP(colorlog::ColorStream &stream) const
 {
-	outputStream << utils::Keyword("action") << "(";
-	m_predicate.printAsASP(outputStream);
-	outputStream << ")";
+	stream << colorlog::Keyword("action") << "(";
+	m_predicate.printAsASP(stream);
+	stream << ")";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

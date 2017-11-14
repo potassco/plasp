@@ -1,0 +1,25 @@
+#ifndef __PLASP_APP__COMMANDS__COMMAND_VERSION_H
+#define __PLASP_APP__COMMANDS__COMMAND_VERSION_H
+
+#include <plasp-app/Command.h>
+#include <plasp-app/OptionGroups.h>
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Command Version
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class CommandVersion : public Command<CommandVersion>
+{
+	public:
+		static constexpr auto Name = "version";
+		static constexpr auto Description = "Display version information";
+
+	public:
+		int run(int argc, char **argv);
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+#endif

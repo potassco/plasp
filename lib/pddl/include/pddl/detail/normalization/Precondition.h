@@ -1,0 +1,26 @@
+#ifndef __PDDL__DETAIL__NORMALIZATION__PRECONDITION_H
+#define __PDDL__DETAIL__NORMALIZATION__PRECONDITION_H
+
+#include <pddl/ASTForward.h>
+#include <pddl/Context.h>
+#include <pddl/detail/normalization/NormalizationContext.h>
+
+namespace pddl
+{
+namespace detail
+{
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Precondition
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+normalizedAST::Precondition normalize(ast::Precondition &&precondition, detail::NormalizationContext &normalizationContext);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+}
+}
+
+#endif

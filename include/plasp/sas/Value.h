@@ -5,8 +5,9 @@
 #include <string>
 #include <vector>
 
-#include <plasp/utils/LogStream.h>
-#include <plasp/utils/Parser.h>
+#include <tokenize/Tokenizer.h>
+
+#include <colorlog/ColorStream.h>
 
 namespace plasp
 {
@@ -39,14 +40,14 @@ struct Value
 		static const Value Any;
 		static const Value None;
 
-		static Value fromSAS(utils::Parser<> &parser);
-		static const Value &referenceFromSAS(utils::Parser<> &parser, const Variable &variable);
+		static Value fromSAS(tokenize::Tokenizer<> &tokenizer);
+		static const Value &referenceFromSAS(tokenize::Tokenizer<> &tokenizer, const Variable &variable);
 
 	public:
 		Value negated() const;
 
-		void printAsSAS(utils::LogStream &outputStream) const;
-		void printAsASPPredicate(utils::LogStream &outputStream) const;
+		void printAsSAS(colorlog::ColorStream &stream) const;
+		void printAsASPPredicate(colorlog::ColorStream &stream) const;
 
 		Sign sign() const;
 		const std::string &name() const;

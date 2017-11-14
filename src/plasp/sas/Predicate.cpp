@@ -4,8 +4,9 @@
 #include <limits>
 #include <sstream>
 
-#include <plasp/utils/Formatting.h>
-#include <plasp/utils/ParserException.h>
+#include <tokenize/TokenizerException.h>
+
+#include <colorlog/Formatting.h>
 
 namespace plasp
 {
@@ -18,32 +19,32 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Predicate Predicate::fromSAS(utils::Parser<> &parser)
+Predicate Predicate::fromSAS(tokenize::Tokenizer<> &tokenizer)
 {
 	Predicate predicate;
 
 	try
 	{
-		parser.skipLine();
+		tokenizer.skipLine();
 
-		predicate.m_name = parser.parse<std::string>();
+		predicate.m_name = tokenizer.get<std::string>();
 
 		while (true)
 		{
 			// Skip whitespace but not newlines
-			parser.skipBlankSpace();
+			tokenizer.skipBlankSpace();
 
 			// TODO: check \r handling
-			if (parser.currentCharacter() == '\n')
+			if (tokenizer.currentCharacter() == '\n')
 				break;
 
-			const auto value = parser.parse<std::string>();
+			const auto value = tokenizer.get<std::string>();
 			predicate.m_arguments.emplace_back(std::move(value));
 		}
 	}
 	catch (const std::exception &e)
 	{
-		throw utils::ParserException(parser.coordinate(), "could not parse operator predicate");
+		throw tokenize::TokenizerException(tokenizer.location(), "could not parse operator predicate");
 	}
 
 	return predicate;
@@ -65,38 +66,38 @@ const Predicate::Arguments &Predicate::arguments() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Predicate::printAsSAS(utils::LogStream &outputStream) const
+void Predicate::printAsSAS(colorlog::ColorStream &stream) const
 {
 	if (m_arguments.empty())
 	{
-		outputStream << m_name;
+		stream << m_name;
 		return;
 	}
 
 	for (size_t i = 0; i < m_arguments.size(); i++)
 	{
 		if (i > 0)
-			outputStream << " ";
+			stream << " ";
 
-		outputStream << m_arguments[i];
+		stream << m_arguments[i];
 	}
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Predicate::printAsASP(utils::LogStream &outputStream) const
+void Predicate::printAsASP(colorlog::ColorStream &stream) const
 {
 	if (m_arguments.empty())
 	{
-		outputStream << utils::String(m_name);
+		stream << colorlog::String(m_name.c_str());
 		return;
 	}
 
-	outputStream << "(" << utils::String(m_name);
+	stream << "(" << colorlog::String(m_name.c_str());
 
 	for (size_t i = 0; i < m_arguments.size(); i++)
-		outputStream << ", " << utils::String(m_arguments[i]);
+		stream << ", " << colorlog::String(m_arguments[i].c_str());
 
-	outputStream << ")";
+	stream << ")";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

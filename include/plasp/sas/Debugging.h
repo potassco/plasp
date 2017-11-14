@@ -3,6 +3,8 @@
 
 #include <iosfwd>
 
+#include <colorlog/ColorStream.h>
+
 #include <plasp/sas/Description.h>
 
 namespace plasp
@@ -16,7 +18,7 @@ namespace sas
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-utils::LogStream &operator<<(utils::LogStream &ostream, const Description &description);
+colorlog::ColorStream &operator<<(colorlog::ColorStream &ostream, const Description &description);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -1,8 +1,9 @@
 #ifndef __PLASP__LANGUAGE_DETECTION_H
 #define __PLASP__LANGUAGE_DETECTION_H
 
+#include <tokenize/Tokenizer.h>
+
 #include <plasp/Language.h>
-#include <plasp/utils/Parser.h>
 
 namespace plasp
 {
@@ -13,32 +14,34 @@ namespace plasp
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Language::Type detectLanguage(utils::Parser<utils::CaseInsensitiveParserPolicy> &parser)
+inline Language::Type detectLanguage(tokenize::Tokenizer<tokenize::CaseInsensitiveTokenizerPolicy> &tokenizer)
 {
-	parser.skipWhiteSpace();
+	tokenizer.skipWhiteSpace();
 
 	// SAS begins with "begin_version"
-	if (parser.testAndSkip<std::string>("begin"))
+	if (tokenizer.testAndSkip<std::string>("begin"))
 	{
-		parser.seek(0);
+		tokenizer.seek(0);
 		return Language::Type::SAS;
 	}
 
 	// Skip potential PDDL comments
-	while (parser.currentCharacter() == ';')
+	while (tokenizer.currentCharacter() == ';')
 	{
-		parser.skipLine();
-		parser.skipWhiteSpace();
+		tokenizer.skipLine();
+		tokenizer.skipWhiteSpace();
 	}
 
-	// PDDL contains sections starting with "(define"
-	if (parser.testAndSkip<std::string>("(") && parser.testAndSkip<std::string>("define"))
+	// PDDL contains sections starting with “(define”
+	// Some legacy domains contain “in-package” sections, however
+	if (tokenizer.testAndSkip<std::string>("(")
+		&& (tokenizer.testAndSkip<std::string>("define") || tokenizer.testAndSkip<std::string>("in-package")))
 	{
-		parser.seek(std::ios::beg);
+		tokenizer.seek(std::ios::beg);
 		return Language::Type::PDDL;
 	}
 
-	parser.seek(std::ios::beg);
+	tokenizer.seek(std::ios::beg);
 	return Language::Type::Unknown;
 }
 

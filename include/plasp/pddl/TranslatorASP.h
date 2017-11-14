@@ -1,9 +1,10 @@
 #ifndef __PLASP__PDDL__TRANSLATOR_ASP_H
 #define __PLASP__PDDL__TRANSLATOR_ASP_H
 
-#include <plasp/pddl/Description.h>
+#include <colorlog/ColorStream.h>
 
-#include <iosfwd>
+#include <pddl/NormalizedASTForward.h>
+#include <pddl/Parse.h>
 
 namespace plasp
 {
@@ -19,28 +20,25 @@ namespace pddl
 class TranslatorASP
 {
 	public:
-		explicit TranslatorASP(Description &description, utils::LogStream &outputStream);
+		explicit TranslatorASP(const ::pddl::normalizedAST::Description &description, colorlog::ColorStream &outputStream);
 
 		void translate() const;
 
 	private:
 		void translateDomain() const;
+		void translateUtils() const;
 		void translateTypes() const;
 		void translatePredicates() const;
+		void translateDerivedPredicates(const ::pddl::normalizedAST::DerivedPredicateDeclarations &derivedPredicates) const;
 		void translateActions() const;
 
 		void translateProblem() const;
 		void translateInitialState() const;
 		void translateGoal() const;
+		void translateConstants(const std::string &heading, const ::pddl::ast::ConstantDeclarations &constants) const;
 
-		void translateConstants(const std::string &heading, const expressions::Constants &constants) const;
-		void translateVariablesHead(const expressions::Variables &variables) const;
-		void translateVariablesBody(const expressions::Variables &variables) const;
-		void translateLiteral(const Expression &literal) const;
-		void translatePredicate(const expressions::Predicate &predicate) const;
-
-		Description &m_description;
-		utils::LogStream &m_outputStream;
+		const ::pddl::normalizedAST::Description &m_description;
+		colorlog::ColorStream &m_outputStream;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

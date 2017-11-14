@@ -1,8 +1,7 @@
 #include <plasp/sas/VariableTransition.h>
 
+#include <cassert>
 #include <iostream>
-
-#include <boost/assert.hpp>
 
 namespace plasp
 {
@@ -24,13 +23,13 @@ VariableTransition::VariableTransition()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-VariableTransition VariableTransition::fromSAS(utils::Parser<> &parser, const Variables &variables)
+VariableTransition VariableTransition::fromSAS(tokenize::Tokenizer<> &tokenizer, const Variables &variables)
 {
 	VariableTransition variableTransition;
 
-	variableTransition.m_variable = &Variable::referenceFromSAS(parser, variables);
-	variableTransition.m_valueBefore = &Value::referenceFromSAS(parser, *variableTransition.m_variable);
-	variableTransition.m_valueAfter = &Value::referenceFromSAS(parser, *variableTransition.m_variable);
+	variableTransition.m_variable = &Variable::referenceFromSAS(tokenizer, variables);
+	variableTransition.m_valueBefore = &Value::referenceFromSAS(tokenizer, *variableTransition.m_variable);
+	variableTransition.m_valueAfter = &Value::referenceFromSAS(tokenizer, *variableTransition.m_variable);
 
 	return variableTransition;
 }
@@ -39,7 +38,7 @@ VariableTransition VariableTransition::fromSAS(utils::Parser<> &parser, const Va
 
 const Variable &VariableTransition::variable() const
 {
-	BOOST_ASSERT(m_variable != nullptr);
+	assert(m_variable != nullptr);
 
 	return *m_variable;
 }
@@ -48,7 +47,7 @@ const Variable &VariableTransition::variable() const
 
 const Value &VariableTransition::valueBefore() const
 {
-	BOOST_ASSERT(m_valueBefore != nullptr);
+	assert(m_valueBefore != nullptr);
 
 	return *m_valueBefore;
 }
@@ -57,7 +56,7 @@ const Value &VariableTransition::valueBefore() const
 
 const Value &VariableTransition::valueAfter() const
 {
-	BOOST_ASSERT(m_valueAfter != nullptr);
+	assert(m_valueAfter != nullptr);
 
 	return *m_valueAfter;
 }
