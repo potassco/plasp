@@ -8,7 +8,6 @@ PLASP_DIR     = os.path.dirname(os.path.realpath(__file__)) + "/../../"
 PLANNER       = PLASP_DIR + "encodings/planner/planner.py"
 BASIC         = PLASP_DIR + "encodings/planner/basic.lp"
 PRE_SIMPLE    = PLASP_DIR + "encodings/planner/preprocess_simple.lp"
-BASIC_EXT     = PLASP_DIR + "encodings/planner/basic_ext.lp"
 HEURISTIC     = PLASP_DIR + "encodings/planner/heuristic.lp"
 PREPROCESS    = PLASP_DIR + "encodings/strips/preprocess.lp"
 STRIPS        = PLASP_DIR + "encodings/strips/strips-incremental.lp"
@@ -115,7 +114,6 @@ Get help/report bugs via : https://potassco.org/support
         extended = cmd_parser.add_argument_group('Other Solving Modes')
         extended.add_argument('--incmode',dest='incmode',action='store_true',help='Run clingo incmode')
         extended.add_argument('--basic',dest='basic',action='store_true',help='Run fast-downward translator to sas, then plasp translator, and solve with the basic encoding')
-        extended.add_argument('--basic-ext',dest='basic-ext',action='store_true',help='Run fast-downward translator to sas, then plasp translator, and solve with the basic extended encoding')
         extended.add_argument('--fast-downward','-fd',dest='fast-downward',action='store_true',help='Run fast-downward heuristic search planner with LAMA settings')
         extended.add_argument('--madagascar-M',  dest='M',  action='store_true',help='Run version   M of madagascar SAT planner')
         extended.add_argument('--madagascar-Mp', dest='Mp', action='store_true',help='Run version  Mp of madagascar SAT planner')
@@ -268,11 +266,6 @@ def run():
     elif options['basic']:
         call = "{} {} {}; {} {} | {} - {} {} {} {} {}".format(
             FAST_D_TR,domain,instance,PLASP,SAS_OUTPUT,PLANNER,BASIC_OPTIONS,BASIC,test,heuristic," ".join(rest) +
-               (postprocess if options['postprocess'] else "")
-        )
-    elif options['basic-ext']:
-        call = "{} {} {}; {} {} | {} - {} {} {} {} {}".format(
-            FAST_D_TR,domain,instance,PLASP,SAS_OUTPUT,PLANNER,BASIC_OPTIONS,BASIC_EXT,test,heuristic," ".join(rest) +
                (postprocess if options['postprocess'] else "")
         )
     # fast-downward
