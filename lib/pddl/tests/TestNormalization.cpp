@@ -224,3 +224,79 @@ TEST_CASE("[normalization] Universal quantifiers are correctly reduced", "[norma
 		CHECK(dp->declaration->parameters[1]->name == "y");
 	}
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TEST_CASE("[normalization] Negations are correctly normalized", "[normalization]")
+{
+	pddl::Tokenizer tokenizer;
+	pddl::Context context(std::move(tokenizer), ignoreWarnings);
+
+	const auto domainFile = fs::path("data") / "normalization" / "normalization-4.pddl";
+	context.tokenizer.read(domainFile);
+	auto description = pddl::parseDescription(context);
+	const auto normalizedDescription = pddl::normalize(std::move(description));
+
+	const auto &actions = normalizedDescription.domain->actions;
+
+	SECTION("multiple negations are correctly eliminated")
+	{
+		const auto &p1 = actions[0]->precondition.value().get<pddl::normalizedAST::Literal>().get<pddl::normalizedAST::AtomicFormula>().get<pddl::normalizedAST::PredicatePointer>();
+		CHECK(p1->declaration->name == "test-predicate-1");
+		REQUIRE(p1->arguments.size() == 1);
+		CHECK(p1->arguments[0].get<pddl::normalizedAST::VariablePointer>()->declaration->name == "x");
+
+		const auto &p2 = actions[1]->precondition.value().get<pddl::normalizedAST::Literal>().get<pddl::normalizedAST::NotPointer<pddl::normalizedAST::AtomicFormula>>()->argument.get<pddl::normalizedAST::PredicatePointer>();
+		CHECK(p2->declaration->name == "test-predicate-1");
+		REQUIRE(p2->arguments.size() == 1);
+		CHECK(p2->arguments[0].get<pddl::normalizedAST::VariablePointer>()->declaration->name == "x");
+	}
+
+	SECTION("“exists” statements with negations are correctly normalized")
+	{
+		const auto &dp = actions[2]->precondition.value().get<pddl::normalizedAST::Literal>().get<pddl::normalizedAST::NotPointer<pddl::normalizedAST::AtomicFormula>>()->argument.get<pddl::normalizedAST::DerivedPredicatePointer>();
+		CHECK(dp->declaration->existentialParameters.size() == 2);
+		const auto &dpp = dp->declaration->precondition.value().get<pddl::normalizedAST::Literal>().get<pddl::normalizedAST::AtomicFormula>().get<pddl::normalizedAST::PredicatePointer>();
+		CHECK(dpp->declaration->name == "test-predicate-2");
+	}
+
+	SECTION("“forall” statements with negations are correctly normalized")
+	{
+		const auto &dp = actions[3]->precondition.value().get<pddl::normalizedAST::Literal>().get<pddl::normalizedAST::AtomicFormula>().get<pddl::normalizedAST::DerivedPredicatePointer>();
+		CHECK(dp->declaration->existentialParameters.size() == 2);
+		const auto &dpp = dp->declaration->precondition.value().get<pddl::normalizedAST::Literal>().get<pddl::normalizedAST::AtomicFormula>().get<pddl::normalizedAST::PredicatePointer>();
+		CHECK(dpp->declaration->name == "test-predicate-2");
+		}
+
+	SECTION("negations introduced by reduction are correctly normalized")
+	{
+		const auto &d = actions[4]->precondition.value().get<pddl::normalizedAST::Literal>().get<pddl::normalizedAST::AtomicFormula>().get<pddl::normalizedAST::DerivedPredicatePointer>();
+		const auto &do_ = d->declaration->precondition.value().get<pddl::normalizedAST::OrPointer<pddl::normalizedAST::Literal>>();
+		REQUIRE(do_->arguments.size() == 2);
+		const auto &do1 = do_->arguments[0].get<pddl::normalizedAST::AtomicFormula>().get<pddl::normalizedAST::PredicatePointer>();
+		REQUIRE(do1->declaration->name == "test-predicate-0");
+		const auto &do2 = do_->arguments[1].get<pddl::normalizedAST::AtomicFormula>().get<pddl::normalizedAST::PredicatePointer>();
+		REQUIRE(do2->declaration->name == "test-predicate-1");
+	}
+
+	SECTION("negated disjunctions are correctly normalized")
+	{
+		const auto &a = actions[5]->precondition.value().get<pddl::normalizedAST::AndPointer<pddl::normalizedAST::Literal>>();
+		REQUIRE(a->arguments.size() == 2);
+		const auto &a1 = a->arguments[0].get<pddl::normalizedAST::AtomicFormula>().get<pddl::normalizedAST::PredicatePointer>();
+		REQUIRE(a1->declaration->name == "test-predicate-0");
+		const auto &a2 = a->arguments[1].get<pddl::normalizedAST::AtomicFormula>().get<pddl::normalizedAST::PredicatePointer>();
+		REQUIRE(a2->declaration->name == "test-predicate-1");
+	}
+
+	SECTION("negated conjunctions are correctly normalized")
+	{
+		const auto &d = actions[6]->precondition.value().get<pddl::normalizedAST::Literal>().get<pddl::normalizedAST::AtomicFormula>().get<pddl::normalizedAST::DerivedPredicatePointer>();
+		const auto &do_ = d->declaration->precondition.value().get<pddl::normalizedAST::OrPointer<pddl::normalizedAST::Literal>>();
+		REQUIRE(do_->arguments.size() == 2);
+		const auto &do1 = do_->arguments[0].get<pddl::normalizedAST::AtomicFormula>().get<pddl::normalizedAST::PredicatePointer>();
+		REQUIRE(do1->declaration->name == "test-predicate-0");
+		const auto &do2 = do_->arguments[1].get<pddl::normalizedAST::AtomicFormula>().get<pddl::normalizedAST::PredicatePointer>();
+		REQUIRE(do2->declaration->name == "test-predicate-1");
+	}
+}
