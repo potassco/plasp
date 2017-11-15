@@ -283,6 +283,7 @@ void ProblemParser::parseGoalSection(ast::Problem &problem)
 	VariableStack variableStack;
 
 	problem.goal = parsePrecondition(m_context, astContext, variableStack);
+	tokenizer.expect<std::string>(")");
 
 	skipSection(tokenizer);
 }

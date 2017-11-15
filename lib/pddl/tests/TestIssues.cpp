@@ -84,4 +84,13 @@ TEST_CASE("[PDDL parser issues] Check past issues", "[PDDL parser issues]")
 
 		CHECK(!containsInvalidFact);
 	}
+
+	// Check that goal contains just one precondition and is correctly terminated by “)”
+	SECTION("goal may contain only one precondition")
+	{
+		const auto domainFile = fs::path("data") / "issues" / "issue-11.pddl";
+		context.tokenizer.read(domainFile);
+
+		CHECK_THROWS(pddl::parseDescription(context));
+	}
 }
