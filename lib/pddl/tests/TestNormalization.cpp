@@ -158,3 +158,69 @@ TEST_CASE("[normalization] Implications are correctly reduced", "[normalization]
 		CHECK(or2->declaration->name == "test-predicate-1");
 	}
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TEST_CASE("[normalization] Universal quantifiers are correctly reduced", "[normalization]")
+{
+	pddl::Tokenizer tokenizer;
+	pddl::Context context(std::move(tokenizer), ignoreWarnings);
+
+	const auto domainFile = fs::path("data") / "normalization" / "normalization-3.pddl";
+	context.tokenizer.read(domainFile);
+	auto description = pddl::parseDescription(context);
+	const auto normalizedDescription = pddl::normalize(std::move(description));
+
+	const auto &actions = normalizedDescription.domain->actions;
+
+	SECTION("top-level “forall” statement is replaced with negated “exists” statement over negated argument")
+	{
+		const auto &d = actions[0]->precondition.value().get<pddl::normalizedAST::Literal>().get<pddl::normalizedAST::NotPointer<pddl::normalizedAST::AtomicFormula>>()->argument.get<pddl::normalizedAST::DerivedPredicatePointer>();
+		REQUIRE(d->arguments.empty());
+		REQUIRE(d->declaration->existentialParameters.size() == 2);
+		CHECK(d->declaration->existentialParameters[0]->name == "x");
+		CHECK(d->declaration->existentialParameters[1]->name == "y");
+		const auto &dp = d->declaration->precondition.value().get<pddl::normalizedAST::Literal>().get<pddl::normalizedAST::NotPointer<pddl::normalizedAST::AtomicFormula>>()->argument.get<pddl::normalizedAST::PredicatePointer>();
+		CHECK(dp->declaration->name == "test-predicate-2");
+		REQUIRE(dp->declaration->parameters.size() == 2);
+		CHECK(dp->declaration->parameters[0]->name == "x");
+		CHECK(dp->declaration->parameters[1]->name == "y");
+	}
+
+	SECTION("nested “forall” statement is replaced with negated “exists” statement over negated argument")
+	{
+		const auto &and1 = actions[1]->precondition.value().get<pddl::normalizedAST::AndPointer<pddl::normalizedAST::Literal>>();
+		REQUIRE(and1->arguments.size() == 2);
+		const auto &d1 = and1->arguments[0].get<pddl::normalizedAST::AtomicFormula>().get<pddl::normalizedAST::DerivedPredicatePointer>();
+		const auto &and2 = d1->declaration->precondition.value().get<pddl::normalizedAST::AndPointer<pddl::normalizedAST::Literal>>();
+		REQUIRE(and2->arguments.size() == 2);
+		const auto &d2 = and2->arguments[0].get<pddl::normalizedAST::NotPointer<pddl::normalizedAST::AtomicFormula>>()->argument.get<pddl::normalizedAST::DerivedPredicatePointer>();
+		REQUIRE(d2->arguments.empty());
+		REQUIRE(d2->declaration->existentialParameters.size() == 2);
+		CHECK(d2->declaration->existentialParameters[0]->name == "x");
+		CHECK(d2->declaration->existentialParameters[1]->name == "y");
+		const auto &d2p = d2->declaration->precondition.value().get<pddl::normalizedAST::Literal>().get<pddl::normalizedAST::NotPointer<pddl::normalizedAST::AtomicFormula>>()->argument.get<pddl::normalizedAST::PredicatePointer>();
+		CHECK(d2p->declaration->name == "test-predicate-2");
+		REQUIRE(d2p->declaration->parameters.size() == 2);
+		CHECK(d2p->declaration->parameters[0]->name == "x");
+		CHECK(d2p->declaration->parameters[1]->name == "y");
+	}
+
+	SECTION("“forall” statement in goal description is replaced with negated “exists” statement over negated argument")
+	{
+		const auto &goal = normalizedDescription.problem.value()->goal.value();
+
+		const auto &and_ = goal.get<pddl::normalizedAST::AndPointer<pddl::normalizedAST::Literal>>();
+		REQUIRE(and_->arguments.size() == 2);
+		const auto &d = and_->arguments[0].get<pddl::normalizedAST::NotPointer<pddl::normalizedAST::AtomicFormula>>()->argument.get<pddl::normalizedAST::DerivedPredicatePointer>();
+		REQUIRE(d->arguments.empty());
+		REQUIRE(d->declaration->existentialParameters.size() == 2);
+		CHECK(d->declaration->existentialParameters[0]->name == "x");
+		CHECK(d->declaration->existentialParameters[1]->name == "y");
+		const auto &dp = d->declaration->precondition.value().get<pddl::normalizedAST::Literal>().get<pddl::normalizedAST::NotPointer<pddl::normalizedAST::AtomicFormula>>()->argument.get<pddl::normalizedAST::PredicatePointer>();
+		CHECK(dp->declaration->name == "test-predicate-2");
+		REQUIRE(dp->declaration->parameters.size() == 2);
+		CHECK(dp->declaration->parameters[0]->name == "x");
+		CHECK(dp->declaration->parameters[1]->name == "y");
+	}
+}
