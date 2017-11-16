@@ -14,7 +14,7 @@ class CommandTranslate : public Command<CommandTranslate, OptionGroupBasic, Opti
 {
 	public:
 		static constexpr auto Name = "translate";
-		static constexpr auto Description = "Translate PDDL and SAS to ASP";
+		static constexpr auto Description = "Translate PDDL and SAS to ASP facts";
 
 	public:
 		int run(int argc, char **argv);

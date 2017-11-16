@@ -5,7 +5,7 @@
 ### Changes
 
 * introduces new command-line interface based on `plasp` subcommands:
-  * `plasp translate`: translate PDDL and SAS to ASP (replaces former, plain `plasp` calls)
+  * `plasp translate`: translate PDDL and SAS to ASP facts (replaces former, plain `plasp` calls)
   * `plasp normalize`: normalize PDDL to plasp’s custom PDDL format
   * `plasp check-syntax`: check the syntax of PDDL specifications
   * `plasp beautify`: cleanly format PDDL specifications
