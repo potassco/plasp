@@ -429,3 +429,67 @@ TEST_CASE("[normalization] Nested expressions are correctly flattened via derive
 		CHECK(a31212->arguments[1].get<pddl::normalizedAST::VariablePointer>()->declaration == a312->declaration->existentialParameters[0].get());
 	}
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TEST_CASE("[normalization] Derived predicates are correctly numbered", "[normalization]")
+{
+	pddl::Tokenizer tokenizer;
+	pddl::Context context(std::move(tokenizer), ignoreWarnings);
+
+	SECTION("derived predicates introduced by both domain and problem")
+	{
+		const auto domainFile = fs::path("data") / "normalization" / "normalization-6-1.pddl";
+		context.tokenizer.read(domainFile);
+		auto description = pddl::parseDescription(context);
+		const auto normalizedDescription = pddl::normalize(std::move(description));
+
+		const auto &domain = normalizedDescription.domain;
+		const auto &problem = normalizedDescription.problem.value();
+
+		REQUIRE(domain->derivedPredicates.size() == 4);
+		REQUIRE(problem->derivedPredicates.size() == 2);
+
+		CHECK(domain->derivedPredicates[0]->name == "derived-predicate-1");
+		CHECK(domain->derivedPredicates[1]->name == "derived-predicate-2");
+		CHECK(domain->derivedPredicates[2]->name == "derived-predicate-3");
+		CHECK(domain->derivedPredicates[3]->name == "derived-predicate-4");
+		CHECK(problem->derivedPredicates[0]->name == "derived-predicate-5");
+		CHECK(problem->derivedPredicates[1]->name == "derived-predicate-6");
+	}
+
+	SECTION("derived predicates introduced by domain only")
+	{
+		const auto domainFile = fs::path("data") / "normalization" / "normalization-6-2.pddl";
+		context.tokenizer.read(domainFile);
+		auto description = pddl::parseDescription(context);
+		const auto normalizedDescription = pddl::normalize(std::move(description));
+
+		const auto &domain = normalizedDescription.domain;
+		REQUIRE(!normalizedDescription.problem);
+
+		REQUIRE(domain->derivedPredicates.size() == 4);
+
+		CHECK(domain->derivedPredicates[0]->name == "derived-predicate-1");
+		CHECK(domain->derivedPredicates[1]->name == "derived-predicate-2");
+		CHECK(domain->derivedPredicates[2]->name == "derived-predicate-3");
+		CHECK(domain->derivedPredicates[3]->name == "derived-predicate-4");
+	}
+
+	SECTION("derived predicates introduced by both domain and problem")
+	{
+		const auto domainFile = fs::path("data") / "normalization" / "normalization-6-3.pddl";
+		context.tokenizer.read(domainFile);
+		auto description = pddl::parseDescription(context);
+		const auto normalizedDescription = pddl::normalize(std::move(description));
+
+		const auto &domain = normalizedDescription.domain;
+		const auto &problem = normalizedDescription.problem.value();
+
+		REQUIRE(domain->derivedPredicates.empty());
+		REQUIRE(problem->derivedPredicates.size() == 2);
+
+		CHECK(problem->derivedPredicates[0]->name == "derived-predicate-1");
+		CHECK(problem->derivedPredicates[1]->name == "derived-predicate-2");
+	}
+}
