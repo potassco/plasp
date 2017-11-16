@@ -300,3 +300,132 @@ TEST_CASE("[normalization] Negations are correctly normalized", "[normalization]
 		REQUIRE(do2->declaration->name == "test-predicate-1");
 	}
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+TEST_CASE("[normalization] Nested expressions are correctly flattened via derived predicates", "[normalization]")
+{
+	pddl::Tokenizer tokenizer;
+	pddl::Context context(std::move(tokenizer), ignoreWarnings);
+
+	const auto domainFile = fs::path("data") / "normalization" / "normalization-5.pddl";
+	context.tokenizer.read(domainFile);
+	auto description = pddl::parseDescription(context);
+	const auto normalizedDescription = pddl::normalize(std::move(description));
+
+	const auto &actions = normalizedDescription.domain->actions;
+
+	SECTION("nested expressions in action preconditions are correctly flattened")
+	{
+		const auto &a = actions[0]->precondition.value().get<pddl::normalizedAST::AndPointer<pddl::normalizedAST::Literal>>();
+		REQUIRE(a->arguments.size() == 3);
+
+		const auto &a1 = a->arguments[0].get<pddl::normalizedAST::NotPointer<pddl::normalizedAST::AtomicFormula>>()->argument.get<pddl::normalizedAST::DerivedPredicatePointer>();
+		REQUIRE(a1->declaration->parameters.size() == 1);
+		CHECK(a1->declaration->existentialParameters.size() == 1);
+		const auto &a11 = a1->declaration->precondition.value().get<pddl::normalizedAST::AndPointer<pddl::normalizedAST::Literal>>();
+		REQUIRE(a11->arguments.size() == 2);
+		const auto &a111 = a11->arguments[0].get<pddl::normalizedAST::AtomicFormula>().get<pddl::normalizedAST::PredicatePointer>();
+		CHECK(a111->declaration->name == "p1");
+		REQUIRE(a111->arguments.size() == 2);
+		CHECK(a111->arguments[0].get<pddl::normalizedAST::VariablePointer>()->declaration == actions[0]->parameters[1].get());
+		CHECK(a111->arguments[1].get<pddl::normalizedAST::VariablePointer>()->declaration == a1->declaration->existentialParameters[0].get());
+		const auto &a112 = a11->arguments[1].get<pddl::normalizedAST::NotPointer<pddl::normalizedAST::AtomicFormula>>()->argument.get<pddl::normalizedAST::PredicatePointer>();
+		CHECK(a112->declaration->name == "p2");
+
+		const auto &a2 = a->arguments[1].get<pddl::normalizedAST::AtomicFormula>().get<pddl::normalizedAST::PredicatePointer>();
+		CHECK(a2->declaration->name == "p3");
+		REQUIRE(a2->arguments.size() == 2);
+		CHECK(a2->arguments[0].get<pddl::normalizedAST::VariablePointer>()->declaration == actions[0]->parameters[0].get());
+
+		const auto &a3 = a->arguments[2].get<pddl::normalizedAST::AtomicFormula>().get<pddl::normalizedAST::DerivedPredicatePointer>();
+		REQUIRE(a3->arguments.size() == 2);
+		const auto &a31 = a3->declaration->precondition.value().get<pddl::normalizedAST::OrPointer<pddl::normalizedAST::Literal>>();
+		REQUIRE(a31->arguments.size() == 2);
+		const auto &a311 = a31->arguments[0].get<pddl::normalizedAST::AtomicFormula>().get<pddl::normalizedAST::DerivedPredicatePointer>();
+		const auto &a3111 = a311->declaration->precondition.value().get<pddl::normalizedAST::AndPointer<pddl::normalizedAST::Literal>>();
+		REQUIRE(a3111->arguments.size() == 2);
+		const auto &a31111 = a3111->arguments[0].get<pddl::normalizedAST::AtomicFormula>().get<pddl::normalizedAST::PredicatePointer>();
+		CHECK(a31111->declaration->name == "p4");
+		const auto &a31112 = a3111->arguments[1].get<pddl::normalizedAST::NotPointer<pddl::normalizedAST::AtomicFormula>>()->argument.get<pddl::normalizedAST::DerivedPredicatePointer>();
+		CHECK(a31112->declaration->parameters.size() == 2);
+		CHECK(a31112->declaration->existentialParameters.size() == 1);
+		const auto &a311121 = a31112->declaration->precondition.value().get<pddl::normalizedAST::AndPointer<pddl::normalizedAST::Literal>>();
+		REQUIRE(a311121->arguments.size() == 2);
+		const auto &a3111211 = a311121->arguments[0].get<pddl::normalizedAST::AtomicFormula>().get<pddl::normalizedAST::PredicatePointer>();
+		CHECK(a3111211->declaration->name == "p5");
+		const auto &a3111212 = a311121->arguments[1].get<pddl::normalizedAST::NotPointer<pddl::normalizedAST::AtomicFormula>>()->argument.get<pddl::normalizedAST::PredicatePointer>();
+		CHECK(a3111212->declaration->name == "p3");
+		const auto &a312 = a31->arguments[1].get<pddl::normalizedAST::AtomicFormula>().get<pddl::normalizedAST::DerivedPredicatePointer>();
+		const auto &a3121 = a312->declaration->precondition.value().get<pddl::normalizedAST::AndPointer<pddl::normalizedAST::Literal>>();
+		REQUIRE(a3121->arguments.size() == 2);
+		const auto &a31211 = a3121->arguments[0].get<pddl::normalizedAST::AtomicFormula>().get<pddl::normalizedAST::PredicatePointer>();
+		CHECK(a31111->declaration->name == "p4");
+		const auto &a31212 = a3121->arguments[1].get<pddl::normalizedAST::NotPointer<pddl::normalizedAST::AtomicFormula>>()->argument.get<pddl::normalizedAST::DerivedPredicatePointer>();
+		REQUIRE(a31212->declaration->parameters.size() == 1);
+		REQUIRE(a31212->declaration->existentialParameters.size() == 2);
+		const auto &a312121 = a31212->declaration->precondition.value().get<pddl::normalizedAST::AndPointer<pddl::normalizedAST::Literal>>();
+		REQUIRE(a312121->arguments.size() == 2);
+		const auto &a3121211 = a312121->arguments[0].get<pddl::normalizedAST::AtomicFormula>().get<pddl::normalizedAST::PredicatePointer>();
+		CHECK(a3121211->declaration->name == "p6");
+		REQUIRE(a3121211->arguments.size() == 3);
+		CHECK(a3121211->arguments[0].get<pddl::normalizedAST::VariablePointer>()->declaration == a31212->declaration->existentialParameters[0].get());
+		CHECK(a3121211->arguments[1].get<pddl::normalizedAST::VariablePointer>()->declaration == a31212->declaration->existentialParameters[1].get());
+		CHECK(a3121211->arguments[2].get<pddl::normalizedAST::VariablePointer>()->declaration == actions[0]->parameters[1].get());
+		const auto &a3121212 = a312121->arguments[1].get<pddl::normalizedAST::AtomicFormula>().get<pddl::normalizedAST::PredicatePointer>();
+		CHECK(a3121212->declaration->name == "p3");
+		REQUIRE(a3121212->arguments.size() == 2);
+		CHECK(a3121212->arguments[0].get<pddl::normalizedAST::VariablePointer>()->declaration == a31212->declaration->existentialParameters[0].get());
+		CHECK(a3121212->arguments[1].get<pddl::normalizedAST::VariablePointer>()->declaration == actions[0]->parameters[1].get());
+	}
+
+	SECTION("nested expressions in conditional effect preconditions are correctly flattened")
+	{
+		const auto &a = actions[0]->effect.value().get<pddl::normalizedAST::AndPointer<pddl::normalizedAST::Effect>>();
+		REQUIRE(a->arguments.size() == 3);
+
+		const auto &a1 = a->arguments[0].get<pddl::normalizedAST::Literal>().get<pddl::normalizedAST::NotPointer<pddl::normalizedAST::AtomicFormula>>()->argument.get<pddl::normalizedAST::PredicatePointer>();
+		CHECK(a1->declaration->name == "p3");
+		REQUIRE(a1->arguments.size() == 2);
+		CHECK(a1->arguments[0].get<pddl::normalizedAST::VariablePointer>()->declaration == actions[0]->parameters[0].get());
+		CHECK(a1->arguments[1].get<pddl::normalizedAST::VariablePointer>()->declaration == actions[0]->parameters[1].get());
+
+		const auto &a2 = a->arguments[1].get<pddl::normalizedAST::Literal>().get<pddl::normalizedAST::AtomicFormula>().get<pddl::normalizedAST::PredicatePointer>();
+		CHECK(a2->declaration->name == "p9");
+		REQUIRE(a2->arguments.size() == 1);
+		CHECK(a2->arguments[0].get<pddl::normalizedAST::VariablePointer>()->declaration == actions[0]->parameters[0].get());
+
+		const auto &a3 = a->arguments[2].get<pddl::normalizedAST::WhenPointer<pddl::normalizedAST::Precondition, pddl::normalizedAST::ConditionalEffect>>();
+		const auto &a31 = a3->argumentLeft.get<pddl::normalizedAST::AndPointer<pddl::normalizedAST::Literal>>();
+		REQUIRE(a31->arguments.size() == 2);
+		const auto &a311 = a31->arguments[0].get<pddl::normalizedAST::AtomicFormula>().get<pddl::normalizedAST::DerivedPredicatePointer>();
+		CHECK(a311->declaration->parameters.size() == 1);
+		CHECK(a311->declaration->existentialParameters.size() == 1);
+		const auto &a3111 = a311->declaration->precondition.value().get<pddl::normalizedAST::OrPointer<pddl::normalizedAST::Literal>>();
+		REQUIRE(a3111->arguments.size() == 2);
+		const auto &a31111 = a3111->arguments[0].get<pddl::normalizedAST::AtomicFormula>().get<pddl::normalizedAST::PredicatePointer>();
+		CHECK(a31111->declaration->name == "p7");
+		REQUIRE(a31111->arguments.size() == 2);
+		CHECK(a31111->arguments[0].get<pddl::normalizedAST::VariablePointer>()->declaration == a311->declaration->existentialParameters[0].get());
+		CHECK(a31111->arguments[1].get<pddl::normalizedAST::VariablePointer>()->declaration == actions[0]->parameters[1].get());
+		const auto &a31112 = a3111->arguments[1].get<pddl::normalizedAST::AtomicFormula>().get<pddl::normalizedAST::PredicatePointer>();
+		CHECK(a31112->declaration->name == "p3");
+		REQUIRE(a31112->arguments.size() == 2);
+		CHECK(a31112->arguments[0].get<pddl::normalizedAST::VariablePointer>()->declaration == actions[0]->parameters[1].get());
+		CHECK(a31112->arguments[1].get<pddl::normalizedAST::VariablePointer>()->declaration == a311->declaration->existentialParameters[0].get());
+		const auto &a312 = a31->arguments[1].get<pddl::normalizedAST::AtomicFormula>().get<pddl::normalizedAST::DerivedPredicatePointer>();
+		CHECK(a312->declaration->parameters.size() == 0);
+		CHECK(a312->declaration->existentialParameters.size() == 2);
+		const auto &a3121 = a312->declaration->precondition.value().get<pddl::normalizedAST::OrPointer<pddl::normalizedAST::Literal>>();
+		const auto &a31211 = a3121->arguments[0].get<pddl::normalizedAST::AtomicFormula>().get<pddl::normalizedAST::PredicatePointer>();
+		CHECK(a31211->declaration->name == "p4");
+		REQUIRE(a31211->arguments.size() == 2);
+		CHECK(a31211->arguments[0].get<pddl::normalizedAST::VariablePointer>()->declaration == a312->declaration->existentialParameters[0].get());
+		CHECK(a31211->arguments[1].get<pddl::normalizedAST::VariablePointer>()->declaration == a312->declaration->existentialParameters[1].get());
+		const auto &a31212 = a3121->arguments[1].get<pddl::normalizedAST::AtomicFormula>().get<pddl::normalizedAST::PredicatePointer>();
+		CHECK(a31212->declaration->name == "p3");
+		REQUIRE(a31212->arguments.size() == 2);
+		CHECK(a31212->arguments[0].get<pddl::normalizedAST::VariablePointer>()->declaration == a312->declaration->existentialParameters[1].get());
+		CHECK(a31212->arguments[1].get<pddl::normalizedAST::VariablePointer>()->declaration == a312->declaration->existentialParameters[0].get());
+	}
+}
