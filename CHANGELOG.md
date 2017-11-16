@@ -4,24 +4,31 @@
 
 ### Changes
 
-* introduces new command-line interface based on `plasp` subcommands:
+* new command-line interface based on `plasp` commands:
   * `plasp translate`: translate PDDL and SAS to ASP facts (replaces former, plain `plasp` calls)
   * `plasp normalize`: normalize PDDL to plasp’s custom PDDL format
   * `plasp check-syntax`: check the syntax of PDDL specifications
   * `plasp beautify`: cleanly format PDDL specifications
+* new output format to accommodate for new PDDL features
 
 ### Features
 
-* extended PDDL parser support (`imply`, `exists`, `forall`, `when`, and `=` expressions)
-* new output option `--log-level` to control which status messages should be shown
+* extended PDDL 3.1 support:
+  * arbitrarily nested expressions in preconditions, effects, and goal description (via derived predicates)
+  * universal and existential quantifiers
+  * disjunctions
+  * conditional effects
+  * implications
+  * equality (parser only)
+* new output option `--log-level` to control which status messages to show
 * new basic option `--warnings-as-errors` to abort program execution upon warnings (replaces `--warning-level`)
-* adds compatibility mode for parser, which supports more legacy domains
+* new compatibility mode for parser to support more legacy domains
 * new parser option `--parsing-mode` to specify whether to apply strict or compatibility parsing rules
 
 ### Internal
 
-* reimplemented PDDL parser from scratch as stand-alone `pddl` library
-* removed dependency to Boost
+* PDDL parser reimplemented from scratch in stand-alone `pddl` library
+* removes dependency to Boost
 
 ## 3.0.3 (2016-09-02)
 
