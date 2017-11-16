@@ -30,7 +30,7 @@ struct OptionGroupBasic
 	static constexpr const auto Name = "basic";
 
 	void addTo(cxxopts::Options &options);
-	void parse(cxxopts::Options &options);
+	void read(const cxxopts::ParseResult &parseResult);
 
 	bool help = false;
 	bool version = false;
@@ -44,7 +44,7 @@ struct OptionGroupOutput
 	static constexpr const auto Name = "output";
 
 	void addTo(cxxopts::Options &options);
-	void parse(cxxopts::Options &options);
+	void read(const cxxopts::ParseResult &parseResult);
 
 	colorlog::ColorStream::ColorPolicy colorPolicy = colorlog::ColorStream::ColorPolicy::Auto;
 	colorlog::Priority logPriority = colorlog::Priority::Info;
@@ -57,7 +57,7 @@ struct OptionGroupParser
 	static constexpr const auto Name = "parser";
 
 	void addTo(cxxopts::Options &options);
-	void parse(cxxopts::Options &options);
+	void read(const cxxopts::ParseResult &parseResult);
 
 	std::vector<std::string> inputFiles;
 	pddl::Mode parsingMode = pddl::Mode::Strict;

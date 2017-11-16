@@ -48,12 +48,12 @@ class Command
 
 		void parseOptions(int argc, char **argv)
 		{
-			m_options.parse(argc, argv);
+			const auto parseResult = m_options.parse(argc, argv);
 
 			forEach(m_optionGroups,
 				[&](auto &optionGroup)
 		        {
-					optionGroup.parse(m_options);
+					optionGroup.read(parseResult);
 				});
 		}
 

@@ -21,11 +21,11 @@ void OptionGroupBasic::addTo(cxxopts::Options &options)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void OptionGroupBasic::parse(cxxopts::Options &options)
+void OptionGroupBasic::read(const cxxopts::ParseResult &parseResult)
 {
-	help = options["help"].as<bool>();
-	version = options["version"].as<bool>();
-	warningsAsErrors = options["warnings-as-errors"].as<bool>();
+	help = (parseResult.count("help") > 0);
+	version = (parseResult.count("version") > 0);
+	warningsAsErrors = (parseResult.count("warnings-as-errors") > 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,9 +44,9 @@ void OptionGroupOutput::addTo(cxxopts::Options &options)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void OptionGroupOutput::parse(cxxopts::Options &options)
+void OptionGroupOutput::read(const cxxopts::ParseResult &parseResult)
 {
-	const auto colorPolicyString = options["color"].as<std::string>();
+	const auto colorPolicyString = parseResult["color"].as<std::string>();
 
 	if (colorPolicyString == "auto")
 		colorPolicy = colorlog::ColorStream::ColorPolicy::Auto;
@@ -57,7 +57,7 @@ void OptionGroupOutput::parse(cxxopts::Options &options)
 	else
 		throw OptionException("unknown color policy “" + colorPolicyString + "”");
 
-	const auto logPriorityString = options["log-priority"].as<std::string>();
+	const auto logPriorityString = parseResult["log-priority"].as<std::string>();
 
 	try
 	{
@@ -88,19 +88,19 @@ void OptionGroupParser::addTo(cxxopts::Options &options)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void OptionGroupParser::parse(cxxopts::Options &options)
+void OptionGroupParser::read(const cxxopts::ParseResult &parseResult)
 {
-	const auto parsingModeString = options["parsing-mode"].as<std::string>();
+	const auto parsingModeString = parseResult["parsing-mode"].as<std::string>();
 
 	if (parsingModeString == "compatibility")
 		parsingMode = pddl::Mode::Compatibility;
 	else if (parsingModeString != "strict")
 		throw OptionException("unknown parsing mode “" + parsingModeString + "”");
 
-	if (options.count("input"))
-		inputFiles = options["input"].as<std::vector<std::string>>();
+	if (parseResult.count("input"))
+		inputFiles = parseResult["input"].as<std::vector<std::string>>();
 
-	const auto languageName = options["language"].as<std::string>();
+	const auto languageName = parseResult["language"].as<std::string>();
 	language = plasp::Language::fromString(languageName);
 
 	if (language == plasp::Language::Type::Unknown)
