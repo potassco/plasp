@@ -14,9 +14,9 @@ constexpr decltype(OptionGroupBasic::Name) OptionGroupBasic::Name;
 void OptionGroupBasic::addTo(cxxopts::Options &options)
 {
 	options.add_options(Name)
-	("h,help", "Display this help message")
-	("v,version", "Display version information")
-	("warnings-as-errors", "Treat warnings as errors");
+		("h,help", "Display this help message")
+		("v,version", "Display version information")
+		("warnings-as-errors", "Treat warnings as errors");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
