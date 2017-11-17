@@ -72,6 +72,11 @@ To list all available options of a command, call `plasp <command> --help` or `pl
 `plasp` is built with CMake and a C++ compiler.
 See [building](doc/building.md) for more details.
 
+## PDDL Feature Support
+
+`plasp` supports a subset of PDDL 3.1.
+See [PDDL feature support](doc/pddl-feature-support.md) for a list of supported and unsupported PDDL 3.1 features.
+
 ## Contributors
 
 * [Patrick Lühne](https://www.luehne.de)
