@@ -48,7 +48,7 @@ caused(Variable, Value, T) :-
 modified(Variable, T) :- caused(Variable, Value, T).
 
 holds(Variable, Value, T) :- caused(Variable, Value, T).
-holds(Variable, Value, T) :- holds(Variable, Value, T - 1), not modified(Variable, T), time(T).
+holds(variable(V), Value, T) :- holds(variable(V), Value, T - 1), not modified(variable(V), T), time(T).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Variables and mutex groups
