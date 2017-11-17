@@ -25,4 +25,3 @@ goalAt(T) :-     holds(variable(Variable),T) : goal(variable(Variable), value(Va
 
 #show occurs/2.
 % #show holds/2.
-

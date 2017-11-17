@@ -22,7 +22,7 @@ stateVariable(Variable)     :- headVariable(_,Variable).
 
 % Apply effects
 caused(Variable, Value, t) :- occurs(Action, t), postcondition(Action, Effect, Variable, Value),
-		 	      holds(Variable', Value', t - 1) : precondition(Effect, Variable', Value').
+			      holds(Variable', Value', t - 1) : precondition(Effect, Variable', Value').
 changed(Variable, t) :- caused(Variable, Value, t).
 
 holds(Variable, Value, t) :- caused(Variable, Value, t).
@@ -38,7 +38,7 @@ holds(Variable, Value, t) :- holds(Variable, Value, t - 1), not changed(Variable
 
 % Apply axioms
 derived(Variable, Value, t) :- axiomRule(Rule), postcondition(Rule,_,Variable,Value),
-		  	       holds(Variable', Value', t) : precondition(Rule, Variable', Value'), not headVariable(Rule,Variable').
+			       holds(Variable', Value', t) : precondition(Rule, Variable', Value'), not headVariable(Rule,Variable').
 
 modified(Variable, t) :- derived(Variable, Value, t).
 

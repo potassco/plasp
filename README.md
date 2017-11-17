@@ -31,11 +31,11 @@ plasp translate output.sas
 
 ### Solving the Translated Instance
 
-The translated instance can finally be solved incrementally with `clingo` and a meta encoding, for instance, [`sequential-incremental.lp`](encodings/sequential-incremental.lp):
+The translated instance can finally be solved with `clingo` and a meta encoding, for instance, [`sequential-horizon.lp`](encodings/sequential-horizon.lp):
 
 ```sh
 plasp translate domain.pddl problem.pddl > instance.lp
-clingo encodings/sequential-incremental.lp instance.lp
+clingo encodings/sequential-horizon.lp -c horizon=10 instance.lp
 ```
 
 ### Translator Output Format
@@ -43,7 +43,7 @@ clingo encodings/sequential-incremental.lp instance.lp
 `plasp translate` provides a uniform output format for SAS and PDDL input problems.
 See [output format](doc/output-format.md) for more details.
 
-If you want to write your own meta encoding for `plasp translate`’s output, this [simple example encoding](encodings/sequential-incremental.lp) gets you started.
+If you want to write your own meta encoding for `plasp translate`’s output, this [simple example encoding](encodings/sequential-horizon.lp) gets you started.
 
 ## Provided Tools
 
