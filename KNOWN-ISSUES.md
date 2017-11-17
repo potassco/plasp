@@ -16,5 +16,5 @@
 
 ## Encodings
 
-- the [simple example encoding](encodings/sequential-horizon.lp) does not support layers of SAS axiom rules
+- the [simple example encoding](encodings/sequential-horizon.lp) does not SAS axiom rules
 - [multiple encodings](encodings/outdated) are outdated and need to be adapted to the output format introduced with `plasp` 3.1.0

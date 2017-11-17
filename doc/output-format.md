@@ -15,33 +15,63 @@ Actions are modeled exactly as PDDL actions and SAS operators.
 
 ## In a Nutshell
 
-The following illustrates `plasp`’s output format for the problem of turning switches on and off.
+Consider the following, simplistic PDDL problem of turning a switch on:
+
+```lisp
+; simplistic example of turning a switch on
+(define (domain switch)
+	(:requirements :typing)
+	(:types switch)
+	(:predicates
+		(on ?x - switch))
+	(:action turn-on
+		:parameters
+			(?x - switch)
+		:precondition
+			(not (on ?x))
+		:effect
+			(on ?x)))
+
+; example problem with one switch
+(define (problem switch-problem)
+	(:domain switch)
+	(:objects a - switch)
+	(:init
+		(not (on a)))
+	(:goal
+		(on a)))
+```
+
+This is translated by `plasp translate` into the following output format (slightly restructured for clarity):
 
 ```prolog
-% declares the type "type(switch)"
-type(type(switch)).
+% declares the type “type("switch")”
+type(type("switch")).
 
-% introduces a switch "constant(a)"
-constant(constant(a)).
-has(constant(a), type(switch)).
+% introduces a switch “constant("a")”
+constant(constant("a")).
+has(constant("a"), type("switch")).
 
-% declares a variable "variable(on(X))" for switches X
-variable(variable(on(X))) :- has(X, type(switch)).
+% declares a variable “variable(on(X))” for switches X
+variable(variable(("on", X))) :- has(X, type("switch")).
 
-% the variable may be true or false
-contains(variable(on(X)), value(on(X)), true)) :- has(X, type(switch)).
-contains(variable(on(X)), value(on(X)), false)) :- has(X, type(switch)).
+% variables may have the values true and false
+boolean(true).
+boolean(false).
+contains(X, value(X, B)) :- variable(X), boolean(B).
 
-% declares the action "action(turnOn(X))", which requires switch X to be off and then turns it on
-action(action(turnOn(X))) :- has(X, type(switch)).
-precondition(action(turnOn(X)), variable(on(X)), value(on(X), false)) :- has(X, type(switch)).
-postcondition(action(turnOn(X)), effect(0), variable(on(X)), value(on(X), true)) :- has(X, type(switch)).
+% declares the action “action(turnOn(X))”, which requires switch X to be off and then turns it on
+action(action(("turn-on", X))) :- has(X, type("switch")).
+precondition(action(("turn-on", X)), variable(("on", X)), value(variable(("on", X)), false))
+    :- action(action(("turn-on", X))).
+postcondition(action(("turn-on", X)), effect(unconditional), variable(("on", X)), value(variable(("on", X)), true))
+    :- action(action(("turn-on", X))).
 
 % initially, the switch is off
-initialState(variable(on(constant(a))), value(on(constant(a)), false)).
+initialState(variable(("on", constant("a"))), value(variable(("on", constant("a"))), false)).
 
 % in the end, the switch should be on
-goal(variable(on(constant(a))), value(on(constant(a)), true)).
+goal(variable(("on", constant("a"))), value(variable(("on", constant("a"))), true)).
 ```
 
 ## Syntax and Semantics
@@ -55,7 +85,7 @@ goal(variable(on(constant(a))), value(on(constant(a)), true)).
 requires(feature(<name>)).
 ```
 
-`plasp` recognizes and declares advanced features used by the input problem, such as conditional effects, [mutex groups](#mutex-groups) and [axiom rules](#axiom-rules) (currently only SAS).
+`plasp` recognizes and declares advanced features used by the input problem, such as [conditional effects](#actions), [mutex groups](#mutex-groups) and [axiom rules](#axiom-rules) (currently only SAS).
 See the [full list of supported features](feature-requirements.md) for more information.
 
 The feature requirement predicates may be used in meta encodings to warn about unsupported features.
@@ -67,10 +97,10 @@ The feature requirement predicates may be used in meta encodings to warn about u
 type(type(<name>)).
 
 % specifies that <type 1> inherits <type 2>
-inherits(type(<type 1>), type(<type 2>)).
+inherits(<type 1>, <type 2>).
 
-% specifies <constant> to have type type(<name>)
-has(<constant>, type(<name>)).
+% specifies <constant> to have type <type>
+has(<constant>, <type>).
 ```
 
 [Variables](#variables), [constants](#constants-objects), and [objects](#constants-objects) may be typed. Types are only available with PDDL and if typing is enabled.
@@ -96,9 +126,27 @@ With SAS, variable names are numbers starting at 0, `variable(<number>)`.
 SAS variables are inherently multivalued, which results in two or more values of the form `value(<SAS predicate>, <SAS value>)` for each variable.
 
 With PDDL, Boolean variables are created from the PDDL predicates.
-Variables are named after the PDDL predicates, `variable(<PDDL predicate>).`
-Each variable contains exactly two values (one `true`, one `false`) of the form `value(<PDDL predicate>, <bool>)`.
-Note that with PDDL, variables and values are named identically.
+Variables are named after the PDDL predicate signatures, `variable(<PDDL predicate>).`
+Each variable contains exactly two values (one `true`, one `false`) of the form `value(<variable>, <bool>)`.
+Note that with PDDL, values contain the corresponding variables as the first argument to make the format consistent with the multi-valued variables obtained with SAS input.
+
+### Derived Variables
+
+```prolog
+% declares a <derived variable>
+derivedVariable(derivedVariable(<name>)).
+
+% adds a <value> to the domain of a <derived variable>
+contains(<derived variable>, <value>).
+```
+
+Derived variables are introduced whenever the translator needs to use [derived predicates](#derived-predicates).
+When the preconditions of a [derived predicate](#derived-predicates) are met, the corresponding derived variable (named after the derived predicate) is set as an effect.
+
+Derived variables are analogously defined to common variables and may also be referenced in preconditions, conditions of conditional effects, and goal descriptions, just as variables.
+
+In contrast to common variables, derived variables *are not subject to inertia rules.*
+In other words, derived variables are computed for each time step separately, and reset when going to the next time step (their values don’t automatically carry over to the next time step).
 
 ### Actions
 
@@ -106,20 +154,22 @@ Note that with PDDL, variables and values are named identically.
 % declares an <action>
 action(action(<name>)).
 
-% defines that as a precondition to <action>, <variable> must have value <value>
+% defines that as a precondition to <action>, <variable> and <derived variable> must have value <value>
 precondition(<action>, <variable>, <value>).
+precondition(<action>, <derived variable>, <value>).
 
 % defines that after applying <action>, <variable> is assigned <value>
 postcondition(<action>, effect(<number>), <variable>, <value>).
 
 % defines the condition of a conditional effect
 precondition(effect(<number>), <variable>, <value>).
+precondition(effect(<number>), <derived variable>, <value>).
 
 % specifies the costs of applying <action>
 costs(<action>, <number>).
 ```
 
-Actions may require certain variables to have specific values in order to be executed.
+Actions may require certain [variables](#variables) (or [derived variables](#derived-variables)) to have specific values in order to be executed.
 After applying an action, variables get new values according to the action's postconditions.
 
 Actions may have *conditional effects*, that is, certain postconditions are only applied if additional conditions are satisfied.
@@ -131,6 +181,36 @@ Unconditional effects are identified with `effect(unconditional)`.
 Conditional effects are currently only supported with SAS input problems.
 
 Actions may also have *action costs* required to apply them. Action costs are currently supported for SAS only.
+
+### Derived Predicates
+
+```prolog
+% declares a <derived predicate> of with conjunctive (type(and)) or disjunctive (type(or)) preconditions
+derivedPredicate(derivedPredicate(<name>), type(<and/or>)).
+
+% defines that as a precondition to <derived predicate>, <variable> and <derived variable> must have value <value>
+precondition(<derived predicate>, type(<and/or>), <variable>, <value>).
+precondition(<derived predicate>, type(<and/or>), <derived variable>, <value>).
+
+% defines that after applying <action>, <derived variable> is assigned <value>
+postcondition(<derived predicate>, type(<and/or>), effect(<number>), <derived variable>, <value>).
+
+% defines the condition of a conditional effect
+precondition(effect(<number>), <variable>, <value>).
+precondition(effect(<number>), <derived variable>, <value>).
+
+% specifies the costs of applying <action>
+costs(<action>, <number>).
+```
+
+Derived predicates are introduced by the translator when there are nested expressions or disjunctions in action preconditions, conditions of conditional effects, or goal descriptions.
+Derived predicates operate on [derived variables](#derived-variables) of the same name.
+
+Like actions, derived predicates must satisfy preconditions in order for their effect to be applicable.
+The effect of all derived predicates is to set the corresponding [derived variables](#derived-variables) to `true` or `false`.
+
+In contrast to actions, however, derived predicates specify whether their preconditions are to be interpreted as a *conjunction* (`type(and)`) or as a *disjunction* (`type(or)`).
+Encoding authors need to ensure that derived predicate preconditions are interpreted in the correct way.
 
 ### Constants/Objects
 
@@ -161,11 +241,12 @@ Note that with PDDL, `plasp` sets all unspecified initial state variables to `fa
 ### Goal
 
 ```prolog
-% specifies that <variable> shall obtain <value> in the end
+% specifies that <variable> and <derived variable> shall obtain a respective <value> in the end
 goal(<variable>, <value>).
+goal(<derived variable>, <value>).
 ```
 
-The goal specifies all variable assignments that have to be fulfilled after executing the plan.
+The goal specifies all assignments of [variables](#variables) and [derived variables](#derived-variables) that have to be fulfilled after executing the action sequence.
 
 ### Mutex Groups
 
