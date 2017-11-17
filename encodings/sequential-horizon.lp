@@ -45,7 +45,7 @@ caused(Variable, Value, T) :-
 % Inertia rules
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-modified(variable(V), T) :- caused(variable(V), Value, T).
+modified(Variable, T) :- caused(Variable, Value, T).
 
 holds(Variable, Value, T) :- caused(Variable, Value, T).
 holds(Variable, Value, T) :- holds(Variable, Value, T - 1), not modified(Variable, T), time(T).
