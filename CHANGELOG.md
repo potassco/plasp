@@ -2,6 +2,10 @@
 
 ## (unreleased)
 
+### Bug Fixes
+
+* fixes ASP syntax issues caused by hyphens in variable names by replacing all user-defined variables with `X1`, `X2`, etc.
+
 ## 3.1.0 (2017-11-17)
 
 ### Changes
