@@ -24,6 +24,8 @@ namespace pddl
 
 inline void translateGoal(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::Goal &goal)
 {
+	VariableIDMap variableIDs;
+
 	const auto ensureNoVariables =
 		[](const auto &predicate)
 		{
@@ -38,7 +40,7 @@ inline void translateGoal(colorlog::ColorStream &outputStream, const ::pddl::nor
 			ensureNoVariables(predicate);
 
 			outputStream << std::endl << colorlog::Function("goal") << "(";
-			translatePredicateToVariable(outputStream, *predicate, isPositive);
+			translatePredicateToVariable(outputStream, *predicate, variableIDs, isPositive);
 			outputStream << ").";
 		};
 
@@ -54,7 +56,7 @@ inline void translateGoal(colorlog::ColorStream &outputStream, const ::pddl::nor
 			ensureNoVariables(derivedPredicate);
 
 			outputStream << std::endl << colorlog::Function("goal") << "(";
-			translateDerivedPredicateToVariable(outputStream, *derivedPredicate, isPositive);
+			translateDerivedPredicateToVariable(outputStream, *derivedPredicate, variableIDs, isPositive);
 			outputStream << ").";
 		};
 

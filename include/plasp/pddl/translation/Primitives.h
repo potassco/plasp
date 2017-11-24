@@ -54,31 +54,6 @@ inline colorlog::ColorStream &operator<<(colorlog::ColorStream &stream, const ::
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline colorlog::ColorStream &operator<<(colorlog::ColorStream &stream, ::pddl::normalizedAST::VariableDeclaration &variableDeclaration)
-{
-	assert(!variableDeclaration.name.empty());
-	assert(std::isalpha(variableDeclaration.name[0]));
-
-	if (!std::isupper(variableDeclaration.name[0]))
-		variableDeclaration.name[0] = std::toupper(variableDeclaration.name[0]);
-
-	return (stream
-		<< colorlog::Format({colorlog::Color::Green, colorlog::FontWeight::Bold})
-		<< variableDeclaration.name
-		<< colorlog::ResetFormat());
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-inline colorlog::ColorStream &operator<<(colorlog::ColorStream &stream, ::pddl::normalizedAST::Variable &variable)
-{
-	assert(variable.declaration != nullptr);
-
-	return (stream << *variable.declaration);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 // TODO: move to appropriate header
 inline colorlog::ColorStream &operator<<(colorlog::ColorStream &stream, const ::pddl::normalizedAST::Action &action)
 {

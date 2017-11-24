@@ -23,7 +23,9 @@ namespace pddl
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename PrintObjectName>
-inline void translateDerivedPredicatePrecondition(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::DerivedPredicatePrecondition &derivedPredicatePrecondition, const std::string &objectType, PrintObjectName printObjectName)
+inline void translateDerivedPredicatePrecondition(colorlog::ColorStream &outputStream,
+	const ::pddl::normalizedAST::DerivedPredicatePrecondition &derivedPredicatePrecondition,
+	const std::string &objectType, PrintObjectName printObjectName, VariableIDMap &variableIDs)
 {
 	const auto handlePredicate =
 		[&](const ::pddl::normalizedAST::PredicatePointer &predicate, bool isPositive = true)
@@ -31,7 +33,7 @@ inline void translateDerivedPredicatePrecondition(colorlog::ColorStream &outputS
 			outputStream << std::endl << colorlog::Function("precondition") << "(";
 			printObjectName();
 			outputStream << ", ";
-			translatePredicateToVariable(outputStream, *predicate, isPositive);
+			translatePredicateToVariable(outputStream, *predicate, variableIDs, isPositive);
 			outputStream << ") :- " << colorlog::Function(objectType.c_str()) << "(";
 			printObjectName();
 			outputStream << ").";
@@ -49,7 +51,7 @@ inline void translateDerivedPredicatePrecondition(colorlog::ColorStream &outputS
 			outputStream << std::endl << colorlog::Function("precondition") << "(";
 			printObjectName();
 			outputStream << ", ";
-			translateDerivedPredicateToVariable(outputStream, *derivedPredicate, isPositive);
+			translateDerivedPredicateToVariable(outputStream, *derivedPredicate, variableIDs, isPositive);
 			outputStream << ") :- " << colorlog::Function(objectType.c_str()) << "(";
 			printObjectName();
 			outputStream << ").";

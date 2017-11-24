@@ -25,7 +25,7 @@ namespace pddl
 template<typename PrintObjectName, typename PrintRuleBody>
 inline void translatePrecondition(colorlog::ColorStream &outputStream,
 	const ::pddl::normalizedAST::Precondition &precondition, PrintObjectName printObjectName,
-	PrintRuleBody printRuleBody)
+	PrintRuleBody printRuleBody, VariableIDMap &variableIDs)
 {
 	const auto handlePredicate =
 		[&](const ::pddl::normalizedAST::PredicatePointer &predicate, bool isPositive = true)
@@ -33,7 +33,7 @@ inline void translatePrecondition(colorlog::ColorStream &outputStream,
 			outputStream << std::endl << colorlog::Function("precondition") << "(";
 			printObjectName();
 			outputStream << ", ";
-			translatePredicateToVariable(outputStream, *predicate, isPositive);
+			translatePredicateToVariable(outputStream, *predicate, variableIDs, isPositive);
 			outputStream << ")";
 			printRuleBody();
 			outputStream << ".";
@@ -51,7 +51,7 @@ inline void translatePrecondition(colorlog::ColorStream &outputStream,
 			outputStream << std::endl << colorlog::Function("precondition") << "(";
 			printObjectName();
 			outputStream << ", ";
-			translateDerivedPredicateToVariable(outputStream, *derivedPredicate, isPositive);
+			translateDerivedPredicateToVariable(outputStream, *derivedPredicate, variableIDs, isPositive);
 			outputStream << ")";
 			printRuleBody();
 			outputStream << ".";

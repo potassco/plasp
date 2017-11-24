@@ -22,10 +22,12 @@ inline void translateFact(colorlog::ColorStream &outputStream, const ::pddl::nor
 {
 	outputStream << std::endl << colorlog::Function("initialState") << "(";
 
+	VariableIDMap variableIDs;
+
 	const auto handlePredicate =
 		[&](const ::pddl::normalizedAST::PredicatePointer &predicate, bool isPositive = true)
 		{
-			translatePredicateToVariable(outputStream, *predicate, isPositive);
+			translatePredicateToVariable(outputStream, *predicate, variableIDs, isPositive);
 		};
 
 	const auto handleNegatedPredicate =

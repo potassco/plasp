@@ -168,16 +168,21 @@ void TranslatorASP::translatePredicates() const
 
 	for (const auto &predicate : predicates)
 	{
+		VariableIDMap variableIDs;
+
 		m_outputStream << std::endl << colorlog::Function("variable") << "(";
 
-		translatePredicateDeclaration(m_outputStream, *predicate);
+		translatePredicateDeclaration(m_outputStream, *predicate, variableIDs);
 
 		m_outputStream << ")";
 
 		if (!predicate->parameters.empty())
 		{
 			m_outputStream << " :- ";
-			translateVariablesForRuleBody(m_outputStream, predicate->parameters);
+
+			VariableIDMap variableIDs;
+
+			translateVariablesForRuleBody(m_outputStream, predicate->parameters, variableIDs);
 		}
 
 		m_outputStream << ".";
@@ -201,16 +206,18 @@ void TranslatorASP::translateDerivedPredicates(const ::pddl::normalizedAST::Deri
 
 	for (const auto &derivedPredicate : derivedPredicates)
 	{
+		VariableIDMap variableIDs;
+
 		m_outputStream << std::endl << colorlog::Function("derivedVariable") << "(";
 
-		translateDerivedPredicateDeclaration(m_outputStream, *derivedPredicate);
+		translateDerivedPredicateDeclaration(m_outputStream, *derivedPredicate, variableIDs);
 
 		m_outputStream << ")";
 
 		if (!derivedPredicate->parameters.empty())
 			m_outputStream << " :- ";
 
-		translateVariablesForRuleBody(m_outputStream, derivedPredicate->parameters);
+		translateVariablesForRuleBody(m_outputStream, derivedPredicate->parameters, variableIDs);
 
 		m_outputStream << ".";
 	}
@@ -226,6 +233,8 @@ void TranslatorASP::translateDerivedPredicates(const ::pddl::normalizedAST::Deri
 
 	for (const auto &derivedPredicate : derivedPredicates)
 	{
+		VariableIDMap variableIDs;
+
 		const auto printDerivedPredicateName =
 			[&]()
 			{
@@ -239,8 +248,8 @@ void TranslatorASP::translateDerivedPredicates(const ::pddl::normalizedAST::Deri
 
 				m_outputStream << "(" << *derivedPredicate;
 
-				translateVariablesForRuleHead(m_outputStream, derivedPredicate->parameters);
-				translateVariablesForRuleHead(m_outputStream, derivedPredicate->existentialParameters);
+				translateVariablesForRuleHead(m_outputStream, derivedPredicate->parameters, variableIDs);
+				translateVariablesForRuleHead(m_outputStream, derivedPredicate->existentialParameters, variableIDs);
 
 				m_outputStream << ")), " << colorlog::Keyword("type") << "(";
 
@@ -262,18 +271,18 @@ void TranslatorASP::translateDerivedPredicates(const ::pddl::normalizedAST::Deri
 		if (!derivedPredicate->parameters.empty() || !derivedPredicate->existentialParameters.empty())
 			m_outputStream << " :- ";
 
-		translateVariablesForRuleBody(m_outputStream, derivedPredicate->parameters);
+		translateVariablesForRuleBody(m_outputStream, derivedPredicate->parameters, variableIDs);
 
 		if (!derivedPredicate->existentialParameters.empty() && !derivedPredicate->parameters.empty())
 			m_outputStream << ", ";
 
-		translateVariablesForRuleBody(m_outputStream, derivedPredicate->existentialParameters);
+		translateVariablesForRuleBody(m_outputStream, derivedPredicate->existentialParameters, variableIDs);
 
 		m_outputStream << ".";
 
 		// Precondition
 		if (derivedPredicate->precondition)
-			translateDerivedPredicatePrecondition(m_outputStream, derivedPredicate->precondition.value(), "derivedPredicate", printDerivedPredicateName);
+			translateDerivedPredicatePrecondition(m_outputStream, derivedPredicate->precondition.value(), "derivedPredicate", printDerivedPredicateName, variableIDs);
 
 		m_outputStream << std::endl << colorlog::Function("postcondition") << "(";
 		printDerivedPredicateName();
@@ -281,7 +290,7 @@ void TranslatorASP::translateDerivedPredicates(const ::pddl::normalizedAST::Deri
 			<< ", " << colorlog::Keyword("effect") << "("
 			<< colorlog::Reserved("unconditional") << ")"
 			<< ", ";
-		translateDerivedPredicateDeclarationToVariable(m_outputStream, *derivedPredicate, true);
+		translateDerivedPredicateDeclarationToVariable(m_outputStream, *derivedPredicate, variableIDs, true);
 		m_outputStream << ") :- " << colorlog::Function("derivedPredicate") << "(";
 		printDerivedPredicateName();
 		m_outputStream << ").";
@@ -302,6 +311,8 @@ void TranslatorASP::translateActions() const
 
 	for (const auto &action : actions)
 	{
+		VariableIDMap variableIDs;
+
 		const auto printActionName =
 			[&]()
 			{
@@ -314,7 +325,7 @@ void TranslatorASP::translateActions() const
 				}
 
 				m_outputStream << "(" << *action;
-				translateVariablesForRuleHead(m_outputStream, action->parameters);
+				translateVariablesForRuleHead(m_outputStream, action->parameters, variableIDs);
 				m_outputStream << "))";
 			};
 
@@ -336,7 +347,7 @@ void TranslatorASP::translateActions() const
 		if (!action->parameters.empty())
 		{
 			m_outputStream << " :- ";
-			translateVariablesForRuleBody(m_outputStream, action->parameters);
+			translateVariablesForRuleBody(m_outputStream, action->parameters, variableIDs);
 		}
 
 		m_outputStream << ".";
@@ -344,12 +355,12 @@ void TranslatorASP::translateActions() const
 		// Precondition
 		if (action->precondition)
 			translatePrecondition(m_outputStream, action->precondition.value(), printActionName,
-				printPreconditionRuleBody);
+				printPreconditionRuleBody, variableIDs);
 
 		// Effect
 		if (action->effect)
 			translateEffect(m_outputStream, action->effect.value(), printActionName,
-				numberOfConditionalEffects);
+				numberOfConditionalEffects, variableIDs);
 
 		m_outputStream << std::endl;
 	}

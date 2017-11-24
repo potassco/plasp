@@ -7,6 +7,7 @@
 #include <pddl/Parse.h>
 
 #include <plasp/TranslatorException.h>
+#include <plasp/pddl/translation/Variable.h>
 
 namespace plasp
 {
@@ -20,23 +21,26 @@ namespace pddl
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-void translateVariablesForRuleHead(colorlog::ColorStream &outputStream, const T &variables);
+void translateVariablesForRuleHead(colorlog::ColorStream &outputStream, const T &variables, VariableIDMap &variableIDs);
 template<class T>
-void translateVariablesForRuleBody(colorlog::ColorStream &outputStream, const T &variables);
+void translateVariablesForRuleBody(colorlog::ColorStream &outputStream, const T &variables, VariableIDMap &variableIDs);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-inline void translateVariablesForRuleHead(colorlog::ColorStream &outputStream, const T &variables)
+inline void translateVariablesForRuleHead(colorlog::ColorStream &outputStream, const T &variables, VariableIDMap &variableIDs)
 {
 	for (const auto &variable : variables)
-		outputStream << ", " << *variable;
+	{
+		outputStream << ", ";
+		translateVariableDeclaration(outputStream, *variable, variableIDs);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-void translateVariablesForRuleBody(colorlog::ColorStream &outputStream, const T &variables)
+void translateVariablesForRuleBody(colorlog::ColorStream &outputStream, const T &variables, VariableIDMap &variableIDs)
 {
 	for (const auto &variable : variables)
 	{
@@ -50,14 +54,15 @@ void translateVariablesForRuleBody(colorlog::ColorStream &outputStream, const T 
 
 			const auto &type = variable->type.value().template get<::pddl::normalizedAST::PrimitiveTypePointer>();
 
-			outputStream << colorlog::Function("has") << "("
-				<< *variable << ", " << colorlog::Keyword("type") << "(" << *type << "))";
+			outputStream << colorlog::Function("has") << "(";
+			translateVariableDeclaration(outputStream, *variable, variableIDs);
+			outputStream << ", " << colorlog::Keyword("type") << "(" << *type << "))";
 		}
 		else
 		{
-			outputStream << colorlog::Function("has") << "("
-				<< *variable << ", "
-				<< colorlog::Keyword("type") << "(" << colorlog::String("object") << "))";
+			outputStream << colorlog::Function("has") << "(";
+			translateVariableDeclaration(outputStream, *variable, variableIDs);
+			outputStream << ", " << colorlog::Keyword("type") << "(" << colorlog::String("object") << "))";
 		}
 	}
 }

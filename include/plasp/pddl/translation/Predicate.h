@@ -20,12 +20,12 @@ namespace pddl
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void translatePredicate(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::Predicate &predicate);
-void translatePredicateDeclaration(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::PredicateDeclaration &predicateDeclaration);
+void translatePredicate(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::Predicate &predicate, VariableIDMap &variableIDs);
+void translatePredicateDeclaration(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::PredicateDeclaration &predicateDeclaration, VariableIDMap &variableIDs);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline void translatePredicate(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::Predicate &predicate)
+inline void translatePredicate(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::Predicate &predicate, VariableIDMap &variableIDs)
 {
 	const auto &arguments = predicate.arguments;
 
@@ -50,7 +50,7 @@ inline void translatePredicate(colorlog::ColorStream &outputStream, const ::pddl
 		const auto handleVariable =
 			[&](const ::pddl::normalizedAST::VariablePointer &variable)
 			{
-				outputStream << *variable;
+				translateVariable(outputStream, *variable, variableIDs);
 			};
 
 		argument.match(handleConstant, handleVariable);
@@ -61,7 +61,7 @@ inline void translatePredicate(colorlog::ColorStream &outputStream, const ::pddl
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline void translatePredicateDeclaration(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::PredicateDeclaration &predicateDeclaration)
+inline void translatePredicateDeclaration(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::PredicateDeclaration &predicateDeclaration, VariableIDMap &variableIDs)
 {
 	outputStream << colorlog::Keyword("variable") << "(";
 
@@ -72,24 +72,24 @@ inline void translatePredicateDeclaration(colorlog::ColorStream &outputStream, c
 	}
 
 	outputStream << "(" << predicateDeclaration;
-	translateVariablesForRuleHead(outputStream, predicateDeclaration.parameters);
+	translateVariablesForRuleHead(outputStream, predicateDeclaration.parameters, variableIDs);
 	outputStream << "))";
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void translatePredicateToVariable(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::Predicate &predicate, bool isPositive = true)
+void translatePredicateToVariable(colorlog::ColorStream &outputStream, const ::pddl::normalizedAST::Predicate &predicate, VariableIDMap &variableIDs, bool isPositive = true)
 {
 	outputStream << colorlog::Keyword("variable") << "(";
 
-	translatePredicate(outputStream, predicate);
+	translatePredicate(outputStream, predicate, variableIDs);
 
 	outputStream
 		<< "), "
 		<< colorlog::Keyword("value") << "("
 		<< colorlog::Keyword("variable") << "(";
 
-	translatePredicate(outputStream, predicate);
+	translatePredicate(outputStream, predicate, variableIDs);
 
 	outputStream << "), ";
 

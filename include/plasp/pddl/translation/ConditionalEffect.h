@@ -27,7 +27,7 @@ template<typename PrintObjectName>
 inline void translateConditionalEffect(colorlog::ColorStream &outputStream,
 	const ::pddl::normalizedAST::ConditionalEffect &conditionalEffect,
 	PrintObjectName printObjectName, VariableStack &variableStack,
-	size_t &numberOfConditionalEffects)
+	size_t &numberOfConditionalEffects, VariableIDMap &variableIDs)
 {
 	const auto handlePredicate =
 		[&](const ::pddl::normalizedAST::PredicatePointer &predicate, bool isPositive = true)
@@ -38,7 +38,7 @@ inline void translateConditionalEffect(colorlog::ColorStream &outputStream,
 				<< ", " << colorlog::Keyword("effect") << "("
 				<< colorlog::Number<size_t>(numberOfConditionalEffects) << ")"
 				<< ", ";
-			translatePredicateToVariable(outputStream, *predicate, isPositive);
+			translatePredicateToVariable(outputStream, *predicate, variableIDs, isPositive);
 			outputStream << ") :- " << colorlog::Function("action") << "(";
 			printObjectName();
 			outputStream << ")";
@@ -49,7 +49,7 @@ inline void translateConditionalEffect(colorlog::ColorStream &outputStream,
 					if (!layer->empty())
 						outputStream << ", ";
 
-					translateVariablesForRuleBody(outputStream, *layer);
+					translateVariablesForRuleBody(outputStream, *layer, variableIDs);
 				}
 
 			outputStream << ".";

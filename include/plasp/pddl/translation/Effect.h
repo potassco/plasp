@@ -28,7 +28,7 @@ namespace pddl
 template<typename PrintObjectName>
 inline void translateEffect(colorlog::ColorStream &outputStream,
 	const ::pddl::normalizedAST::Effect &effect, PrintObjectName printObjectName,
-	VariableStack &variableStack, size_t &numberOfConditionalEffects)
+	VariableStack &variableStack, size_t &numberOfConditionalEffects, VariableIDMap &variableIDs)
 {
 	const auto handlePredicate =
 		[&](const ::pddl::normalizedAST::PredicatePointer &predicate, bool isPositive = true)
@@ -39,7 +39,7 @@ inline void translateEffect(colorlog::ColorStream &outputStream,
 				<< ", " << colorlog::Keyword("effect") << "("
 				<< colorlog::Reserved("unconditional") << ")"
 				<< ", ";
-			translatePredicateToVariable(outputStream, *predicate, isPositive);
+			translatePredicateToVariable(outputStream, *predicate, variableIDs, isPositive);
 			outputStream << ") :- " << colorlog::Function("action") << "(";
 			printObjectName();
 			outputStream << ")";
@@ -50,7 +50,7 @@ inline void translateEffect(colorlog::ColorStream &outputStream,
 					if (!layer->empty())
 						outputStream << ", ";
 
-					translateVariablesForRuleBody(outputStream, *layer);
+					translateVariablesForRuleBody(outputStream, *layer, variableIDs);
 				}
 
 			outputStream << ".";
@@ -98,7 +98,7 @@ inline void translateEffect(colorlog::ColorStream &outputStream,
 		{
 			for (const auto &argument : and_->arguments)
 				translateEffect(outputStream, argument, printObjectName, variableStack,
-					numberOfConditionalEffects);
+					numberOfConditionalEffects, variableIDs);
 		};
 
 	const auto handleForAll =
@@ -107,7 +107,7 @@ inline void translateEffect(colorlog::ColorStream &outputStream,
 			variableStack.push(&forAll->parameters);
 
 			translateEffect(outputStream, forAll->argument, printObjectName,
-				variableStack, numberOfConditionalEffects);
+				variableStack, numberOfConditionalEffects, variableIDs);
 
 			variableStack.pop();
 		};
@@ -137,15 +137,15 @@ inline void translateEffect(colorlog::ColorStream &outputStream,
 						if (!layer->empty())
 							outputStream << ", ";
 
-						translateVariablesForRuleBody(outputStream, *layer);
+						translateVariablesForRuleBody(outputStream, *layer, variableIDs);
 					}
 				};
 
 			translatePrecondition(outputStream, when->argumentLeft,
-				printConditionalEffectIdentifier, printPreconditionRuleBody);
+				printConditionalEffectIdentifier, printPreconditionRuleBody, variableIDs);
 
 			translateConditionalEffect(outputStream, when->argumentRight, printObjectName,
-				variableStack, numberOfConditionalEffects);
+				variableStack, numberOfConditionalEffects, variableIDs);
 		};
 
 	effect.match(handleAnd, handleForAll, handleLiteral, handleWhen);
@@ -156,12 +156,12 @@ inline void translateEffect(colorlog::ColorStream &outputStream,
 template<typename PrintObjectName>
 inline void translateEffect(colorlog::ColorStream &outputStream,
 	const ::pddl::normalizedAST::Effect &effect, PrintObjectName printObjectName,
-	size_t &numberOfConditionalEffects)
+	size_t &numberOfConditionalEffects, VariableIDMap &variableIDs)
 {
 	VariableStack variableStack;
 
 	translateEffect(outputStream, effect, printObjectName, variableStack,
-		numberOfConditionalEffects);
+		numberOfConditionalEffects, variableIDs);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
