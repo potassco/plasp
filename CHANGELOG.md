@@ -1,6 +1,6 @@
 # Changelog
 
-## (unreleased)
+## 3.1.1 (2017-11-25)
 
 ### Bug Fixes
 
