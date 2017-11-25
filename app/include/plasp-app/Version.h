@@ -9,6 +9,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-static constexpr const auto Version = "plasp version 3.1.1";
+static constexpr const auto Version = "plasp version 3.1.1-git";
 
 #endif
