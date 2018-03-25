@@ -41,7 +41,7 @@ class Command
 		{
 			forEach(m_optionGroups,
 				[&](auto &optionGroup)
-		        {
+				{
 					optionGroup.addTo(m_options);
 				});
 		}
@@ -52,7 +52,7 @@ class Command
 
 			forEach(m_optionGroups,
 				[&](auto &optionGroup)
-		        {
+				{
 					optionGroup.read(parseResult);
 				});
 		}
