@@ -1,4 +1,4 @@
-#include <catch.hpp>
+#include <catch2/catch.hpp>
 
 #include <tokenize/Tokenizer.h>
 #include <tokenize/TokenizerException.h>
