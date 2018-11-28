@@ -360,7 +360,7 @@ TEST_CASE("[normalization] Nested expressions are correctly flattened via derive
 		const auto &a3121 = a312->declaration->precondition.value().get<pddl::normalizedAST::AndPointer<pddl::normalizedAST::Literal>>();
 		REQUIRE(a3121->arguments.size() == 2);
 		const auto &a31211 = a3121->arguments[0].get<pddl::normalizedAST::AtomicFormula>().get<pddl::normalizedAST::PredicatePointer>();
-		CHECK(a31111->declaration->name == "p4");
+		CHECK(a31211->declaration->name == "p7");
 		const auto &a31212 = a3121->arguments[1].get<pddl::normalizedAST::NotPointer<pddl::normalizedAST::AtomicFormula>>()->argument.get<pddl::normalizedAST::DerivedPredicatePointer>();
 		REQUIRE(a31212->declaration->parameters.size() == 1);
 		REQUIRE(a31212->declaration->existentialParameters.size() == 2);
