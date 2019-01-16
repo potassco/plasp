@@ -39,7 +39,7 @@ enum class Color
 
 enum class FontWeight
 {
-	Normal = 21,
+	Normal = 22,
 	Bold = 1
 };
 
