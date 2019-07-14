@@ -1,0 +1,10 @@
+FROM ubuntu:18.04
+
+ARG toolchain
+
+RUN apt-get update
+RUN apt-get install -y bison cmake git ninja-build re2c
+RUN if [ "${toolchain}" = "gcc" ]; then apt-get install -y g++; fi
+RUN if [ "${toolchain}" = "clang" ]; then apt-get install -y clang; fi
+
+VOLUME /app
