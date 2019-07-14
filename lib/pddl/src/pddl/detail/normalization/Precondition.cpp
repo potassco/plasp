@@ -83,8 +83,7 @@ normalizedAST::Literal normalizeNested(ast::AndPointer<ast::Precondition> &and_,
 
 	derivedPredicate->declaration->precondition = std::make_unique<normalizedAST::And<normalizedAST::Literal>>(std::move(normalizedArguments));
 
-	// TODO: investigate, could be a compiler bug
-	return std::move(derivedPredicate);
+	return derivedPredicate;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -112,8 +111,7 @@ normalizedAST::Literal normalizeNested(ast::ExistsPointer<ast::Precondition> &ex
 			return normalizeTopLevel(x, normalizationContext);
 		});
 
-	// TODO: investigate, could be a compiler bug
-	return std::move(derivedPredicate);
+	return derivedPredicate;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -174,8 +172,7 @@ normalizedAST::Literal normalizeNested(ast::OrPointer<ast::Precondition> &or_, d
 
 	derivedPredicate->declaration->precondition = std::make_unique<normalizedAST::Or<normalizedAST::Literal>>(std::move(normalizedArguments));
 
-	// TODO: investigate, could be a compiler bug
-	return std::move(derivedPredicate);
+	return derivedPredicate;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
