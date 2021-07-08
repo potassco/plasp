@@ -3,10 +3,10 @@ set(target pddl-tests)
 file(GLOB core_sources "*.cpp")
 
 set(includes
-	${PROJECT_SOURCE_DIR}/include
-	${PROJECT_SOURCE_DIR}/../../lib/catch/single_include
-	${PROJECT_SOURCE_DIR}/../../lib/tokenize/include
-	${PROJECT_SOURCE_DIR}/../../lib/variant/include
+	../include
+	${PROJECT_SOURCE_DIR}/lib/catch/single_include
+	${PROJECT_SOURCE_DIR}/lib/tokenize/include
+	${PROJECT_SOURCE_DIR}/lib/variant/include
 )
 
 set(libraries

@@ -112,7 +112,7 @@ TEST_CASE("[parser success] All official PDDL domains are parsed without errors"
 			if (!fs::is_directory(domainDirectory))
 				continue;
 
-			const auto domainFile = domainDirectory / "domain.pddl";
+			const auto domainFile = domainDirectory.path() / "domain.pddl";
 
 			if (unsupportedDomains.find(domainFile) != unsupportedDomains.cend())
 				continue;
@@ -146,8 +146,8 @@ TEST_CASE("[parser success] The first instance for all official PDDL domains is 
 			if (!fs::is_directory(domainDirectory))
 				continue;
 
-			const auto domainFile = domainDirectory / "domain.pddl";
-			const auto instanceFile = domainDirectory / "instances" / "instance-1.pddl";
+			const auto domainFile = domainDirectory.path() / "domain.pddl";
+			const auto instanceFile = domainDirectory.path() / "instances" / "instance-1.pddl";
 
 			if (unsupportedDomains.find(domainFile) != unsupportedDomains.cend()
 				|| unsupportedInstances.find(instanceFile) != unsupportedInstances.cend())
