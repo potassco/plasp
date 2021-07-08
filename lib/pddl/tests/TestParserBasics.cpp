@@ -1,11 +1,11 @@
 #include <catch.hpp>
 
-#include <experimental/filesystem>
+#include <filesystem>
 
 #include <pddl/AST.h>
 #include <pddl/Parse.h>
 
-namespace fs = std::experimental::filesystem;
+namespace fs = std::filesystem;
 
 const pddl::Context::WarningCallback ignoreWarnings = [](const auto &, const auto &){};
 const auto pddlInstanceBasePath = fs::path("data") / "pddl-instances";

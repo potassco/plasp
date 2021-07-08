@@ -14,12 +14,12 @@ namespace detail
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::experimental::optional<ast::VariablePointer> parseVariable(Context &context, VariableStack &variableStack)
+std::optional<ast::VariablePointer> parseVariable(Context &context, VariableStack &variableStack)
 {
 	auto &tokenizer = context.tokenizer;
 
 	if (!tokenizer.testAndReturn<std::string>("?"))
-		return std::experimental::nullopt;
+		return std::nullopt;
 
 	tokenizer.expect<std::string>("?");
 
@@ -27,7 +27,7 @@ std::experimental::optional<ast::VariablePointer> parseVariable(Context &context
 	auto variableDeclaration = variableStack.findVariableDeclaration(variableName);
 
 	if (!variableDeclaration)
-		return std::experimental::nullopt;
+		return std::nullopt;
 
 	return std::make_unique<ast::Variable>(variableDeclaration.value());
 }

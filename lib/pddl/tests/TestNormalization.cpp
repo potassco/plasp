@@ -1,12 +1,12 @@
 #include <catch.hpp>
 
-#include <experimental/filesystem>
+#include <filesystem>
 
 #include <pddl/AST.h>
 #include <pddl/Parse.h>
 #include <pddl/Normalize.h>
 
-namespace fs = std::experimental::filesystem;
+namespace fs = std::filesystem;
 
 const pddl::Context::WarningCallback ignoreWarnings = [](const auto &, const auto &){};
 

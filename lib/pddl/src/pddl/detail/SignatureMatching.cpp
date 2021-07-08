@@ -84,7 +84,7 @@ bool matches(const ast::Type &lhs, const ast::Type &rhs)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool matches(const ast::VariableDeclaration &lhs, const std::experimental::optional<ast::Type> &rhs)
+bool matches(const ast::VariableDeclaration &lhs, const std::optional<ast::Type> &rhs)
 {
 	if (!lhs.type && !rhs)
 		return true;
@@ -98,7 +98,7 @@ bool matches(const ast::VariableDeclaration &lhs, const std::experimental::optio
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool matches(const ast::ConstantDeclaration &lhs, const std::experimental::optional<ast::Type> &rhs)
+bool matches(const ast::ConstantDeclaration &lhs, const std::optional<ast::Type> &rhs)
 {
 	if (!lhs.type && !rhs)
 		return true;
@@ -112,7 +112,7 @@ bool matches(const ast::ConstantDeclaration &lhs, const std::experimental::optio
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool matches(const ast::Term &lhs, const std::experimental::optional<ast::Type> &rhs)
+bool matches(const ast::Term &lhs, const std::optional<ast::Type> &rhs)
 {
 	return lhs.match([&](const auto &x){return matches(*x->declaration, rhs);});
 }

@@ -18,7 +18,7 @@ namespace detail
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // TODO: rename consistently
-std::experimental::optional<ast::PredicatePointer> parsePredicate(Context &context, ASTContext &astContext, VariableStack &variableStack);
+std::optional<ast::PredicatePointer> parsePredicate(Context &context, ASTContext &astContext, VariableStack &variableStack);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 

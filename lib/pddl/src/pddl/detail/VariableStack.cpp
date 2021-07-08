@@ -29,7 +29,7 @@ void VariableStack::pop()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::experimental::optional<ast::VariableDeclaration *> VariableStack::findVariableDeclaration(const std::string &variableName) const
+std::optional<ast::VariableDeclaration *> VariableStack::findVariableDeclaration(const std::string &variableName) const
 {
 	const auto variableDeclarationMatches =
 		[&variableName](const auto &variableDeclaration)
@@ -46,7 +46,7 @@ std::experimental::optional<ast::VariableDeclaration *> VariableStack::findVaria
 			return matchingVariableDeclaration->get();
 	}
 
-	return std::experimental::nullopt;
+	return std::nullopt;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

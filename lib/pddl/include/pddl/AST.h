@@ -2,7 +2,7 @@
 #define __PDDL__AST_H
 
 #include <limits>
-#include <experimental/optional>
+#include <optional>
 #include <set>
 #include <type_traits>
 #include <vector>
@@ -43,7 +43,7 @@ struct Constant
 
 struct ConstantDeclaration
 {
-	explicit ConstantDeclaration(std::string &&name, std::experimental::optional<Type> &&type = std::experimental::nullopt)
+	explicit ConstantDeclaration(std::string &&name, std::optional<Type> &&type = std::nullopt)
 	:	name{std::move(name)},
 		type{std::move(type)}
 	{
@@ -56,7 +56,7 @@ struct ConstantDeclaration
 
 	std::string name;
 	// TODO: check whether “either” types should actually be allowed at all
-	std::experimental::optional<Type> type;
+	std::optional<Type> type;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -115,7 +115,7 @@ struct Variable
 
 struct VariableDeclaration
 {
-	explicit VariableDeclaration(std::string &&name, std::experimental::optional<Type> type = std::experimental::nullopt)
+	explicit VariableDeclaration(std::string &&name, std::optional<Type> type = std::nullopt)
 	:	name{std::move(name)},
 		type{std::move(type)}
 	{
@@ -127,7 +127,7 @@ struct VariableDeclaration
 	VariableDeclaration &operator=(VariableDeclaration &&other) = delete;
 
 	std::string name;
-	std::experimental::optional<Type> type;
+	std::optional<Type> type;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -404,8 +404,8 @@ struct Action
 	std::string name;
 
 	VariableDeclarations parameters;
-	std::experimental::optional<Precondition> precondition;
-	std::experimental::optional<Effect> effect;
+	std::optional<Precondition> precondition;
+	std::optional<Effect> effect;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -462,7 +462,7 @@ struct Problem
 	Requirements requirements;
 	ConstantDeclarations objects;
 	InitialState initialState;
-	std::experimental::optional<Goal> goal;
+	std::optional<Goal> goal;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -506,7 +506,7 @@ struct Description
 	Description &operator=(Description &&other) = default;
 
 	DomainPointer domain;
-	std::experimental::optional<ProblemPointer> problem;
+	std::optional<ProblemPointer> problem;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

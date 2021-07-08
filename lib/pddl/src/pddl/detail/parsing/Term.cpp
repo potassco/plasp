@@ -15,13 +15,13 @@ namespace detail
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::experimental::optional<ast::Term> parseTerm(Context &context, ASTContext &astContext, VariableStack &variableStack)
+std::optional<ast::Term> parseTerm(Context &context, ASTContext &astContext, VariableStack &variableStack)
 {
 	auto &tokenizer = context.tokenizer;
 
 	tokenizer.skipWhiteSpace();
 
-	std::experimental::optional<ast::Term> term;
+	std::optional<ast::Term> term;
 
 	if ((term = parseVariable(context, variableStack))
 	    || (term = parseConstant(context, astContext)))
@@ -29,7 +29,7 @@ std::experimental::optional<ast::Term> parseTerm(Context &context, ASTContext &a
 		return std::move(term.value());
 	}
 
-	return std::experimental::nullopt;
+	return std::nullopt;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

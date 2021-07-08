@@ -13,10 +13,10 @@ file(GLOB detail_normalization_sources "pddl/detail/normalization/*.cpp")
 file(GLOB detail_normalization_headers "../include/pddl/detail/normalization/*.h")
 
 set(includes
-	${PROJECT_SOURCE_DIR}/include
-	${PROJECT_SOURCE_DIR}/../../lib/colorlog/include
-	${PROJECT_SOURCE_DIR}/../../lib/tokenize/include
-	${PROJECT_SOURCE_DIR}/../../lib/variant/include
+	../include
+	${PROJECT_SOURCE_DIR}/lib/colorlog/include
+	${PROJECT_SOURCE_DIR}/lib/tokenize/include
+	${PROJECT_SOURCE_DIR}/lib/variant/include
 )
 
 set(sources

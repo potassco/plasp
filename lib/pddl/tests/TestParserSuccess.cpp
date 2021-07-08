@@ -1,17 +1,17 @@
 #include <catch.hpp>
 
-#include <experimental/filesystem>
+#include <filesystem>
 #include <set>
 
 #include <pddl/AST.h>
 #include <pddl/Parse.h>
 
-namespace fs = std::experimental::filesystem;
+namespace fs = std::filesystem;
 
 const pddl::Context::WarningCallback ignoreWarnings = [](const auto &, const auto &){};
 const auto pddlInstanceBasePath = fs::path("data") / "pddl-instances";
 
-const std::set<std::experimental::filesystem::path> unsupportedDomains =
+const std::set<std::filesystem::path> unsupportedDomains =
 	{
 		// “:functions” sections unsupported
 		pddlInstanceBasePath / "ipc-2002" / "domains" / "depots-numeric-automatic" / "domain.pddl",
@@ -94,7 +94,7 @@ const std::set<std::experimental::filesystem::path> unsupportedDomains =
 
 	};
 
-const std::set<std::experimental::filesystem::path> unsupportedInstances =
+const std::set<std::filesystem::path> unsupportedInstances =
 	{
 	};
 

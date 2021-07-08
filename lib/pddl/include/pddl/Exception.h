@@ -2,7 +2,7 @@
 #define __PDDL__EXCEPTION_H
 
 #include <exception>
-#include <experimental/optional>
+#include <optional>
 #include <string>
 
 #include <tokenize/Location.h>
@@ -57,7 +57,7 @@ class Exception: public std::exception
 			return m_message.c_str();
 		}
 
-		const std::experimental::optional<tokenize::Location> &location() const
+		const std::optional<tokenize::Location> &location() const
 		{
 			return m_location;
 		}
@@ -68,7 +68,7 @@ class Exception: public std::exception
 		}
 
 	private:
-		std::experimental::optional<tokenize::Location> m_location;
+		std::optional<tokenize::Location> m_location;
 		std::string m_message;
 };
 

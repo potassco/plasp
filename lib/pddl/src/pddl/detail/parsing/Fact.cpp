@@ -16,7 +16,7 @@ namespace detail
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::experimental::optional<ast::Fact> parseFact(Context &context, ASTContext &astContext, VariableStack &variableStack)
+std::optional<ast::Fact> parseFact(Context &context, ASTContext &astContext, VariableStack &variableStack)
 {
 	auto &tokenizer = context.tokenizer;
 
@@ -32,7 +32,7 @@ std::experimental::optional<ast::Fact> parseFact(Context &context, ASTContext &a
 	tokenizer.seek(position);
 
 	// Now, test supported expressions
-	std::experimental::optional<ast::Fact> fact;
+	std::optional<ast::Fact> fact;
 
 	if ((fact = parseNot<ast::AtomicFormula>(context, astContext, variableStack, parseAtomicFormula))
 		|| (fact = parseAtomicFormula(context, astContext, variableStack)))
@@ -45,7 +45,7 @@ std::experimental::optional<ast::Fact> parseFact(Context &context, ASTContext &a
 	if (tokenizer.testIdentifierAndReturn("at"))
 		throw exceptUnsupportedExpression(position, context);
 
-	return std::experimental::nullopt;
+	return std::nullopt;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

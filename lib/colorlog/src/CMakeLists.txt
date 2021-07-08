@@ -4,8 +4,8 @@ file(GLOB core_sources "colorlog/*.cpp")
 file(GLOB core_headers "../include/colorlog/*.h")
 
 set(includes
-	${PROJECT_SOURCE_DIR}/include
-	${PROJECT_SOURCE_DIR}/../../lib/tokenize/include
+	../include
+	${PROJECT_SOURCE_DIR}/lib/tokenize/include
 )
 
 set(sources

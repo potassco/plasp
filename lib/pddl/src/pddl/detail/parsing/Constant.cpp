@@ -14,7 +14,7 @@ namespace detail
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::experimental::optional<ast::ConstantPointer> findConstant(const std::string &constantName, ast::ConstantDeclarations &constantDeclarations)
+std::optional<ast::ConstantPointer> findConstant(const std::string &constantName, ast::ConstantDeclarations &constantDeclarations)
 {
 	const auto matchingConstant = std::find_if(constantDeclarations.begin(), constantDeclarations.end(),
 		[&](const auto &constantDeclaration)
@@ -23,14 +23,14 @@ std::experimental::optional<ast::ConstantPointer> findConstant(const std::string
 		});
 
 	if (matchingConstant == constantDeclarations.end())
-		return std::experimental::nullopt;
+		return std::nullopt;
 
 	return std::make_unique<ast::Constant>(matchingConstant->get());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::experimental::optional<ast::ConstantPointer> findConstant(const std::string &constantName, ASTContext &astContext)
+std::optional<ast::ConstantPointer> findConstant(const std::string &constantName, ASTContext &astContext)
 {
 	auto constant = findConstant(constantName, astContext.domain->constants);
 
@@ -45,12 +45,12 @@ std::experimental::optional<ast::ConstantPointer> findConstant(const std::string
 			return std::move(constant.value());
 	}
 
-	return std::experimental::nullopt;
+	return std::nullopt;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::experimental::optional<ast::ConstantPointer> parseConstant(Context &context, ASTContext &astContext)
+std::optional<ast::ConstantPointer> parseConstant(Context &context, ASTContext &astContext)
 {
 	auto &tokenizer = context.tokenizer;
 
@@ -58,7 +58,7 @@ std::experimental::optional<ast::ConstantPointer> parseConstant(Context &context
 	auto constant = findConstant(constantName, astContext);
 
 	if (!constant)
-		return std::experimental::nullopt;
+		return std::nullopt;
 
 	return std::move(constant.value());
 }

@@ -42,7 +42,7 @@ ast::Description DescriptionParser::parse()
 
 	// If no problem is given, return just the domain
 	if (m_problemPosition == tokenize::InvalidStreamPosition)
-		return {std::move(domain), std::experimental::nullopt};
+		return {std::move(domain), std::nullopt};
 
 	tokenizer.seek(m_problemPosition);
 

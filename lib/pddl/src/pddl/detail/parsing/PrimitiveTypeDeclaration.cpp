@@ -15,7 +15,7 @@ namespace detail
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::experimental::optional<ast::PrimitiveTypeDeclarationPointer *> findPrimitiveTypeDeclaration(ast::Domain &domain, const std::string &typeName)
+std::optional<ast::PrimitiveTypeDeclarationPointer *> findPrimitiveTypeDeclaration(ast::Domain &domain, const std::string &typeName)
 {
 	auto &types = domain.types;
 
@@ -28,7 +28,7 @@ std::experimental::optional<ast::PrimitiveTypeDeclarationPointer *> findPrimitiv
 	if (matchingPrimitiveType != types.end())
 		return &*matchingPrimitiveType;
 
-	return std::experimental::nullopt;
+	return std::nullopt;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
