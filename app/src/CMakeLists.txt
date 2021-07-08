@@ -24,7 +24,7 @@ set(sources
 )
 
 set(libraries
-	stdc++fs
+	std::filesystem
 	plasp
 )
 

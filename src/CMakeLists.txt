@@ -49,7 +49,7 @@ set(sources
 set(libraries
 	colorlog
 	pddl
-	pthread
+	Threads::Threads
 )
 
 add_library(${target} ${sources})

@@ -12,7 +12,7 @@ set(includes
 )
 
 set(libraries
-	stdc++fs
+	std::filesystem
 	plasp
 )
 
