@@ -9,6 +9,7 @@
 #include <iterator>
 #include <sstream>
 #include <vector>
+#include <clocale>
 
 #include <tokenize/Location.h>
 #include <tokenize/StreamPosition.h>
