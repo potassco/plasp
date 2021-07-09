@@ -50,9 +50,9 @@ Description Description::fromStream(std::istream &istream)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Description Description::fromFile(const std::experimental::filesystem::path &path)
+Description Description::fromFile(const std::filesystem::path &path)
 {
-	if (!std::experimental::filesystem::is_regular_file(path))
+	if (!std::filesystem::is_regular_file(path))
 		throw std::runtime_error("File does not exist: “" + path.string() + "”");
 
 	tokenize::Tokenizer<> tokenizer;

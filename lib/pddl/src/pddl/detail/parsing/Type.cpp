@@ -25,7 +25,7 @@ ast::Type parseType(Context &context, ast::Domain &domain)
 	{
 		// TODO: refactor
 		auto parsePrimitiveTypeWrapper =
-			[](auto &context, auto &astContext, auto &) -> std::experimental::optional<ast::PrimitiveTypePointer>
+			[](auto &context, auto &astContext, auto &) -> std::optional<ast::PrimitiveTypePointer>
 			{
 				return parsePrimitiveType(context, *astContext.domain);
 			};

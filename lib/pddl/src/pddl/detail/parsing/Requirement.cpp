@@ -55,7 +55,7 @@ static const RequirementNameMap requirementNameMap =
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::experimental::optional<ast::Requirement> parseRequirement(Context &context)
+std::optional<ast::Requirement> parseRequirement(Context &context)
 {
 	auto &tokenizer = context.tokenizer;
 
@@ -69,7 +69,7 @@ std::experimental::optional<ast::Requirement> parseRequirement(Context &context)
 	if (context.mode == Mode::Compatibility && (requirementName == "goal-utilities" || requirementName == "domain-axioms"))
 		context.warningCallback(tokenizer.location(), "“" + requirementName + "” requirement is not part of the PDDL 3.1 specification, ignoring requirement");
 
-	return std::experimental::nullopt;
+	return std::nullopt;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

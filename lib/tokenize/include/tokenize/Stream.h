@@ -3,12 +3,13 @@
 
 #include <algorithm>
 #include <cassert>
-#include <experimental/filesystem>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <iterator>
 #include <sstream>
 #include <vector>
+#include <clocale>
 
 #include <tokenize/Location.h>
 #include <tokenize/StreamPosition.h>
@@ -79,9 +80,9 @@ class Stream
 					m_sections.back().newlines.emplace_back(i);
 		}
 
-		void read(const std::experimental::filesystem::path &path)
+		void read(const std::filesystem::path &path)
 		{
-			if (!std::experimental::filesystem::is_regular_file(path))
+			if (!std::filesystem::is_regular_file(path))
 				throw std::runtime_error("File does not exist: “" + path.string() + "”");
 
 			std::ifstream fileStream(path.string(), std::ios::in);

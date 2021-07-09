@@ -23,7 +23,7 @@ class VariableStack
 		void push(Layer layer);
 		void pop();
 
-		std::experimental::optional<ast::VariableDeclaration *> findVariableDeclaration(const std::string &variableName) const;
+		std::optional<ast::VariableDeclaration *> findVariableDeclaration(const std::string &variableName) const;
 		bool contains(const ast::VariableDeclaration &variableDeclaration) const;
 
 	private:

@@ -16,7 +16,7 @@ namespace detail
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::experimental::optional<ast::PredicatePointer> parsePredicate(Context &context, ASTContext &astContext, VariableStack &variableStack)
+std::optional<ast::PredicatePointer> parsePredicate(Context &context, ASTContext &astContext, VariableStack &variableStack)
 {
 	auto &tokenizer = context.tokenizer;
 	tokenizer.skipWhiteSpace();
@@ -26,7 +26,7 @@ std::experimental::optional<ast::PredicatePointer> parsePredicate(Context &conte
 	if (!tokenizer.testAndSkip<std::string>("("))
 	{
 		tokenizer.seek(previousPosition);
-		return std::experimental::nullopt;
+		return std::nullopt;
 	}
 
 	const auto name = tokenizer.getIdentifier();
@@ -49,7 +49,7 @@ std::experimental::optional<ast::PredicatePointer> parsePredicate(Context &conte
 
 		// If the term couldn’t be parsed, this is not a valid predicate
 		tokenizer.seek(previousPosition);
-		return std::experimental::nullopt;
+		return std::nullopt;
 	}
 
 	const auto &predicates = astContext.domain->predicates;

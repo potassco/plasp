@@ -20,9 +20,9 @@ bool matches(const ast::PrimitiveTypeDeclaration &lhs, const ast::PrimitiveTypeD
 bool matches(const ast::Either<ast::PrimitiveTypePointer> &lhs, const ast::PrimitiveTypeDeclaration &rhs);
 bool matches(const ast::PrimitiveTypeDeclaration &lhs, const ast::Either<ast::PrimitiveTypePointer> &rhs);
 bool matches(const ast::Either<ast::PrimitiveTypePointer> &lhs, const ast::Either<ast::PrimitiveTypePointer> &rhs);
-bool matches(const ast::VariableDeclaration &lhs, const std::experimental::optional<ast::Type> &rhs);
-bool matches(const ast::ConstantDeclaration &lhs, const std::experimental::optional<ast::Type> &rhs);
-bool matches(const ast::Term &lhs, const std::experimental::optional<ast::Type> &rhs);
+bool matches(const ast::VariableDeclaration &lhs, const std::optional<ast::Type> &rhs);
+bool matches(const ast::ConstantDeclaration &lhs, const std::optional<ast::Type> &rhs);
+bool matches(const ast::Term &lhs, const std::optional<ast::Type> &rhs);
 
 bool matches(const std::string &predicateName, const ast::Predicate::Arguments &predicateArguments, const ast::PredicateDeclaration &predicateDeclaration);
 

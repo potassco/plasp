@@ -2,7 +2,7 @@
 #define __PDDL__NORMALIZED_AST_H
 
 #include <limits>
-#include <experimental/optional>
+#include <optional>
 #include <set>
 #include <type_traits>
 #include <vector>
@@ -36,8 +36,8 @@ struct Action
 	std::string name;
 
 	VariableDeclarations parameters;
-	std::experimental::optional<Precondition> precondition;
-	std::experimental::optional<Effect> effect;
+	std::optional<Precondition> precondition;
+	std::optional<Effect> effect;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -95,7 +95,7 @@ struct DerivedPredicateDeclaration
 
 	std::vector<VariableDeclaration *> parameters;
 	VariableDeclarations existentialParameters;
-	std::experimental::optional<DerivedPredicatePrecondition> precondition;
+	std::optional<DerivedPredicatePrecondition> precondition;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -133,7 +133,7 @@ struct Problem
 	DerivedPredicateDeclarations derivedPredicates;
 	ConstantDeclarations objects;
 	InitialState initialState;
-	std::experimental::optional<Goal> goal;
+	std::optional<Goal> goal;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -148,7 +148,7 @@ struct Description
 	Description &operator=(Description &&other) = default;
 
 	DomainPointer domain;
-	std::experimental::optional<ProblemPointer> problem;
+	std::optional<ProblemPointer> problem;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

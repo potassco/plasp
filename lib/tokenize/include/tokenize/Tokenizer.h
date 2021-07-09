@@ -73,18 +73,22 @@ class Tokenizer : public Stream, public TokenizerPolicy
 	private:
 		std::string getImpl(Tag<std::string>);
 		char getImpl(Tag<char>);
-		uint64_t getImpl(Tag<uint64_t>);
-		int64_t getImpl(Tag<int64_t>);
-		uint32_t getImpl(Tag<uint32_t>);
-		int32_t getImpl(Tag<int32_t>);
+		unsigned long long getImpl(Tag<unsigned long long>);
+		unsigned long getImpl(Tag<unsigned long>);
+		unsigned int getImpl(Tag<unsigned int>);
+		signed long long getImpl(Tag<signed long long>);
+		signed long getImpl(Tag<signed long>);
+		signed int getImpl(Tag<signed int>);
 		bool getImpl(Tag<bool>);
 
 		bool testImpl(const std::string &expectedValue);
 		bool testImpl(char expectedValue);
-		bool testImpl(uint64_t expectedValue);
-		bool testImpl(int64_t expectedValue);
-		bool testImpl(uint32_t expectedValue);
-		bool testImpl(int32_t expectedValue);
+		bool testImpl(unsigned long long expectedValue);
+		bool testImpl(signed long long expectedValue);
+		bool testImpl(unsigned long expectedValue);
+		bool testImpl(signed long expectedValue);
+		bool testImpl(unsigned int expectedValue);
+		bool testImpl(signed int expectedValue);
 		bool testImpl(bool expectedValue);
 
 		uint64_t getIntegerBody();
@@ -427,7 +431,7 @@ uint64_t Tokenizer<TokenizerPolicy>::getIntegerBody()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class TokenizerPolicy>
-int64_t Tokenizer<TokenizerPolicy>::getImpl(Tag<int64_t>)
+signed long long Tokenizer<TokenizerPolicy>::getImpl(Tag<signed long long>)
 {
 	skipWhiteSpace();
 
@@ -441,7 +445,23 @@ int64_t Tokenizer<TokenizerPolicy>::getImpl(Tag<int64_t>)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class TokenizerPolicy>
-uint64_t Tokenizer<TokenizerPolicy>::getImpl(Tag<uint64_t>)
+signed long Tokenizer<TokenizerPolicy>::getImpl(Tag<signed long>)
+{
+	return static_cast<signed long>(getImpl(Tag<signed long long>()));
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class TokenizerPolicy>
+signed int Tokenizer<TokenizerPolicy>::getImpl(Tag<signed int>)
+{
+	return static_cast<signed int>(getImpl(Tag<signed long long>()));
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class TokenizerPolicy>
+unsigned long long Tokenizer<TokenizerPolicy>::getImpl(Tag<unsigned long long>)
 {
 	skipWhiteSpace();
 
@@ -454,17 +474,17 @@ uint64_t Tokenizer<TokenizerPolicy>::getImpl(Tag<uint64_t>)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class TokenizerPolicy>
-int32_t Tokenizer<TokenizerPolicy>::getImpl(Tag<int32_t>)
+unsigned long Tokenizer<TokenizerPolicy>::getImpl(Tag<unsigned long>)
 {
-	return static_cast<int32_t>(getImpl(Tag<int64_t>()));
+	return static_cast<unsigned long>(getImpl(Tag<unsigned long long>()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class TokenizerPolicy>
-uint32_t Tokenizer<TokenizerPolicy>::getImpl(Tag<uint32_t>)
+unsigned int Tokenizer<TokenizerPolicy>::getImpl(Tag<unsigned int>)
 {
-	return static_cast<uint32_t>(getImpl(Tag<uint64_t>()));
+	return static_cast<unsigned int>(getImpl(Tag<unsigned long long>()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -522,9 +542,9 @@ bool Tokenizer<TokenizerPolicy>::testImpl(char expectedValue)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class TokenizerPolicy>
-bool Tokenizer<TokenizerPolicy>::testImpl(int64_t expectedValue)
+bool Tokenizer<TokenizerPolicy>::testImpl(signed long long expectedValue)
 {
-	const auto value = getImpl(Tag<int64_t>());
+	const auto value = getImpl(Tag<signed long long>());
 
 	return (value == expectedValue);
 }
@@ -532,9 +552,9 @@ bool Tokenizer<TokenizerPolicy>::testImpl(int64_t expectedValue)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class TokenizerPolicy>
-bool Tokenizer<TokenizerPolicy>::testImpl(uint64_t expectedValue)
+bool Tokenizer<TokenizerPolicy>::testImpl(unsigned long long expectedValue)
 {
-	const auto value = getImpl(Tag<uint64_t>());
+	const auto value = getImpl(Tag<unsigned long long>());
 
 	return (value == expectedValue);
 }
@@ -542,17 +562,41 @@ bool Tokenizer<TokenizerPolicy>::testImpl(uint64_t expectedValue)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class TokenizerPolicy>
-bool Tokenizer<TokenizerPolicy>::testImpl(int32_t expectedValue)
+bool Tokenizer<TokenizerPolicy>::testImpl(signed long expectedValue)
 {
-	return testImpl(static_cast<int64_t>(expectedValue));
+	const auto value = getImpl(Tag<signed long>());
+
+	return (value == expectedValue);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class TokenizerPolicy>
-bool Tokenizer<TokenizerPolicy>::testImpl(uint32_t expectedValue)
+bool Tokenizer<TokenizerPolicy>::testImpl(unsigned long expectedValue)
 {
-	return testImpl(static_cast<uint64_t>(expectedValue));
+	const auto value = getImpl(Tag<unsigned long>());
+
+	return (value == expectedValue);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class TokenizerPolicy>
+bool Tokenizer<TokenizerPolicy>::testImpl(signed int expectedValue)
+{
+	const auto value = getImpl(Tag<signed int>());
+
+	return (value == expectedValue);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+template<class TokenizerPolicy>
+bool Tokenizer<TokenizerPolicy>::testImpl(unsigned int expectedValue)
+{
+	const auto value = getImpl(Tag<unsigned int>());
+
+	return (value == expectedValue);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

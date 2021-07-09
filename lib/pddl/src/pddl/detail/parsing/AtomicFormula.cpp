@@ -16,9 +16,9 @@ namespace detail
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::experimental::optional<ast::AtomicFormula> parseAtomicFormula(Context &context, ASTContext &astContext, VariableStack &variableStack)
+std::optional<ast::AtomicFormula> parseAtomicFormula(Context &context, ASTContext &astContext, VariableStack &variableStack)
 {
-	std::experimental::optional<ast::AtomicFormula> atomicFormula;
+	std::optional<ast::AtomicFormula> atomicFormula;
 
 	if ((atomicFormula = parseEquals<ast::Term, ast::Term>(context, astContext, variableStack, parseTerm, parseTerm)))
 		return std::move(atomicFormula.value());

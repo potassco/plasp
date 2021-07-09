@@ -17,7 +17,7 @@ namespace detail
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::experimental::optional<ast::Precondition> parsePrecondition(Context &context, ASTContext &astContext, VariableStack &variableStack)
+std::optional<ast::Precondition> parsePrecondition(Context &context, ASTContext &astContext, VariableStack &variableStack)
 {
 	auto &tokenizer = context.tokenizer;
 
@@ -34,7 +34,7 @@ std::experimental::optional<ast::Precondition> parsePrecondition(Context &contex
 	tokenizer.seek(position);
 
 	// Now, test supported expressions
-	std::experimental::optional<ast::Precondition> precondition;
+	std::optional<ast::Precondition> precondition;
 
 	if ((precondition = parseAnd<ast::Precondition>(context, astContext, variableStack, parsePrecondition))
 	    || (precondition = parseForAll<ast::Precondition>(context, astContext, variableStack, parsePrecondition)))
@@ -48,7 +48,7 @@ std::experimental::optional<ast::Precondition> parsePrecondition(Context &contex
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::experimental::optional<ast::Precondition> parsePreconditionBody(Context &context, ASTContext &astContext, VariableStack &variableStack)
+std::optional<ast::Precondition> parsePreconditionBody(Context &context, ASTContext &astContext, VariableStack &variableStack)
 {
 	auto &tokenizer = context.tokenizer;
 
@@ -78,7 +78,7 @@ std::experimental::optional<ast::Precondition> parsePreconditionBody(Context &co
 	tokenizer.seek(position);
 
 	// Now, test supported expressions
-	std::experimental::optional<ast::Precondition> precondition;
+	std::optional<ast::Precondition> precondition;
 
 	if ((precondition = parseAnd<ast::Precondition>(context, astContext, variableStack, parsePrecondition))
 	    || (precondition = parseOr<ast::Precondition>(context, astContext, variableStack, parsePrecondition))

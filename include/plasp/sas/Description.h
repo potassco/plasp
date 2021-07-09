@@ -1,7 +1,7 @@
 #ifndef __PLASP__SAS__DESCRIPTION_H
 #define __PLASP__SAS__DESCRIPTION_H
 
-#include <experimental/filesystem>
+#include <filesystem>
 #include <iosfwd>
 #include <memory>
 #include <vector>
@@ -31,7 +31,7 @@ class Description
 	public:
 		static Description fromTokenizer(tokenize::Tokenizer<> &&tokenizer);
 		static Description fromStream(std::istream &istream);
-		static Description fromFile(const std::experimental::filesystem::path &path);
+		static Description fromFile(const std::filesystem::path &path);
 
 	public:
 		bool usesActionCosts() const;

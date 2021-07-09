@@ -1,17 +1,17 @@
 #include <catch.hpp>
 
-#include <experimental/filesystem>
+#include <filesystem>
 #include <set>
 
 #include <pddl/AST.h>
 #include <pddl/Parse.h>
 
-namespace fs = std::experimental::filesystem;
+namespace fs = std::filesystem;
 
 const pddl::Context::WarningCallback ignoreWarnings = [](const auto &, const auto &){};
 const auto pddlInstanceBasePath = fs::path("data") / "pddl-instances";
 
-const std::set<std::experimental::filesystem::path> unsupportedDomains =
+const std::set<std::filesystem::path> unsupportedDomains =
 	{
 		// “:functions” sections unsupported
 		pddlInstanceBasePath / "ipc-2002" / "domains" / "depots-numeric-automatic" / "domain.pddl",
@@ -94,7 +94,7 @@ const std::set<std::experimental::filesystem::path> unsupportedDomains =
 
 	};
 
-const std::set<std::experimental::filesystem::path> unsupportedInstances =
+const std::set<std::filesystem::path> unsupportedInstances =
 	{
 	};
 
@@ -112,7 +112,7 @@ TEST_CASE("[parser success] All official PDDL domains are parsed without errors"
 			if (!fs::is_directory(domainDirectory))
 				continue;
 
-			const auto domainFile = domainDirectory / "domain.pddl";
+			const auto domainFile = domainDirectory.path() / "domain.pddl";
 
 			if (unsupportedDomains.find(domainFile) != unsupportedDomains.cend())
 				continue;
@@ -146,8 +146,8 @@ TEST_CASE("[parser success] The first instance for all official PDDL domains is 
 			if (!fs::is_directory(domainDirectory))
 				continue;
 
-			const auto domainFile = domainDirectory / "domain.pddl";
-			const auto instanceFile = domainDirectory / "instances" / "instance-1.pddl";
+			const auto domainFile = domainDirectory.path() / "domain.pddl";
+			const auto instanceFile = domainDirectory.path() / "instances" / "instance-1.pddl";
 
 			if (unsupportedDomains.find(domainFile) != unsupportedDomains.cend()
 				|| unsupportedInstances.find(instanceFile) != unsupportedInstances.cend())

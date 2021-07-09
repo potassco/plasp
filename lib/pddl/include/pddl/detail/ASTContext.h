@@ -19,7 +19,7 @@ struct ASTContext
 {
 	ASTContext(ast::Description &description)
 	:	domain{description.domain.get()},
-		problem{description.problem.value() ? std::experimental::optional<ast::Problem *>(description.problem.value().get()) : std::experimental::nullopt}
+		problem{description.problem.value() ? std::optional<ast::Problem *>(description.problem.value().get()) : std::nullopt}
 	{
 	}
 
@@ -35,7 +35,7 @@ struct ASTContext
 	}
 
 	ast::Domain *domain;
-	std::experimental::optional<ast::Problem *> problem;
+	std::optional<ast::Problem *> problem;
 
 	VariableStack variables;
 };

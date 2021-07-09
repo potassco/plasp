@@ -20,32 +20,32 @@ namespace detail
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename Argument, typename ArgumentParser>
-std::experimental::optional<ast::AndPointer<Argument>> parseAnd(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument);
+std::optional<ast::AndPointer<Argument>> parseAnd(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument);
 template<typename Argument, typename ArgumentParser>
-std::experimental::optional<ast::AtPointer<Argument>> parseAt(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument);
+std::optional<ast::AtPointer<Argument>> parseAt(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument);
 template<typename Argument, typename ArgumentParser>
-std::experimental::optional<ast::EitherPointer<Argument>> parseEither(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument);
+std::optional<ast::EitherPointer<Argument>> parseEither(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument);
 template<typename ArgumentLeft, typename ArgumentRight, typename ArgumentLeftParser, typename ArgumentRightParser>
-std::experimental::optional<ast::EqualsPointer<ArgumentLeft, ArgumentRight>> parseEquals(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentLeftParser parseArgumentLeft, ArgumentRightParser parseArgumentRight);
+std::optional<ast::EqualsPointer<ArgumentLeft, ArgumentRight>> parseEquals(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentLeftParser parseArgumentLeft, ArgumentRightParser parseArgumentRight);
 template<typename Argument, typename ArgumentParser>
-std::experimental::optional<ast::ExistsPointer<Argument>> parseExists(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument);
+std::optional<ast::ExistsPointer<Argument>> parseExists(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument);
 template<typename Argument, typename ArgumentParser>
-std::experimental::optional<ast::ForAllPointer<Argument>> parseForAll(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument);
+std::optional<ast::ForAllPointer<Argument>> parseForAll(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument);
 template<typename Argument, typename ArgumentParser>
-std::experimental::optional<ast::ImplyPointer<Argument>> parseImply(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument);
+std::optional<ast::ImplyPointer<Argument>> parseImply(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument);
 template<typename Argument, typename ArgumentParser>
-std::experimental::optional<ast::NotPointer<Argument>> parseNot(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument);
+std::optional<ast::NotPointer<Argument>> parseNot(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument);
 template<typename Argument, typename ArgumentParser>
-std::experimental::optional<ast::OrPointer<Argument>> parseOr(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument);
+std::optional<ast::OrPointer<Argument>> parseOr(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument);
 template<typename ArgumentLeft, typename ArgumentRight, typename ArgumentLeftParser, typename ArgumentRightParser>
-std::experimental::optional<ast::WhenPointer<ArgumentLeft, ArgumentRight>> parseWhen(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentLeftParser parseArgumentLeft, ArgumentRightParser parseArgumentRight);
+std::optional<ast::WhenPointer<ArgumentLeft, ArgumentRight>> parseWhen(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentLeftParser parseArgumentLeft, ArgumentRightParser parseArgumentRight);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Expressions: Base Classes
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived, typename ArgumentLeftParser, typename ArgumentRightParser>
-std::experimental::optional<std::unique_ptr<Derived>> parseBinary(Context &context,
+std::optional<std::unique_ptr<Derived>> parseBinary(Context &context,
 	ASTContext &astContext, VariableStack &variableStack, ArgumentLeftParser parseArgumentLeft,
 	ArgumentRightParser parseArgumentRight)
 {
@@ -57,7 +57,7 @@ std::experimental::optional<std::unique_ptr<Derived>> parseBinary(Context &conte
 		|| !tokenizer.testIdentifierAndSkip(Derived::Identifier))
 	{
 		tokenizer.seek(position);
-		return std::experimental::nullopt;
+		return std::nullopt;
 	}
 
 	tokenizer.skipWhiteSpace();
@@ -81,7 +81,7 @@ std::experimental::optional<std::unique_ptr<Derived>> parseBinary(Context &conte
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived, typename ArgumentParser>
-std::experimental::optional<std::unique_ptr<Derived>> parseNAry(Context &context,
+std::optional<std::unique_ptr<Derived>> parseNAry(Context &context,
 	ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument)
 {
 	auto &tokenizer = context.tokenizer;
@@ -92,7 +92,7 @@ std::experimental::optional<std::unique_ptr<Derived>> parseNAry(Context &context
 		|| !tokenizer.testIdentifierAndSkip(Derived::Identifier))
 	{
 		tokenizer.seek(position);
-		return std::experimental::nullopt;
+		return std::nullopt;
 	}
 
 	typename Derived::Arguments arguments;
@@ -123,7 +123,7 @@ std::experimental::optional<std::unique_ptr<Derived>> parseNAry(Context &context
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<class Derived, typename ArgumentParser>
-std::experimental::optional<std::unique_ptr<Derived>> parseQuantified(Context &context,
+std::optional<std::unique_ptr<Derived>> parseQuantified(Context &context,
 	ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument)
 {
 	auto &tokenizer = context.tokenizer;
@@ -134,7 +134,7 @@ std::experimental::optional<std::unique_ptr<Derived>> parseQuantified(Context &c
 		|| !tokenizer.testIdentifierAndSkip(Derived::Identifier))
 	{
 		tokenizer.seek(position);
-		return std::experimental::nullopt;
+		return std::nullopt;
 	}
 
 	// Parse variable list
@@ -164,7 +164,7 @@ std::experimental::optional<std::unique_ptr<Derived>> parseQuantified(Context &c
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename Argument, typename ArgumentParser>
-std::experimental::optional<ast::AndPointer<Argument>> parseAnd(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument)
+std::optional<ast::AndPointer<Argument>> parseAnd(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument)
 {
 	return parseNAry<ast::And<Argument>, ArgumentParser>(context, astContext, variableStack, parseArgument);
 }
@@ -172,7 +172,7 @@ std::experimental::optional<ast::AndPointer<Argument>> parseAnd(Context &context
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename Argument, typename ArgumentParser>
-std::experimental::optional<ast::EitherPointer<Argument>> parseEither(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument)
+std::optional<ast::EitherPointer<Argument>> parseEither(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument)
 {
 	return parseNAry<ast::Either<Argument>, ArgumentParser>(context, astContext, variableStack, parseArgument);
 }
@@ -180,7 +180,7 @@ std::experimental::optional<ast::EitherPointer<Argument>> parseEither(Context &c
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ArgumentLeft, typename ArgumentRight, typename ArgumentLeftParser, typename ArgumentRightParser>
-std::experimental::optional<ast::EqualsPointer<ArgumentLeft, ArgumentRight>> parseEquals(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentLeftParser parseArgumentLeft, ArgumentRightParser parseArgumentRight)
+std::optional<ast::EqualsPointer<ArgumentLeft, ArgumentRight>> parseEquals(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentLeftParser parseArgumentLeft, ArgumentRightParser parseArgumentRight)
 {
 	return parseBinary<ast::Equals<ArgumentLeft, ArgumentRight>, ArgumentLeftParser, ArgumentRightParser>(context, astContext, variableStack, parseArgumentLeft, parseArgumentRight);
 }
@@ -188,7 +188,7 @@ std::experimental::optional<ast::EqualsPointer<ArgumentLeft, ArgumentRight>> par
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename Argument, typename ArgumentParser>
-std::experimental::optional<ast::ExistsPointer<Argument>> parseExists(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument)
+std::optional<ast::ExistsPointer<Argument>> parseExists(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument)
 {
 	return parseQuantified<ast::Exists<Argument>, ArgumentParser>(context, astContext, variableStack, parseArgument);
 }
@@ -196,7 +196,7 @@ std::experimental::optional<ast::ExistsPointer<Argument>> parseExists(Context &c
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename Argument, typename ArgumentParser>
-std::experimental::optional<ast::ForAllPointer<Argument>> parseForAll(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument)
+std::optional<ast::ForAllPointer<Argument>> parseForAll(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument)
 {
 	return parseQuantified<ast::ForAll<Argument>, ArgumentParser>(context, astContext, variableStack, parseArgument);
 }
@@ -204,7 +204,7 @@ std::experimental::optional<ast::ForAllPointer<Argument>> parseForAll(Context &c
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename Argument, typename ArgumentParser>
-std::experimental::optional<ast::ImplyPointer<Argument>> parseImply(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument)
+std::optional<ast::ImplyPointer<Argument>> parseImply(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument)
 {
 	return parseBinary<ast::Imply<Argument>, ArgumentParser, ArgumentParser>(context, astContext, variableStack, parseArgument, parseArgument);
 }
@@ -212,7 +212,7 @@ std::experimental::optional<ast::ImplyPointer<Argument>> parseImply(Context &con
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename Argument, typename ArgumentParser>
-std::experimental::optional<ast::NotPointer<Argument>> parseNot(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument)
+std::optional<ast::NotPointer<Argument>> parseNot(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument)
 {
 	auto &tokenizer = context.tokenizer;
 
@@ -222,7 +222,7 @@ std::experimental::optional<ast::NotPointer<Argument>> parseNot(Context &context
 		|| !tokenizer.testIdentifierAndSkip("not"))
 	{
 		tokenizer.seek(position);
-		return std::experimental::nullopt;
+		return std::nullopt;
 	}
 
 	tokenizer.skipWhiteSpace();
@@ -241,7 +241,7 @@ std::experimental::optional<ast::NotPointer<Argument>> parseNot(Context &context
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename Argument, typename ArgumentParser>
-std::experimental::optional<ast::OrPointer<Argument>> parseOr(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument)
+std::optional<ast::OrPointer<Argument>> parseOr(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentParser parseArgument)
 {
 	return parseNAry<ast::Or<Argument>, ArgumentParser>(context, astContext, variableStack, parseArgument);
 }
@@ -249,7 +249,7 @@ std::experimental::optional<ast::OrPointer<Argument>> parseOr(Context &context, 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ArgumentLeft, typename ArgumentRight, typename ArgumentLeftParser, typename ArgumentRightParser>
-std::experimental::optional<ast::WhenPointer<ArgumentLeft, ArgumentRight>> parseWhen(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentLeftParser parseArgumentLeft, ArgumentRightParser parseArgumentRight)
+std::optional<ast::WhenPointer<ArgumentLeft, ArgumentRight>> parseWhen(Context &context, ASTContext &astContext, VariableStack &variableStack, ArgumentLeftParser parseArgumentLeft, ArgumentRightParser parseArgumentRight)
 {
 	return parseBinary<ast::When<ArgumentLeft, ArgumentRight>, ArgumentLeftParser, ArgumentRightParser>(context, astContext, variableStack, parseArgumentLeft, parseArgumentRight);
 }
