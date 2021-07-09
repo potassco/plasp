@@ -2,21 +2,11 @@ set(target pddl-tests)
 
 file(GLOB core_sources "*.cpp")
 
-set(includes
-	../include
-	${PROJECT_SOURCE_DIR}/lib/catch/single_include
-	${PROJECT_SOURCE_DIR}/lib/tokenize/include
-	${PROJECT_SOURCE_DIR}/lib/variant/include
-)
-
-set(libraries
-	std::filesystem
-	pddl
-)
-
 add_executable(${target} ${core_sources})
-target_include_directories(${target} PRIVATE ${includes})
-target_link_libraries(${target} ${libraries})
+target_include_directories(${target}
+	PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+)
+target_link_libraries(${target} PUBLIC std::filesystem pddl)
 
 add_custom_target(run-pddl-tests
 	COMMAND ${CMAKE_BINARY_DIR}/bin/pddl-tests --use-colour=yes

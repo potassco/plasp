@@ -17,6 +17,21 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(Filesystem REQUIRED)
 find_package(Threads REQUIRED)
 
+add_library(catch INTERFACE)
+target_include_directories(catch
+	INTERFACE "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lib/catch/single_include>"
+)
+
+add_library(cxxopts INTERFACE)
+target_include_directories(cxxopts
+	INTERFACE "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lib/cxxopts/include>"
+)
+
+add_library(variant INTERFACE)
+target_include_directories(variant
+	INTERFACE "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/lib/variant/include>"
+)
+
 if(PLASP_BUILD_STATIC)
 	set(CMAKE_EXE_LINKER_FLAGS "-static")
 	set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")

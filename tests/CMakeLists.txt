@@ -2,23 +2,11 @@ set(target tests)
 
 file(GLOB core_sources "*.cpp")
 
-set(includes
-	${PROJECT_SOURCE_DIR}/include
-	${PROJECT_SOURCE_DIR}/lib/catch/single_include
-	${PROJECT_SOURCE_DIR}/lib/tokenize/include
-	${PROJECT_SOURCE_DIR}/lib/colorlog/include
-	${PROJECT_SOURCE_DIR}/lib/variant/include
-	${PROJECT_SOURCE_DIR}/lib/pddl/include
-)
-
-set(libraries
-	std::filesystem
-	plasp
-)
-
 add_executable(${target} ${core_sources})
-target_include_directories(${target} PRIVATE ${includes})
-target_link_libraries(${target} ${libraries})
+target_include_directories(${target}
+	PRIVATE "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>"
+)
+target_link_libraries(${target} PRIVATE catch std::filesystem plasp)
 
 add_custom_target(run-tests
 	COMMAND ${CMAKE_BINARY_DIR}/bin/tests --use-colour=yes
