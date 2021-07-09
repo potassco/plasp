@@ -14,3 +14,4 @@ target_include_directories(${target}
 )
 target_link_libraries(${target} PRIVATE std::filesystem cxxopts plasp)
 set_target_properties(${target} PROPERTIES OUTPUT_NAME plasp)
+install(TARGETS ${target} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
